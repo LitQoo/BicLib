@@ -17,6 +17,7 @@ namespace BigjamLibrary.BicDB.Storage
 		}
 		#endregion
 
+		#region IStorage
 		public void Save(Action<bool> _callback, IConvertString _table)
 		{
 			writeStringToFile(getJsonString(_table), getFileName(_table.Name));
@@ -30,7 +31,9 @@ namespace BigjamLibrary.BicDB.Storage
 			setData<T>(_data , _table);
 			_callback(true);
 		}
+		#endregion
 
+		#region parse
 		private string getFileName(string _tableName){
 			return "bdb" + _tableName;
 		}
@@ -300,9 +303,9 @@ namespace BigjamLibrary.BicDB.Storage
 			throw new SystemException("not found last \"");
 
 		}
+		#endregion
 
-
-
+		#region fileIO
 		private void writeStringToFile(string _data, string _fileName)
 		{
 			#if !WEB_BUILD
@@ -346,6 +349,7 @@ namespace BigjamLibrary.BicDB.Storage
 			return null;
 			#endif 
 		}
+		#endregion
 	}
 }
 

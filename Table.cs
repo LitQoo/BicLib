@@ -12,6 +12,7 @@ namespace BigjamLibrary.BicDB
 		void Save(Action<bool> _callaback);
 		void Load(Action<bool> _callaback);
 		void SetStorage(IStorage _storage);
+		List<T> Rows {get;}
 	}
 
 
@@ -38,6 +39,7 @@ namespace BigjamLibrary.BicDB
 		#endregion
 
 		#region ITable
+		public List<T> Rows {get{ return rows; }}
 
 		public T this[int _index]
 		{
