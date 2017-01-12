@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BigjamLibrary.BicDB.Column;
+using BigjamLibrary.BicDB.Variable;
 using UnityEngine;
 
 namespace BigjamLibrary.BicDB.Storage
@@ -21,11 +21,13 @@ namespace BigjamLibrary.BicDB.Storage
 		{
 			writeStringToFile(getJsonString(_table), getFileName(_table.Name));
 			_callback(true);
+
+
 		}
 
-		public void Load(Action<bool> _callback, IConvertString _table)
-		{
+		public void Load<T>(Action<bool> _callback, IConvertString _table) where T : IModel, new() {
 			string _data = readStringFromFile(getFileName(_table.Name));
+			setData<T>(_data , _table);
 			_callback(true);
 		}
 
@@ -34,14 +36,14 @@ namespace BigjamLibrary.BicDB.Storage
 		}
 
 		private string getJsonString(IConvertString _table){
-			string _result = "[";
+			string _result = "{\"version\":0,\"data\":[";
 			for (int i = 0; i < _table.GetRowSize(); i++) {
 				_result += "{";
 
 				var _columnKeys = new List<string>(_table.GetRow(i).Columns.Keys);
 				for (int j = 0; j < _columnKeys.Count; j++) {
-					IColumn _column = _table.GetRow(i).Columns[_columnKeys[j]];
-					if (_column.Type == ColumnType.String) {
+					IVariable _column = _table.GetRow(i).Columns[_columnKeys[j]];
+					if (_column.Type == VariableType.String) {
 						_result += "\"" + _columnKeys[j] + "\":\"" + _column.AsString.Replace("\"","\\\"") + "\"";
 					} else {
 						_result += "\"" + _columnKeys[j] + "\":" + _column.AsString;
@@ -59,13 +61,244 @@ namespace BigjamLibrary.BicDB.Storage
 				}
 			}
 
-			_result += "]";
+			_result += "]}";
+
+			Debug.Log(">>>" + _result);
 
 			return _result;
 		}
 
-		private string setData(string _jsonString, IConvertString _table){
-			return "";
+		private void setData<T>(string _jsonString, IConvertString _table) where T : IModel, new(){
+			int i = 0;
+
+			// need reset _tble
+
+			Debug.Log("start parse : " + _jsonString);
+
+			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			Debug.Log(" { start : " + i.ToString());
+
+			i++;
+
+
+			while(i < _jsonString.Length){
+				string _fieldName = getName(ref _jsonString, ref i);
+
+				Debug.Log("getname : " + _fieldName);
+
+				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
+				i++;
+
+				if (_fieldName == "data") {
+					Debug.Log("start make table");
+					makeTable<T>(ref _jsonString, ref _table, ref i);
+				} else {
+					string _data = getValue(ref _jsonString, ref i);
+					Debug.Log("value : " + _data);
+				}
+
+				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref i, ',')) {
+					Debug.Log("not found , exit");
+					break;
+				}
+
+				i++;
+
+			}
+
+
+			Debug.Log("result = " + getJsonString(_table));
+
+//			while(true){
+//
+//				//findname
+//
+//				//switch(name)
+//				// findvalue
+//
+//			}
+
+		}
+
+		private void makeTable<T>(ref string _jsonString, ref IConvertString _table, ref int _counter) where T : IModel, new(){
+
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
+			_counter++;
+
+			while (_counter < _jsonString.Length) {
+				T _model = makeModel<T>(ref _jsonString, ref _table, ref _counter);
+				Manager.GetTable<T>().AddRow(_model);
+
+				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
+					Debug.Log("make table exit");
+					break;
+				}
+
+				_counter++;
+			}
+
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ']');
+			_counter++;
+		}
+
+		private T makeModel<T>(ref string _jsonString, ref IConvertString _table, ref int _counter) where T : IModel, new(){
+			T _model = new T();
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '{');
+			_counter++;
+
+			while (_counter < _jsonString.Length) {
+				//find fieldname
+				string _columnName = getName(ref _jsonString, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ':');
+				_counter++;
+
+				//set data
+				string _data = getValue(ref _jsonString, ref _counter);
+
+				_model.Columns[_columnName].AsString = _data;
+
+				Debug.Log("make model."+_columnName + " = " + _data);
+
+				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref  _counter, ',')) {
+					break;
+				}
+
+				_counter++;
+			}
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '}');
+			_counter++;
+
+			return _model;
+		}
+
+		private bool increaseCounterUntilFoundCharWithSpeicalChar(ref string _jsonString, ref int _counter, char _findChar){
+			while (_counter < _jsonString.Length) {
+				if (_jsonString[_counter] == _findChar) {
+					return true;
+				} else {
+					switch (_jsonString[_counter]) {
+						case ' ':
+							break;
+						case '\\':
+							_counter++;
+							break;
+						default :
+							return false;
+					}
+				}
+				_counter++;
+			}
+
+			return false;
+		}
+
+		private bool increaseCounterUntilFoundNormalChar(ref string _jsonString, ref int _counter){
+			while (_counter < _jsonString.Length) {
+				switch (_jsonString[_counter]) {
+					case ' ':
+						break;
+					case '\\':
+						_counter++;
+						break;
+					default :
+						return true;
+				}
+				_counter++;
+			}
+
+			return false;
+		}
+
+		private bool increaseCounterUntilFoundChar(ref string _jsonString, ref int _counter, char _findChar){
+			while(_counter < _jsonString.Length){
+				if(_jsonString[_counter] == _findChar){
+					
+					return true;
+				}
+
+				_counter++;
+			}
+
+			return false;
+		}
+
+		private string getName(ref string _jsonString, ref int _startCounter){
+
+			// find start "
+
+			if (!increaseCounterUntilFoundChar(ref _jsonString, ref _startCounter, '"')) {
+				throw new SystemException("not found start char");
+			}
+
+			_startCounter++;
+
+
+			// collect sentence
+			// find last "
+			// return sentence
+
+			string _result = "";
+			while (_startCounter < _jsonString.Length) {
+				if (_jsonString[_startCounter] == '"') {
+					_startCounter++;
+					return _result;
+				}
+
+				_result += _jsonString[_startCounter];
+
+				_startCounter++;
+			}
+
+			throw new SystemException("not found last \"");
+
+		}
+
+		private string getValue(ref string _jsonString, ref int _startCounter){
+
+			// find start point
+
+
+			if (!increaseCounterUntilFoundNormalChar(ref _jsonString, ref _startCounter)) {
+				throw new SystemException("not found start \"");
+			}
+
+			bool _isString = false;
+			if (_jsonString[_startCounter] == '"') {
+				_isString = true;
+				_startCounter++;
+			}
+
+
+
+			// collect sentence
+			// find last "
+			// return sentence
+
+			string _result = "";
+			while (_startCounter < _jsonString.Length) {
+				if ((_isString && _jsonString[_startCounter] == '"') || (!_isString && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}'))) {
+					if (!(_jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}')) {
+						_startCounter++;
+					}
+
+					return _result;
+				}
+
+				_result += _jsonString[_startCounter];
+
+				_startCounter++;
+			}
+
+			throw new SystemException("not found last \"");
+
 		}
 
 

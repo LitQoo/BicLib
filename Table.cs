@@ -15,7 +15,7 @@ namespace BigjamLibrary.BicDB
 	}
 
 
-	public class Table<T> : ITable<T>, IConvertString where T : class, IRow{
+	public class Table<T> : ITable<T>, IConvertString where T : class, IModel, new(){
 		private List<T> rows = new List<T>();
 		private string primaryColumnName = string.Empty;
 
@@ -32,8 +32,8 @@ namespace BigjamLibrary.BicDB
 		public int GetRowSize(){
 			return rows.Count;
 		}
-		public IRow GetRow(int _rowIndex){
-			return rows[_rowIndex] as IRow;
+		public IModel GetRow(int _rowIndex){
+			return rows[_rowIndex] as IModel;
 		}
 		#endregion
 
@@ -86,7 +86,7 @@ namespace BigjamLibrary.BicDB
 
 
 		public void Load(Action<bool> _callaback){
-			storage.Load(_callaback, this);
+			storage.Load<T>(_callaback, this);
 		}
 		#endregion
 
