@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BigjamLibrary.BicDB
+namespace BicDB
 {
 	public interface IStorage
 	{

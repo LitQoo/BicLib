@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using BigjamLibrary.BicDB.Variable;
+using BicDB.Variable;
 using UnityEngine;
 
-namespace BigjamLibrary.BicDB.Storage
+namespace BicDB.Storage
 {
 	public class FileStorage : IStorage{
 		#region static

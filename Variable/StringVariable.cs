@@ -1,7 +1,7 @@
 ﻿using System;
-using BigjamLibrary.BicDB;
+using BicDB;
 
-namespace BigjamLibrary.BicDB.Variable
+namespace BicDB.Variable
 {
 	public class StringVariable : IVariable{
 		#region AsValue

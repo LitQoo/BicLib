@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BigjamLibrary.BicDB
+namespace BicDB
 {
 	public interface ITable<T>
 	{

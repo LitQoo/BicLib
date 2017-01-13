@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BigjamLibrary.BicDB.Variable;
+using BicDB.Variable;
 
-namespace BigjamLibrary.BicDB
+namespace BicDB
 {
 	public interface IModel
 	{

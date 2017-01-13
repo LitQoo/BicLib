@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BigjamLibrary.BicDB.Variable
+namespace BicDB
 {
 	public interface IVariable
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BigjamLibrary.BicDB
+namespace BicDB
 {
 	public static class Manager{
 
@@ -12,7 +12,6 @@ namespace BigjamLibrary.BicDB
 			foreach (var _item in tables) {
 				if (_item is ITable<T>) {
 					return _item as ITable<T>;
-					//var v = (Table<IModel>)Convert.ChangeType(new Table<User>("User","no"), typeof(Table<IModel>));
 				}
 			}
 
