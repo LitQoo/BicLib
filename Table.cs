@@ -5,18 +5,23 @@ namespace BigjamLibrary.BicDB
 {
 	public interface ITable<T>
 	{
+		List<T> Rows {get;}
+		string Name{ get; set;}
+
 		T this [int _index] { get; }
+
 		void AddRow(T _row);
 		T FindRow(string _key, string _value);
 		T FindRow(string _value);
 		void Save(Action<bool> _callaback);
 		void Load(Action<bool> _callaback);
 		void SetStorage(IStorage _storage);
-		List<T> Rows {get;}
+		int GetRowSize();
+		IModel GetRow(int _rowIndex);
 	}
 
 
-	public class Table<T> : ITable<T>, IConvertString where T : class, IModel, new(){
+	public class Table<T> : ITable<T> where T : class, IModel, new(){
 		private List<T> rows = new List<T>();
 		private string primaryColumnName = string.Empty;
 
@@ -33,6 +38,7 @@ namespace BigjamLibrary.BicDB
 		public int GetRowSize(){
 			return rows.Count;
 		}
+
 		public IModel GetRow(int _rowIndex){
 			return rows[_rowIndex] as IModel;
 		}
@@ -83,12 +89,12 @@ namespace BigjamLibrary.BicDB
 		}
 
 		public void Save(Action<bool> _callaback){
-			storage.Save(_callaback, this);
+			storage.Save(this, _callaback);
 		}
 
 
 		public void Load(Action<bool> _callaback){
-			storage.Load<T>(_callaback, this);
+			storage.Load(this, _callaback);
 		}
 		#endregion
 

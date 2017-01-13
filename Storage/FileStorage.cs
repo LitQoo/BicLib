@@ -18,17 +18,16 @@ namespace BigjamLibrary.BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save(Action<bool> _callback, IConvertString _table)
-		{
+		public void Save<T>(ITable<T> _table, Action<bool> _callback) where T : IModel, new() {
 			writeStringToFile(getJsonString(_table), getFileName(_table.Name));
 			_callback(true);
 
 
 		}
 
-		public void Load<T>(Action<bool> _callback, IConvertString _table) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<bool> _callback) where T : IModel, new() {
 			string _data = readStringFromFile(getFileName(_table.Name));
-			setData<T>(_data , _table);
+			setData(_data , _table);
 			_callback(true);
 		}
 		#endregion
@@ -38,7 +37,7 @@ namespace BigjamLibrary.BicDB.Storage
 			return "bdb" + _tableName;
 		}
 
-		private string getJsonString(IConvertString _table){
+		private string getJsonString<T>(ITable<T> _table){
 			string _result = "{\"version\":0,\"data\":[";
 			for (int i = 0; i < _table.GetRowSize(); i++) {
 				_result += "{";
@@ -71,7 +70,7 @@ namespace BigjamLibrary.BicDB.Storage
 			return _result;
 		}
 
-		private void setData<T>(string _jsonString, IConvertString _table) where T : IModel, new(){
+		private void setData<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int i = 0;
 
 			// need reset _tble
@@ -97,7 +96,7 @@ namespace BigjamLibrary.BicDB.Storage
 
 				if (_fieldName == "data") {
 					Debug.Log("start make table");
-					makeTable<T>(ref _jsonString, ref _table, ref i);
+					makeTable(ref _jsonString, ref _table, ref i);
 				} else {
 					string _data = getValue(ref _jsonString, ref i);
 					Debug.Log("value : " + _data);
@@ -126,14 +125,14 @@ namespace BigjamLibrary.BicDB.Storage
 
 		}
 
-		private void makeTable<T>(ref string _jsonString, ref IConvertString _table, ref int _counter) where T : IModel, new(){
+		private void makeTable<T>(ref string _jsonString, ref ITable<T> _table, ref int _counter) where T : IModel, new(){
 
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
 			_counter++;
 
 			while (_counter < _jsonString.Length) {
-				T _model = makeModel<T>(ref _jsonString, ref _table, ref _counter);
+				T _model = makeModel(ref _jsonString, ref _table, ref _counter);
 				Manager.GetTable<T>().AddRow(_model);
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
@@ -149,7 +148,7 @@ namespace BigjamLibrary.BicDB.Storage
 			_counter++;
 		}
 
-		private T makeModel<T>(ref string _jsonString, ref IConvertString _table, ref int _counter) where T : IModel, new(){
+		private T makeModel<T>(ref string _jsonString, ref ITable<T> _table, ref int _counter) where T : IModel, new(){
 			T _model = new T();
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '{');
