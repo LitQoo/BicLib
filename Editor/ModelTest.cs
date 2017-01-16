@@ -12,7 +12,7 @@ namespace BicDB
 			var _var = new IntVariable (0);
 			_model.AddManagedColumn ("key", _var);
 
-			Assert.AreEqual (_model.Columns ["key"], _var);
+			Assert.AreEqual (_model["key"], _var);
 		}
 
 		[Test]
@@ -29,6 +29,16 @@ namespace BicDB
 
 			Assert.Fail ();
 		
+		}
+
+		[Test]
+		public void IndexerTest(){
+			Assert.Fail();
+		}
+
+		[Test]
+		public void GetFieldNamesTest(){
+			Assert.Fail(); 
 		}
 	}
 }

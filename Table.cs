@@ -1,23 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BicDB
 {
-	public interface ITable<T>
+	public interface ITable<T> : ILinqSupporter<T>
 	{
-		List<T> Rows {get;}
 		string Name{ get; set;}
 
 		T this [int _index] { get; }
 
 		void AddRow(T _row);
-		T FindRow(string _key, string _value);
-		T FindRow(string _value);
 		void Save(Action<bool> _callaback);
 		void Load(Action<bool> _callaback);
 		void SetStorage(IStorage _storage);
 		int GetRowSize();
 		IModel GetRow(int _rowIndex);
+
+	}
+
+	public interface ILinqSupporter<T>
+	{
+		T FindRow(string _key, string _value);
+		T FindRow(string _value);
+		T FindRow(int _value);
+		T FindRow(float _value);
+
+		IEnumerable<T> Where(Func<T, bool> _func);
+		T FirstOrDefault(Func<T, bool> _func);
+		IEnumerable<U> Select<U>(Func<T, U> _func);
+		
 	}
 
 
@@ -26,13 +38,13 @@ namespace BicDB
 		private string primaryColumnName = string.Empty;
 
 		#region LifeCycle
-		public Table(string _name, string _primaryKeyName){
+		public Table(string _name, string _primaryKeyName = ""){
 			Name = _name;
 			SetPrimaryColumn (_primaryKeyName);
 		}
 		#endregion
 
-		#region IConvertString
+		#region ITable
 		public string Name{ get; set;}
 
 		public int GetRowSize(){
@@ -42,10 +54,6 @@ namespace BicDB
 		public IModel GetRow(int _rowIndex){
 			return rows[_rowIndex] as IModel;
 		}
-		#endregion
-
-		#region ITable
-		public List<T> Rows {get{ return rows; }}
 
 		public T this[int _index]
 		{
@@ -60,9 +68,24 @@ namespace BicDB
 			rows.Add(_row);
 		}
 
+		#endregion
+
+		#region Linq
+		public IEnumerable<T> Where(Func<T, bool> _func){
+			return rows.Where(_func);
+		}
+
+		public T FirstOrDefault(Func<T, bool> _func){
+			return rows.FirstOrDefault(_func);
+		}
+
+		public IEnumerable<U> Select<U>(Func<T, U> _func){
+			return rows.Select<T,U>(_func);
+		}
+
 		public T FindRow(string _key, string _value){
 			foreach (var _item in rows) {
-				if (_item.Columns [_key].AsString == _value) {
+				if (_item[_key].AsString == _value) {
 					return _item as T;
 				}
 			}
@@ -71,15 +94,16 @@ namespace BicDB
 		}
 
 		public T FindRow(string _value){
-			foreach (var _item in rows) {
-				if (_item.Columns [primaryColumnName].AsString == _value) {
-					return _item as T;
-				}
-			}
-
-			return null;
+			return rows.FirstOrDefault(_item => _item[primaryColumnName].AsString == _value);
 		}
 
+		public T FindRow(int _value){
+			return rows.FirstOrDefault(_item => _item[primaryColumnName].AsInt == _value);
+		}
+
+		public T FindRow(float _value){
+			return rows.FirstOrDefault(_item => _item[primaryColumnName].AsFloat == _value);
+		}
 		#endregion
 
 		#region Storage

@@ -13,6 +13,7 @@ namespace BicDB
 		VariableType Type { get; }
 
 		void OnChangedValue(IVariable _variable);
+
 	}
 
 	public enum VariableType
