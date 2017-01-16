@@ -7,11 +7,14 @@ namespace BicDB
 
 		static private List<object> tables = new List<object> ();
 
-		static public ITable<T> GetTable<T> (){
+		static public ITable<T> GetTable<T> (string _tableName = ""){
 
 			foreach (var _item in tables) {
 				if (_item is ITable<T>) {
-					return _item as ITable<T>;
+					var _table = _item as ITable<T>;
+					if (_table.Name == _tableName || string.IsNullOrEmpty (_tableName)) {
+						return _table;
+					}
 				}
 			}
 
@@ -26,6 +29,10 @@ namespace BicDB
 			var _table = new Table<T>(_name, _primaryKeyName);
 			Manager.AddTable<T>(_table);
 			return _table;
+		}
+
+		static public void ClearTables(){
+			tables.Clear();
 		}
 	}
 }
