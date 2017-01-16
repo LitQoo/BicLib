@@ -9,13 +9,24 @@ namespace BicDB
 
 	}
 
-	public class TestModel : Model
+	public class TestStringModel : Model
 	{
 		static public string PRIMARY_KEY_NAME = "data";
 
 		public StringVariable Data = new StringVariable("");
 
-		public TestModel(){
+		public TestStringModel(){
+			AddManagedColumn("data", Data);
+		}
+	}
+
+	public class TestIntModel : Model
+	{
+		static public string PRIMARY_KEY_NAME = "data";
+
+		public IntVariable Data = new IntVariable(0);
+
+		public TestIntModel(){
 			AddManagedColumn("data", Data);
 		}
 	}

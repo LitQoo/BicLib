@@ -14,8 +14,7 @@ namespace BicDB
 		void Save(Action<bool> _callaback);
 		void Load(Action<bool> _callaback);
 		void SetStorage(IStorage _storage);
-		int GetRowSize();
-		IModel GetRow(int _rowIndex);
+		int GetSize();
 
 	}
 
@@ -47,12 +46,8 @@ namespace BicDB
 		#region ITable
 		public string Name{ get; set;}
 
-		public int GetRowSize(){
+		public int GetSize(){
 			return rows.Count;
-		}
-
-		public IModel GetRow(int _rowIndex){
-			return rows[_rowIndex] as IModel;
 		}
 
 		public T this[int _index]
@@ -93,7 +88,7 @@ namespace BicDB
 			return null;
 		}
 
-		public T FindRow(string _value){
+		public T FindRow(string _value) {
 			return rows.FirstOrDefault(_item => _item[primaryColumnName].AsString == _value);
 		}
 

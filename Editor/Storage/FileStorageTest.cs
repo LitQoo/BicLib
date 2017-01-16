@@ -22,13 +22,13 @@ namespace BicDB.Storage
 			var _fileController = Substitute.For<IFileController>();
 			_storage.SetFileController(_fileController);
 
-			var _table = new Table<TestModel>(_tableName);
+			var _table = new Table<TestStringModel>(_tableName);
 			_table.SetStorage(_storage);
-			var _model = new TestModel();
+			var _model = new TestStringModel();
 			_model.Data.AsString = "value";
 			_table.AddRow(_model);
 
-			_storage.Save<TestModel>(_table, (bool _isSuccess)=>{
+			_storage.Save<TestStringModel>(_table, (bool _isSuccess)=>{
 				
 			});
 
@@ -43,7 +43,7 @@ namespace BicDB.Storage
 			var _fileController = Substitute.For<IFileController>();
 			_storage.SetFileController(_fileController);
 
-			var _table = Manager.CreateTable<TestModel>(_tableName, "");
+			var _table = Manager.CreateTable<TestStringModel>(_tableName, "");
 			Action<bool> _callback = (bool _isSuccess)=>{
 
 			};

@@ -13,7 +13,7 @@ namespace BicDB
 			var _table = new Table<Model>("tablename");
 			_table.AddRow(new Model());
 
-			Assert.AreEqual(_table.GetRowSize(), 1);
+			Assert.AreEqual(_table.GetSize(), 1);
 		}
 
 		[Test]
@@ -22,7 +22,7 @@ namespace BicDB
 			var _model = new Model();
 			_table.AddRow(_model);
 
-			var _checkRow = _table.GetRow(0);
+			var _checkRow = _table[0];
 
 			Assert.AreEqual(_model, _checkRow);
 		}
@@ -44,8 +44,8 @@ namespace BicDB
 		[Test]
 		public void SetPrimaryColumnTest(){
 			var _testValue = 123;
-			var _table = new Table<TestModel>("tablename", TestModel.PRIMARY_KEY_NAME);
-			var _model = new TestModel();
+			var _table = new Table<TestStringModel>("tablename", TestStringModel.PRIMARY_KEY_NAME);
+			var _model = new TestStringModel();
 			_model.Data.AsInt = _testValue;
 			_table.AddRow(_model);
 
@@ -60,16 +60,16 @@ namespace BicDB
 			var _model = new Model();
 			_table.AddRow(_model);
 
-			var _checkRow = _table.GetRow(0);
+			var _checkRow = _table[0];
 
 			Assert.AreEqual(_model, _checkRow);
 		}
 
 		[Test]
 		public void FindRowTestWhenFoundWithInt(){
-			var _testValue = 123;
-			var _table = new Table<TestModel>("tablename", TestModel.PRIMARY_KEY_NAME);
-			var _model = new TestModel();
+			int _testValue = 123;
+			var _table = new Table<TestIntModel>("tablename", TestIntModel.PRIMARY_KEY_NAME);
+			var _model = new TestIntModel();
 			_model.Data.AsInt = _testValue;
 			_table.AddRow(_model);
 
@@ -81,8 +81,8 @@ namespace BicDB
 		[Test]
 		public void FindRowTestWhenNotFoundWithInt(){
 			var _testValue = 123;
-			var _table = new Table<TestModel>("tablename", TestModel.PRIMARY_KEY_NAME);
-			var _model = new TestModel();
+			var _table = new Table<TestIntModel>("tablename", TestIntModel.PRIMARY_KEY_NAME);
+			var _model = new TestIntModel();
 			_model.Data.AsInt = _testValue;
 			_table.AddRow(_model);
 
@@ -115,13 +115,13 @@ namespace BicDB
 		public void WhereTest(){
 			var _primaryKeyName = "data";
 			var _testValue = 123;
-			var _table = new Table<TestModel>("tablename", _primaryKeyName);
+			var _table = new Table<TestStringModel>("tablename", _primaryKeyName);
 
-			var _model1 = new TestModel();
+			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
 			_table.AddRow(_model1);
 
-			var _model2 = new TestModel();
+			var _model2 = new TestStringModel();
 			_model2.Data.AsInt = _testValue;
 			_table.AddRow(_model2);
 
@@ -137,13 +137,13 @@ namespace BicDB
 		public void FirstOrDefaultTest(){
 			var _primaryKeyName = "data";
 			var _testValue = 123;
-			var _table = new Table<TestModel>("tablename", _primaryKeyName);
+			var _table = new Table<TestStringModel>("tablename", _primaryKeyName);
 
-			var _model1 = new TestModel();
+			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
 			_table.AddRow(_model1);
 
-			var _model2 = new TestModel();
+			var _model2 = new TestStringModel();
 			_model2.Data.AsInt = _testValue;
 			_table.AddRow(_model2);
 

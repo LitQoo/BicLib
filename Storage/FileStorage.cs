@@ -43,13 +43,13 @@ namespace BicDB.Storage
 			return FILE_NAME_PREFIX + _tableName;
 		}
 
-		private string getJsonString<T>(ITable<T> _table){
+		private string getJsonString<T>(ITable<T> _table) where T : IModel {
 			string _result = "{\"version\":0,\"data\":[";
-			for (int i = 0; i < _table.GetRowSize(); i++) {
+			for (int i = 0; i < _table.GetSize(); i++) {
 				_result += "{";
-				var _columnKeys = _table.GetRow(i).GetColumnNameList();
+				var _columnKeys = _table[i].GetColumnNameList();
 				for (int j = 0; j < _columnKeys.Count; j++) {
-					IVariable _column = _table.GetRow(i)[_columnKeys[j]];
+					IVariable _column = _table[i][_columnKeys[j]];
 					if (_column.Type == VariableType.String) {
 						_result += "\"" + _columnKeys[j] + "\":\"" + _column.AsString.Replace("\"","\\\"") + "\"";
 					} else {
@@ -63,7 +63,7 @@ namespace BicDB.Storage
 
 				_result += "}";
 
-				if (i != _table.GetRowSize() - 1) {
+				if (i != _table.GetSize() - 1) {
 					_result += ",";
 				}
 			}
