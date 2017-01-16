@@ -22,7 +22,11 @@ namespace BicDB
 		}
 
 		static public void AddTable<T>(ITable<T> _table){
-			tables.Add (_table);
+			if (!tables.Contains (_table)) {
+				tables.Add (_table);			
+			} else {
+				throw new SystemException (_table.Name + " table is already added");
+			}
 		}
 
 		static public ITable<T> CreateTable<T>(string _name, string _primaryKeyName) where T : class, IModel, new() {
