@@ -43,7 +43,7 @@ namespace BicDB.Storage
 			var _fileController = Substitute.For<IFileController>();
 			_storage.SetFileController(_fileController);
 
-			var _table = Manager.CreateTable<TestStringModel>(_tableName, "");
+			var _table = Manager.CreateTable<TestStringModel>(_tableName);
 			Action<bool> _callback = (bool _isSuccess)=>{
 
 			};

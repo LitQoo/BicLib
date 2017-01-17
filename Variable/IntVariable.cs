@@ -1,5 +1,6 @@
 ﻿using System;
 using BicDB;
+using UnityEngine;
 
 namespace BicDB.Variable
 {
@@ -20,6 +21,7 @@ namespace BicDB.Variable
 		public void OnChangedValue(IVariable _variable){
 			OnChangedValueActions (this);
 		}
+
 	}
 }
 

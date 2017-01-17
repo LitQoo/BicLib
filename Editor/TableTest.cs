@@ -4,6 +4,7 @@ using NUnit.Framework;
 using BicDB.Variable;
 using NSubstitute;
 using System;
+using System.Collections.Generic;
 
 namespace BicDB
 {
@@ -42,19 +43,6 @@ namespace BicDB
 		}
 
 		[Test]
-		public void SetPrimaryColumnTest(){
-			var _testValue = 123;
-			var _table = new Table<TestStringModel>("tablename", TestStringModel.PRIMARY_KEY_NAME);
-			var _model = new TestStringModel();
-			_model.Data.AsInt = _testValue;
-			_table.AddRow(_model);
-
-			var _checkRow = _table.FindRow(_testValue);
-
-			Assert.AreEqual(_model, _checkRow);
-		}
-
-		[Test]
 		public void AddRowTest(){
 			var _table = new Table<Model>("tablename");
 			var _model = new Model();
@@ -66,56 +54,9 @@ namespace BicDB
 		}
 
 		[Test]
-		public void FindRowTestWhenFoundWithInt(){
-			int _testValue = 123;
-			var _table = new Table<TestIntModel>("tablename", TestIntModel.PRIMARY_KEY_NAME);
-			var _model = new TestIntModel();
-			_model.Data.AsInt = _testValue;
-			_table.AddRow(_model);
-
-			var _checkRow = _table.FindRow(_testValue);
-
-			Assert.AreEqual(_model, _checkRow);
-		}
-
-		[Test]
-		public void FindRowTestWhenNotFoundWithInt(){
-			var _testValue = 123;
-			var _table = new Table<TestIntModel>("tablename", TestIntModel.PRIMARY_KEY_NAME);
-			var _model = new TestIntModel();
-			_model.Data.AsInt = _testValue;
-			_table.AddRow(_model);
-
-			var _checkRow = _table.FindRow(_testValue + 1);
-
-			Assert.IsNull(_checkRow);
-		}
-
-		[Test]
-		public void FindRowTestWhenFoundWithFloat(){
-			Assert.Fail();
-		}
-
-		[Test]
-		public void FindRowTestWhenNotFoundWithFloat(){
-			Assert.Fail();
-		}
-
-		[Test]
-		public void FindRowTestWhenFoundWithString(){
-			Assert.Fail();
-		}
-
-		[Test]
-		public void FindRowTestWhenNotFoundWithString(){
-			Assert.Fail();
-		}
-
-		[Test]
 		public void WhereTest(){
-			var _primaryKeyName = "data";
 			var _testValue = 123;
-			var _table = new Table<TestStringModel>("tablename", _primaryKeyName);
+			var _table = new Table<TestStringModel>("tablename");
 
 			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
@@ -135,9 +76,8 @@ namespace BicDB
 
 		[Test]
 		public void FirstOrDefaultTest(){
-			var _primaryKeyName = "data";
 			var _testValue = 123;
-			var _table = new Table<TestStringModel>("tablename", _primaryKeyName);
+			var _table = new Table<TestStringModel>("tablename");
 
 			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
@@ -154,7 +94,24 @@ namespace BicDB
 
 		[Test]
 		public void SelectTest(){
-			Assert.Fail();
+			var _testValue = 123;
+			var _table = new Table<TestStringModel>("tablename");
+
+			var _model1 = new TestStringModel();
+			_model1.Data.AsInt = _testValue + 100;
+			_table.AddRow(_model1);
+
+			var _model2 = new TestStringModel();
+			_model2.Data.AsInt = _testValue;
+			_table.AddRow(_model2);
+
+			var _result = _table.Select(_row => _row);
+
+			List<TestStringModel> _list = new List<TestStringModel>(_result);
+
+			Assert.AreEqual(_list[0], _model1);
+			Assert.AreEqual(_list[1], _model2);
+			Assert.AreEqual(_list.Count, 2);
 		}
 
 		[Test]

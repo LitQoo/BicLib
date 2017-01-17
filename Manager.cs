@@ -29,8 +29,8 @@ namespace BicDB
 			}
 		}
 
-		static public ITable<T> CreateTable<T>(string _name, string _primaryKeyName) where T : class, IModel, new() {
-			var _table = new Table<T>(_name, _primaryKeyName);
+		static public ITable<T> CreateTable<T>(string _name) where T : class, IModel, new() {
+			var _table = new Table<T>(_name);
 			Manager.AddTable<T>(_table);
 			return _table;
 		}

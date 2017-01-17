@@ -92,20 +92,5 @@ namespace BicDB.Variable
 
 			Assert.IsTrue (_checkResult);
 		}
-			
-		[Test]
-		public void EqualsTestWithInt(){
-			Assert.Fail();
-		}
-
-		[Test]
-		public void EqualsTestWithString(){
-			Assert.Fail();
-		}
-
-		[Test]
-		public void EqualsTestWithFloat(){
-			Assert.Fail();
-		}
 	}
 }

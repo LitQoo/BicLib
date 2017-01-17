@@ -13,7 +13,7 @@ namespace BicDB
 
 		[Test]
 		public void AddTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename", "no");
+			ITable<Model> _table = new Table<Model> ("tablename");
 			Manager.AddTable<Model> (_table);
 
 			var _getTable = Manager.GetTable<Model> ();
@@ -24,7 +24,7 @@ namespace BicDB
 
 		[Test]
 		public void AddAlreadyAddedTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename", "no");
+			ITable<Model> _table = new Table<Model> ("tablename");
 			Manager.AddTable<Model> (_table);
 
 			try {
@@ -39,7 +39,7 @@ namespace BicDB
 
 		[Test]
 		public void GetTableTestWithoutTablename(){
-			ITable<Model> _table = new Table<Model> ("tablename", "no");
+			ITable<Model> _table = new Table<Model> ("tablename");
 			Manager.AddTable<Model> (_table);
 
 			var _getTable = Manager.GetTable<Model> ();
@@ -49,7 +49,7 @@ namespace BicDB
 
 		[Test]
 		public void GetTableTestWithTablename(){
-			ITable<Model> _table = new Table<Model> ("tablename", "no");
+			ITable<Model> _table = new Table<Model> ("tablename");
 			Manager.AddTable<Model> (_table);
 
 			var _getTable = Manager.GetTable<Model> ("tablename");
@@ -67,7 +67,7 @@ namespace BicDB
 
 		[Test]
 		public void CreateTableTest(){
-			ITable<Model> _table = Manager.CreateTable<Model>("tablename", "no");
+			ITable<Model> _table = Manager.CreateTable<Model>("tablename");
 
 			var _getTable = Manager.GetTable<Model> ();
 
@@ -76,7 +76,7 @@ namespace BicDB
 
 		[Test]
 		public void ClearTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename", "no");
+			ITable<Model> _table = new Table<Model> ("tablename");
 			Manager.AddTable<Model> (_table);
 			Manager.ClearTables ();
 			var _getTable = Manager.GetTable<Model> ();
