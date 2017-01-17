@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BicDB
 {
@@ -33,6 +34,17 @@ namespace BicDB
 			var _table = new Table<T>(_name);
 			Manager.AddTable<T>(_table);
 			return _table;
+		}
+
+		static public ITable<T> GetOrCreateTable<T>(string _name) where T : class, IModel, new() {
+
+			var _table = GetTable<T>(_name);
+
+			if (_table != null) {
+				return _table;
+			} else {
+				return CreateTable<T>(_name);
+			}
 		}
 
 		static public void ClearTables(){

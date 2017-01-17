@@ -8,38 +8,37 @@ using System;
 namespace BicDB.Variable
 {
 	public class IntVariableTest {
-		private const int _testValue = 823;
 
 		[Test]
 		public void CreateTest()
 		{
 
-			IntVariable _var = new IntVariable (_testValue);
-			Assert.AreEqual(_var.AsInt, _testValue);
+			IntVariable _var = new IntVariable (145);
+			Assert.AreEqual(_var.AsInt, 145);
 		}
 
 		[Test]
 		public void AsIntOutTest()
 		{
 
-			IntVariable _var = new IntVariable (_testValue);
-			Assert.AreEqual(_var.AsInt, _testValue);
+			IntVariable _var = new IntVariable (145);
+			Assert.AreEqual(_var.AsInt, 145);
 		}
 
 		[Test]
 		public void AsFloatOutTest()
 		{
 
-			IntVariable _var = new IntVariable (_testValue);
-			Assert.AreEqual(_var.AsFloat, (float)_testValue);
+			IntVariable _var = new IntVariable (215);
+			Assert.AreEqual(_var.AsFloat, 215.0f);
 		}
 
 		[Test]
 		public void AsStringOutTest()
 		{
 
-			IntVariable _var = new IntVariable (_testValue);
-			Assert.AreEqual(_var.AsString, _testValue.ToString());
+			IntVariable _var = new IntVariable (425);
+			Assert.AreEqual(_var.AsString, "425");
 		}
 
 		[Test]
@@ -47,8 +46,8 @@ namespace BicDB.Variable
 		{
 
 			IntVariable _var = new IntVariable (0);
-			_var.AsInt = _testValue;
-			Assert.AreEqual(_var.AsInt, _testValue);
+			_var.AsInt = 425;
+			Assert.AreEqual(_var.AsInt, 425);
 		}
 
 		[Test]
@@ -56,8 +55,8 @@ namespace BicDB.Variable
 		{
 
 			IntVariable _var = new IntVariable (0);
-			_var.AsFloat = (float)_testValue;
-			Assert.AreEqual(_var.AsFloat, (float)_testValue);
+			_var.AsFloat = 143.3f;
+			Assert.AreEqual(_var.AsInt, 143);
 		}
 
 		[Test]
@@ -65,33 +64,32 @@ namespace BicDB.Variable
 		{
 
 			IntVariable _var = new IntVariable (0);
-			_var.AsString = _testValue.ToString ();
-			Assert.AreEqual(_var.AsString, _testValue.ToString());
+			_var.AsString = "183";
+			Assert.AreEqual(_var.AsInt, 183);
 		}
 
 		[Test]
 		public void TypeTest()
 		{
 
-			IntVariable _var = new IntVariable (_testValue);
+			IntVariable _var = new IntVariable (124);
 			Assert.AreEqual(_var.Type, VariableType.Int);
 		}
 
 		[Test]
 		public void OnChangedValueTest(){
-			IntVariable _var = new IntVariable (_testValue);
+			IntVariable _var = new IntVariable (124);
 			int _changeValue = 222;
-			bool _checkResult = false;
 
 			_var.OnChangedValueActions += (IVariable _changer) => {
-				if(_changer.AsInt == _changeValue){
-					_checkResult = true;
+				if(_changer.AsFloat != _changeValue){
+					Assert.Fail();
 				}
 			};
 
 			_var.AsInt = _changeValue;
 
-			Assert.IsTrue (_checkResult);
+			Assert.Pass();
 		}
 	}
 }

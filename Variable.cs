@@ -10,16 +10,18 @@ namespace BicDB
 		int AsInt{ get; set; }
 		string AsString{ get; set; }
 		float AsFloat{ get; set; }
+		bool AsBool{ get; set; }
 		VariableType Type { get; }
 
-		void OnChangedValue(IVariable _variable);
+		void OnChangedValue();
 	}
 
 	public enum VariableType
 	{
 		Int,
 		Float,
-		String
+		String,
+		Bool
 	}
 
 

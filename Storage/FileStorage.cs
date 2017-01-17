@@ -26,15 +26,23 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, IStorageParameter _parameter = null) where T : IModel, new() {
 			fileController.Write(getJsonString(_table), getFileName(_table.Name));
-			_callback(true);
+			if (_callback != null) {
+				_callback(true);
+			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<bool> _callback) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, IStorageParameter _parameter = null) where T : IModel, new() {
 			string _data = fileController.Read(getFileName(_table.Name));
-			setData(_data , _table);
-			_callback(true);
+
+			if (!string.IsNullOrEmpty(_data)) {
+				setData(_data , _table);
+			}
+
+			if (_callback != null) {
+				_callback(true);
+			}
 		}
 		#endregion
 
@@ -92,7 +100,7 @@ namespace BicDB.Storage
 				if (_fieldName == "data") {
 					makeTable(ref _jsonString, ref _table, ref i);
 				} else {
-					string _data = getValue(ref _jsonString, ref i);
+					getValue(ref _jsonString, ref i);
 				}
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref i, ',')) {
