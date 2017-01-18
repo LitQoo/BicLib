@@ -26,14 +26,14 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, IStorageParameter _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
 			fileController.Write(getJsonString(_table), getFileName(_table.Name));
 			if (_callback != null) {
 				_callback(true);
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, IStorageParameter _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
 			string _data = fileController.Read(getFileName(_table.Name));
 
 			if (!string.IsNullOrEmpty(_data)) {

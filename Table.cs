@@ -13,8 +13,8 @@ namespace BicDB
 		T this [int _index] { get; }
 
 		void AddRow(T _row);
-		void Save(Action<bool> _callaback = null, IStorageParameter _parameter = null);
-		void Load(Action<bool> _callaback = null, IStorageParameter _parameter = null);
+		void Save(Action<bool> _callaback = null, object _parameter = null);
+		void Load(Action<bool> _callaback = null, object _parameter = null);
 		void SetStorage(IStorage _storage);
 		int GetSize();
 		void Clear();
@@ -82,12 +82,12 @@ namespace BicDB
 			storage = _storage;
 		}
 
-		public void Save(Action<bool> _callaback = null, IStorageParameter _parameter = null){
+		public void Save(Action<bool> _callaback = null, object _parameter = null){
 			storage.Save(this, _callaback, _parameter);
 		}
 
 
-		public void Load(Action<bool> _callaback = null, IStorageParameter _parameter = null){
+		public void Load(Action<bool> _callaback = null, object _parameter = null){
 			storage.Load(this, _callaback, _parameter);
 		}
 		#endregion
