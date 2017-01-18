@@ -270,7 +270,9 @@ namespace BicDB.Storage
 
 			string _result = "";
 			while (_startCounter < _jsonString.Length) {
-				if ((_isString && _jsonString[_startCounter] == '"') || (!_isString && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}'))) {
+				if(_jsonString[_startCounter] == '\\'){
+					_startCounter++;
+				}else if ((_isString && _jsonString[_startCounter] == '"') || (!_isString && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}'))) {
 					if (!(_jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}')) {
 						_startCounter++;
 					}
