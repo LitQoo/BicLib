@@ -38,7 +38,7 @@ namespace BicDB.stroage{
 				return null;
 			}
 			#else
-			TextAsset tText = Resources.Load<TextAsset>(fileName);
+			TextAsset tText = Resources.Load<TextAsset>(_fileName);
 			return tText.text;
 			#endif 
 		}
