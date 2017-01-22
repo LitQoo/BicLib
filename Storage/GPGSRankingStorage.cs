@@ -1,4 +1,5 @@
-﻿#define GPGSRanking
+﻿//#define GPGSRanking
+
 using System;
 using System.Collections.Generic;
 using BicDB.Variable;
