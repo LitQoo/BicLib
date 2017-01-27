@@ -8,10 +8,10 @@ namespace BicDB.Variable
 	public class BoolVariable : VariableBase, IVariable{
 		#region AsValue
 		private bool data;
-		public int AsInt{ get{ return data ? 1 : 0; } set{ data = value == 0 ? false : true; NotifyChanged ();} }
-		public string AsString{ get{ return data.ToString().ToLower(); } set{ data = bool.Parse (value);  NotifyChanged ();} }
-		public float AsFloat{ get{ return data ? 1 : 0; } set{ data = value == 0 ? false : true;  NotifyChanged ();} }
-		public bool AsBool{ get{ return data; } set{ data = value;  NotifyChanged ();} }
+		public int AsInt{ get{ return data ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
+		public string AsString{ get{ return data.ToString().ToLower(); } set{ AsBool = bool.Parse (value);} }
+		public float AsFloat{ get{ return data ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
+		public bool AsBool{ get{ return data; } set{ data = value; NotifyChanged ();} }
 		public VariableType Type { get { return VariableType.Bool; }}
 		#endregion
 
@@ -20,7 +20,7 @@ namespace BicDB.Variable
 		}
 			
 		public void LoadValue(string _value){
-			data = bool.Parse (_value);
+			AsString = _value;
 			IsChanged = false;
 		}
 	}

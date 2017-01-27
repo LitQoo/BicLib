@@ -74,6 +74,10 @@ namespace BicDB
 			return rows.Select<T,U>(_func);
 		}
 
+		public IEnumerable<T> GetChangedRows(){
+			return Where ((T _row)=> _row.IsChanged());
+		}
+
 		#endregion
 
 		#region Storage

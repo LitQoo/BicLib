@@ -15,6 +15,7 @@ namespace BicDB
 		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string key, IVariable _column);
 		List<string> GetColumnNameList();
+		bool IsChanged();
 	}
 
 	public class Model : IModel{
@@ -37,6 +38,16 @@ namespace BicDB
 
 		public List<string> GetColumnNameList(){
 			return new List<string>(columns.Keys);
+		}
+
+		public bool IsChanged(){
+			foreach (var _item in columns) {
+				if (_item.Value.IsChanged) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }
