@@ -13,7 +13,7 @@ namespace BicDB.Storage{
 		static private IStorage instance = null;
 		static public IStorage GetInstance(){
 			if (instance == null) {
-				instance = new FileStorage();
+				instance = new ResourceStorage();
 			}
 
 			return instance;
@@ -47,7 +47,7 @@ namespace BicDB.Storage{
 		#region ResourceControl
 		public string Read(string _fileName){
 			#if UNITY_EDITOR
-			string tPath = Application.dataPath + "/Resources/BicDB" + _fileName + ".json";
+			string tPath = Application.dataPath + "/Resources/BicDB/" + _fileName + ".json";
 			if (File.Exists(tPath))
 			{
 				FileStream tFile = new FileStream (tPath, FileMode.Open, FileAccess.Read);
