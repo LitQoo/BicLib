@@ -9,7 +9,7 @@ namespace BicDB.Variable
 		#endregion
 
 		#region AsValue
-		public new int AsInt{ get{ return data ^ seed; } set{ data = value ^ seed; OnChangedValue ();} }
+		public new int AsInt{ get{ return data ^ seed; } set{ data = value ^ seed; NotifyChangedValue ();} }
 		#endregion
 
 		#region member

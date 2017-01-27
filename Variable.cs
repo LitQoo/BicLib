@@ -13,7 +13,7 @@ namespace BicDB
 		bool AsBool{ get; set; }
 		VariableType Type { get; }
 
-		void OnChangedValue();
+		void NotifyChangedValue();
 	}
 
 	public enum VariableType

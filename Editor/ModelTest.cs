@@ -25,7 +25,7 @@ namespace BicDB
 				}
 			};
 
-			_model.Notify (_msg);
+			_model.NotifyChangedValue (_msg);
 
 			Assert.Fail ();
 		

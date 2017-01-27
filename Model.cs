@@ -13,7 +13,7 @@ namespace BicDB
 		IVariable this [string _key] { get; }
 
 		//method
-		void Notify(string _message = "");
+		void NotifyChangedValue(string _message = "");
 		void AddManagedColumn(string key, IVariable _column);
 		List<string> GetColumnNameList();
 	}
@@ -32,7 +32,7 @@ namespace BicDB
 			columns.Add (key, _column);
 		}
 
-		public void Notify(string _message = ""){
+		public void NotifyChangedValue(string _message = ""){
 			OnNotifyActions(this, _message);
 		}
 
