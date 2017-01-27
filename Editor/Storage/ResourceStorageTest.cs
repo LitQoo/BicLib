@@ -7,10 +7,10 @@ using NSubstitute;
 
 namespace BicDB.Storage
 {
-	public class FileStorageTest {
+	public class ResourceStorageTest {
 		[Test]
 		public void GetInstanceTest(){
-			var _storage = FileStorage.GetInstance();
+			var _storage = ResourceStorage.GetInstance();
 
 			Assert.IsNotNull(_storage);
 		}
@@ -29,12 +29,6 @@ namespace BicDB.Storage
 		public void ReadTest(){
 			Assert.Ignore ();
 		}
-
-		[Test]
-		public void WriteTest(){
-			Assert.Ignore ();
-		}
-
 	}
 
 
