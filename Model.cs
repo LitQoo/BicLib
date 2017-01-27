@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BicDB.Variable;
 
 namespace BicDB
 {
@@ -13,7 +12,7 @@ namespace BicDB
 		IVariable this [string _key] { get; }
 
 		//method
-		void NotifyChangedValue(string _message = "");
+		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string key, IVariable _column);
 		List<string> GetColumnNameList();
 	}
@@ -32,7 +31,7 @@ namespace BicDB
 			columns.Add (key, _column);
 		}
 
-		public void NotifyChangedValue(string _message = ""){
+		public void NotifyChanged(string _message = ""){
 			OnNotifyActions(this, _message);
 		}
 
