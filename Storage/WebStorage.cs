@@ -16,9 +16,8 @@ namespace BicDB.Storage
 		{  
 			if(instance == null)  
 			{  
-				Debug.Log ("WebStorage create");
 				container = new GameObject();  
-				container.name = "WebStorage";  
+				container.name = "BicDBWebStorage";  
 				instance = container.AddComponent(typeof(WebStorage)) as IStorage;  
 				DontDestroyOnLoad(container);
 			}  
@@ -37,7 +36,6 @@ namespace BicDB.Storage
 
 		private Action<bool> loadCallback = null;
 		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
-			Debug.Log ("load");
 			loadCallback = _callback;
 			StartCoroutine(GetTextFromWWW(_table));
 

@@ -14,6 +14,7 @@ namespace BicDB.Storage
 			var _table = new Table<TestStringModel>(_tableName);
 			var _model = new TestStringModel();
 			_model.Data.AsString = "value";
+			_table.SetHeader ("version", 0);
 			_table.AddRow(_model);
 
 			string _result = JsonConvertor.ConvertTableToJsonString (_table);
@@ -30,6 +31,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			var _model = new TestStringModel();
 			_model.Data.AsString = "va\"lu\te";
+			_table.SetHeader ("version", 0);
 			_table.AddRow(_model);
 
 			string _result = JsonConvertor.ConvertTableToJsonString (_table);
@@ -47,10 +49,11 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":\"value\"}]}", _table);
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"data\":\"value\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "value");
+			Assert.AreEqual(_table.GetHeader("version").AsString, "123");
 		}
 
 		[Test]

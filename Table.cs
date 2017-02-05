@@ -25,6 +25,7 @@ namespace BicDB
 		void SetHeader (string _key, bool _value);
 		IVariable GetHeader (string _key);
 		bool ContainsHeader(string _key);
+		string[] GetHeaderKeyList();
 
 	}
 
@@ -144,6 +145,10 @@ namespace BicDB
 
 		public bool ContainsHeader(string _key){
 			return header.ContainsKey (_key);
+		}
+
+		public string[] GetHeaderKeyList(){
+			return header.Keys.ToArray ();
 		}
 
 		#endregion

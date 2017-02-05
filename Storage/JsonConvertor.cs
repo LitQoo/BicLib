@@ -7,7 +7,25 @@ namespace BicDB.Storage
 	static public class JsonConvertor {
 		#region parse
 		static public string ConvertTableToJsonString<T>(ITable<T> _table) where T : IModel {
-			string _result = "{\"version\":0,\"data\":[";
+			string _result = "{";
+
+			var _headerKeys = _table.GetHeaderKeyList ();
+			//header
+			for(int i = 0; i < _headerKeys.Length; i++){
+				IVariable _header = _table.GetHeader (_headerKeys [i]);
+
+				if (_header.Type == VariableType.String) {
+					_result += "\"" + _headerKeys[i] + "\":\"" + _header.AsString.Replace("\"","\\\"") + "\"";
+				} else {
+					_result += "\"" + _headerKeys[i] + "\":" + _header.AsString;
+				}
+
+				_result += ",";
+			}
+
+			_result += "\"data\":[";
+
+			//data
 			for (int i = 0; i < _table.GetSize(); i++) {
 				_result += "{";
 				var _columnKeys = _table[i].GetColumnNameList();
@@ -55,7 +73,7 @@ namespace BicDB.Storage
 				if (_fieldName == "data") {
 					setTable(ref _jsonString, ref _table, ref i);
 				} else {
-					getValue(ref _jsonString, ref i);
+					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
 				}
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref i, ',')) {
@@ -110,7 +128,9 @@ namespace BicDB.Storage
 				//set data
 				string _data = getValue(ref _jsonString, ref _counter);
 
-				_model [_columnName].AsString = _data;
+				if (_model.ContainsKey (_columnName)) {
+					_model [_columnName].AsString = _data;
+				}
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref  _counter, ',')) {
 					break;
