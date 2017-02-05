@@ -36,7 +36,7 @@ namespace BicDB.Storage
 			return _result;
 		}
 
-		static public void ConvertJsonStringToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonDictionaryToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -53,7 +53,7 @@ namespace BicDB.Storage
 				i++;
 
 				if (_fieldName == "data") {
-					SetTable(ref _jsonString, ref _table, ref i);
+					setTable(ref _jsonString, ref _table, ref i);
 				} else {
 					getValue(ref _jsonString, ref i);
 				}
@@ -67,7 +67,12 @@ namespace BicDB.Storage
 			}
 		}
 
-		static private void SetTable<T>(ref string _jsonString, ref ITable<T> _table, ref int _counter) where T : IModel, new(){
+		static public void ConvertJsonListToTable<T>(ref string _jsonString, ref ITable<T> _table) where T : IModel, new(){
+			int _count = 0;
+			setTable (ref _jsonString, ref _table, ref _count);
+		}
+
+		static private void setTable<T>(ref string _jsonString, ref ITable<T> _table, ref int _counter) where T : IModel, new(){
 
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
@@ -105,7 +110,7 @@ namespace BicDB.Storage
 				//set data
 				string _data = getValue(ref _jsonString, ref _counter);
 
-				_model[_columnName].AsString = _data;
+				_model [_columnName].AsString = _data;
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref  _counter, ',')) {
 					break;

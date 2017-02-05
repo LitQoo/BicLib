@@ -31,7 +31,7 @@ namespace BicDB.Storage{
 			string _data = Read(getFileName(_table.Name));
 
 			if (!string.IsNullOrEmpty(_data)) {
-				JsonConvertor.ConvertJsonStringToTable(_data , _table);
+				JsonConvertor.ConvertJsonDictionaryToTable(_data , _table);
 			}
 
 			if (_callback != null) {

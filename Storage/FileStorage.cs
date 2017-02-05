@@ -28,14 +28,21 @@ namespace BicDB.Storage
 
 		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
 			string _data = Read(getFileName(_table.Name));
+			bool _isSuccess = true;
 
-			if (!string.IsNullOrEmpty(_data)) {
-				JsonConvertor.ConvertJsonStringToTable(_data , _table);
+			if (!string.IsNullOrEmpty (_data)) {
+				try {
+					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
+					_isSuccess = true;
+				} catch (Exception) {
+					_isSuccess = false;
+				}
 			}
 
 			if (_callback != null) {
-				_callback(true);
+				_callback (_isSuccess);
 			}
+
 		}
 
 		private string getFileName(string _tableName){

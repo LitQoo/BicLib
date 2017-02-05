@@ -19,6 +19,13 @@ namespace BicDB
 		int GetSize();
 		void Clear();
 
+		void SetHeader (string _key, string _value);
+		void SetHeader (string _key, float _value);
+		void SetHeader (string _key, int _value);
+		void SetHeader (string _key, bool _value);
+		IVariable GetHeader (string _key);
+		bool ContainsHeader(string _key);
+
 	}
 
 	public interface ILinqSupporter<T>
@@ -32,7 +39,7 @@ namespace BicDB
 
 	public class Table<T> : ITable<T> where T : class, IModel, new(){
 		private List<T> rows = new List<T>();
-	
+
 		#region LifeCycle
 		public Table(string _name){
 			Name = _name;
@@ -96,6 +103,50 @@ namespace BicDB
 		}
 		#endregion
 
+		#region Header
+		private Dictionary<string, IVariable> header = new Dictionary<string, IVariable> ();
+
+		public void SetHeader (string _key, string _value){
+			if (!ContainsHeader (_key)) {
+				header.Add(_key, new StringVariable(_value));
+			}else{
+				header [_key].AsString = _value;
+			}
+		}
+
+		public void SetHeader (string _key, float _value){
+			if (!ContainsHeader (_key)) {
+				header.Add(_key, new FloatVariable(_value));
+			}else{
+				header [_key].AsFloat = _value;
+			}
+		}
+
+		public void SetHeader (string _key, int _value){
+			if (!ContainsHeader (_key)) {
+				header.Add(_key, new IntVariable(_value));
+			}else{
+				header [_key].AsInt = _value;
+			}
+		}
+
+		public void SetHeader (string _key, bool _value){
+			if (!ContainsHeader (_key)) {
+				header.Add(_key, new BoolVariable(_value));
+			}else{
+				header [_key].AsBool = _value;
+			}
+		}
+
+		public IVariable GetHeader (string _key){
+			return header [_key];
+		}
+
+		public bool ContainsHeader(string _key){
+			return header.ContainsKey (_key);
+		}
+
+		#endregion
 	}
 
 }

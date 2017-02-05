@@ -14,6 +14,7 @@ namespace BicDB
 		//method
 		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string key, IVariable _column);
+		bool ContainsKey(string _key);
 		List<string> GetColumnNameList();
 		bool IsChanged();
 	}
@@ -34,6 +35,10 @@ namespace BicDB
 
 		public void NotifyChanged(string _message = ""){
 			OnNotifyActions(this, _message);
+		}
+
+		public bool ContainsKey(string _key){
+			return columns.ContainsKey (_key);
 		}
 
 		public List<string> GetColumnNameList(){

@@ -47,7 +47,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonStringToTable ("{\"version\":0,\"data\":[{\"data\":\"value\"}]}", _table);
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":\"value\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "value");
@@ -63,7 +63,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonStringToTable ("{\"version\":0,\"data\":[{\"data\":\"va\\\"lu \\\t\te\"}]}", _table);
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":\"va\\\"lu \\\t\te\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "va\"lu \t\te");
