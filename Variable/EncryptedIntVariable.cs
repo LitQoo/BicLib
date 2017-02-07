@@ -3,6 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
+
 	public class EncryptedIntVariable :  VariableBase, IVariable{
 		#region static
 		private static System.Random random = new System.Random();
@@ -22,6 +23,10 @@ namespace BicDB.Variable
 		#endregion
 
 		#region LifeCycle
+		public EncryptedIntVariable() : base(){
+			seed = random.Next(int.MaxValue);
+		}
+
 		public EncryptedIntVariable(int _value) : base(){
 			seed = random.Next(int.MaxValue);
 			AsInt = _value;

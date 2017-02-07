@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 namespace BicDB.Storage
 {
@@ -91,6 +92,52 @@ namespace BicDB.Storage
 			setTable (ref _jsonList, _table, ref _count);
 		}
 
+		static public List<IVariable> ConvertJsonListToList<T>(string _jsonString) where T : IVariable, new(){
+			List<IVariable> _result = new List<IVariable>();
+			int _counter = 0;
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
+			_counter++;
+
+			while (_counter < _jsonString.Length) {
+				string _value = getValue(ref _jsonString, ref _counter);
+				IVariable _variable = new T();
+				_variable.LoadValue(_value);
+
+				_result.Add(_variable);
+
+				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
+					break;
+				}
+
+
+				_counter++;
+			}
+
+			return _result; 
+		}
+
+		static public string ConvertListToJsonString(List<IVariable> _list){
+			string _result = "[";
+
+			for (int i = 0; i < _list.Count; i++) {
+				if (_list[i].Type == VariableType.String) {
+					_result += "\"" + _list[i].AsString + "\"";
+				} else {
+					_result += _list[i].AsString;
+				}
+
+				if (i != _list.Count - 1) {
+					_result += ", ";
+				}
+			}
+
+
+			_result += "]";
+
+			return _result;
+
+		}
+
 		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
 
 
@@ -100,6 +147,7 @@ namespace BicDB.Storage
 			while (_counter < _jsonString.Length) {
 				T _model = MakeModel<T>(ref _jsonString, ref _counter);
 				Manager.GetTable<T>().AddRow(_model);
+
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
 					break;
@@ -130,8 +178,10 @@ namespace BicDB.Storage
 				string _data = getValue(ref _jsonString, ref _counter);
 
 				if (_model.ContainsKey (_columnName)) {
-					_model [_columnName].AsString = _data;
+					_model [_columnName].LoadValue(_data);
 				}
+
+
 
 				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref  _counter, ',')) {
 					break;
@@ -150,8 +200,12 @@ namespace BicDB.Storage
 			while (_counter < _jsonString.Length) {
 				if (_jsonString[_counter] == '\\') {
 					_counter++;
-				}else if (_jsonString[_counter] == _findChar) {
+				} else if ("\n\t ".Contains(_jsonString[_counter].ToString())) {
+					
+				} else if (_jsonString[_counter] == _findChar) {
 					return true;
+				} else {
+					break;
 				}
 
 				_counter++;
@@ -160,11 +214,11 @@ namespace BicDB.Storage
 			return false;
 		}
 
-		static private bool increaseCounterUntilFoundPassChar(ref string _jsonString, ref int _counter, char _findChar){
+		static private bool increaseCounterUntilFoundPassChar(ref string _jsonString, ref int _counter, string _findChars){
 			while (_counter < _jsonString.Length) {
 				if (_jsonString[_counter] == '\\') {
 					_counter++;
-				}else if (_jsonString[_counter] != _findChar) {
+				}else if (!_findChars.Contains(_jsonString[_counter].ToString())) {
 					return true;
 				}
 
@@ -221,7 +275,7 @@ namespace BicDB.Storage
 		static private string getValue(ref string _jsonString, ref int _startCounter){
 
 			// find start point
-			if (!increaseCounterUntilFoundPassChar(ref _jsonString, ref _startCounter, ' ')) {
+			if (!increaseCounterUntilFoundPassChar(ref _jsonString, ref _startCounter, " \t\n")) {
 				throw new SystemException("not found value");
 			}
 
@@ -250,10 +304,12 @@ namespace BicDB.Storage
 			string _result = "";
 			while (_startCounter < _jsonString.Length) {
 				if (_jsonString[_startCounter] == '\\') {
+					_result += _jsonString[_startCounter];
 					_startCounter++;
 				} else if (_openerCount > 0 && _jsonString[_startCounter] == _endChar) {
 					_openerCount--;
 					if (_openerCount == 0) {
+						_startCounter++;
 						if (_startChar == '"') {
 							return _result;
 						} else {

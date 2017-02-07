@@ -40,6 +40,7 @@ namespace BicDB
 		public IVariable IosLink = new StringVariable("");
 		public IVariable Title = new StringVariable("");
 		public IVariable ViewWeight = new IntVariable(0);
+		public IListVariable Images = new ListVariable<StringVariable>();
 
 		public TestWebModel(){
 			AddManagedColumn ("androidLink", AndroidLink);
@@ -47,6 +48,7 @@ namespace BicDB
 			AddManagedColumn ("iosLink", IosLink);
 			AddManagedColumn ("title", Title);
 			AddManagedColumn ("viewWeight", ViewWeight);
+			AddManagedColumn ("images", Images as IVariable);
 		}
 	}
 

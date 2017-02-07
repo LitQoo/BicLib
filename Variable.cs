@@ -17,12 +17,22 @@ namespace BicDB
 		void LoadValue(string _value);
 	}
 
+	public interface IListVariable : IVariable{
+		IVariable this [int _index] { get; }
+		int GetSize();
+		void Add(IVariable _value);
+		void RemoveAt(int _index);
+		bool Contains(IVariable _value);
+	}
+
 	public enum VariableType
 	{
 		Int,
 		Float,
 		String,
-		Bool
+		Bool,
+		List,
+		Dictionary
 	}
 
 	public class VariableBase{

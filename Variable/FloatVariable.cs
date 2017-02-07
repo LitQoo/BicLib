@@ -13,6 +13,10 @@ namespace BicDB.Variable
 		public VariableType Type { get { return VariableType.Float; }}
 		#endregion
 
+		public FloatVariable() : base(){
+			
+		}
+
 		public FloatVariable(float _value) : base(){
 			data = _value;
 		}

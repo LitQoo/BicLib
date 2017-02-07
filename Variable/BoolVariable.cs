@@ -15,6 +15,10 @@ namespace BicDB.Variable
 		public VariableType Type { get { return VariableType.Bool; }}
 		#endregion
 
+		public BoolVariable() : base(){
+		
+		}
+
 		public BoolVariable(bool _value) : base(){
 			data = _value;
 		}

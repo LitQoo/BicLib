@@ -13,6 +13,9 @@ namespace BicDB.Variable
 		public VariableType Type { get { return VariableType.Int; }}
 		#endregion
 
+		public IntVariable() : base(){
+			
+		}
 
 		public IntVariable(int _value) : base(){
 			data = _value;
