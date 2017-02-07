@@ -71,7 +71,7 @@ namespace BicDB.Storage
 				i++;
 
 				if (_fieldName == "data") {
-					setTable(ref _jsonString, ref _table, ref i);
+					setTable(ref _jsonString, _table, ref i);
 				} else {
 					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
 				}
@@ -85,12 +85,13 @@ namespace BicDB.Storage
 			}
 		}
 
-		static public void ConvertJsonListToTable<T>(ref string _jsonString, ref ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonListToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int _count = 0;
-			setTable (ref _jsonString, ref _table, ref _count);
+			string _jsonList = _jsonString;
+			setTable (ref _jsonList, _table, ref _count);
 		}
 
-		static private void setTable<T>(ref string _jsonString, ref ITable<T> _table, ref int _counter) where T : IModel, new(){
+		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
 
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');

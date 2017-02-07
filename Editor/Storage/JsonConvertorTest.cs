@@ -118,7 +118,7 @@ namespace BicDB.Storage
 			_table.Clear ();
 
 			string _jsonList = "[{\"androidLink\":\"https://play.google.com/store/apps/details?id=com.kaimangames.basketball.nba.kim.jordan\",\"assetbundle\":\"http://aksdjf?dkf\",\"iosLink\":\"none\",\"title\":\"농구왕 김득점\",\"viewWeight\":100},{\"title\":\"ab cde\tfg\"}]";
-			JsonConvertor.ConvertJsonListToTable (ref _jsonList, ref _table);
+			JsonConvertor.ConvertJsonListToTable (_jsonList, _table);
 
 			//check
 			Assert.AreEqual(_table[0].Title.AsString, "ab cde\tfg");

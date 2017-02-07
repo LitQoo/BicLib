@@ -58,11 +58,10 @@ namespace BicDB.Storage
 			}
 			else
 			{
-				string _jsonString = www.text;
 				_isSuccess = true;
 
 				try {
-					JsonConvertor.ConvertJsonListToTable (ref _jsonString, ref _table);
+					JsonConvertor.ConvertJsonListToTable (www.text, _table);
 				} catch (Exception) {
 					_isSuccess = false;
 				}
