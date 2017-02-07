@@ -77,7 +77,7 @@ namespace BicDB.Storage
 					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
 				}
 
-				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref i, ',')) {
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
 					break;
 				}
 
@@ -105,7 +105,7 @@ namespace BicDB.Storage
 
 				_result.Add(_variable);
 
-				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
 					break;
 				}
 
@@ -149,7 +149,7 @@ namespace BicDB.Storage
 				Manager.GetTable<T>().AddRow(_model);
 
 
-				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref _counter, ',')) {
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
 					break;
 				}
 
@@ -183,7 +183,7 @@ namespace BicDB.Storage
 
 
 
-				if (!increaseCounterUntilFoundCharWithSpeicalChar(ref _jsonString, ref  _counter, ',')) {
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref  _counter, ',', "\n\t ")) {
 					break;
 				}
 
@@ -196,11 +196,11 @@ namespace BicDB.Storage
 			return _model;
 		}
 
-		static private bool increaseCounterUntilFoundCharWithSpeicalChar(ref string _jsonString, ref int _counter, char _findChar){
+		static private bool increaseCounterUntilFoundCharWithIgnoreChars(ref string _jsonString, ref int _counter, char _findChar, string _ignoreChars){
 			while (_counter < _jsonString.Length) {
 				if (_jsonString[_counter] == '\\') {
 					_counter++;
-				} else if ("\n\t ".Contains(_jsonString[_counter].ToString())) {
+				} else if (_ignoreChars.Contains(_jsonString[_counter].ToString())) {
 					
 				} else if (_jsonString[_counter] == _findChar) {
 					return true;
@@ -214,7 +214,7 @@ namespace BicDB.Storage
 			return false;
 		}
 
-		static private bool increaseCounterUntilFoundPassChar(ref string _jsonString, ref int _counter, string _findChars){
+		static private bool increaseCounterUntilNotFoundChars(ref string _jsonString, ref int _counter, string _findChars){
 			while (_counter < _jsonString.Length) {
 				if (_jsonString[_counter] == '\\') {
 					_counter++;
@@ -275,7 +275,7 @@ namespace BicDB.Storage
 		static private string getValue(ref string _jsonString, ref int _startCounter){
 
 			// find start point
-			if (!increaseCounterUntilFoundPassChar(ref _jsonString, ref _startCounter, " \t\n")) {
+			if (!increaseCounterUntilNotFoundChars(ref _jsonString, ref _startCounter, " \t\n")) {
 				throw new SystemException("not found value");
 			}
 

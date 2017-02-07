@@ -10,7 +10,7 @@ namespace BicDB
 {
 	public class TableTest {
 		[Test]
-		public void GetRowSize(){
+		public void GetRowSizeTest(){
 			var _table = new Table<Model>("tablename");
 			_table.AddRow(new Model());
 
@@ -29,7 +29,7 @@ namespace BicDB
 		}
 
 		[Test]
-		public void indexerTest(){
+		public void IndexerTest(){
 			var _table = new Table<Model>("tablename");
 			var _model = new Model();
 			_table.AddRow(_model);

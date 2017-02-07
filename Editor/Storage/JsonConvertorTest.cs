@@ -148,7 +148,6 @@ namespace BicDB.Storage
 			Assert.AreEqual(_table[0].Images[0].AsString, "url1");
 			Assert.AreEqual(_table[0].Images[1].AsString, "url2");
 			Assert.AreEqual(_table[0].Images.GetSize(), 4);
-
 		}
 
 		[Test]
