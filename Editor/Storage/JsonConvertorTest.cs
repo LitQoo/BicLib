@@ -40,7 +40,7 @@ namespace BicDB.Storage
 		}
 
 		[Test]
-		public void ConvertJsonStringToTable1(){
+		public void ConvertJsonDictionaryToTable1(){
 			//set
 			var _tableName = "tablename";
 			var _storage = new FileStorage();
@@ -57,7 +57,7 @@ namespace BicDB.Storage
 		}
 
 		[Test]
-		public void ConvertJsonStringToTable2(){
+		public void ConvertJsonDictionaryToTable2(){
 			//set
 			var _tableName = "tablename";
 			var _storage = new FileStorage();
@@ -71,6 +71,57 @@ namespace BicDB.Storage
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "va\"lu \t\te");
 
+		}
+
+		[Test]
+		public void ConvertJsonDictionaryToTable3(){
+			//set
+			var _tableName = "tablename";
+			var _storage = new FileStorage();
+
+			var _table = Manager.GetOrCreateTable<TestStringModel>(_tableName);
+			_table.SetStorage(_storage);
+			_table.Clear ();
+
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":{\"key\":\"value\"}}]}", _table);
+
+			//check
+			Assert.AreEqual(_table[0]["data"].AsString, "{\"key\":\"value\"}");
+
+		}
+
+		[Test]
+		public void ConvertJsonDictionaryToTable4(){
+			//set
+			var _tableName = "tablename";
+			var _storage = new FileStorage();
+
+			var _table = Manager.GetOrCreateTable<TestStringModel>(_tableName);
+			_table.SetStorage(_storage);
+			_table.Clear ();
+
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":[1,2,3]}]}", _table);
+
+			//check
+			Assert.AreEqual(_table[0]["data"].AsString, "[1,2,3]");
+
+		}
+
+		[Test]
+		public void ConvertJsonListToTable1(){
+			//set
+			var _tableName = "tablename";
+			var _storage = new FileStorage();
+
+			var _table = Manager.GetOrCreateTable<TestWebModel>(_tableName);
+			_table.SetStorage(_storage);
+			_table.Clear ();
+
+			string _jsonList = "[{\"androidLink\":\"https://play.google.com/store/apps/details?id=com.kaimangames.basketball.nba.kim.jordan\",\"assetbundle\":\"http://aksdjf?dkf\",\"iosLink\":\"none\",\"title\":\"농구왕 김득점\",\"viewWeight\":100},{\"title\":\"ab cde\tfg\"}]";
+			JsonConvertor.ConvertJsonListToTable (ref _jsonList, ref _table);
+
+			//check
+			Assert.AreEqual(_table[0].Title.AsString, "ab cde\tfg");
 		}
 
 	}

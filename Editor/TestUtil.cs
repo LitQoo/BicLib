@@ -34,4 +34,21 @@ namespace BicDB
 	}
 
 
+	public class TestWebModel : BicDB.Model{
+		public IVariable AndroidLink = new StringVariable("");
+		public IVariable Assetbundle = new StringVariable("");
+		public IVariable IosLink = new StringVariable("");
+		public IVariable Title = new StringVariable("");
+		public IVariable ViewWeight = new IntVariable(0);
+
+		public TestWebModel(){
+			AddManagedColumn ("androidLink", AndroidLink);
+			AddManagedColumn ("assetbundle", Assetbundle);
+			AddManagedColumn ("iosLink", IosLink);
+			AddManagedColumn ("title", Title);
+			AddManagedColumn ("viewWeight", ViewWeight);
+		}
+	}
+
+
 }

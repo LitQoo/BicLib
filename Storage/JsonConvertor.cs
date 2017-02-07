@@ -147,36 +147,26 @@ namespace BicDB.Storage
 
 		static private bool increaseCounterUntilFoundCharWithSpeicalChar(ref string _jsonString, ref int _counter, char _findChar){
 			while (_counter < _jsonString.Length) {
-				if (_jsonString[_counter] == _findChar) {
+				if (_jsonString[_counter] == '\\') {
+					_counter++;
+				}else if (_jsonString[_counter] == _findChar) {
 					return true;
-				} else {
-					switch (_jsonString[_counter]) {
-					case ' ':
-						break;
-					case '\\':
-						_counter++;
-						break;
-					default :
-						return false;
-					}
 				}
+
 				_counter++;
 			}
 
 			return false;
 		}
 
-		static private bool increaseCounterUntilFoundNormalChar(ref string _jsonString, ref int _counter){
+		static private bool increaseCounterUntilFoundPassChar(ref string _jsonString, ref int _counter, char _findChar){
 			while (_counter < _jsonString.Length) {
-				switch (_jsonString[_counter]) {
-				case ' ':
-					break;
-				case '\\':
+				if (_jsonString[_counter] == '\\') {
 					_counter++;
-					break;
-				default :
+				}else if (_jsonString[_counter] != _findChar) {
 					return true;
 				}
+
 				_counter++;
 			}
 
@@ -230,35 +220,54 @@ namespace BicDB.Storage
 		static private string getValue(ref string _jsonString, ref int _startCounter){
 
 			// find start point
-
-
-			if (!increaseCounterUntilFoundNormalChar(ref _jsonString, ref _startCounter)) {
-				throw new SystemException("not found start \"");
+			if (!increaseCounterUntilFoundPassChar(ref _jsonString, ref _startCounter, ' ')) {
+				throw new SystemException("not found value");
 			}
 
-			bool _isString = false;
+			char _startChar = ' ';
+			char _endChar = ' ';
+			int _openerCount = 0;
+
 			if (_jsonString[_startCounter] == '"') {
-				_isString = true;
+				_startChar = '"';
+				_endChar = '"';
+				_openerCount++;
+				_startCounter++;
+			} else if (_jsonString[_startCounter] == '{') {
+				_startChar = '{';
+				_endChar = '}';
+				_openerCount++;
+				_startCounter++;
+			} else if (_jsonString[_startCounter] == '[') {
+				_startChar = '[';
+				_endChar = ']';
+				_openerCount++;
 				_startCounter++;
 			}
 
 
-
-			// collect sentence
-			// find last "
-			// return sentence
-
 			string _result = "";
 			while (_startCounter < _jsonString.Length) {
-				if(_jsonString[_startCounter] == '\\'){
+				if (_jsonString[_startCounter] == '\\') {
 					_startCounter++;
-				}else if ((_isString && _jsonString[_startCounter] == '"') || (!_isString && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}'))) {
-					if (!(_jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}')) {
+				} else if (_openerCount > 0 && _jsonString[_startCounter] == _endChar) {
+					_openerCount--;
+					if (_openerCount == 0) {
+						if (_startChar == '"') {
+							return _result;
+						} else {
+							return _startChar + _result + _endChar;
+						}
+					}
+				} else if (_openerCount > 0 && _jsonString[_startCounter] == _startChar){
+					_openerCount++;
+				} else if(_openerCount == 0 && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}' || _jsonString[_startCounter] == ']')){
+					if (!(_jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}' || _jsonString[_startCounter] == ']')) {
 						_startCounter++;
 					}
 
 					return _result;
-				}
+				} 
 
 				_result += _jsonString[_startCounter];
 
