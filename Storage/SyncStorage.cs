@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 namespace BicDB.Storage
 {
 	public class SyncStorage : MonoBehaviour, IStorage {
+		#region Static
+		static public string LOAD_URL_KEY = "syncstorageLoadURL";
+		#endregion
+
 		#region static
 		private static IStorage instance = null;  
 		private static GameObject container;  
@@ -43,7 +48,10 @@ namespace BicDB.Storage
 				}
 			}
 
-			if (_callback != null) {
+			if (_isSuccess) {
+				loadCallback = _callback;
+				StartCoroutine (GetTextFromWWW (_table));
+			} else if(_callback != null) {
 				_callback (_isSuccess);
 			}
 
@@ -51,6 +59,38 @@ namespace BicDB.Storage
 
 		private string getFileName(string _tableName){
 			return FileStorage.FILE_NAME_PREFIX + _tableName;
+		}
+
+		private Action<bool> loadCallback = null;
+		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
+		{
+			if (!_table.ContainsHeader (LOAD_URL_KEY)) {
+				throw new SystemException ("not found Header " + LOAD_URL_KEY);
+			}
+
+			WWW www = new WWW(_table.GetHeader(LOAD_URL_KEY).AsString);
+			yield return www;
+
+			bool _isSuccess = false;
+
+			if (www.error != null)
+			{
+				_isSuccess = false;
+			}
+			else
+			{
+				_isSuccess = true;
+
+				try {
+					JsonConvertor.ConvertJsonDictionaryToTableThenUpdate(www.text, _table);
+				} catch (Exception) {
+					_isSuccess = false;
+				}
+			}
+
+			if (loadCallback != null) {
+				loadCallback (_isSuccess);
+			}
 		}
 		#endregion
 	}

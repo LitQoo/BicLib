@@ -9,6 +9,7 @@ namespace BicDB
 	public interface ITable<T> : ILinqSupporter<T>
 	{
 		string Name{ get; set;}
+		string PrimaryKey{ get; set; }
 
 		T this [int _index] { get; }
 
@@ -27,6 +28,10 @@ namespace BicDB
 		bool ContainsHeader(string _key);
 		string[] GetHeaderKeyList();
 
+	}
+
+	static public class HeaderKey{
+		static public string PrimaryKey = "primaryKey";
 	}
 
 	public interface ILinqSupporter<T>
@@ -67,6 +72,15 @@ namespace BicDB
 			rows.Clear();
 		}
 
+		public string PrimaryKey{ 
+			get{ 
+				return GetHeader (HeaderKey.PrimaryKey).AsString;
+			} 
+
+			set{ 
+				SetHeader (HeaderKey.PrimaryKey, value);
+			} 
+		}
 		#endregion
 
 		#region Linq

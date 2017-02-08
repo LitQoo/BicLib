@@ -129,6 +129,55 @@ namespace BicDB.Storage
 		}
 
 		[Test]
+		public void ConvertJsonDictionaryToTableThenUpdate1(){
+			//set
+			var _tableName = "synctesttable";
+			var _storage = new FileStorage();
+
+			var _table = Manager.GetOrCreateTable<TestSyncModel>(_tableName);
+			_table.SetStorage(_storage);
+			_table.Clear ();
+			_table.PrimaryKey = "key";
+
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
+
+			Assert.AreEqual(_table[0][_table.PrimaryKey].AsString, "1");
+
+			JsonConvertor.ConvertJsonDictionaryToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":2,\"title\":\"mod\"}]}", _table);
+
+			//check
+			Assert.AreEqual(_table[0]["title"].AsString, "value1");
+			Assert.AreEqual(_table[1]["title"].AsString, "mod");
+			Assert.AreEqual(_table.GetSize(), 2);
+		}
+
+		[Test]
+		public void ConvertJsonDictionaryToTableThenUpdate2(){
+			//set
+			var _tableName = "synctesttable";
+			var _storage = new FileStorage();
+
+			var _table = Manager.GetOrCreateTable<TestSyncModel>(_tableName);
+			_table.SetStorage(_storage);
+			_table.Clear ();
+			_table.PrimaryKey = "key";
+
+			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
+
+			//check
+			Assert.AreEqual(_table[0][_table.PrimaryKey].AsInt, 1);
+			Assert.AreEqual(_table[1][_table.PrimaryKey].AsInt, 2);
+
+			JsonConvertor.ConvertJsonDictionaryToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":3,\"title\":\"mod\"}]}", _table);
+
+			//check
+			Assert.AreEqual(_table[0]["title"].AsString, "value1");
+			Assert.AreEqual(_table[1]["title"].AsString, "value2");
+			Assert.AreEqual(_table[2]["title"].AsString, "mod");
+			Assert.AreEqual(_table.GetSize(), 3);
+		}
+
+		[Test]
 		public void ConvertJsonListToTable1(){
 			//set
 			var _tableName = "tablename";
@@ -191,6 +240,14 @@ namespace BicDB.Storage
 			Assert.AreEqual(_list[2].AsInt, 789);
 			Assert.AreEqual(_list[3].AsInt, 0);
 			Assert.AreEqual(_list[4].AsInt, 1);
+		}
+
+		[Test]
+		public void ConvertJsonListToList5(){
+
+			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<EncryptedIntVariable>("[]");
+
+			Assert.AreEqual (_list.Count, 0);
 		}
 
 		[Test]

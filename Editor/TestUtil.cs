@@ -52,5 +52,25 @@ namespace BicDB
 		}
 	}
 
+	public class TestSyncModel : BicDB.Model{
+		public IVariable Key = new IntVariable(0);
+		public IVariable AndroidLink = new StringVariable("");
+		public IVariable Assetbundle = new StringVariable("");
+		public IVariable IosLink = new StringVariable("");
+		public IVariable Title = new StringVariable("");
+		public IVariable ViewWeight = new IntVariable(0);
+		public IListVariable Images = new ListVariable<StringVariable>();
+
+		public TestSyncModel(){
+			AddManagedColumn ("key", Key);
+			AddManagedColumn ("androidLink", AndroidLink);
+			AddManagedColumn ("assetbundle", Assetbundle);
+			AddManagedColumn ("iosLink", IosLink);
+			AddManagedColumn ("title", Title);
+			AddManagedColumn ("viewWeight", ViewWeight);
+			AddManagedColumn ("images", Images as IVariable);
+		}
+	}
+
 
 }

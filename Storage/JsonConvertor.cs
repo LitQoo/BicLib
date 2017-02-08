@@ -86,6 +86,37 @@ namespace BicDB.Storage
 			}
 		}
 
+		static public void ConvertJsonDictionaryToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+			int i = 0;
+
+			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			i++;
+
+
+			while(i < _jsonString.Length){
+				string _fieldName = getName(ref _jsonString, ref i);
+
+				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
+				i++;
+
+				if (_fieldName == "data") {
+					updateTable(ref _jsonString, _table, ref i);
+				} else {
+					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
+				}
+
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
+					break;
+				}
+
+				i++;
+
+			}
+		}
+
 		static public void ConvertJsonListToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int _count = 0;
 			string _jsonList = _jsonString;
@@ -97,6 +128,11 @@ namespace BicDB.Storage
 			int _counter = 0;
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
 			_counter++;
+
+			if (_jsonString [_counter] == ']') {
+				_counter++;
+				return _result;
+			}
 
 			while (_counter < _jsonString.Length) {
 				string _value = getValue(ref _jsonString, ref _counter);
@@ -146,8 +182,41 @@ namespace BicDB.Storage
 
 			while (_counter < _jsonString.Length) {
 				T _model = MakeModel<T>(ref _jsonString, ref _counter);
-				Manager.GetTable<T>().AddRow(_model);
+				_table.AddRow(_model);
 
+
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
+					break;
+				}
+
+				_counter++;
+			}
+
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ']');
+			_counter++;
+		}
+
+		static private void updateTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
+
+
+			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
+			_counter++;
+
+			while (_counter < _jsonString.Length) {
+				T _model = MakeModel<T>(ref _jsonString, ref _counter);
+				T _finder = _table.FirstOrDefault (_row => _row [_table.PrimaryKey].AsString == _model [_table.PrimaryKey].AsString);
+
+				if (_finder == null) {
+					_table.AddRow(_model);
+				} else {
+					var _columns = _model.GetColumnNameList ();
+					foreach (var _item in _columns) {
+						if (_finder.ContainsKey (_item)) {
+							_finder [_item].LoadValue (_model [_item].AsString);
+						}
+					}
+				}
 
 				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
 					break;
