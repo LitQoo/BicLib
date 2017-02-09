@@ -37,11 +37,11 @@ namespace BicDB.Storage
 		private Action<bool> loadCallback = null;
 		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
 			loadCallback = _callback;
-			StartCoroutine(GetTextFromWWW(_table));
+			StartCoroutine(getTextFromWWW(_table));
 
 		}
 
-		IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
+		private IEnumerator getTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
 		{
 			if (!_table.ContainsHeader (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);

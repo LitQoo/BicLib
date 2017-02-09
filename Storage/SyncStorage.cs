@@ -36,6 +36,7 @@ namespace BicDB.Storage
 		}
 
 		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+			
 			string _data = FileStorage.Read(getFileName(_table.Name));
 			bool _isSuccess = true;
 
@@ -93,5 +94,18 @@ namespace BicDB.Storage
 			}
 		}
 		#endregion
+	}
+
+
+	public class SyncStorageParameter{
+		public enum SyncMode
+		{
+			RemoveLocalIfNotFound,
+			RemoveWebIfNotFound,
+			RemoveLocalAndWebIfNotFound,
+			All
+		}
+
+		public SyncMode Mode;
 	}
 }
