@@ -36,9 +36,18 @@ namespace BicDB.Storage
 		}
 
 		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
-			
+			SyncStorageParameter _param = _parameter as SyncStorageParameter;
+
 			string _data = FileStorage.Read(getFileName(_table.Name));
 			bool _isSuccess = true;
+
+			if (_param.Target == SyncStorageParameter.SyncTarget.FileStorageOnly) {
+				if(_callback != null) {
+					_callback (_isSuccess);
+				}
+
+				return;
+			}
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
@@ -106,6 +115,19 @@ namespace BicDB.Storage
 			All
 		}
 
+		public enum SyncTarget
+		{
+			WebStorageOnly,
+			FileStorageOnly,
+			All
+		}
+
 		public SyncMode Mode;
+		public SyncTarget Target;
+
+		public SyncStorageParameter(SyncMode _mode, SyncTarget _target){
+			Mode = _mode;
+			Target = _target;
+		}
 	}
 }
