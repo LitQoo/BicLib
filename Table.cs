@@ -99,7 +99,6 @@ namespace BicDB
 		public IEnumerable<T> GetChangedRows(){
 			return Where ((T _row)=> _row.IsChanged());
 		}
-
 		#endregion
 
 		#region Storage

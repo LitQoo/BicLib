@@ -34,7 +34,23 @@ namespace BicDB.Utility
 			}
 		}
 
-		#region static
+		#region singleton
+		private static ResourceDownloader instance = null;  
+		private static GameObject container;  
+		public static ResourceDownloader GetInstance()  
+		{  
+			if(instance == null)  
+			{  
+				container = new GameObject();  
+				container.name = "BicDBResourceDownloader";  
+				instance = container.AddComponent(typeof(ResourceDownloader)) as ResourceDownloader;  
+				DontDestroyOnLoad(container);
+			}  
+
+			return instance;  
+		}  
+		#endregion
+
 		public void DownlaodImage(string _url, Action<ResultParam> _callback){
 			StartCoroutine(getImageFromWWW(new DownloadParam(_callback, _url)));
 		}
@@ -54,27 +70,9 @@ namespace BicDB.Utility
 					_callback(_result);
 				}
 			});
-				
+
 			StartCoroutine(getImageFromWWW(new DownloadParam(_callbackWrap, _url, _savePath)));
 		}
-		#endregion
-
-		#region singleton
-		private static ResourceDownloader instance = null;  
-		private static GameObject container;  
-		public static ResourceDownloader GetInstance()  
-		{  
-			if(instance == null)  
-			{  
-				container = new GameObject();  
-				container.name = "BicDBResourceDownloader";  
-				instance = container.AddComponent(typeof(ResourceDownloader)) as ResourceDownloader;  
-				DontDestroyOnLoad(container);
-			}  
-
-			return instance;  
-		}  
-		#endregion
 
 		private IEnumerator getImageFromWWW(DownloadParam _param) {
 
