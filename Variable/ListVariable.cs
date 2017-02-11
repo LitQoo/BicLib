@@ -12,7 +12,9 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.List; }}
+		#endregion
 
+		#region IListVariable
 		public IVariable this [int _index] { 
 			get{ 
 				return data[_index];
@@ -39,6 +41,10 @@ namespace BicDB.Variable
 			}
 
 			return false;
+		}
+
+		public void Clear(){
+			data.Clear ();
 		}
 		#endregion
 

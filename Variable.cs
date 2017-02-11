@@ -23,6 +23,7 @@ namespace BicDB
 		void Add(IVariable _value);
 		void RemoveAt(int _index);
 		bool Contains(IVariable _value);
+		void Clear();
 	}
 
 	public enum VariableType

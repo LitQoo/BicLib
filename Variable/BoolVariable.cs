@@ -8,9 +8,9 @@ namespace BicDB.Variable
 	public class BoolVariable : VariableBase, IVariable{
 		#region AsValue
 		private bool data;
-		public int AsInt{ get{ return data ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
-		public string AsString{ get{ return data.ToString().ToLower(); } set{ AsBool = bool.Parse (value);} }
-		public float AsFloat{ get{ return data ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
+		public int AsInt{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
+		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{ AsBool = bool.Parse (value);} }
+		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
 		public bool AsBool{ get{ return data; } set{ data = value; NotifyChanged ();} }
 		public VariableType Type { get { return VariableType.Bool; }}
 		#endregion
@@ -26,6 +26,32 @@ namespace BicDB.Variable
 		public void LoadValue(string _value){
 			AsString = _value;
 			IsChanged = false;
+		}
+	}
+
+	public class VirtualBoolVariable : VariableBase, IVariable{
+		#region AsValue
+		private Func<bool> data;
+		public int AsInt{ get{ return AsBool ? 1 : 0; } set{throwSetException ();} }
+		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{throwSetException ();} }
+		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{throwSetException ();} }
+		public bool AsBool{ get{ return data(); } set{throwSetException ();} }
+		public VariableType Type { get { return VariableType.Bool; }}
+		#endregion
+
+		public VirtualBoolVariable() : base(){
+		}
+
+		public VirtualBoolVariable(Func<bool> _func) : base(){
+			data = _func;
+		}
+
+		public void LoadValue(string _value){
+			throwSetException ();
+		}
+
+		private void throwSetException(){
+			throw new SystemException ("this variable not support to write");
 		}
 	}
 }
