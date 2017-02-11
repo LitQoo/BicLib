@@ -216,6 +216,8 @@ namespace BicDB.Storage
 					foreach (var _item in _columns) {
 						if (_finder.ContainsKey (_item)) {
 							_finder [_item].LoadValue (_model [_item].AsString);
+						} else {
+							_finder.AddManagedColumn(_item, new StringVariable (_model [_item].AsString));
 						}
 					}
 				}
@@ -250,9 +252,9 @@ namespace BicDB.Storage
 
 				if (_model.ContainsKey (_columnName)) {
 					_model [_columnName].LoadValue(_data);
+				}else {
+					_model.AddManagedColumn(_columnName, new StringVariable (_data));
 				}
-
-
 
 				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref  _counter, ',', "\n\t ")) {
 					break;
