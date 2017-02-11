@@ -20,13 +20,12 @@ namespace BicDB
 		int GetSize();
 		void Clear();
 
-		void SetHeader (string _key, string _value);
-		void SetHeader (string _key, float _value);
-		void SetHeader (string _key, int _value);
-		void SetHeader (string _key, bool _value);
-		IVariable GetHeader (string _key);
-		bool ContainsHeader(string _key);
-		string[] GetHeaderKeyList();
+		#region Header&Property
+		Dictionary<string, IVariable> Header { get; }
+		Dictionary<string, IVariable> Property { get; }
+		void SetOrChangeProperty (string _key, IVariable _variable);
+		void SetOrChangeHeader (string _key, IVariable _variable);
+		#endregion
 
 	}
 
@@ -74,11 +73,11 @@ namespace BicDB
 
 		public string PrimaryKey{ 
 			get{ 
-				return GetHeader (HeaderKey.PrimaryKey).AsString;
+				return Header[HeaderKey.PrimaryKey].AsString;
 			} 
 
 			set{ 
-				SetHeader (HeaderKey.PrimaryKey, value);
+				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
 			} 
 		}
 		#endregion
@@ -119,51 +118,26 @@ namespace BicDB
 
 		#region Header
 		private Dictionary<string, IVariable> header = new Dictionary<string, IVariable> ();
-
-		public void SetHeader (string _key, string _value){
-			if (!ContainsHeader (_key)) {
-				header.Add(_key, new StringVariable(_value));
-			}else{
-				header [_key].AsString = _value;
+		public Dictionary<string, IVariable> Header {get{ return header; }}
+		public void SetOrChangeHeader(string _key, IVariable _variable){
+			if (header.ContainsKey (_key)) {
+				header [_key].AsString = _variable.AsString;
+			} else {
+				header [_key] = _variable;
 			}
 		}
+		#endregion
 
-		public void SetHeader (string _key, float _value){
-			if (!ContainsHeader (_key)) {
-				header.Add(_key, new FloatVariable(_value));
-			}else{
-				header [_key].AsFloat = _value;
+		#region Property
+		private Dictionary<string, IVariable> property = new Dictionary<string, IVariable> ();
+		public Dictionary<string, IVariable> Property {get{ return property; }}
+		public void SetOrChangeProperty(string _key, IVariable _variable){
+			if (property.ContainsKey (_key)) {
+				property [_key].AsString = _variable.AsString;
+			} else {
+				property [_key] = _variable;
 			}
 		}
-
-		public void SetHeader (string _key, int _value){
-			if (!ContainsHeader (_key)) {
-				header.Add(_key, new IntVariable(_value));
-			}else{
-				header [_key].AsInt = _value;
-			}
-		}
-
-		public void SetHeader (string _key, bool _value){
-			if (!ContainsHeader (_key)) {
-				header.Add(_key, new BoolVariable(_value));
-			}else{
-				header [_key].AsBool = _value;
-			}
-		}
-
-		public IVariable GetHeader (string _key){
-			return header [_key];
-		}
-
-		public bool ContainsHeader(string _key){
-			return header.ContainsKey (_key);
-		}
-
-		public string[] GetHeaderKeyList(){
-			return header.Keys.ToArray ();
-		}
-
 		#endregion
 	}
 

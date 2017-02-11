@@ -2,6 +2,8 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using BicDB.Variable;
 
 namespace BicDB.Storage
 {
@@ -10,15 +12,15 @@ namespace BicDB.Storage
 		static public string ConvertTableToJsonString<T>(ITable<T> _table) where T : IModel {
 			string _result = "{";
 
-			var _headerKeys = _table.GetHeaderKeyList ();
+			var _propertyKeys = _table.Property.Keys.ToArray();
 			//header
-			for(int i = 0; i < _headerKeys.Length; i++){
-				IVariable _header = _table.GetHeader (_headerKeys [i]);
+			for(int i = 0; i < _propertyKeys.Length; i++){
+				IVariable _property = _table.Property[_propertyKeys [i]];
 
-				if (_header.Type == VariableType.String) {
-					_result += "\"" + _headerKeys[i] + "\":\"" + _header.AsString.Replace("\"","\\\"") + "\"";
+				if (_property.Type == VariableType.String) {
+					_result += "\"" + _propertyKeys[i] + "\":\"" + _property.AsString.Replace("\"","\\\"") + "\"";
 				} else {
-					_result += "\"" + _headerKeys[i] + "\":" + _header.AsString;
+					_result += "\"" + _propertyKeys[i] + "\":" + _property.AsString;
 				}
 
 				_result += ",";
@@ -72,9 +74,9 @@ namespace BicDB.Storage
 				i++;
 
 				if (_fieldName == "data") {
-					setTable(ref _jsonString, _table, ref i);
+					setTable (ref _jsonString, _table, ref i);
 				} else {
-					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
+					_table.SetOrChangeProperty (_fieldName, new StringVariable (getValue (ref _jsonString, ref i)));
 				}
 
 				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
@@ -105,7 +107,7 @@ namespace BicDB.Storage
 				if (_fieldName == "data") {
 					updateTable(ref _jsonString, _table, ref i);
 				} else {
-					_table.SetHeader (_fieldName, getValue (ref _jsonString, ref i));
+					_table.SetOrChangeProperty (_fieldName, new StringVariable (getValue (ref _jsonString, ref i)));
 				}
 
 				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {

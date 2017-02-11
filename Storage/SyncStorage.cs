@@ -54,6 +54,7 @@ namespace BicDB.Storage
 					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
 					_isSuccess = true;
 				} catch (Exception) {
+					Debug.Log ("load file json convert error");
 					_isSuccess = false;
 				}
 			}
@@ -74,17 +75,18 @@ namespace BicDB.Storage
 		private Action<bool> loadCallback = null;
 		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
 		{
-			if (!_table.ContainsHeader (LOAD_URL_KEY)) {
+			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
-			WWW www = new WWW(_table.GetHeader(LOAD_URL_KEY).AsString);
+			WWW www = new WWW(_table.Header[LOAD_URL_KEY].AsString);
 			yield return www;
 
 			bool _isSuccess = false;
 
 			if (www.error != null)
 			{
+				Debug.Log ("www error");
 				_isSuccess = false;
 			}
 			else
@@ -94,6 +96,7 @@ namespace BicDB.Storage
 				try {
 					JsonConvertor.ConvertJsonDictionaryToTableThenUpdate(www.text, _table);
 				} catch (Exception) {
+					Debug.Log ("www json convert error " + www.text);
 					_isSuccess = false;
 				}
 			}
