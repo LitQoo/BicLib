@@ -24,8 +24,8 @@ namespace BicDB
 
 		#region method
 		void AddRow(T _row);
-		void Save(Action<bool> _callaback = null, object _parameter = null);
-		void Load(Action<bool> _callaback = null, object _parameter = null);
+		void Save(Action<Result> _callaback = null, object _parameter = null);
+		void Load(Action<Result> _callaback = null, object _parameter = null);
 		void SetStorage(IStorage _storage);
 		int GetSize();
 		void Clear();
@@ -41,6 +41,16 @@ namespace BicDB
 		void SetOrChangeHeader (string _key, IVariable _variable);
 		#endregion
 
+	}
+
+	public class Result{
+		public int Code = 0;
+		public string Message = "";
+
+		public Result(int _code, string _message = ""){
+			Code = _code;
+			Message = _message;
+		}
 	}
 
 	static public class HeaderKey{
@@ -150,12 +160,12 @@ namespace BicDB
 			storage = _storage;
 		}
 
-		public void Save(Action<bool> _callaback = null, object _parameter = null){
+		public void Save(Action<Result> _callaback = null, object _parameter = null){
 			storage.Save(this, _callaback, _parameter);
 		}
 
 
-		public void Load(Action<bool> _callaback = null, object _parameter = null){
+		public void Load(Action<Result> _callaback = null, object _parameter = null){
 			storage.Load(this, _callaback, _parameter);
 		}
 		#endregion

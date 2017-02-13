@@ -9,6 +9,13 @@ namespace BicDB.Storage
 		static public string LOAD_URL_KEY = "webstorageLoadURL";
 		#endregion
 
+		public enum ResultCode
+		{
+			Success = 0,
+			FailedConvertJson = 1,
+			ErrorNetwork = 2
+		}
+
 		#region singleton
 		private static IStorage instance = null;  
 		private static GameObject container;  
@@ -27,15 +34,15 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 
 			if (_callback != null) {
-				_callback(true);
+				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		private Action<bool> loadCallback = null;
-		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		private Action<Result> loadCallback = null;
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			loadCallback = _callback;
 			StartCoroutine(getTextFromWWW(_table));
 
@@ -50,25 +57,26 @@ namespace BicDB.Storage
 			WWW www = new WWW(_table.Header[LOAD_URL_KEY].AsString);
 			yield return www;
 
+			var _result = new Result ((int)ResultCode.Success);
 			bool _isSuccess = false;
 
 			if (www.error != null)
 			{
-				_isSuccess = false;
+				_result.Code = (int)ResultCode.ErrorNetwork;
+				_result.Message = www.error;
 			}
 			else
 			{
-				_isSuccess = true;
-
 				try {
 					JsonConvertor.ConvertJsonDictionaryToTable(www.text, _table);
 				} catch (Exception) {
-					_isSuccess = false;
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
 				}
 			}
 
 			if (loadCallback != null) {
-				loadCallback (_isSuccess);
+				loadCallback (_result);
 			}
 		}
 		#endregion

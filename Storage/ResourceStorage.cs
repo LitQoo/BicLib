@@ -9,6 +9,11 @@ namespace BicDB.Storage{
 	public class ResourceStorage : IStorage {
 		static public string FILE_NAME_PREFIX = "bdb_"; 
 
+		public enum ResultCode
+		{
+			Success = 0,
+			FailedConvertJson = 1
+		}
 		#region static
 		static private IStorage instance = null;
 		static public IStorage GetInstance(){
@@ -21,21 +26,27 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			if (_callback != null) {
-				_callback(false);
+				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			string _data = Read(getFileName(_table.Name));
+			var _result = new Result ((int)ResultCode.Success);
 
 			if (!string.IsNullOrEmpty(_data)) {
-				JsonConvertor.ConvertJsonDictionaryToTable(_data , _table);
+				try{
+					JsonConvertor.ConvertJsonDictionaryToTable(_data , _table);
+				}catch(SystemException){
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
+				}
 			}
 
 			if (_callback != null) {
-				_callback(true);
+				_callback(_result);
 			}
 		}
 

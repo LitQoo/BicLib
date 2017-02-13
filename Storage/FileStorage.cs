@@ -4,7 +4,15 @@ using UnityEngine;
 
 namespace BicDB.Storage
 {
+
 	public class FileStorage : IStorage{
+
+		public enum ResultCode
+		{
+			Success = 0,
+			FailedConvertJson = 1
+		}
+
 		static public string FILE_NAME_PREFIX = "bdb_"; 
 
 		#region static
@@ -19,28 +27,28 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name));
 			if (_callback != null) {
-				_callback(true);
+				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			string _data = Read(getFileName(_table.Name));
-			bool _isSuccess = true;
+			var _result = new Result ((int)ResultCode.Success);
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
 					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
-					_isSuccess = true;
 				} catch (Exception) {
-					_isSuccess = false;
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
 				}
 			}
 
 			if (_callback != null) {
-				_callback (_isSuccess);
+				_callback (_result);
 			}
 
 		}

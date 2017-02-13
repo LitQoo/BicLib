@@ -10,6 +10,13 @@ namespace BicDB.Storage
 		static public string LOAD_URL_KEY = "syncstorageLoadURL";
 		#endregion
 
+		public enum ResultCode
+		{
+			Success = 0,
+			FailedConvertJson = 1,
+			ErrorNetwork = 2
+		}
+
 		#region static
 		private static IStorage instance = null;  
 		private static GameObject container;  
@@ -28,42 +35,41 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			FileStorage.Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name));
 			if (_callback != null) {
-				_callback(true);
+				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<bool> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 
 			string _data = FileStorage.Read(getFileName(_table.Name));
-			bool _isSuccess = true;
+			var _result = new Result ((int)ResultCode.Success);
+
+			if (!string.IsNullOrEmpty (_data)) {
+				try {
+					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
+				} catch (Exception) {
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
+				}
+			}
 
 			if (_param.Target == SyncStorageParameter.SyncTarget.FileStorageOnly) {
 				if(_callback != null) {
-					_callback (_isSuccess);
+					_callback (_result);
 				}
 
 				return;
 			}
 
-			if (!string.IsNullOrEmpty (_data)) {
-				try {
-					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
-					_isSuccess = true;
-				} catch (Exception) {
-					Debug.Log ("load file json convert error");
-					_isSuccess = false;
-				}
-			}
-
-			if (_isSuccess) {
+			if (_result.Code == (int)ResultCode.Success) {
 				loadCallback = _callback;
 				StartCoroutine (GetTextFromWWW (_table));
 			} else if(_callback != null) {
-				_callback (_isSuccess);
+				_callback (_result);
 			}
 
 		}
@@ -72,7 +78,7 @@ namespace BicDB.Storage
 			return FileStorage.FILE_NAME_PREFIX + _tableName;
 		}
 
-		private Action<bool> loadCallback = null;
+		private Action<Result> loadCallback = null;
 		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
 		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
@@ -82,27 +88,25 @@ namespace BicDB.Storage
 			WWW www = new WWW(_table.Header[LOAD_URL_KEY].AsString);
 			yield return www;
 
-			bool _isSuccess = false;
+			var _result = new Result ((int)ResultCode.Success);
 
 			if (www.error != null)
 			{
-				Debug.Log ("www error");
-				_isSuccess = false;
+				_result.Code = (int)ResultCode.ErrorNetwork;
+				_result.Message = www.error;
 			}
 			else
 			{
-				_isSuccess = true;
-
 				try {
 					JsonConvertor.ConvertJsonDictionaryToTableThenUpdate(www.text, _table);
 				} catch (Exception) {
-					Debug.Log ("www json convert error " + www.text);
-					_isSuccess = false;
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
 				}
 			}
 
 			if (loadCallback != null) {
-				loadCallback (_isSuccess);
+				loadCallback (_result);
 			}
 		}
 		#endregion

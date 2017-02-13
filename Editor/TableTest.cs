@@ -258,7 +258,7 @@ namespace BicDB
 		public void SetStorageTest(){
 			var _table = new Table<Model>("tablename");
 			var _storage = Substitute.For<IStorage>();
-			Action<bool> _callback = (bool _isSuccess) => {
+			Action<Result> _callback = (Result _result) => {
 			};
 
 
@@ -273,7 +273,7 @@ namespace BicDB
 		public void SaveTest(){
 			var _table = new Table<Model>("tablename");
 			var _storage = Substitute.For<IStorage>();
-			Action<bool> _callback = (bool _isSuccess) => {
+			Action<Result> _callback = (Result _result) => {
 			};
 
 
@@ -288,7 +288,7 @@ namespace BicDB
 		public void LoadTest(){
 			var _table = new Table<Model>("tablename");
 			var _storage = Substitute.For<IStorage>();
-			Action<bool> _callback = (bool _isSuccess) => {
+			Action<Result> _callback = (Result _result) => {
 			};
 
 
