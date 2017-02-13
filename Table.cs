@@ -8,19 +8,33 @@ namespace BicDB
 
 	public interface ITable<T> : ILinqSupporter<T>
 	{
+		#region event
+		event Action<T> OnAddedRow;
+		event Action<T> OnRemovingRow;
+		#endregion
+
+		#region get&set
 		string Name{ get; set;}
 		string PrimaryKey{ get; set; }
+		#endregion
 
+		#region indexer
 		T this [int _index] { get; }
+		#endregion
 
+		#region method
 		void AddRow(T _row);
 		void Save(Action<bool> _callaback = null, object _parameter = null);
 		void Load(Action<bool> _callaback = null, object _parameter = null);
 		void SetStorage(IStorage _storage);
 		int GetSize();
 		void Clear();
+		void RemoveRow (int _index);
+		void RemoveRow (T _row);
+		void RemoveRow (Func<T, bool> _func);
+		#endregion
 
-		#region Header&Property
+		#region Header&Property 
 		Dictionary<string, IVariable> Header { get; }
 		Dictionary<string, IVariable> Property { get; }
 		void SetOrChangeProperty (string _key, IVariable _variable);
@@ -45,6 +59,11 @@ namespace BicDB
 	public class Table<T> : ITable<T> where T : class, IModel, new(){
 		private List<T> rows = new List<T>();
 
+		#region event
+		public event Action<T> OnAddedRow = delegate {};
+		public event Action<T> OnRemovingRow = delegate {};
+		#endregion
+
 		#region LifeCycle
 		public Table(string _name){
 			Name = _name;
@@ -65,10 +84,16 @@ namespace BicDB
 
 		public void AddRow(T _row){
 			rows.Add(_row);
+			OnAddedRow (_row);
+		}
+
+		public void InsertRow(int _index, T _row){
+			rows.Insert (_index, _row);
+			OnAddedRow (_row);
 		}
 
 		public void Clear(){
-			rows.Clear();
+			RemoveRow (_row => true);
 		}
 
 		public string PrimaryKey{ 
@@ -79,6 +104,25 @@ namespace BicDB
 			set{ 
 				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
 			} 
+		}
+
+		public void RemoveRow (int _index){
+			OnRemovingRow (rows [_index]);
+			rows.RemoveAt (_index);
+		}
+
+		public void RemoveRow (Func<T, bool> _func){
+			for (int i = rows.Count - 1; i >= 0; i--) {
+				if (_func (rows [i])) {
+					OnRemovingRow (rows [i]);
+					rows.RemoveAt (i);
+				}
+			}
+		}
+
+		public void RemoveRow (T _row){
+			OnRemovingRow (_row);
+			rows.Remove (_row);
 		}
 		#endregion
 
