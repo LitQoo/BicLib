@@ -65,6 +65,7 @@ namespace BicDB.Storage
 				return;
 			}
 
+
 			if (_result.Code == (int)ResultCode.Success) {
 				loadCallback = _callback;
 				StartCoroutine (GetTextFromWWW (_table));
