@@ -58,7 +58,6 @@ namespace BicDB.Storage
 			yield return www;
 
 			var _result = new Result ((int)ResultCode.Success);
-			bool _isSuccess = false;
 
 			if (www.error != null)
 			{
