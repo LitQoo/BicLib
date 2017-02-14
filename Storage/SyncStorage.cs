@@ -6,8 +6,9 @@ using System.Collections;
 namespace BicDB.Storage
 {
 	public class SyncStorage : MonoBehaviour, IStorage {
-		#region Static
+		#region Constant
 		static public string LOAD_URL_KEY = "syncstorageLoadURL";
+		static public string ENCRYPT_KEY = "ecky";
 		#endregion
 
 		public enum ResultCode
@@ -36,7 +37,12 @@ namespace BicDB.Storage
 
 		#region IStorage
 		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
-			FileStorage.Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name));
+			string _encKey = FileStorage.GetDefaultEncryptKey();
+			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
+				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
+			}
+
+			FileStorage.Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name), _encKey);
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}
@@ -44,8 +50,12 @@ namespace BicDB.Storage
 
 		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
+			string _encKey = FileStorage.GetDefaultEncryptKey();
+			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
+				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
+			}
 
-			string _data = FileStorage.Read(getFileName(_table.Name));
+			string _data = FileStorage.Read(getFileName(_table.Name), _encKey);
 			var _result = new Result ((int)ResultCode.Success);
 
 			if (!string.IsNullOrEmpty (_data)) {
