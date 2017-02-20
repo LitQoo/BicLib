@@ -26,6 +26,16 @@ namespace BicDB
 		void Clear();
 	}
 
+	public interface IDictionaryVariable : IVariable{
+		IVariable this [string _key] { get; }
+		int GetSize();
+		void Add(string _key, IVariable _value);
+		void RemoveAt(string _key);
+		bool Contains(IVariable _value);
+		bool Contains(string _key);
+		void Clear();
+	}
+
 	public enum VariableType
 	{
 		Int,

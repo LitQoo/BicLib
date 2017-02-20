@@ -108,5 +108,11 @@ namespace BicDB.Variable
 
 			Assert.Pass();
 		}
+
+		[Test]
+		public void VirtualStringTest(){
+			Assert.Ignore ();
+			// need int, float, bool ... virtual test
+		}
 	}
 }

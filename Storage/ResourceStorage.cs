@@ -38,7 +38,7 @@ namespace BicDB.Storage{
 
 			if (!string.IsNullOrEmpty(_data)) {
 				try{
-					JsonConvertor.ConvertJsonDictionaryToTable(_data , _table);
+					JsonConvertor.ConvertJsonFileToTable(_data , _table);
 				}catch(SystemException){
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

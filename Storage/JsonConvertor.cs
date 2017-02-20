@@ -57,7 +57,7 @@ namespace BicDB.Storage
 			return _result;
 		}
 
-		static public void ConvertJsonDictionaryToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonFileToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -88,7 +88,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		static public void ConvertJsonDictionaryToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonFileToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -119,13 +119,13 @@ namespace BicDB.Storage
 			}
 		}
 
-		static public void ConvertJsonListToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
 			int _count = 0;
 			string _jsonList = _jsonString;
 			setTable (ref _jsonList, _table, ref _count);
 		}
 
-		static public List<IVariable> ConvertJsonListToList<T>(string _jsonString) where T : IVariable, new(){
+		static public List<IVariable> ConvertJsonToList<T>(string _jsonString) where T : IVariable, new(){
 			List<IVariable> _result = new List<IVariable>();
 			int _counter = 0;
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
@@ -174,6 +174,71 @@ namespace BicDB.Storage
 
 			return _result;
 
+		}
+
+		static public Dictionary<string, IVariable> ConvertJsonToDictionary<T>(string _jsonString) where T : IVariable, new(){
+			Dictionary<string, IVariable> _result = new Dictionary<string, IVariable>();
+			int i = 0;
+
+			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			i++;
+
+
+			while(i < _jsonString.Length){
+				string _fieldName = getName(ref _jsonString, ref i);
+
+				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
+				i++;
+
+				IVariable _variable = new T();
+				_variable.LoadValue(getValue (ref _jsonString, ref i));
+				_result.Add(_fieldName, _variable);
+
+
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
+					break;
+				}
+
+				i++;
+
+			}
+
+
+
+//
+//			Dictionary<string, IVariable> _result = new Dictionary<string, IVariable>();
+//			int _counter = 0;
+//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
+//			_counter++;
+//
+//			if (_jsonString [_counter] == ']') {
+//				_counter++;
+//				return _result;
+//			}
+//
+//			while (_counter < _jsonString.Length) {
+//				string _value = getValue(ref _jsonString, ref _counter);
+//				IVariable _variable = new T();
+//				_variable.LoadValue(_value);
+//
+//				_result.Add(_variable);
+//
+//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
+//					break;
+//				}
+//
+//
+//				_counter++;
+//			}
+
+			return _result; 
+		}
+
+		static public string ConvertDictionaryToJsonString(Dictionary<string, IVariable> _dictionary){
+			return "";
 		}
 
 		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){

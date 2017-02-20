@@ -62,7 +62,7 @@ namespace BicDB.Variable
 		}
 
 		private void parse(string _jsonString){
-			data = Storage.JsonConvertor.ConvertJsonListToList<T>(_jsonString);
+			data = Storage.JsonConvertor.ConvertJsonToList<T>(_jsonString);
 		}
 	}
 }

@@ -49,7 +49,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"data\":\"value\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":123,\"data\":[{\"data\":\"value\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "value");
@@ -66,7 +66,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":\"va\\\"lu \\\t\te\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":0,\"data\":[{\"data\":\"va\\\"lu \\\t\te\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "va\\\"lu \\\t\te");
@@ -82,7 +82,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":{\"key\":\"value\"}}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":0,\"data\":[{\"data\":{\"key\":\"value\"}}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["data"].AsString, "{\"key\":\"value\"}");
@@ -99,7 +99,7 @@ namespace BicDB.Storage
 			_table.SetStorage(_storage);
 			_table.Clear ();
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":0,\"data\":[{\"data\":1} , \n\t{\"data\":2}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":0,\"data\":[{\"data\":1} , \n\t{\"data\":2}]}", _table);
 
 			//check
 			Assert.AreEqual(_table.GetSize(), 2);
@@ -119,7 +119,7 @@ namespace BicDB.Storage
 			_table.Clear ();
 
 			string _jsonList = "{\"data\":[{\"images\":[\"url1\",\"url2\",\"url3\",\"url4\"],\"title\":\"농구왕 김득점\",\"viewWeight\":100},{\"title\":\"중년기사 김봉식\",\"viewWeight\":200}],\"version\":1}";
-			JsonConvertor.ConvertJsonDictionaryToTable (_jsonList, _table);
+			JsonConvertor.ConvertJsonFileToTable (_jsonList, _table);
 
 			string _result = JsonConvertor.ConvertTableToJsonString(_table);
 
@@ -139,11 +139,11 @@ namespace BicDB.Storage
 			_table.Clear ();
 			_table.PrimaryKey = "key";
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
 
 			Assert.AreEqual(_table[0][_table.PrimaryKey].AsString, "1");
 
-			JsonConvertor.ConvertJsonDictionaryToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":2,\"title\":\"mod\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":2,\"title\":\"mod\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["title"].AsString, "value1");
@@ -162,13 +162,13 @@ namespace BicDB.Storage
 			_table.Clear ();
 			_table.PrimaryKey = "key";
 
-			JsonConvertor.ConvertJsonDictionaryToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTable ("{\"version\":123,\"data\":[{\"key\":1,\"title\":\"value1\"}, {\"key\":2,\"title\":\"value2\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0][_table.PrimaryKey].AsInt, 1);
 			Assert.AreEqual(_table[1][_table.PrimaryKey].AsInt, 2);
 
-			JsonConvertor.ConvertJsonDictionaryToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":3,\"title\":\"mod\"}]}", _table);
+			JsonConvertor.ConvertJsonFileToTableThenUpdate ("{\"version\":123,\"data\":[{\"key\":3,\"title\":\"mod\"}]}", _table);
 
 			//check
 			Assert.AreEqual(_table[0]["title"].AsString, "value1");
@@ -188,7 +188,7 @@ namespace BicDB.Storage
 			_table.Clear ();
 
 			string _jsonList = "{\"data\":[{\"images\":[\"url1\",\"url2\",\"url3\",\"url4\"],\"title\":\"농구왕 김득점\",\"viewWeight\":100},{\"title\":\"중년기사 김봉식\",\"viewWeight\":200}],\"version\":1}";
-			JsonConvertor.ConvertJsonDictionaryToTable (_jsonList, _table);
+			JsonConvertor.ConvertJsonFileToTable (_jsonList, _table);
 
 			//check
 			Assert.AreEqual(_table.GetSize(), 2);
@@ -202,7 +202,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList1(){
 			
-			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<StringVariable>("[\"abc\",\"d\\\"\t\",\"e\",\"f\"]");
+			List<IVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\"abc\",\"d\\\"\t\",\"e\",\"f\"]");
 
 			Assert.AreEqual(_list[0].AsString, "abc");
 			Assert.AreEqual(_list[1].AsString, "d\\\"\t");
@@ -213,7 +213,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList2(){
 			
-			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<StringVariable>("[\n\t\t\t\t{ \"test\" : \n\"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }\n\t\t\t]");
+			List<IVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\n\t\t\t\t{ \"test\" : \n\"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }\n\t\t\t]");
 
 			Assert.AreEqual(_list[0].AsString, "{ \"test\" : \n\"value\" }");
 		}
@@ -221,7 +221,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList3(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<IntVariable>("[\n123, \n456, \n789, 0,1]");
+			List<IVariable> _list = JsonConvertor.ConvertJsonToList<IntVariable>("[\n123, \n456, \n789, 0,1]");
 
 			Assert.AreEqual(_list[0].AsInt, 123);
 			Assert.AreEqual(_list[1].AsInt, 456);
@@ -233,7 +233,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList4(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<EncryptedIntVariable>("[\n123, \n456, \n789, 0,1]");
+			List<IVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[\n123, \n456, \n789, 0,1]");
 
 			Assert.AreEqual(_list[0].AsInt, 123);
 			Assert.AreEqual(_list[1].AsInt, 456);
@@ -245,7 +245,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList5(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonListToList<EncryptedIntVariable>("[]");
+			List<IVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[]");
 
 			Assert.AreEqual (_list.Count, 0);
 		}

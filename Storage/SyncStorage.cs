@@ -60,7 +60,7 @@ namespace BicDB.Storage
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
-					JsonConvertor.ConvertJsonDictionaryToTable (_data, _table);
+					JsonConvertor.ConvertJsonFileToTable (_data, _table);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();
@@ -109,7 +109,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.ConvertJsonDictionaryToTableThenUpdate(www.text, _table);
+					JsonConvertor.ConvertJsonFileToTableThenUpdate(www.text, _table);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();
