@@ -238,7 +238,28 @@ namespace BicDB.Storage
 		}
 
 		static public string ConvertDictionaryToJsonString(Dictionary<string, IVariable> _dictionary){
-			return "";
+			string _result = "{";
+
+			var _propertyKeys = _dictionary.Keys.ToArray();
+			//header
+			for(int i = 0; i < _propertyKeys.Length; i++){
+				IVariable _property = _dictionary [_propertyKeys [i]];
+
+				if (_property.Type == VariableType.String) {
+					_result += "\"" + _propertyKeys[i] + "\":\"" + _property.AsString.Replace("\"","\\\"") + "\"";
+				} else {
+					_result += "\"" + _propertyKeys[i] + "\":" + _property.AsString;
+				}
+
+				if (i != _propertyKeys.Length - 1) {
+					_result += ",";
+				}
+			}
+
+			_result += "}";
+
+			return _result;
+
 		}
 
 		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
