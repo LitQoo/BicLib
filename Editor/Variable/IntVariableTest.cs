@@ -9,6 +9,7 @@ namespace BicDB.Variable
 {
 	public class IntVariableTest {
 
+
 		[Test]
 		public void CreateTest()
 		{
