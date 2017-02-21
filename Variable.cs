@@ -17,6 +17,11 @@ namespace BicDB
 		void LoadValue(string _value);
 	}
 
+	public interface IEnumVariable<T> : IVariable where  T : struct
+	{
+		T AsEnum{ get; set; }
+	}
+
 	public interface IListVariable : IVariable{
 		IVariable this [int _index] { get; }
 		int GetSize();

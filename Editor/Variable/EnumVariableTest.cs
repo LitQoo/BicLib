@@ -42,11 +42,32 @@ namespace BicDB.Variable
 		}
 
 		[Test]
+		public void AsEnumOutTest()
+		{
+
+			EnumVariable<TestEnum> _var = new  EnumVariable<TestEnum> (TestEnum.two);
+
+			Assert.AreEqual(_var.AsEnum, TestEnum.two);
+		}
+
+		[Test]
 		public void AsStringOutTest()
 		{
 
 			IVariable _var = new  EnumVariable<TestEnum> (TestEnum.three);
 			Assert.AreEqual(_var.AsString, "three");
+		}
+
+
+		[Test]
+		public void AsEnumInTest()
+		{
+
+			IEnumVariable<TestEnum> _var = new  EnumVariable<TestEnum> (TestEnum.two);
+
+			_var.AsEnum = TestEnum.three;
+
+			Assert.AreEqual(_var.AsEnum, TestEnum.three);
 		}
 
 		[Test]
