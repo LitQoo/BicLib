@@ -19,6 +19,8 @@ namespace BicDB
 
 	public interface IEnumVariable<T> : IVariable where  T : struct
 	{
+		new event Action<IEnumVariable<T>> OnChangedValueActions;
+
 		T AsEnum{ get; set; }
 	}
 

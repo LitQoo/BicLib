@@ -6,6 +6,9 @@ namespace BicDB.Variable
 
 	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
+
+		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
+
 		#region AsValue
 		protected T data;
 		public int AsInt{ get{ return (int)Enum.ToObject(typeof(T), data); } set{ data = (T)Enum.ToObject(typeof(T), value); NotifyChanged ();} }
@@ -14,7 +17,7 @@ namespace BicDB.Variable
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public VariableType Type { get { return VariableType.Int; }}
 
-		public T AsEnum{ get{ return data; } set{ data = value; }}
+		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}
 		#endregion
 
 		public EnumVariable() : base(){
@@ -28,6 +31,12 @@ namespace BicDB.Variable
 		public void LoadValue(string _value){
 			AsString = _value;
 			IsChanged = false;
+		}
+
+
+		new public void NotifyChanged(){
+			IsChanged = true;
+			OnChangedValueActions (this as IEnumVariable<T>);
 		}
 	}
 }
