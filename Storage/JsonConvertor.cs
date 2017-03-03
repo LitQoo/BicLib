@@ -125,8 +125,8 @@ namespace BicDB.Storage
 			setTable (ref _jsonList, _table, ref _count);
 		}
 
-		static public List<IVariable> ConvertJsonToList<T>(string _jsonString) where T : IVariable, new(){
-			List<IVariable> _result = new List<IVariable>();
+		static public List<T> ConvertJsonToList<T>(string _jsonString) where T : IVariable, new(){
+			List<T> _result = new List<T>();
 			int _counter = 0;
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
 			_counter++;
@@ -138,7 +138,7 @@ namespace BicDB.Storage
 
 			while (_counter < _jsonString.Length) {
 				string _value = getValue(ref _jsonString, ref _counter);
-				IVariable _variable = new T();
+				T _variable = new T();
 				_variable.LoadValue(_value);
 
 				_result.Add(_variable);
@@ -154,7 +154,7 @@ namespace BicDB.Storage
 			return _result; 
 		}
 
-		static public string ConvertListToJsonString(List<IVariable> _list){
+		static public string ConvertListToJsonString<T>(List<T> _list) where T : IVariable, new(){
 			string _result = "[";
 
 			for (int i = 0; i < _list.Count; i++) {
@@ -176,8 +176,8 @@ namespace BicDB.Storage
 
 		}
 
-		static public Dictionary<string, IVariable> ConvertJsonToDictionary<T>(string _jsonString) where T : IVariable, new(){
-			Dictionary<string, IVariable> _result = new Dictionary<string, IVariable>();
+		static public Dictionary<string, T> ConvertJsonToDictionary<T>(string _jsonString) where T : IVariable, new(){
+			Dictionary<string, T> _result = new Dictionary<string, T>();
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -193,7 +193,7 @@ namespace BicDB.Storage
 				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
 				i++;
 
-				IVariable _variable = new T();
+				T _variable = new T();
 				_variable.LoadValue(getValue (ref _jsonString, ref i));
 				_result.Add(_fieldName, _variable);
 
@@ -237,7 +237,7 @@ namespace BicDB.Storage
 			return _result; 
 		}
 
-		static public string ConvertDictionaryToJsonString(Dictionary<string, IVariable> _dictionary){
+		static public string ConvertDictionaryToJsonString<T>(Dictionary<string, T> _dictionary) where T : IVariable, new(){
 			string _result = "{";
 
 			var _propertyKeys = _dictionary.Keys.ToArray();

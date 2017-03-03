@@ -202,7 +202,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList1(){
 			
-			List<IVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\"abc\",\"d\\\"\t\",\"e\",\"f\"]");
+			List<StringVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\"abc\",\"d\\\"\t\",\"e\",\"f\"]");
 
 			Assert.AreEqual(_list[0].AsString, "abc");
 			Assert.AreEqual(_list[1].AsString, "d\\\"\t");
@@ -213,7 +213,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList2(){
 			
-			List<IVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\n\t\t\t\t{ \"test\" : \n\"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }\n\t\t\t]");
+			List<StringVariable> _list = JsonConvertor.ConvertJsonToList<StringVariable>("[\n\t\t\t\t{ \"test\" : \n\"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }, \n\t\t\t\t{ \"test\" : \"value\" }\n\t\t\t]");
 
 			Assert.AreEqual(_list[0].AsString, "{ \"test\" : \n\"value\" }");
 		}
@@ -221,7 +221,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList3(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonToList<IntVariable>("[\n123, \n456, \n789, 0,1]");
+			List<IntVariable> _list = JsonConvertor.ConvertJsonToList<IntVariable>("[\n123, \n456, \n789, 0,1]");
 
 			Assert.AreEqual(_list[0].AsInt, 123);
 			Assert.AreEqual(_list[1].AsInt, 456);
@@ -233,7 +233,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList4(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[\n123, \n456, \n789, 0,1]");
+			List<EncryptedIntVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[\n123, \n456, \n789, 0,1]");
 
 			Assert.AreEqual(_list[0].AsInt, 123);
 			Assert.AreEqual(_list[1].AsInt, 456);
@@ -245,7 +245,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertJsonListToList5(){
 
-			List<IVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[]");
+			List<EncryptedIntVariable> _list = JsonConvertor.ConvertJsonToList<EncryptedIntVariable>("[]");
 
 			Assert.AreEqual (_list.Count, 0);
 		}
@@ -253,7 +253,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertListToJsonString1(){
 			
-			List<IVariable> _list = new List<IVariable>();
+			List<IntVariable> _list = new List<IntVariable>();
 
 			_list.Add(new IntVariable(123));
 			_list.Add(new IntVariable(456));
@@ -267,7 +267,7 @@ namespace BicDB.Storage
 		[Test]
 		public void ConvertListToJsonString2(){
 
-			List<IVariable> _list = new List<IVariable>();
+			List<IntVariable> _list = new List<IntVariable>();
 
 			string _result = JsonConvertor.ConvertListToJsonString(_list);
 

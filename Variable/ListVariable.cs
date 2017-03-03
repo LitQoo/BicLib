@@ -4,18 +4,20 @@ using System.Collections.Generic;
 
 namespace BicDB.Variable
 {
-	public class ListVariable<T> : VariableBase, IListVariable where T : IVariable, new()
+	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariable, new()
 	{
+		public event Action<T> OnAddedValueActions = delegate{};
+
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return Storage.JsonConvertor.ConvertListToJsonString(data); } set{ parse(value);  NotifyChanged ();} }
+		public string AsString{ get{ return Storage.JsonConvertor.ConvertListToJsonString<T>(data); } set{ parse(value);  NotifyChanged ();} }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.List; }}
 		#endregion
 
 		#region IListVariable
-		public IVariable this [int _index] { 
+		public T this [int _index] { 
 			get{ 
 				return data[_index];
 			} 
@@ -25,15 +27,16 @@ namespace BicDB.Variable
 			return data.Count;
 		}
 
-		public void Add(IVariable _value){
+		public void Add(T _value){
 			data.Add(_value);
+			OnAddedValueActions(_value);
 		}
 
 		public void RemoveAt(int _index){
 			data.RemoveAt(_index);
 		}
 
-		public bool Contains(IVariable _value){
+		public bool Contains(T _value){
 			foreach (var _item in data) {
 				if (_value.AsString == _item.AsString) {
 					return true;
@@ -50,7 +53,7 @@ namespace BicDB.Variable
 
 
 
-		private List<IVariable> data = new List<IVariable>();
+		private List<T> data = new List<T>();
 
 		public ListVariable() : base(){
 

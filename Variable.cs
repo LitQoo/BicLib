@@ -24,21 +24,22 @@ namespace BicDB
 		T AsEnum{ get; set; }
 	}
 
-	public interface IListVariable : IVariable{
-		IVariable this [int _index] { get; }
+	public interface IListVariable<T> : IVariable where T : IVariable, new(){
+		event Action<T> OnAddedValueActions;
+		T this [int _index] { get; }
 		int GetSize();
-		void Add(IVariable _value);
+		void Add(T _value);
 		void RemoveAt(int _index);
-		bool Contains(IVariable _value);
+		bool Contains(T _value);
 		void Clear();
 	}
 
-	public interface IDictionaryVariable : IVariable{
-		IVariable this [string _key] { get; }
+	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new(){
+		T this [string _key] { get; }
 		int GetSize();
-		void Add(string _key, IVariable _value);
+		void Add(string _key, T _value);
 		void RemoveAt(string _key);
-		bool Contains(IVariable _value);
+		bool Contains(T _value);
 		bool Contains(string _key);
 		void Clear();
 	}

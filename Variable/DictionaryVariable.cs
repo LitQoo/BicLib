@@ -4,23 +4,27 @@ using System.Collections.Generic;
 
 namespace BicDB.Variable
 {
-	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable where T : IVariable, new()
+	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable<T> where T : IVariable, new()
 	{
 
-		private Dictionary<string, IVariable> data = new Dictionary<string, IVariable>();
+		private Dictionary<string, T> data = new Dictionary<string, T>();
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return Storage.JsonConvertor.ConvertDictionaryToJsonString(data); } set{ parse(value);  NotifyChanged ();} }
+		public string AsString{ get{ return Storage.JsonConvertor.ConvertDictionaryToJsonString<T>(data); } set{ parse(value);  NotifyChanged ();} }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.List; }}
 		#endregion
 
 		#region IDictionaryVariable
-		public IVariable this [string _key] { 
+		public T this [string _key] { 
 			get{ 
 				return data [_key];
+			} 
+
+			protected set{ 
+				data [_key] = value;
 			} 
 		}
 
@@ -28,7 +32,7 @@ namespace BicDB.Variable
 			return data.Count;
 		}
 
-		public void Add(string _key, IVariable _value){
+		public void Add(string _key, T _value){
 			data.Add (_key, _value);
 		}
 
@@ -36,7 +40,7 @@ namespace BicDB.Variable
 			data.Remove (_key);	
 		}
 
-		public bool Contains(IVariable _value){
+		public bool Contains(T _value){
 			foreach (var _item in data) {
 				if (_value.AsString == _item.Value.AsString) {
 					return true;
