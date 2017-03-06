@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BicDB
+namespace BicDB.Variable
 {
 	public interface IVariable
 	{
@@ -26,6 +26,7 @@ namespace BicDB
 
 	public interface IListVariable<T> : IVariable where T : IVariable, new(){
 		event Action<T> OnAddedValueActions;
+		event Action OnClearedValueActions;
 		T this [int _index] { get; }
 		int GetSize();
 		void Add(T _value);
@@ -66,6 +67,54 @@ namespace BicDB
 		public void NotifyChanged(){
 			IsChanged = true;
 			OnChangedValueActions (this as IVariable);
+		}
+	}
+
+	static public class VariableUtil{
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable>[] _callback){
+			if (_member != null) {
+				for (int i = 0; i < _callback.Length; i++) {
+					_member.OnChangedValueActions -= _callback[i];
+				}
+			}
+
+			_member = _value;
+			for (int i = 0; i < _callback.Length; i++) {
+				_member.OnChangedValueActions += _callback[i];
+			}
+			_member.NotifyChanged();
+		}
+
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable> _callback){
+			if (_member != null) {
+				_member.OnChangedValueActions -= _callback;
+			}
+
+			_member = _value;
+			_member.OnChangedValueActions += _callback;
+			_member.NotifyChanged();
+		}
+
+		static public void SetVariableProperty<T>(ref IListVariable<T> _member, IListVariable<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IVariable, new(){
+			if (_member != null) {
+				if (_addedCallback != null) {
+					_member.OnAddedValueActions -= _addedCallback;
+				}
+
+				if (_clearedCallback != null) {
+					_member.OnClearedValueActions -= _clearedCallback;
+				}
+			}
+
+			_member = _value;
+
+			if (_addedCallback != null) {
+				_member.OnAddedValueActions += _addedCallback;
+			}
+
+			if (_clearedCallback != null) {
+				_member.OnClearedValueActions += _clearedCallback;
+			}
 		}
 	}
 }

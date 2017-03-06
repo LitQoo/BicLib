@@ -7,6 +7,7 @@ namespace BicDB.Variable
 	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariable, new()
 	{
 		public event Action<T> OnAddedValueActions = delegate{};
+		public event Action OnClearedValueActions = delegate{};
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
@@ -48,6 +49,7 @@ namespace BicDB.Variable
 
 		public void Clear(){
 			data.Clear ();
+			OnClearedValueActions();
 		}
 		#endregion
 
