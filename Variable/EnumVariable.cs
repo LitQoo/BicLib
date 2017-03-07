@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BicDB;
 
 namespace BicDB.Variable
@@ -36,8 +37,27 @@ namespace BicDB.Variable
 
 		new public void NotifyChanged(){
 			IsChanged = true;
+
+			if (onSetValueActions.ContainsKey(data)) {
+				onSetValueActions[data]();
+			}
+
 			OnChangedValueActions (this as IEnumVariable<T>);
+
 		}
+
+		#region SubscribeSetValue
+		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
+
+		public void SubscribeSetValue(T _enum, Action _callback){
+			if (onSetValueActions.ContainsKey(_enum)) {
+				onSetValueActions[_enum] += () => _callback();
+			} else {
+				onSetValueActions[_enum] = () => _callback();
+			}
+		}
+		#endregion
+
 	}
 }
 

@@ -15,6 +15,7 @@ namespace BicDB.Variable
 
 		void NotifyChanged();
 		void LoadValue(string _value);
+		void SubscribeChangedValue(Action<IVariable> _callback);
 	}
 
 	public interface IEnumVariable<T> : IVariable where  T : struct
@@ -22,6 +23,8 @@ namespace BicDB.Variable
 		new event Action<IEnumVariable<T>> OnChangedValueActions;
 
 		T AsEnum{ get; set; }
+
+		void SubscribeSetValue(T _enum, Action _callback);
 	}
 
 	public interface IListVariable<T> : IVariable where T : IVariable, new(){
@@ -67,6 +70,10 @@ namespace BicDB.Variable
 		public void NotifyChanged(){
 			IsChanged = true;
 			OnChangedValueActions (this as IVariable);
+		}
+
+		public void SubscribeChangedValue(Action<IVariable> _callback){
+			OnChangedValueActions += _callback;
 		}
 	}
 
