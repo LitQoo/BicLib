@@ -76,6 +76,23 @@ namespace BicDB.Variable
 			Assert.AreEqual(_var.Contains(new StringVariable("1")), true);
 			Assert.AreEqual(_var.Contains(new StringVariable("6")), false);
 		}
+
+		[Test]
+		public void IsEqualTest1(){
+			ListVariable<StringVariable> _var1 = new ListVariable<StringVariable> ();
+			ListVariable<StringVariable> _var2 = new ListVariable<StringVariable> ();
+
+			_var1.Add(new StringVariable("1"));
+			_var2.Add(new StringVariable("2"));
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+
+			_var2[0].AsString = "1";
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+		}
 	}
 }
 

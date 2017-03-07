@@ -92,5 +92,33 @@ namespace BicDB.Variable
 
 			Assert.Pass();
 		}
+
+		[Test]
+		public void IsEqualTest1(){
+			IntVariable _var1 = new IntVariable(123);
+			IntVariable _var2 = new IntVariable(44444);
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+
+			_var2.AsInt = 123;
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+		}
+
+		[Test]
+		public void IsEqualTest2(){
+			IntVariable _var1 = new IntVariable(123);
+			StringVariable _var2 = new StringVariable("4444");
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+
+			_var2.AsString = "123";
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+		}
 	}
 }

@@ -94,5 +94,22 @@ namespace BicDB.Variable
 			Assert.AreEqual(_var.Contains("key6"), false);
 			Assert.AreEqual(_var.GetSize(), 0);
 		}
+
+		[Test]
+		public void IsEqualTest1(){
+			DictionaryVariable<StringVariable> _var1 = new DictionaryVariable<StringVariable> ();
+			DictionaryVariable<StringVariable> _var2 = new DictionaryVariable<StringVariable> ();
+
+			_var1.Add("key", new StringVariable("1"));
+			_var2.Add("key", new StringVariable("2"));
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+
+			_var2["key"].AsString = "1";
+
+			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
+			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+		}
 	}
 }

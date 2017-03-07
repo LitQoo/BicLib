@@ -16,15 +16,8 @@ namespace BicDB.Variable
 		void NotifyChanged();
 		void LoadValue(string _value);
 		void SubscribeChangedValue(Action<IVariable> _callback);
-	}
-
-	public interface IEnumVariable<T> : IVariable where  T : struct
-	{
-		new event Action<IEnumVariable<T>> OnChangedValueActions;
-
-		T AsEnum{ get; set; }
-
-		void SubscribeSetValue(T _enum, Action _callback);
+		bool IsEqualExactly(IVariable _variable);
+		bool IsEqualGenerally(IVariable _variable);
 	}
 
 	public interface IListVariable<T> : IVariable where T : IVariable, new(){
@@ -75,6 +68,14 @@ namespace BicDB.Variable
 		public void SubscribeChangedValue(Action<IVariable> _callback){
 			OnChangedValueActions += _callback;
 		}
+
+		public bool IsEqualExactly(IVariable _variable){
+			return VariableUtil.IsEqualExactly(this as IVariable, _variable);
+		}
+
+		public bool IsEqualGenerally(IVariable _variable){
+			return VariableUtil.IsEqualGenerally(this as IVariable, _variable);
+		}
 	}
 
 	static public class VariableUtil{
@@ -122,6 +123,27 @@ namespace BicDB.Variable
 			if (_clearedCallback != null) {
 				_member.OnClearedValueActions += _clearedCallback;
 			}
+		}
+
+		static public bool IsEqualExactly(IVariable _variable1, IVariable _variable2){
+			if (_variable1.Type == _variable2.Type) {
+				switch (_variable1.Type) {
+					case VariableType.Bool:
+						return _variable1.AsBool == _variable2.AsBool;
+					case VariableType.Float:
+						return _variable1.AsFloat == _variable2.AsFloat;
+					case VariableType.Int:
+						return _variable1.AsInt == _variable2.AsInt;
+					default:
+						return _variable1.AsString == _variable2.AsString;
+				}	
+			}
+
+			return false;
+		}
+
+		static public bool IsEqualGenerally(IVariable _variable1, IVariable _variable2){
+			return _variable1.AsString == _variable2.AsString;
 		}
 	}
 }
