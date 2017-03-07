@@ -70,5 +70,6 @@ namespace BicDB.Variable
 			data = Storage.JsonConvertor.ConvertJsonToList<T>(_jsonString);
 		}
 	}
+
 }
 
