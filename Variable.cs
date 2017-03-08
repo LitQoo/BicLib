@@ -20,6 +20,7 @@ namespace BicDB.Variable
 	}
 
 	public interface IListVariable<T> : IVariable where T : IVariable, new(){
+		new event Action<IListVariable<T>, string> OnChangedValueActions;
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		T this [int _index] { get; }

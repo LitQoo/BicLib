@@ -19,7 +19,7 @@ namespace BicDB
 		public void NotifyTest(){
 			var _model = new ModelVariable ();
 			string _msg = "msg";
-			_model.OnChangedValueActions += (IVariable _model2, string _message) => {
+			_model.OnChangedValueActions += (IModelVariable _model2, string _message) => {
 				if(_model2 == _model && _message == _msg){
 					Assert.Pass();
 				}
@@ -33,12 +33,11 @@ namespace BicDB
 
 		[Test]
 		public void IndexerTest(){
-			int _testValue = 123;
 			var _model = new ModelVariable ();
-			var _var = new IntVariable (_testValue);
+			var _var = new IntVariable (123);
 			_model.AddManagedColumn ("key", _var);
 
-			Assert.AreEqual(_model["key"].AsInt, _testValue); 
+			Assert.AreEqual(_model["key"].AsInt, 123); 
 		}
 
 		[Test]

@@ -58,6 +58,7 @@ namespace BicDB
 //	}
 
 	public interface IModelVariable : IVariable{
+		new event Action<IModelVariable, string> OnChangedValueActions;
 		IVariable this [string _key] { get; }
 		bool Contains(string _key);
 		void AddManagedColumn(string _key, IVariable _value);
@@ -66,6 +67,9 @@ namespace BicDB
 
 	public class ModelVariable : VariableBase, IModelVariable{
 		private Dictionary<string, IVariable> data = new Dictionary<string, IVariable>();
+
+		public new event Action<IModelVariable, string> OnChangedValueActions = delegate{};
+
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
@@ -109,6 +113,11 @@ namespace BicDB
 
 		private void parse(string _jsonString){
 			Storage.JsonConvertor.ConvertJsonToModel(this, _jsonString);
+		}
+
+		public new void NotifyChanged(string _message = ""){
+			IsChanged = true;
+			OnChangedValueActions (this, _message);
 		}
 		#endregion
 	}

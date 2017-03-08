@@ -6,6 +6,7 @@ namespace BicDB.Variable
 {
 	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariable, new()
 	{
+		public new event Action<IListVariable<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 
@@ -68,6 +69,11 @@ namespace BicDB.Variable
 
 		private void parse(string _jsonString){
 			data = Storage.JsonConvertor.ConvertJsonToList<T>(_jsonString);
+		}
+
+		public new void NotifyChanged(string _message = ""){
+			IsChanged = true;
+			OnChangedValueActions (this, _message);
 		}
 	}
 
