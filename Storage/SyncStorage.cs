@@ -36,7 +36,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
 				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
@@ -48,7 +48,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
@@ -90,7 +90,7 @@ namespace BicDB.Storage
 		}
 
 		private Action<Result> loadCallback = null;
-		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModel, new()
+		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModelVariable, new()
 		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);

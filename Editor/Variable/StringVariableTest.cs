@@ -98,7 +98,7 @@ namespace BicDB.Variable
 			StringVariable _var = new StringVariable ("def");
 			string _changeValue = "change";
 
-			_var.OnChangedValueActions += (IVariable _changer) => {
+			_var.OnChangedValueActions += (IVariable _changer, string _message) => {
 				if(_changer.AsString != _changeValue){
 					Assert.Fail();
 				}

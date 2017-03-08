@@ -139,7 +139,7 @@ namespace BicDB.Variable
 			BoolVariable _var = new BoolVariable (false);
 			bool _changeValue = true;
 
-			_var.OnChangedValueActions += (IVariable _changer) => {
+			_var.OnChangedValueActions += (IVariable _changer, string _message) => {
 				if(_changer.AsBool != _changeValue){
 					Assert.Fail();
 				}

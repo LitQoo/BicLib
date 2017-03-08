@@ -31,13 +31,13 @@ namespace BicDB
 			}
 		}
 
-		static public ITable<T> CreateTable<T>(string _name) where T : class, IModel, new() {
+		static public ITable<T> CreateTable<T>(string _name) where T : class, IModelVariable, new() {
 			var _table = new Table<T>(_name);
 			Manager.AddTable<T>(_table);
 			return _table;
 		}
 
-		static public ITable<T> GetOrCreateTable<T>(string _name) where T : class, IModel, new() {
+		static public ITable<T> GetOrCreateTable<T>(string _name) where T : class, IModelVariable, new() {
 
 			var _table = GetTable<T>(_name);
 

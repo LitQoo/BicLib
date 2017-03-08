@@ -9,7 +9,7 @@ namespace BicDB
 
 	}
 
-	public class TestStringModel : Model
+	public class TestStringModel : ModelVariable
 	{
 		static public string COLUMN_NAME = "data";
 
@@ -22,7 +22,7 @@ namespace BicDB
 
 
 
-	public class TestIntModel : Model
+	public class TestIntModel : ModelVariable
 	{
 		static public string COLUMN_NAME = "data";
 
@@ -34,7 +34,7 @@ namespace BicDB
 	}
 
 
-	public class TestWebModel : BicDB.Model{
+	public class TestWebModel : BicDB.ModelVariable{
 		public IVariable AndroidLink = new StringVariable("");
 		public IVariable Assetbundle = new StringVariable("");
 		public IVariable IosLink = new StringVariable("");
@@ -52,7 +52,7 @@ namespace BicDB
 		}
 	}
 
-	public class TestSyncModel : BicDB.Model{
+	public class TestSyncModel : BicDB.ModelVariable{
 		public IVariable Key = new IntVariable(0);
 		public IVariable AndroidLink = new StringVariable("");
 		public IVariable Assetbundle = new StringVariable("");

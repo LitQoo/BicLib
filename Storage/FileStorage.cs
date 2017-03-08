@@ -43,7 +43,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _encKey = defaultEncryptKey;
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
 				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
@@ -56,7 +56,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _encKey = defaultEncryptKey;
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
 				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');

@@ -9,7 +9,7 @@ namespace BicDB.Storage
 {
 	static public class JsonConvertor {
 		#region parse
-		static public string ConvertTableToJsonString<T>(ITable<T> _table) where T : IModel {
+		static public string ConvertTableToJsonString<T>(ITable<T> _table) where T : IModelVariable {
 			string _result = "{";
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
@@ -57,7 +57,7 @@ namespace BicDB.Storage
 			return _result;
 		}
 
-		static public void ConvertJsonFileToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonFileToTable<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -88,7 +88,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		static public void ConvertJsonFileToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonFileToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
 			int i = 0;
 
 			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
@@ -119,7 +119,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		static public void ConvertJsonToTable<T>(string _jsonString, ITable<T> _table) where T : IModel, new(){
+		static public void ConvertJsonToTable<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
 			int _count = 0;
 			string _jsonList = _jsonString;
 			setTable (ref _jsonList, _table, ref _count);
@@ -173,6 +173,38 @@ namespace BicDB.Storage
 			_result += "]";
 
 			return _result;
+
+		}
+
+		static public void ConvertJsonToModel(IModelVariable _model, string _jsonString){
+			int i = 0;
+
+			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			i++;
+
+			while(i < _jsonString.Length){
+				string _fieldName = getName(ref _jsonString, ref i);
+
+				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
+				i++;
+
+				if (_model.Contains(_fieldName)) {
+					_model[_fieldName].LoadValue(getValue(ref _jsonString, ref i));
+				} else {
+					_model.AddManagedColumn(_fieldName, new StringVariable(getValue(ref _jsonString, ref i)));
+				}
+
+
+				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
+					break;
+				}
+
+				i++;
+
+			}
 
 		}
 
@@ -237,7 +269,7 @@ namespace BicDB.Storage
 			return _result; 
 		}
 
-		static public string ConvertDictionaryToJsonString<T>(Dictionary<string, T> _dictionary) where T : IVariable, new(){
+		static public string ConvertDictionaryToJsonString<T>(Dictionary<string, T> _dictionary) where T : IVariable{
 			string _result = "{";
 
 			var _propertyKeys = _dictionary.Keys.ToArray();
@@ -262,7 +294,7 @@ namespace BicDB.Storage
 
 		}
 
-		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
+		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModelVariable, new(){
 
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
@@ -285,7 +317,7 @@ namespace BicDB.Storage
 			_counter++;
 		}
 
-		static private void updateTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModel, new(){
+		static private void updateTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModelVariable, new(){
 
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
@@ -300,7 +332,7 @@ namespace BicDB.Storage
 				} else {
 					var _columns = _model.GetColumnNameList ();
 					foreach (var _item in _columns) {
-						if (_finder.ContainsKey (_item)) {
+						if (_finder.Contains (_item)) {
 							_finder [_item].LoadValue (_model [_item].AsString);
 						} else {
 							_finder.AddManagedColumn(_item, new StringVariable (_model [_item].AsString));
@@ -320,7 +352,7 @@ namespace BicDB.Storage
 			_counter++;
 		}
 
-		static public T MakeModel<T>(ref string _jsonString, ref int _counter) where T : IModel, new(){
+		static public T MakeModel<T>(ref string _jsonString, ref int _counter) where T : IModelVariable, new(){
 			T _model = new T();
 
 			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '{');
@@ -336,7 +368,7 @@ namespace BicDB.Storage
 				//set data
 				string _data = getValue(ref _jsonString, ref _counter);
 
-				if (_model.ContainsKey (_columnName)) {
+				if (_model.Contains (_columnName)) {
 					_model [_columnName].LoadValue(_data);
 				}else {
 					_model.AddManagedColumn(_columnName, new StringVariable (_data));

@@ -82,7 +82,7 @@ namespace BicDB.Variable
 			IntVariable _var = new IntVariable (124);
 			int _changeValue = 222;
 
-			_var.OnChangedValueActions += (IVariable _changer) => {
+			_var.OnChangedValueActions += (IVariable _changer, string _message) => {
 				if(_changer.AsFloat != _changeValue){
 					Assert.Fail();
 				}

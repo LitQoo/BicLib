@@ -26,13 +26,13 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModel, new() {
+		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
 

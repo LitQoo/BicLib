@@ -4,6 +4,16 @@ using System.Collections.Generic;
 
 namespace BicDB.Variable
 {
+	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new(){
+		T this [string _key] { get; }
+		int GetSize();
+		void Add(string _key, T _value);
+		void RemoveAt(string _key);
+		bool Contains(T _value);
+		bool Contains(string _key);
+		void Clear();
+	}
+
 	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable<T> where T : IVariable, new()
 	{
 
@@ -76,4 +86,5 @@ namespace BicDB.Variable
 		}
 		#endregion
 	}
+
 }

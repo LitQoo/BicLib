@@ -8,7 +8,7 @@ namespace BicDB
 	public class ModelTest {
 		[Test]
 		public void AddManagedColumnTest(){
-			var _model = new Model ();
+			var _model = new ModelVariable ();
 			var _var = new IntVariable (0);
 			_model.AddManagedColumn ("key", _var);
 
@@ -17,9 +17,9 @@ namespace BicDB
 
 		[Test]
 		public void NotifyTest(){
-			var _model = new Model ();
+			var _model = new ModelVariable ();
 			string _msg = "msg";
-			_model.OnNotifyActions += (IModel _model2, string _message) => {
+			_model.OnChangedValueActions += (IVariable _model2, string _message) => {
 				if(_model2 == _model && _message == _msg){
 					Assert.Pass();
 				}
@@ -34,7 +34,7 @@ namespace BicDB
 		[Test]
 		public void IndexerTest(){
 			int _testValue = 123;
-			var _model = new Model ();
+			var _model = new ModelVariable ();
 			var _var = new IntVariable (_testValue);
 			_model.AddManagedColumn ("key", _var);
 
@@ -43,7 +43,7 @@ namespace BicDB
 
 		[Test]
 		public void GetFieldNamesTest(){
-			var _model = new Model ();
+			var _model = new ModelVariable ();
 			var _var1 = new IntVariable (0);
 			var _var2 = new IntVariable (0);
 			_model.AddManagedColumn ("key1", _var1);

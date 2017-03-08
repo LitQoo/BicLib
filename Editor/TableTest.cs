@@ -11,16 +11,16 @@ namespace BicDB
 	public class TableTest {
 		[Test]
 		public void GetRowSizeTest(){
-			var _table = new Table<Model>("tablename");
-			_table.AddRow(new Model());
+			var _table = new Table<ModelVariable>("tablename");
+			_table.AddRow(new ModelVariable());
 
 			Assert.AreEqual(_table.GetSize(), 1);
 		}
 
 		[Test]
 		public void GetRowTest(){
-			var _table = new Table<Model>("tablename");
-			var _model = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model = new ModelVariable();
 			_table.AddRow(_model);
 
 			var _checkRow = _table[0];
@@ -30,8 +30,8 @@ namespace BicDB
 
 		[Test]
 		public void IndexerTest(){
-			var _table = new Table<Model>("tablename");
-			var _model = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model = new ModelVariable();
 			_table.AddRow(_model);
 
 
@@ -44,8 +44,8 @@ namespace BicDB
 
 		[Test]
 		public void AddRowTest(){
-			var _table = new Table<Model>("tablename");
-			var _model = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model = new ModelVariable();
 			_table.AddRow(_model);
 
 			var _checkRow = _table[0];
@@ -55,15 +55,15 @@ namespace BicDB
 
 		[Test]
 		public void InsertRow1(){
-			var _table = new Table<Model>("tablename");
-			var _model1 = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model1 = new ModelVariable();
 			_table.AddRow(_model1);
-			var _model2 = new Model();
+			var _model2 = new ModelVariable();
 			_table.AddRow(_model2);
-			var _model3 = new Model();
+			var _model3 = new ModelVariable();
 			_table.AddRow(_model3);
 
-			var _model4 = new Model();
+			var _model4 = new ModelVariable();
 			_table.InsertRow(1, _model4);
 
 			var _checkRow = _table[1];
@@ -110,12 +110,12 @@ namespace BicDB
 
 		[Test]
 		public void ClearTest(){
-			var _table = new Table<Model>("tablename");
-			var _model1 = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model1 = new ModelVariable();
 			_table.AddRow(_model1);
-			var _model2 = new Model();
+			var _model2 = new ModelVariable();
 			_table.AddRow(_model2);
-			var _model3 = new Model();
+			var _model3 = new ModelVariable();
 			_table.AddRow(_model3);
 
 
@@ -129,12 +129,12 @@ namespace BicDB
 
 		[Test]
 		public void RemoveRowTest1(){
-			var _table = new Table<Model>("tablename");
-			var _model1 = new Model();
+			var _table = new Table<ModelVariable>("tablename");
+			var _model1 = new ModelVariable();
 			_table.AddRow(_model1);
-			var _model2 = new Model();
+			var _model2 = new ModelVariable();
 			_table.AddRow(_model2);
-			var _model3 = new Model();
+			var _model3 = new ModelVariable();
 			_table.AddRow(_model3);
 
 			_table.RemoveRow(1);
@@ -256,7 +256,7 @@ namespace BicDB
 
 		[Test]
 		public void SetStorageTest(){
-			var _table = new Table<Model>("tablename");
+			var _table = new Table<ModelVariable>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -265,13 +265,13 @@ namespace BicDB
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<Model>(_table, _callback);
+			_storage.Received().Save<ModelVariable>(_table, _callback);
 			Assert.Pass();
 		}
 
 		[Test]
 		public void SaveTest(){
-			var _table = new Table<Model>("tablename");
+			var _table = new Table<ModelVariable>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -280,13 +280,13 @@ namespace BicDB
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<Model>(_table, _callback);
+			_storage.Received().Save<ModelVariable>(_table, _callback);
 			Assert.Pass();
 		}
 
 		[Test]
 		public void LoadTest(){
-			var _table = new Table<Model>("tablename");
+			var _table = new Table<ModelVariable>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -295,7 +295,7 @@ namespace BicDB
 			_table.SetStorage(_storage);
 			_table.Load(_callback);
 
-			_storage.Received().Load<Model>(_table, _callback);
+			_storage.Received().Load<ModelVariable>(_table, _callback);
 			Assert.Pass();
 		}
 	}

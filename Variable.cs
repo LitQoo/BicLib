@@ -4,7 +4,7 @@ namespace BicDB.Variable
 {
 	public interface IVariable
 	{
-		event Action<IVariable> OnChangedValueActions;
+		event Action<IVariable, string> OnChangedValueActions;
 
 		int AsInt{ get; set; }
 		string AsString{ get; set; }
@@ -13,9 +13,8 @@ namespace BicDB.Variable
 		VariableType Type { get; }
 		bool IsChanged{ get; set;}
 
-		void NotifyChanged();
+		void NotifyChanged(string _message = "");
 		void LoadValue(string _value);
-		void SubscribeChangedValue(Action<IVariable> _callback);
 		bool IsEqualExactly(IVariable _variable);
 		bool IsEqualGenerally(IVariable _variable);
 	}
@@ -31,16 +30,6 @@ namespace BicDB.Variable
 		void Clear();
 	}
 
-	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new(){
-		T this [string _key] { get; }
-		int GetSize();
-		void Add(string _key, T _value);
-		void RemoveAt(string _key);
-		bool Contains(T _value);
-		bool Contains(string _key);
-		void Clear();
-	}
-
 	public enum VariableType
 	{
 		Int,
@@ -52,7 +41,7 @@ namespace BicDB.Variable
 	}
 
 	public class VariableBase{
-		public event Action<IVariable> OnChangedValueActions = delegate{};
+		public event Action<IVariable, string> OnChangedValueActions = delegate{};
 
 		public bool IsChanged{ get; set;}
 
@@ -60,13 +49,9 @@ namespace BicDB.Variable
 			IsChanged = false;
 		}
 
-		public void NotifyChanged(){
+		public void NotifyChanged(string _message = ""){
 			IsChanged = true;
-			OnChangedValueActions (this as IVariable);
-		}
-
-		public void SubscribeChangedValue(Action<IVariable> _callback){
-			OnChangedValueActions += _callback;
+			OnChangedValueActions (this as IVariable, _message);
 		}
 
 		public bool IsEqualExactly(IVariable _variable){
@@ -79,7 +64,7 @@ namespace BicDB.Variable
 	}
 
 	static public class VariableUtil{
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable>[] _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable, string>[] _callback){
 			if (_member != null) {
 				for (int i = 0; i < _callback.Length; i++) {
 					_member.OnChangedValueActions -= _callback[i];
@@ -93,7 +78,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable> _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable, string> _callback){
 			if (_member != null) {
 				_member.OnChangedValueActions -= _callback;
 			}
@@ -131,7 +116,7 @@ namespace BicDB.Variable
 					case VariableType.Bool:
 						return _variable1.AsBool == _variable2.AsBool;
 					case VariableType.Float:
-						return _variable1.AsFloat == _variable2.AsFloat;
+						return Math.Abs(_variable1.AsFloat - _variable2.AsFloat) < 0.00001f;
 					case VariableType.Int:
 						return _variable1.AsInt == _variable2.AsInt;
 					default:

@@ -66,7 +66,7 @@ namespace BicDB
 	}
 
 
-	public class Table<T> : ITable<T> where T : class, IModel, new(){
+	public class Table<T> : ITable<T> where T : class, IModelVariable, new(){
 		private List<T> rows = new List<T>();
 
 		#region event
@@ -150,7 +150,7 @@ namespace BicDB
 		}
 
 		public IEnumerable<T> GetChangedRows(){
-			return Where ((T _row)=> _row.IsChanged());
+			return Where ((T _row)=> _row.IsChanged);
 		}
 		#endregion
 

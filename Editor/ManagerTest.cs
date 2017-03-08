@@ -13,10 +13,10 @@ namespace BicDB
 
 		[Test]
 		public void AddTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename");
-			Manager.AddTable<Model> (_table);
+			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
+			Manager.AddTable<ModelVariable> (_table);
 
-			var _getTable = Manager.GetTable<Model> ();
+			var _getTable = Manager.GetTable<ModelVariable> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
@@ -24,11 +24,11 @@ namespace BicDB
 
 		[Test]
 		public void AddAlreadyAddedTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename");
-			Manager.AddTable<Model> (_table);
+			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
+			Manager.AddTable<ModelVariable> (_table);
 
 			try {
-				Manager.AddTable<Model> (_table);
+				Manager.AddTable<ModelVariable> (_table);
 			} catch (System.Exception) {
 				Assert.Pass ();
 			}
@@ -39,20 +39,20 @@ namespace BicDB
 
 		[Test]
 		public void GetTableTestWithoutTablename(){
-			ITable<Model> _table = new Table<Model> ("tablename");
-			Manager.AddTable<Model> (_table);
+			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
+			Manager.AddTable<ModelVariable> (_table);
 
-			var _getTable = Manager.GetTable<Model> ();
+			var _getTable = Manager.GetTable<ModelVariable> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
 
 		[Test]
 		public void GetTableTestWithTablename(){
-			ITable<Model> _table = new Table<Model> ("tablename");
-			Manager.AddTable<Model> (_table);
+			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
+			Manager.AddTable<ModelVariable> (_table);
 
-			var _getTable = Manager.GetTable<Model> ("tablename");
+			var _getTable = Manager.GetTable<ModelVariable> ("tablename");
 
 			Assert.AreEqual (_table, _getTable);
 		}
@@ -60,26 +60,26 @@ namespace BicDB
 		[Test]
 		public void GetTableTestMissingTable(){
 			
-			var _getTable = Manager.GetTable<Model> ("???");
+			var _getTable = Manager.GetTable<ModelVariable> ("???");
 
 			Assert.IsNull (_getTable);
 		}
 
 		[Test]
 		public void CreateTableTest(){
-			ITable<Model> _table = Manager.CreateTable<Model>("tablename");
+			ITable<ModelVariable> _table = Manager.CreateTable<ModelVariable>("tablename");
 
-			var _getTable = Manager.GetTable<Model> ();
+			var _getTable = Manager.GetTable<ModelVariable> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
 
 		[Test]
 		public void ClearTableTest(){
-			ITable<Model> _table = new Table<Model> ("tablename");
-			Manager.AddTable<Model> (_table);
+			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
+			Manager.AddTable<ModelVariable> (_table);
 			Manager.ClearTables ();
-			var _getTable = Manager.GetTable<Model> ();
+			var _getTable = Manager.GetTable<ModelVariable> ();
 
 			Assert.IsNull (_getTable);
 		}
