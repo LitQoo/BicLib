@@ -63,6 +63,8 @@ namespace BicDB
 		IEnumerable<T> Where(Func<T, bool> _func);
 		T FirstOrDefault(Func<T, bool> _func);
 		IEnumerable<U> Select<U>(Func<T, U> _func);
+		IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func);
+		IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func);
 	}
 
 
@@ -146,11 +148,19 @@ namespace BicDB
 		}
 
 		public IEnumerable<U> Select<U>(Func<T, U> _func){
-			return rows.Select<T,U>(_func);
+			return rows.Select(_func);
 		}
 
 		public IEnumerable<T> GetChangedRows(){
 			return Where ((T _row)=> _row.IsChanged);
+		}
+
+		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
+			return rows.OrderBy(_func);
+		}
+
+		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
+			return rows.OrderByDescending(_func);
 		}
 		#endregion
 

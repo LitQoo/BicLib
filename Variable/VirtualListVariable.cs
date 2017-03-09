@@ -1,6 +1,7 @@
 ﻿using System;
 using BicDB;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BicDB.Variable
 {
@@ -10,6 +11,7 @@ namespace BicDB.Variable
 		public new event Action<IListVariable<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
+		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 
 		#region AsValue
 		private Func<int, T> data;
@@ -26,6 +28,10 @@ namespace BicDB.Variable
 			get{ 
 				return data(_index);
 			} 
+
+			set{ 
+				throwSetException ();
+			}
 		}
 
 		public int GetSize(){
@@ -48,6 +54,33 @@ namespace BicDB.Variable
 
 		public void Clear(){
 			throwSetException ();
+		}
+		#endregion
+
+		#region Linq
+		public IEnumerable<T> Where(Func<T, bool> _func){
+			throwSetException();
+			return null;
+		}
+
+		public T FirstOrDefault(Func<T, bool> _func){
+			throwSetException();
+			return data(0);
+		}
+
+		public IEnumerable<U> Select<U>(Func<T, U> _func){
+			throwSetException();
+			return null;
+		}
+
+		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
+			throwSetException();
+			return null;
+		}
+
+		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
+			throwSetException();
+			return null;
 		}
 		#endregion
 

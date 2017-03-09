@@ -93,6 +93,34 @@ namespace BicDB.Variable
 			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
 			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
 		}
+
+		[Test]
+		public void OnChangedElementNotifyTest(){
+			ListVariable<StringVariable> _var1 = new ListVariable<StringVariable> ();
+			int _count = 0;
+			_var1.Add(new StringVariable("1"));
+			_var1.Add(new StringVariable("1"));
+
+			_var1.OnChangedElementActions[0] += (int _index, StringVariable _variable) => {
+				if(_variable.AsString == "test"){
+					_count++;
+				}
+			};
+
+			_var1.OnChangedElementActions[0] += (int _index, StringVariable _variable) => {
+				if(_variable.AsString == "test"){
+					_count++;
+				}
+			};
+
+			_var1.OnChangedElementActions[1] += (int _index, StringVariable _variable) => {
+				_count = -1;
+			};
+
+			_var1[0] = new StringVariable("test");
+
+			Assert.AreEqual(_count, 2);
+		}
 	}
 }
 

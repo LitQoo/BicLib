@@ -4,12 +4,19 @@ using BicDB;
 
 namespace BicDB.Variable
 {
+	public interface IEnumVariable<T> : IVariable where  T : struct
+	{
+		new event Action<IEnumVariable<T>> OnChangedValueActions;
+
+		OnChangedValueToDelegator<T> OnSetValueActions{ get; set;}
+		T AsEnum{ get; set; }
+	}
 
 	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
 
 		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
-		public OnSetValueDelegator<T> OnSetValueActions{ get; set; } 
+		public OnChangedValueToDelegator<T> OnSetValueActions{ get; set; } 
 
 		#region AsValue
 		protected T data;
@@ -23,12 +30,12 @@ namespace BicDB.Variable
 		#endregion
 
 		public EnumVariable() : base(){
-			OnSetValueActions = new OnSetValueDelegator<T>();
+			OnSetValueActions = new OnChangedValueToDelegator<T>();
 		}
 
 		public EnumVariable(T _value) : base(){
 			data = _value;
-			OnSetValueActions = new OnSetValueDelegator<T>();
+			OnSetValueActions = new OnChangedValueToDelegator<T>();
 		}
 
 		public void LoadValue(string _value){
@@ -37,7 +44,7 @@ namespace BicDB.Variable
 		}
 
 
-		new public void NotifyChanged(){
+		public new void NotifyChanged(){
 			IsChanged = true;
 
 			OnSetValueActions[data]();
@@ -45,36 +52,6 @@ namespace BicDB.Variable
 
 		}
 
-	}
-
-	public class OnSetValueDelegator<T> where  T : struct{
-		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
-
-		public Action this[T _enum]{
-			get{
-				if (!onSetValueActions.ContainsKey(_enum)) {
-					onSetValueActions[_enum] = delegate{};
-				}
-
-				return onSetValueActions[_enum];
-			}
-
-			set{ 
-				if (!onSetValueActions.ContainsKey(_enum)) {
-					onSetValueActions[_enum] = delegate{};
-				}
-
-				onSetValueActions[_enum] = value;
-			}
-		}
-	}
-
-	public interface IEnumVariable<T> : IVariable where  T : struct
-	{
-		new event Action<IEnumVariable<T>> OnChangedValueActions;
-
-		OnSetValueDelegator<T> OnSetValueActions{ get; set;}
-		T AsEnum{ get; set; }
 	}
 }
 

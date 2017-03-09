@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BicDB.Variable
 {
@@ -19,17 +20,6 @@ namespace BicDB.Variable
 		bool IsEqualGenerally(IVariable _variable);
 	}
 
-	public interface IListVariable<T> : IVariable where T : IVariable, new(){
-		new event Action<IListVariable<T>, string> OnChangedValueActions;
-		event Action<T> OnAddedValueActions;
-		event Action OnClearedValueActions;
-		T this [int _index] { get; }
-		int GetSize();
-		void Add(T _value);
-		void RemoveAt(int _index);
-		bool Contains(T _value);
-		void Clear();
-	}
 
 	public enum VariableType
 	{
@@ -61,6 +51,43 @@ namespace BicDB.Variable
 
 		public bool IsEqualGenerally(IVariable _variable){
 			return VariableUtil.IsEqualGenerally(this as IVariable, _variable);
+		}
+	}
+
+	public class OnChangedValueToDelegator<T> where  T : struct{
+		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
+
+		public Action this[T _enum]{
+			get{
+				if (!onSetValueActions.ContainsKey(_enum)) {
+					return delegate{};
+				}
+
+				return onSetValueActions[_enum];
+			}
+
+			set{ 
+				onSetValueActions[_enum] = value;
+			}
+		}
+	}
+
+
+	public class OnChangedElementDelegator<T, U>{
+		private Dictionary<T, Action<int, U>> onChangedElementActions = new Dictionary<T, Action<int, U>>();
+
+		public Action<int, U> this[T _index]{
+			get{
+				if (!onChangedElementActions.ContainsKey(_index)) {
+					onChangedElementActions[_index] = delegate {};
+				}
+
+				return onChangedElementActions[_index];
+			}
+
+			set{ 
+				onChangedElementActions[_index] = value;
+			}
 		}
 	}
 
