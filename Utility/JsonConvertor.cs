@@ -1,507 +1,403 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-//using BicDB.Variable;
 using BicDB.Variable;
+using System;
+using System.Linq;
 
-namespace BicDB.Storage
+namespace BicDB.Utility
 {
-//	static public class JsonConvertor {
-//		#region parse
-//		static public string ConvertTableToJsonString<T>(ITable<T> _table) where T : IModelVariable {
-//			string _result = "{";
-//
-//			var _propertyKeys = _table.Property.Keys.ToArray();
-//			//header
-//			for(int i = 0; i < _propertyKeys.Length; i++){
-//				IVariable _property = _table.Property[_propertyKeys [i]];
-//
-//				if (_property.Type == VariableType.String) {
-//					_result += "\"" + _propertyKeys[i] + "\":\"" + _property.AsString.Replace("\"","\\\"") + "\"";
-//				} else {
-//					_result += "\"" + _propertyKeys[i] + "\":" + _property.AsString;
-//				}
-//
-//				_result += ",";
-//			}
-//
-//			_result += "\"data\":[";
-//
-//			//data
-//			for (int i = 0; i < _table.GetSize(); i++) {
-//				_result += "{";
-//				var _columnKeys = _table[i].GetColumnNameList();
-//				for (int j = 0; j < _columnKeys.Count; j++) {
-//					IVariable _column = _table[i][_columnKeys[j]];
-//					if (_column.Type == VariableType.String) {
-//						_result += "\"" + _columnKeys[j] + "\":\"" + _column.AsString.Replace("\"","\\\"") + "\"";
-//					} else {
-//						_result += "\"" + _columnKeys[j] + "\":" + _column.AsString;
-//					}
-//
-//					if (j != _columnKeys.Count - 1) {
-//						_result += ",";
-//					}
-//				}
-//
-//				_result += "}";
-//
-//				if (i != _table.GetSize() - 1) {
-//					_result += ",";
-//				}
-//			}
-//
-//			_result += "]}";
-//
-//			return _result;
-//		}
-//
-//		static public void ConvertJsonFileToTable<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
-//			int i = 0;
-//
-//			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
-//				throw new SystemException("fail find {");
-//			}
-//
-//			i++;
-//
-//
-//			while(i < _jsonString.Length){
-//				string _fieldName = getName(ref _jsonString, ref i);
-//
-//				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
-//				i++;
-//
-//				if (_fieldName == "data") {
-//					setTable (ref _jsonString, _table, ref i);
-//				} else {
-//					_table.SetOrChangeProperty (_fieldName, new StringVariable (getValue (ref _jsonString, ref i)));
-//				}
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				i++;
-//
-//			}
-//		}
-//
-//		static public void ConvertJsonFileToTableThenUpdate<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
-//			int i = 0;
-//
-//			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
-//				throw new SystemException("fail find {");
-//			}
-//
-//			i++;
-//
-//
-//			while(i < _jsonString.Length){
-//				string _fieldName = getName(ref _jsonString, ref i);
-//
-//				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
-//				i++;
-//
-//				if (_fieldName == "data") {
-//					updateTable(ref _jsonString, _table, ref i);
-//				} else {
-//					_table.SetOrChangeProperty (_fieldName, new StringVariable (getValue (ref _jsonString, ref i)));
-//				}
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				i++;
-//
-//			}
-//		}
-//
-//		static public void ConvertJsonToTable<T>(string _jsonString, ITable<T> _table) where T : IModelVariable, new(){
-//			int _count = 0;
-//			string _jsonList = _jsonString;
-//			setTable (ref _jsonList, _table, ref _count);
-//		}
-//
-//		static public List<T> ConvertJsonToList<T>(string _jsonString) where T : IVariable, new(){
-//			List<T> _result = new List<T>();
-//			int _counter = 0;
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
-//			_counter++;
-//
-//			if (_jsonString [_counter] == ']') {
-//				_counter++;
-//				return _result;
-//			}
-//
-//			while (_counter < _jsonString.Length) {
-//				string _value = getValue(ref _jsonString, ref _counter);
-//				T _variable = new T();
-//				_variable.LoadValue(_value);
-//
-//				_result.Add(_variable);
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//
-//				_counter++;
-//			}
-//
-//			return _result; 
-//		}
-//
-//		static public string ConvertListToJsonString<T>(List<T> _list) where T : IVariable, new(){
-//			string _result = "[";
-//
-//			for (int i = 0; i < _list.Count; i++) {
-//				if (_list[i].Type == VariableType.String) {
-//					_result += "\"" + _list[i].AsString + "\"";
-//				} else {
-//					_result += _list[i].AsString;
-//				}
-//
-//				if (i != _list.Count - 1) {
-//					_result += ", ";
-//				}
-//			}
-//
-//
-//			_result += "]";
-//
-//			return _result;
-//
-//		}
-//
-//		static public void ConvertJsonToModel(IModelVariable _model, string _jsonString){
-//			int i = 0;
-//
-//			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
-//				throw new SystemException("fail find {");
-//			}
-//
-//			i++;
-//
-//			while(i < _jsonString.Length){
-//				string _fieldName = getName(ref _jsonString, ref i);
-//
-//				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
-//				i++;
-//
-//				if (_model.Contains(_fieldName)) {
-//					_model[_fieldName].LoadValue(getValue(ref _jsonString, ref i));
-//				} else {
-//					_model.AddManagedColumn(_fieldName, new StringVariable(getValue(ref _jsonString, ref i)));
-//				}
-//
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				i++;
-//
-//			}
-//
-//		}
-//
-//		static public Dictionary<string, T> ConvertJsonToDictionary<T>(string _jsonString) where T : IVariable, new(){
-//			Dictionary<string, T> _result = new Dictionary<string, T>();
-//			int i = 0;
-//
-//			if (!increaseCounterUntilFoundChar(ref _jsonString, ref i, '{')) {
-//				throw new SystemException("fail find {");
-//			}
-//
-//			i++;
-//
-//
-//
-//			while(i < _jsonString.Length){
-//				string _fieldName = getName(ref _jsonString, ref i);
-//
-//				increaseCounterUntilFoundChar(ref _jsonString, ref i, ':');
-//				i++;
-//
-//				T _variable = new T();
-//				_variable.LoadValue(getValue (ref _jsonString, ref i));
-//				_result.Add(_fieldName, _variable);
-//
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref i, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				i++;
-//
-//			}
-//
-//			return _result; 
-//		}
-//
-//		static public string ConvertDictionaryToJsonString<T>(Dictionary<string, T> _dictionary) where T : IVariable{
-//			string _result = "{";
-//
-//			var _propertyKeys = _dictionary.Keys.ToArray();
-//			//header
-//			for(int i = 0; i < _propertyKeys.Length; i++){
-//				IVariable _property = _dictionary [_propertyKeys [i]];
-//
-//				if (_property.Type == VariableType.String) {
-//					_result += "\"" + _propertyKeys[i] + "\":\"" + _property.AsString.Replace("\"","\\\"") + "\"";
-//				} else {
-//					_result += "\"" + _propertyKeys[i] + "\":" + _property.AsString;
-//				}
-//
-//				if (i != _propertyKeys.Length - 1) {
-//					_result += ",";
-//				}
-//			}
-//
-//			_result += "}";
-//
-//			return _result;
-//
-//		}
-//
-//		static private void setTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModelVariable, new(){
-//
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
-//			_counter++;
-//
-//			while (_counter < _jsonString.Length) {
-//				T _model = MakeModel<T>(ref _jsonString, ref _counter);
-//				_table.AddRow(_model);
-//
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				_counter++;
-//			}
-//
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ']');
-//			_counter++;
-//		}
-//
-//		static private void updateTable<T>(ref string _jsonString, ITable<T> _table, ref int _counter) where T : IModelVariable, new(){
-//
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '[');
-//			_counter++;
-//
-//			while (_counter < _jsonString.Length) {
-//				T _model = MakeModel<T>(ref _jsonString, ref _counter);
-//				T _finder = _table.FirstOrDefault (_row => _row [_table.PrimaryKey].AsString == _model [_table.PrimaryKey].AsString);
-//
-//				if (_finder == null) {
-//					_table.AddRow(_model);
-//				} else {
-//					var _columns = _model.GetColumnNameList ();
-//					foreach (var _item in _columns) {
-//						if (_finder.Contains (_item)) {
-//							_finder [_item].LoadValue (_model [_item].AsString);
-//						} else {
-//							_finder.AddManagedColumn(_item, new StringVariable (_model [_item].AsString));
-//						}
-//					}
-//				}
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref _counter, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				_counter++;
-//			}
-//
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ']');
-//			_counter++;
-//		}
-//
-//		static public T MakeModel<T>(ref string _jsonString, ref int _counter) where T : IModelVariable, new(){
-//			T _model = new T();
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '{');
-//			_counter++;
-//
-//			while (_counter < _jsonString.Length) {
-//				//find fieldname
-//				string _columnName = getName(ref _jsonString, ref _counter);
-//
-//				increaseCounterUntilFoundChar(ref _jsonString, ref _counter, ':');
-//				_counter++;
-//
-//				//set data
-//				string _data = getValue(ref _jsonString, ref _counter);
-//
-//				if (_model.Contains (_columnName)) {
-//					_model [_columnName].LoadValue(_data);
-//				}else {
-//					_model.AddManagedColumn(_columnName, new StringVariable (_data));
-//				}
-//
-//				if (!increaseCounterUntilFoundCharWithIgnoreChars(ref _jsonString, ref  _counter, ',', "\n\t ")) {
-//					break;
-//				}
-//
-//				_counter++;
-//			}
-//
-//			increaseCounterUntilFoundChar(ref _jsonString, ref _counter, '}');
-//			_counter++;
-//
-//			return _model;
-//		}
-//
-//		static private bool increaseCounterUntilFoundCharWithIgnoreChars(ref string _jsonString, ref int _counter, char _findChar, string _ignoreChars){
-//			while (_counter < _jsonString.Length) {
-//				if (_jsonString[_counter] == '\\') {
-//					_counter++;
-//				} else if (_ignoreChars.Contains(_jsonString[_counter].ToString())) {
-//					
-//				} else if (_jsonString[_counter] == _findChar) {
-//					return true;
-//				} else {
-//					break;
-//				}
-//
-//				_counter++;
-//			}
-//
-//			return false;
-//		}
-//
-//		static private bool increaseCounterUntilNotFoundChars(ref string _jsonString, ref int _counter, string _findChars){
-//			while (_counter < _jsonString.Length) {
-//				if (_jsonString[_counter] == '\\') {
-//					_counter++;
-//				}else if (!_findChars.Contains(_jsonString[_counter].ToString())) {
-//					return true;
-//				}
-//
-//				_counter++;
-//			}
-//
-//			return false;
-//		}
-//
-//		static private bool increaseCounterUntilFoundChar(ref string _jsonString, ref int _counter, char _findChar){
-//			while(_counter < _jsonString.Length){
-//				if(_jsonString[_counter] == _findChar){
-//
-//					return true;
-//				}
-//
-//				_counter++;
-//			}
-//
-//			return false;
-//		}
-//
-//		static private string getName(ref string _jsonString, ref int _startCounter){
-//
-//			// find start "
-//
-//			if (!increaseCounterUntilFoundChar(ref _jsonString, ref _startCounter, '"')) {
-//				throw new SystemException("not found start char");
-//			}
-//
-//			_startCounter++;
-//
-//
-//			// collect sentence
-//			// find last "
-//			// return sentence
-//
-//			string _result = "";
-//			while (_startCounter < _jsonString.Length) {
-//				if (_jsonString[_startCounter] == '"') {
-//					_startCounter++;
-//					return _result;
-//				}
-//
-//				_result += _jsonString[_startCounter];
-//
-//				_startCounter++;
-//			}
-//
-//			throw new SystemException("not found last \"");
-//
-//		}
-//
-//		static private string getValue(ref string _jsonString, ref int _startCounter){
-//
-//			// find start point
-//			if (!increaseCounterUntilNotFoundChars(ref _jsonString, ref _startCounter, " \t\n")) {
-//				throw new SystemException("not found value");
-//			}
-//
-//			char _startChar = ' ';
-//			char _endChar = ' ';
-//			int _openerCount = 0;
-//
-//			if (_jsonString[_startCounter] == '"') {
-//				_startChar = '"';
-//				_endChar = '"';
-//				_openerCount++;
-//				_startCounter++;
-//			} else if (_jsonString[_startCounter] == '{') {
-//				_startChar = '{';
-//				_endChar = '}';
-//				_openerCount++;
-//				_startCounter++;
-//			} else if (_jsonString[_startCounter] == '[') {
-//				_startChar = '[';
-//				_endChar = ']';
-//				_openerCount++;
-//				_startCounter++;
-//			}
-//
-//
-//			string _result = "";
-//			while (_startCounter < _jsonString.Length) {
-//				if (_jsonString[_startCounter] == '\\') {
-//					_result += _jsonString[_startCounter];
-//					_startCounter++;
-//				} else if (_openerCount > 0 && _jsonString[_startCounter] == _endChar) {
-//					_openerCount--;
-//					if (_openerCount == 0) {
-//						_startCounter++;
-//						if (_startChar == '"') {
-//							return _result;
-//						} else {
-//							return _startChar + _result + _endChar;
-//						}
-//					}
-//				} else if (_openerCount > 0 && _jsonString[_startCounter] == _startChar){
-//					_openerCount++;
-//				} else if(_openerCount == 0 && (_jsonString[_startCounter] == ' ' || _jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}' || _jsonString[_startCounter] == ']')){
-//					if (!(_jsonString[_startCounter] == ',' || _jsonString[_startCounter] == '}' || _jsonString[_startCounter] == ']')) {
-//						_startCounter++;
-//					}
-//
-//					return _result;
-//				} 
-//
-//				_result += _jsonString[_startCounter];
-//
-//				_startCounter++;
-//			}
-//
-//			throw new SystemException("not found last \"");
-//
-//		}
-//		#endregion
-//
-//
-//
-//	}
+	public class JsonConvertor : IStringParser, IStringFormatter
+	{
+		#region Singleton
+		static private JsonConvertor instance = null;
+		static public JsonConvertor GetInstance(){
+			if (instance == null) {
+				instance = new JsonConvertor();
+			}
+
+			return instance;
+		}
+		#endregion
+
+		#region StringFormatter
+		public void ToFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new(){
+			_json += "{";
+
+			var _propertyKeys = _table.Property.Keys.ToArray();
+			//header
+			for(int i = 0; i < _propertyKeys.Length; i++){
+				IVariable _property = _table.Property[_propertyKeys [i]];
+
+				_json += "\"" + _propertyKeys[i] + "\":";
+				_property.GetFormatString(ref _json, this);
+
+				_json += ",";
+			}
+
+			_json += "\"data\":[";
+
+			//data
+			for (int i = 0; i < _table.GetSize(); i++) {
+				ToFormattedString(_table[i], ref _json);
+
+				if (i != _table.GetSize() - 1) {
+					_json += ",";
+				}
+			}
+
+			_json += "]}";
+		}
+
+		public void ToFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariable, new(){
+			_json += "[";
+			int _size = _list.GetSize();
+			for (int i = 0; i < _size; i++) {
+				ToFormattedString(_list[i], ref _json);
+
+				if (i != _size - 1) {
+					_json += ",";
+				}
+			}
+			_json += "]";
+		}
+			
+		public void ToFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariable, new(){
+			var _keys = _dictionary.Keys;
+			_json += "{";
+
+			for (int i = 0; i < _keys.Length; i++) {
+				_json += "\"" + _keys[i] + "\":";
+				_dictionary[_keys[i]].GetFormatString(ref _json, this);
+
+				if (i != _keys.Length - 1) {
+					_json += ",";
+				}
+			}
+
+			_json += "}";
+		}
+	
+		public void ToFormattedString(IModelVariable _model, ref string _json){
+			_json += "{";
+			var _columnKeys = _model.GetColumnNameList();
+			for (int j = 0; j < _columnKeys.Count; j++) {
+				IVariable _column = _model[_columnKeys[j]];
+
+				_json += "\"" + _columnKeys[j] + "\":";
+				_column.GetFormatString(ref _json, this);
+
+				if (j != _columnKeys.Count - 1) {
+					_json += ",";
+				}
+			}
+
+			_json += "}";
+
+		}
+
+		public void ToFormattedString(IVariable _variable, ref string _json){
+			if (_variable.Type == VariableType.String) {
+				_json += "\"" + _variable.AsString.Replace("\"","\\\"") + "\"";
+			} else {
+				_json += _variable.AsString;
+			}
+		}
+		#endregion
+
+		#region StringParser
+		public void ToTable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new(){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			_counter++;
+
+
+			while(_counter < _json.Length){
+				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+				_counter++;
+
+				if (_fieldName == "data") {
+					increaseCounterUntilFoundChar(ref _json, ref _counter, '[');
+					_counter++;
+
+					while (_counter < _json.Length) {
+						Console.WriteLine("add row");
+						T _model = new T();
+						_model.LoadFormatString(ref _json, ref _counter, this);
+						_table.AddRow(_model);
+						Console.WriteLine(_model.AsString + " - " + _json[_counter].ToString() + "-" + _counter.ToString());
+
+
+						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+							Console.WriteLine("break" + _json[_counter].ToString() + " - " + _counter.ToString());
+							break;
+						}
+
+						_counter++;
+					}
+
+					increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
+					_counter++;
+				} else {
+					_table.SetOrChangeProperty (_fieldName, ToVariable(ref _json, ref _counter));
+				}
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					break;
+				}
+
+				_counter++;
+
+			}
+		}
+
+		public IVariable ToVariable(ref string _json, ref int _counter){
+
+			// find start point
+			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
+				throw new SystemException("not found value");
+			}
+
+			if (_json[_counter] == '"') {
+				StringVariable _result = new StringVariable();
+				_result.LoadFormatString(ref _json, ref _counter, this);
+				return _result;
+			} else if (_json[_counter] == '{') {
+				ListVariable<StringVariable> _result = new ListVariable<StringVariable>();
+				_result.LoadFormatString(ref _json, ref _counter, this);
+				return _result;
+			
+			} else if (_json[_counter] == '[') {
+				DictionaryVariable<StringVariable> _result = new DictionaryVariable<StringVariable>();
+				_result.LoadFormatString(ref _json, ref _counter, this);
+				return _result;
+			} else {
+				FloatVariable _result = new FloatVariable();
+				_result.LoadFormatString(ref _json, ref _counter, this);
+				return _result;
+			}
+		}
+
+		public void ToList<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariable, new(){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
+				throw new SystemException("fail find [");
+			}
+
+			_counter++;
+
+			if (_json [_counter] == ']') {
+				_counter++;
+				return;
+			}
+
+			while (_counter < _json.Length) {
+				T _variable = new T();
+				_variable.LoadFormatString(ref _json, ref _counter, this);
+				_list.Add(_variable);
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
+					_counter++;
+					break;
+				} else {
+					if (_json[_counter] == ',') {
+					} else if (_json[_counter] == ']') {
+						_counter++;
+						return;
+					} else {
+						throw new SystemException("JsonToList error");
+					}
+				}
+
+				_counter++;
+			}
+		}
+
+		public void ToDictionary<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariable, new(){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			_counter++;
+
+			if (_json[_counter] == '}') {
+				_counter++;
+				return;
+			}
+
+			while(_counter < _json.Length){
+				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+				_counter++;
+
+				T _variable = new T();
+				_variable.LoadFormatString(ref _json, ref _counter, this);
+				_dictionary.Add(_fieldName, _variable);
+
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					break;
+				}
+
+				_counter++;
+
+			}
+		}
+
+		public void ToModel(IModelVariable _model, ref string _json, ref int _counter){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+			_counter++;
+
+			if (_json[_counter] == '}') {
+				_counter++;
+				return;
+			}
+
+			while(_counter < _json.Length){
+				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+				_counter++;
+
+				if (_model.Contains(_fieldName)) {
+					_model[_fieldName].LoadFormatString(ref _json, ref _counter, this);
+				} else {
+					_model.AddManagedColumn(_fieldName, ToVariable(ref _json, ref _counter));
+
+				}
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					break;
+				}
+
+				_counter++;
+
+			}
+
+			_counter++;
+		}
+
+		public void ToString(IVariable _variable, ref string _json, ref int _counter){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
+				throw new SystemException("fail find first \"");
+			}
+
+			_counter++;
+			string _result = string.Empty;
+
+			while (_counter < _json.Length) {
+				if (_json[_counter] == '\\') {
+					_counter++;
+				} else if (_json[_counter] == '"') {
+					_variable.AsString = _result;
+					_counter++;
+					return;
+				}
+
+				_result += _json[_counter];
+				_counter++;
+			}
+
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
+				throw new SystemException("fail find last \"");
+			}
+		}
+
+		public void ToNumber(IVariable _variable, ref string _json, ref int _counter){
+			increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \n\t");
+
+			string _result = string.Empty;
+
+			while (_counter < _json.Length) {
+				if (",]}\t\n ".Contains(_json[_counter].ToString())) {
+					_variable.AsString = _result;
+					return;
+				}
+
+				_result += _json[_counter];
+				_counter++;
+			}
+
+			_variable.AsString = _result;
+		}
+
+		private string getNextDictionaryKeyName(ref string _json, ref int _counter){
+
+			// find start "
+
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
+				throw new SystemException("not found start char");
+			}
+
+			_counter++;
+
+			string _result = "";
+			while (_counter < _json.Length) {
+				if (_json[_counter] == '"') {
+					_counter++;
+					return _result;
+				}
+
+				_result += _json[_counter];
+
+				_counter++;
+			}
+
+			throw new SystemException("not found last \"");
+
+		}
+
+
+		private bool increaseCounterUntilFoundChar(ref string _jsonString, ref int _counter, char _findChar){
+			while(_counter < _jsonString.Length){
+				if(_jsonString[_counter] == _findChar){
+
+					return true;
+				}
+
+				_counter++;
+			}
+
+			return false;
+		}
+
+		private bool increaseCounterUntilNotFoundChars(ref string _json, ref int _counter, string _findChars){
+			while (_counter < _json.Length) {
+				if (_json[_counter] == '\\') {
+					_counter++;
+				}else if (!_findChars.Contains(_json[_counter].ToString())) {
+					return true;
+				}
+
+				_counter++;
+			}
+
+			return false;
+		}
+
+		private bool increaseCounterUntilFoundCharsWithIgnoreChars(ref string _json, ref int _counter, string _findChars, string _ignoreChars){
+			while (_counter < _json.Length) {
+				if (_json[_counter] == '\\') {
+					_counter++;
+				} else if (_ignoreChars.Contains(_json[_counter].ToString())) {
+
+				} else if (_findChars.Contains(_json[_counter].ToString())) {
+					return true;
+				} else {
+					break;
+				}
+
+				_counter++;
+			}
+
+			return false;
+		}
+		#endregion
+	}
 }
