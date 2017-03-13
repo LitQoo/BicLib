@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using BicDB.Utility;
 
 namespace BicDB.Storage
 {
@@ -42,7 +43,10 @@ namespace BicDB.Storage
 				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
 			}
 
-			FileStorage.Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name), _encKey);
+			string _json = string.Empty;
+			JsonConvertor.GetInstance().ToFormattedString(_table, ref _json);
+			FileStorage.Write(_json, getFileName(_table.Name), _encKey);
+
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}
@@ -57,10 +61,11 @@ namespace BicDB.Storage
 
 			string _data = FileStorage.Read(getFileName(_table.Name), _encKey);
 			var _result = new Result ((int)ResultCode.Success);
+			int _counter = 0;
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
-					JsonConvertor.ConvertJsonFileToTable (_data, _table);
+					JsonConvertor.GetInstance().ToTable(_table, ref _data, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();
@@ -100,6 +105,8 @@ namespace BicDB.Storage
 			yield return www;
 
 			var _result = new Result ((int)ResultCode.Success);
+			int _counter = 0;
+			string _json = www.text;
 
 			if (www.error != null)
 			{
@@ -109,7 +116,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.ConvertJsonFileToTableThenUpdate(www.text, _table);
+					JsonConvertor.GetInstance().ToTable(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

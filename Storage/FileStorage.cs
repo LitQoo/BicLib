@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using BicDB.Utility;
 
 namespace BicDB.Storage
 {
@@ -49,7 +50,10 @@ namespace BicDB.Storage
 				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
 			}
 
-			FileStorage.Write(JsonConvertor.ConvertTableToJsonString(_table), getFileName(_table.Name), _encKey);
+			string _json = string.Empty;
+			JsonConvertor.GetInstance().ToFormattedString(_table, ref _json);
+
+			FileStorage.Write(_json, getFileName(_table.Name), _encKey);
 
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
@@ -63,12 +67,13 @@ namespace BicDB.Storage
 			}
 
 			string _data = FileStorage.Read(getFileName(_table.Name), _encKey);
+			int _counter = 0;
 
 			var _result = new Result ((int)ResultCode.Success);
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
-					JsonConvertor.ConvertJsonFileToTable (_data, _table);
+					JsonConvertor.GetInstance().ToTable(_table, ref _data, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

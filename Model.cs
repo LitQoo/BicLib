@@ -4,59 +4,6 @@ using BicDB.Variable;
 
 namespace BicDB
 {
-//	public interface IModel
-//	{
-//		//event
-//		event Action<IModel, string> OnNotifyActions;
-//
-//		//indexer
-//		IVariable this [string _key] { get; }
-//
-//		//method
-//		void NotifyChanged(string _message = "");
-//		void AddManagedColumn(string key, IVariable _column);
-//		bool ContainsKey(string _key);
-//		List<string> GetColumnNameList();
-//		bool IsChanged();
-//	}
-//
-//	public class Model : IModel{
-//		public event Action<IModel, string> OnNotifyActions = delegate{};
-//
-//		private Dictionary<string, IVariable> columns = new Dictionary<string, IVariable>();
-//
-//		public IVariable this[string _key]
-//		{
-//			get{return columns [_key];}
-//		}
-//
-//		public void AddManagedColumn(string key, IVariable _column){
-//			columns.Add (key, _column);
-//		}
-//
-//		public void NotifyChanged(string _message = ""){
-//			OnNotifyActions(this, _message);
-//		}
-//
-//		public bool ContainsKey(string _key){
-//			return columns.ContainsKey (_key);
-//		}
-//
-//		public List<string> GetColumnNameList(){
-//			return new List<string>(columns.Keys);
-//		}
-//
-//		public bool IsChanged(){
-//			foreach (var _item in columns) {
-//				if (_item.Value.IsChanged) {
-//					return true;
-//				}
-//			}
-//
-//			return false;
-//		}
-//	}
-
 	public interface IModelVariable : IVariable{
 		new event Action<IModelVariable, string> OnChangedValueActions;
 		IVariable this [string _key] { get; }
@@ -73,10 +20,10 @@ namespace BicDB
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return Storage.JsonConvertor.ConvertDictionaryToJsonString<IVariable>(data); } set{ parse(value);  NotifyChanged ();} }
+		public string AsString{ get{ return string.Empty; } set{ } }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
-		public VariableType Type { get { return VariableType.List; }}
+		public VariableType Type { get { return VariableType.Model; }}
 		#endregion
 
 		#region IDictionaryVariable
@@ -106,13 +53,15 @@ namespace BicDB
 
 
 		#region Logic
-		public void LoadValue(string _value){
-			parse(_value);
+
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToModel(this, ref _json, ref _counter);
 			IsChanged = false;
 		}
 
-		private void parse(string _jsonString){
-			Storage.JsonConvertor.ConvertJsonToModel(this, _jsonString);
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 
 		public new void NotifyChanged(string _message = ""){

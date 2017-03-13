@@ -3,6 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using BicDB.Variable;
 using BicDB;
+using BicDB.Utility;
 
 namespace BicDB.Variable
 {
@@ -13,7 +14,11 @@ namespace BicDB.Variable
 		{
 
 			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
-			_var.LoadValue("[\"test\", \"123\", \"456\"]");
+
+			string _json = "[\"test\", \"123\", \"456\"]";
+			int _counter = 0;
+			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+
 			Assert.AreEqual(_var[0].AsString, "test");
 			Assert.AreEqual(_var[1].AsString, "123");
 			Assert.AreEqual(_var[2].AsString, "456");
@@ -24,7 +29,10 @@ namespace BicDB.Variable
 		{
 
 			ListVariable<IntVariable> _var = new ListVariable<IntVariable> ();
-			_var.LoadValue("[123,456,789]");
+			string _json = "[123,456,789]";
+			int _counter = 0;
+			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+
 			Assert.AreEqual(_var[0].AsInt, 123);
 			Assert.AreEqual(_var[1].AsInt, 456);
 			Assert.AreEqual(_var[2].AsInt, 789);
@@ -85,13 +93,11 @@ namespace BicDB.Variable
 			_var1.Add(new StringVariable("1"));
 			_var2.Add(new StringVariable("2"));
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 
 			_var2[0].AsString = "1";
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 		}
 
 		[Test]

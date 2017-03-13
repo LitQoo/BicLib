@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CodeDom.Compiler;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Serialization;
 
 namespace BicDB.Variable
 {
@@ -15,9 +18,10 @@ namespace BicDB.Variable
 		bool IsChanged{ get; set;}
 
 		void NotifyChanged(string _message = "");
-		void LoadValue(string _value);
-		bool IsEqualExactly(IVariable _variable);
-		bool IsEqualGenerally(IVariable _variable);
+		bool IsEqual(IVariable _variable);
+
+		void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser);
+		void GetFormatString(ref string _json, IStringFormatter _formatter);
 	}
 
 
@@ -28,7 +32,8 @@ namespace BicDB.Variable
 		String,
 		Bool,
 		List,
-		Dictionary
+		Dictionary,
+		Model
 	}
 
 	public class VariableBase{
@@ -45,12 +50,8 @@ namespace BicDB.Variable
 			OnChangedValueActions (this as IVariable, _message);
 		}
 
-		public bool IsEqualExactly(IVariable _variable){
-			return VariableUtil.IsEqualExactly(this as IVariable, _variable);
-		}
-
-		public bool IsEqualGenerally(IVariable _variable){
-			return VariableUtil.IsEqualGenerally(this as IVariable, _variable);
+		public bool IsEqual(IVariable _variable){
+			return VariableUtil.IsEqual(this as IVariable, _variable);
 		}
 	}
 
@@ -138,7 +139,7 @@ namespace BicDB.Variable
 			}
 		}
 
-		static public bool IsEqualExactly(IVariable _variable1, IVariable _variable2){
+		static public bool IsEqual(IVariable _variable1, IVariable _variable2){
 			if (_variable1.Type == _variable2.Type) {
 				switch (_variable1.Type) {
 					case VariableType.Bool:
@@ -147,16 +148,16 @@ namespace BicDB.Variable
 						return Math.Abs(_variable1.AsFloat - _variable2.AsFloat) < 0.00001f;
 					case VariableType.Int:
 						return _variable1.AsInt == _variable2.AsInt;
+					case VariableType.List:
+						return false;
+					case VariableType.Dictionary:
+						return false;
 					default:
 						return _variable1.AsString == _variable2.AsString;
 				}	
 			}
 
 			return false;
-		}
-
-		static public bool IsEqualGenerally(IVariable _variable1, IVariable _variable2){
-			return _variable1.AsString == _variable2.AsString;
 		}
 	}
 }

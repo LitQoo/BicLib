@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
+using BicDB.Utility;
 
 namespace BicDB.Variable
 {
@@ -12,7 +13,10 @@ namespace BicDB.Variable
 		{
 
 			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
-			_var.LoadValue("{\"test1\" : \"test\", \"test2\":\"123a\", \"test3\":\t\"456\"}");
+			string _json = "{\"test1\" : \"test\", \"test2\":\"123a\", \"test3\":\t\"456\"}";
+			int _counter = 0;
+			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+
 			Assert.AreEqual(_var["test1"].AsString, "test");
 			Assert.AreEqual(_var["test2"].AsString, "123a");
 			Assert.AreEqual(_var["test3"].AsString, "456");
@@ -23,7 +27,10 @@ namespace BicDB.Variable
 		{
 
 			DictionaryVariable<IntVariable> _var = new DictionaryVariable<IntVariable> ();
-			_var.LoadValue("{\"test1\" : 123, \"test2\":	456, \"test3\":789}");
+			string _json = "{\"test1\" : 123, \"test2\":	456, \"test3\":789}";
+			int _counter = 0;
+			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+
 			Assert.AreEqual(_var["test1"].AsInt, 123);
 			Assert.AreEqual(_var["test2"].AsInt, 456);
 			Assert.AreEqual(_var["test3"].AsInt, 789);
@@ -103,13 +110,13 @@ namespace BicDB.Variable
 			_var1.Add("key", new StringVariable("1"));
 			_var2.Add("key", new StringVariable("2"));
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 
 			_var2["key"].AsString = "1";
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 		}
 	}
 }

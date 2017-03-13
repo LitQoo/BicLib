@@ -27,6 +27,16 @@ namespace BicDB.Variable
 			AsString = _value;
 			IsChanged = false;
 		}
+
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToNumber(this, ref _json, ref _counter);
+		}
+
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
+		}
+
 	}
 }
 

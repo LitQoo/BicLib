@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using BicDB.Utility;
 
 namespace BicDB.Storage
 {
@@ -58,7 +59,8 @@ namespace BicDB.Storage
 			yield return www;
 
 			var _result = new Result ((int)ResultCode.Success);
-
+			var _json = www.text;
+			int _counter = 0;
 			if (www.error != null)
 			{
 				_result.Code = (int)ResultCode.ErrorNetwork;
@@ -67,7 +69,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.ConvertJsonFileToTable(www.text, _table);
+					JsonConvertor.GetInstance().ToTable(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

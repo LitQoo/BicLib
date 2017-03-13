@@ -91,8 +91,13 @@ namespace BicDB.Variable
 			data = _func;
 		}
 
-		public void LoadValue(string _value){
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
 			throwSetException ();
+		}
+
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 
 		private void throwSetException(){

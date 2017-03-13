@@ -44,12 +44,22 @@ namespace BicDB.Variable
 		}
 
 
-		public new void NotifyChanged(){
+		public void NotifyChanged(){
 			IsChanged = true;
 
 			OnSetValueActions[data]();
 			OnChangedValueActions (this as IEnumVariable<T>);
 
+		}
+
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToNumber(this, ref _json, ref _counter);
+			IsChanged = false;
+		}
+
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 
 	}

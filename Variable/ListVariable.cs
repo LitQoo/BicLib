@@ -2,6 +2,7 @@
 using BicDB;
 using System.Collections.Generic;
 using System.Linq;
+using BicDB.Storage;
 
 namespace BicDB.Variable
 {
@@ -30,7 +31,7 @@ namespace BicDB.Variable
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return Storage.JsonConvertor.ConvertListToJsonString<T>(data); } set{ parse(value);  NotifyChanged ();} }
+		public string AsString{ get{ return string.Empty; } set{ } }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.List; }}
@@ -105,18 +106,19 @@ namespace BicDB.Variable
 			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
 		}
 
-		public void LoadValue(string _value){
-			parse(_value);
-			IsChanged = false;
-		}
-
-		private void parse(string _jsonString){
-			data = Storage.JsonConvertor.ConvertJsonToList<T>(_jsonString);
-		}
-
 		public new void NotifyChanged(string _message = ""){
 			IsChanged = true;
 			OnChangedValueActions (this, _message);
+		}
+
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToList(this, ref _json, ref _counter);
+			IsChanged = false;
+		}
+
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 	}
 

@@ -96,13 +96,13 @@ namespace BicDB.Variable
 			FloatVariable _var1 = new FloatVariable(123.1f);
 			FloatVariable _var2 = new FloatVariable(444.4f);
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 
 			_var2.AsFloat = 123.1f;
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), true);
 		}
 	}
 }

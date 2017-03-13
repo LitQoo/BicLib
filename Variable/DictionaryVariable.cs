@@ -1,11 +1,17 @@
 ﻿using System;
 using BicDB;
 using System.Collections.Generic;
+using UnityEditor;
+using System.Security.Cryptography;
+using System.Linq;
 
 namespace BicDB.Variable
 {
-	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new(){
+	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new()
+	{
 		T this [string _key] { get; }
+		string[] Keys{ get; }
+
 		int GetSize();
 		void Add(string _key, T _value);
 		void RemoveAt(string _key);
@@ -21,10 +27,10 @@ namespace BicDB.Variable
 
 		#region AsValue
 		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return Storage.JsonConvertor.ConvertDictionaryToJsonString<T>(data); } set{ parse(value);  NotifyChanged ();} }
+		public string AsString{ get{ return string.Empty; } set{ } }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
-		public VariableType Type { get { return VariableType.List; }}
+		public VariableType Type { get { return VariableType.Dictionary; }}
 		#endregion
 
 		#region IDictionaryVariable
@@ -67,6 +73,12 @@ namespace BicDB.Variable
 		public void Clear(){
 			data.Clear ();
 		}
+
+		public string[] Keys{
+			get{ 
+				return data.Keys.ToArray(); 
+			}
+		} 
 		#endregion
 
 		#region LifeCycle
@@ -76,13 +88,15 @@ namespace BicDB.Variable
 		#endregion
 
 		#region Logic
-		public void LoadValue(string _value){
-			parse(_value);
+
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToDictionary(this, ref _json, ref _counter);
 			IsChanged = false;
 		}
 
-		private void parse(string _jsonString){
-			data = Storage.JsonConvertor.ConvertJsonToDictionary<T>(_jsonString);
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 		#endregion
 	}

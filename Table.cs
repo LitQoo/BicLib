@@ -6,6 +6,26 @@ using BicDB.Variable;
 namespace BicDB
 {
 
+	public interface IStringParser{
+		void ToTable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new();
+		void ToList<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariable, new();
+		void ToDictionary<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariable, new();
+		void ToModel(IModelVariable _model, ref string _json, ref int _counter);
+		void ToString(IVariable _variable, ref string _json, ref int _counter);
+		void ToNumber(IVariable _variable, ref string _json, ref int _counter);
+		IVariable ToVariable(ref string _json, ref int _counter);
+
+	}
+
+	public interface IStringFormatter{
+		void ToFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new();
+		void ToFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariable, new();
+		void ToFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariable, new();
+		void ToFormattedString(IModelVariable _model, ref string _json);
+		void ToFormattedString(IVariable _variable, ref string _json);
+
+	}
+
 	public interface ITable<T> : ILinqSupporter<T>
 	{
 		#region event

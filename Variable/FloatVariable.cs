@@ -21,9 +21,14 @@ namespace BicDB.Variable
 			data = _value;
 		}
 
-		public void LoadValue(string _value){
-			AsString = _value;
+		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.ToNumber(this, ref _json, ref _counter);
 			IsChanged = false;
+		}
+
+		public void GetFormatString(ref string _json, IStringFormatter _formatter){
+			_formatter.ToFormattedString(this, ref _json);
 		}
 	}
 }

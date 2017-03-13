@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using BicDB.Storage;
 using System;
+using BicDB.Utility;
 
 namespace BicDB.Storage{
 
@@ -35,10 +36,10 @@ namespace BicDB.Storage{
 		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
-
+			int _counter = 0;
 			if (!string.IsNullOrEmpty(_data)) {
 				try{
-					JsonConvertor.ConvertJsonFileToTable(_data , _table);
+					JsonConvertor.GetInstance().ToTable(_table, ref _data, ref _counter);
 				}catch(SystemException){
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

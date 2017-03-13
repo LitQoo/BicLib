@@ -3,6 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using BicDB.Variable;
 using BicDB;
+using BicDB.Utility;
 
 namespace BicDB.Variable
 {
@@ -46,7 +47,9 @@ namespace BicDB.Variable
 		public void LoadValue(){
 			EncryptedIntVariable _var = new EncryptedIntVariable(10);
 
-			_var.LoadValue("123");
+			string _json = "123";
+			int _counter = 0;
+			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
 
 			Assert.AreEqual(_var.AsString, "123");
 		}

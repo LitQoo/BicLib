@@ -130,13 +130,13 @@ namespace BicDB.Variable
 			EnumVariable<TestEnum> _var1 = new EnumVariable<TestEnum>(TestEnum.one);
 			EnumVariable<TestEnum> _var2 = new EnumVariable<TestEnum>(TestEnum.two);
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), false);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
+			Assert.AreEqual(_var1.IsEqual(_var2), false);
 
 			_var2.AsEnum = TestEnum.one;
 
-			Assert.AreEqual(_var1.IsEqualExactly(_var2), true);
-			Assert.AreEqual(_var1.IsEqualGenerally(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), true);
+			Assert.AreEqual(_var1.IsEqual(_var2), true);
 		}
 	}
 }
