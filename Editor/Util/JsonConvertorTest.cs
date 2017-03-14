@@ -2,6 +2,7 @@
 using System.Collections;
 using NUnit.Framework;
 using BicDB.Variable;
+using BicDB.Container;
 using BicDB;
 using System;
 using System.IO;
@@ -132,7 +133,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList1(){
-			IListVariable<IntVariable> _list = new ListVariable<IntVariable>();
+			IListContainer<IntVariable> _list = new ListContainer<IntVariable>();
 			string _json = "[1,2,3,4]";
 			int _counter = 0;
 
@@ -143,19 +144,19 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList2(){
-			IListVariable<IntVariable> _list = new ListVariable<IntVariable>();
+			IListContainer<IntVariable> _list = new ListContainer<IntVariable>();
 			string _json = "[ 1333.1, 22242 ,\t3,\n\n -4 \n\t]";
 			int _counter = 0;
 
 			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.GetSize(), 4);
-			Assert.AreEqual(_list[0].Type, VariableType.Int);
+			Assert.AreEqual(_list[0].Type, DataType.Int);
 		}
 
 		[Test]
 		public void JsonToList3(){
-			IListVariable<StringVariable> _list = new ListVariable<StringVariable>();
+			IListContainer<StringVariable> _list = new ListContainer<StringVariable>();
 			string _json = "  [\n\t\t    \" sdkf\"\t\n ,  \n\t\" \t\\\" \",\"3\",\"4\"]";
 			int _counter = 0;
 
@@ -164,7 +165,7 @@ namespace BicDB.Utility
 			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.GetSize(), 4);
-			Assert.AreEqual(_list[0].Type, VariableType.String);
+			Assert.AreEqual(_list[0].Type, DataType.String);
 			Assert.AreEqual(_list[0].AsString, " sdkf");
 			Assert.AreEqual(_list[1].AsString, " \t\" ");
 			Assert.AreEqual(_list[2].AsString, "3");
@@ -173,7 +174,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToDictionary1(){
-			IDictionaryVariable<FloatVariable> _dictionary = new DictionaryVariable<FloatVariable>();
+			IDictionaryContainer<FloatVariable> _dictionary = new DictionaryContainer<FloatVariable>();
 			string _json = "{\t  \"key\"  : -122.3\t,\"key2\":1111}\t";
 			int _counter = 0;
 
@@ -199,7 +200,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToTable1(){
-			ITable<TestClass> _table = new Table<TestClass>("test");
+			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
 			string _json = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
 			int _counter = 0;
 
@@ -214,7 +215,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void TableToJson1(){
-			ITable<TestClass> _table = new Table<TestClass>("test");
+			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
 
 			{
 				var _row = new TestClass();
@@ -242,7 +243,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void DictionaryToJson(){
-			DictionaryVariable<StringVariable> _dict = new DictionaryVariable<StringVariable>();
+			DictionaryContainer<StringVariable> _dict = new DictionaryContainer<StringVariable>();
 			_dict.Add("test", new StringVariable("test"));
 			_dict.Add("key1", new StringVariable("test1"));
 
@@ -254,7 +255,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void ListToJson(){
-			ListVariable<StringVariable> _dict = new ListVariable<StringVariable>();
+			ListContainer<StringVariable> _dict = new ListContainer<StringVariable>();
 			_dict.Add(new StringVariable("test0"));
 			_dict.Add(new StringVariable("test1"));
 
@@ -302,7 +303,7 @@ namespace BicDB.Utility
 
 
 
-		class TestClass : ModelVariable{
+		class TestClass : ModelContainer{
 			public IntVariable member1 = new IntVariable(0);
 			public StringVariable member2 = new StringVariable("");
 			public TestClass2 member3 = new TestClass2();
@@ -314,7 +315,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		class TestClass2 : ModelVariable{
+		class TestClass2 : ModelContainer{
 			public IntVariable member1 = new IntVariable(0);
 
 			public TestClass2(){

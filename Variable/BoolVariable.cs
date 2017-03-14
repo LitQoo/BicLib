@@ -5,14 +5,14 @@ using System;
 
 namespace BicDB.Variable
 {
-	public class BoolVariable : VariableBase, IVariable{
+	public class BoolVariable : DataBase, IVariable{
 		#region AsValue
 		private bool data;
 		public int AsInt{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
 		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{ AsBool = bool.Parse (value);} }
 		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
 		public bool AsBool{ get{ return data; } set{ data = value; NotifyChanged ();} }
-		public VariableType Type { get { return VariableType.Bool; }}
+		public DataType Type { get { return DataType.Bool; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

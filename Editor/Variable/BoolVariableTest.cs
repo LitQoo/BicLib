@@ -131,7 +131,7 @@ namespace BicDB.Variable
 		{
 
 			BoolVariable _var = new BoolVariable (true);
-			Assert.AreEqual(_var.Type, VariableType.Bool);
+			Assert.AreEqual(_var.Type, DataType.Bool);
 		}
 
 		[Test]

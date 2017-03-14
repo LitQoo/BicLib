@@ -72,7 +72,7 @@ namespace BicDB.Variable
 		{
 
 			FloatVariable _var = new FloatVariable (3845.2f);
-			Assert.AreEqual(_var.Type, VariableType.Float);
+			Assert.AreEqual(_var.Type, DataType.Float);
 		}
 
 		[Test]

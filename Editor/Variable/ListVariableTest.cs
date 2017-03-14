@@ -4,6 +4,7 @@ using NUnit.Framework;
 using BicDB.Variable;
 using BicDB;
 using BicDB.Utility;
+using BicDB.Container;
 
 namespace BicDB.Variable
 {
@@ -13,7 +14,7 @@ namespace BicDB.Variable
 		public void CreateStringTest1()
 		{
 
-			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 
 			string _json = "[\"test\", \"123\", \"456\"]";
 			int _counter = 0;
@@ -28,7 +29,7 @@ namespace BicDB.Variable
 		public void CreateIntTest()
 		{
 
-			ListVariable<IntVariable> _var = new ListVariable<IntVariable> ();
+			ListContainer<IntVariable> _var = new ListContainer<IntVariable> ();
 			string _json = "[123,456,789]";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -41,7 +42,7 @@ namespace BicDB.Variable
 		[Test]
 		public void GetSizeTest()
 		{
-			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 			_var.Add(new StringVariable("3"));
 			_var.Add(new StringVariable("3"));
@@ -52,7 +53,7 @@ namespace BicDB.Variable
 		[Test]
 		public void AddTest()
 		{
-			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 
 			Assert.AreEqual(_var[0].AsString, "1");
@@ -61,7 +62,7 @@ namespace BicDB.Variable
 		[Test]
 		public void RemoveAtTest()
 		{
-			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 			_var.Add(new StringVariable("2"));
 			_var.Add(new StringVariable("3"));
@@ -74,21 +75,8 @@ namespace BicDB.Variable
 		}
 
 		[Test]
-		public void ContainsTest()
-		{
-			ListVariable<StringVariable> _var = new ListVariable<StringVariable> ();
-			_var.Add(new StringVariable("1"));
-			_var.Add(new StringVariable("2"));
-			_var.Add(new StringVariable("3"));
-
-			Assert.AreEqual(_var.Contains(new StringVariable("1")), true);
-			Assert.AreEqual(_var.Contains(new StringVariable("6")), false);
-		}
-			
-
-		[Test]
 		public void OnChangedElementNotifyTest(){
-			ListVariable<StringVariable> _var1 = new ListVariable<StringVariable> ();
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
 			int _count = 0;
 			_var1.Add(new StringVariable("1"));
 			_var1.Add(new StringVariable("1"));

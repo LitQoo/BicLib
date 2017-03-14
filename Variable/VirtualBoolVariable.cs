@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualBoolVariable : VariableBase, IVariable
+	public class VirtualBoolVariable : DataBase, IVariable
 	{
 		#region AsValue
 		private Func<bool> data;
@@ -11,7 +11,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{throwSetException ();} }
 		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{throwSetException ();} }
 		public bool AsBool{ get{ return data(); } set{throwSetException ();} }
-		public VariableType Type { get { return VariableType.Bool; }}
+		public DataType Type { get { return DataType.Bool; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

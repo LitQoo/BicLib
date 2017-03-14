@@ -4,6 +4,7 @@ using System.IO;
 using BicDB.Storage;
 using System;
 using BicDB.Utility;
+using BicDB.Container;
 
 namespace BicDB.Storage{
 
@@ -27,13 +28,13 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;

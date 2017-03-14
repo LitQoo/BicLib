@@ -3,32 +3,32 @@ using BicDB;
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Storage;
+using BicDB.Variable;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
-	public interface IListSuppoter<T> where T : IVariableBase, new(){
+	public interface IListSuppoter<T> where T : IDataBase, new(){
 		T this [int _index] { get; set;}
 		int GetSize();
 		void Add(T _value);
 		void RemoveAt(int _index);
 		void Remove(T _value);
 		void Remove(Func<T, bool> _func);
-		bool Contains(T _value);
 		void Clear();
 		void Insert(int _index, T _row);
 	}
 
-	public interface IListVariable<T> : IVariableBase, ILinqSupporter<T>, IListSuppoter<T> where T : IVariableBase, new(){
-		event Action<IListVariable<T>, string> OnChangedValueActions;
+	public interface IListContainer<T> : IDataBase, ILinqSupporter<T>, IListSuppoter<T> where T : IDataBase, new(){
+		event Action<IListContainer<T>, string> OnChangedValueActions;
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
 	}
 
 
-	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariableBase, new()
+	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
 	{
-		public new event Action<IListVariable<T>, string> OnChangedValueActions;
+		public event Action<IListContainer<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
@@ -38,7 +38,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return string.Empty; } set{ } }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
-		public VariableType Type { get { return VariableType.List; }}
+		public DataType Type { get { return DataType.List; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 
@@ -86,16 +86,6 @@ namespace BicDB.Variable
 			data.Insert (_index, _value);
 		}
 
-		public bool Contains(T _value){
-			foreach (var _item in data) {
-				if (_value.AsFormattedString == _item.AsFormattedString) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
 		public void Clear(){
 			data.Clear ();
 			OnClearedValueActions();
@@ -126,19 +116,14 @@ namespace BicDB.Variable
 
 		private List<T> data = new List<T>();
 
-		public ListVariable() : base(){
+		public ListContainer() : base(){
 			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
 		}
 
-		public new void NotifyChanged(string _message = ""){
-			IsChanged = true;
-			OnChangedValueActions (this, _message);
-		}
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			_parser.BuildListVariable(this, ref _json, ref _counter);
-			IsChanged = false;
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){

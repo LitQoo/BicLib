@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BicDB.Container;
 
 namespace BicDB
 {
@@ -9,11 +10,11 @@ namespace BicDB
 
 		static private List<object> tables = new List<object> ();
 
-		static public ITable<T> GetTable<T> (string _tableName = "") where T : IModelVariable, new(){
+		static public ITableContainer<T> GetTable<T> (string _tableName = "") where T : IModelContainer, new(){
 
 			foreach (var _item in tables) {
-				if (_item is ITable<T>) {
-					var _table = _item as ITable<T>;
+				if (_item is ITableContainer<T>) {
+					var _table = _item as ITableContainer<T>;
 					if (_table.Name == _tableName || string.IsNullOrEmpty (_tableName)) {
 						return _table;
 					}
@@ -23,7 +24,7 @@ namespace BicDB
 			return null;
 		}
 
-		static public void AddTable<T>(ITable<T> _table) where T : IModelVariable, new(){
+		static public void AddTable<T>(ITableContainer<T> _table) where T : IModelContainer, new(){
 			if (!tables.Contains (_table)) {
 				tables.Add (_table);			
 			} else {
@@ -31,13 +32,13 @@ namespace BicDB
 			}
 		}
 
-		static public ITable<T> CreateTable<T>(string _name) where T : class, IModelVariable, new() {
-			var _table = new Table<T>(_name);
+		static public ITableContainer<T> CreateTable<T>(string _name) where T : class, IModelContainer, new() {
+			var _table = new TableContainer<T>(_name);
 			Manager.AddTable<T>(_table);
 			return _table;
 		}
 
-		static public ITable<T> GetOrCreateTable<T>(string _name) where T : class, IModelVariable, new() {
+		static public ITableContainer<T> GetOrCreateTable<T>(string _name) where T : class, IModelContainer, new() {
 
 			var _table = GetTable<T>(_name);
 

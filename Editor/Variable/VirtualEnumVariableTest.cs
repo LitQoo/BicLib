@@ -68,7 +68,7 @@ namespace BicDB.Variable
 		{
 
 			IVariable _var = new  VirtualEnumVariable<TestEnum> (()=>TestEnum.three);
-			Assert.AreEqual(_var.Type, VariableType.Int);
+			Assert.AreEqual(_var.Type, DataType.Int);
 		}
 	}
 }

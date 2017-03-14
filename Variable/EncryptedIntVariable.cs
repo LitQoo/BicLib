@@ -4,7 +4,7 @@ using BicDB;
 namespace BicDB.Variable
 {
 
-	public class EncryptedIntVariable :  VariableBase, IVariable{
+	public class EncryptedIntVariable :  DataBase, IVariable{
 		#region static
 		private static System.Random random = new System.Random();
 		#endregion
@@ -15,7 +15,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return AsInt.ToString (); } set{ AsInt = int.Parse (value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
-		public VariableType Type { get { return VariableType.Int; }}
+		public DataType Type { get { return DataType.Int; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

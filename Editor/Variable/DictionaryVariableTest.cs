@@ -2,6 +2,8 @@
 using UnityEditor;
 using NUnit.Framework;
 using BicDB.Utility;
+using BicDB.Variable;
+using BicDB.Container;
 
 namespace BicDB.Variable
 {
@@ -12,7 +14,7 @@ namespace BicDB.Variable
 		public void CreateStringTest1()
 		{
 
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
+			DictionaryContainer<StringVariable> _var = new DictionaryContainer<StringVariable> ();
 			string _json = "{\"test1\" : \"test\", \"test2\":\"123a\", \"test3\":\t\"456\"}";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -26,7 +28,7 @@ namespace BicDB.Variable
 		public void CreateIntTest()
 		{
 
-			DictionaryVariable<IntVariable> _var = new DictionaryVariable<IntVariable> ();
+			DictionaryContainer<IntVariable> _var = new DictionaryContainer<IntVariable> ();
 			string _json = "{\"test1\" : 123, \"test2\":	456, \"test3\":789}";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -39,7 +41,7 @@ namespace BicDB.Variable
 		[Test]
 		public void GetSizeTest()
 		{
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
+			DictionaryContainer<StringVariable> _var = new DictionaryContainer<StringVariable> ();
 			_var.Add("t1", new StringVariable("1"));
 			_var.Add("t2", new StringVariable("3"));
 			_var.Add("t3", new StringVariable("3"));
@@ -50,7 +52,7 @@ namespace BicDB.Variable
 		[Test]
 		public void AddTest()
 		{
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
+			DictionaryContainer<StringVariable> _var = new DictionaryContainer<StringVariable> ();
 			_var.Add("test", new StringVariable("1"));
 
 			Assert.AreEqual(_var["test"].AsString, "1");
@@ -59,7 +61,7 @@ namespace BicDB.Variable
 		[Test]
 		public void RemoveAtTest()
 		{
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
+			DictionaryContainer<StringVariable> _var = new DictionaryContainer<StringVariable> ();
 			_var.Add("key1", new StringVariable("1"));
 			_var.Add("key2", new StringVariable("2"));
 			_var.Add("key3", new StringVariable("3"));
@@ -71,32 +73,18 @@ namespace BicDB.Variable
 			Assert.AreEqual(_var["key2"].AsString, "2");
 		}
 
-		[Test]
-		public void ContainsTest1()
-		{
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
-			_var.Add("key1", new StringVariable("1"));
-			_var.Add("key2", new StringVariable("2"));
-			_var.Add("key3", new StringVariable("3"));
-
-			Assert.AreEqual(_var.Contains(new StringVariable("1")), true);
-			Assert.AreEqual(_var.Contains(new StringVariable("6")), false);
-			Assert.AreEqual(_var.Contains("key1"), true);
-			Assert.AreEqual(_var.Contains("key6"), false);
-		}
+	
 
 		[Test]
 		public void ClearTest1()
 		{
-			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
+			DictionaryContainer<StringVariable> _var = new DictionaryContainer<StringVariable> ();
 			_var.Add("key1", new StringVariable("1"));
 			_var.Add("key2", new StringVariable("2"));
 			_var.Add("key3", new StringVariable("3"));
 
 			_var.Clear ();
 
-			Assert.AreEqual(_var.Contains(new StringVariable("1")), false);
-			Assert.AreEqual(_var.Contains(new StringVariable("6")), false);
 			Assert.AreEqual(_var.Contains("key1"), false);
 			Assert.AreEqual(_var.Contains("key6"), false);
 			Assert.AreEqual(_var.GetSize(), 0);

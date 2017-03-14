@@ -74,7 +74,7 @@ namespace BicDB.Variable
 		{
 
 			IntVariable _var = new IntVariable (124);
-			Assert.AreEqual(_var.Type, VariableType.Int);
+			Assert.AreEqual(_var.Type, DataType.Int);
 		}
 
 		[Test]

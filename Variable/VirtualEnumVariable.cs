@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualEnumVariable<T> : VariableBase, IVariable where  T : struct
+	public class VirtualEnumVariable<T> : DataBase, IVariable where  T : struct
 	{
 		#region AsValue
 		private Func<T> data;
@@ -11,7 +11,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return data().ToString (); } set{ throwSetException(); } }
 		public float AsFloat{ get{ return (float)AsInt; } set{ throwSetException(); } }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ throwSetException(); } }
-		public VariableType Type { get { return VariableType.Int; }}
+		public DataType Type { get { return DataType.Int; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

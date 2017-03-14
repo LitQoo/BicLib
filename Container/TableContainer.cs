@@ -2,19 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Variable;
+using BicDB.Container;
 
-namespace BicDB
+namespace BicDB.Container
 {
 
-
-
-	public interface IStorageSuppoter{
-		void Save(Action<Result> _callaback = null, object _parameter = null);
-		void Load(Action<Result> _callaback = null, object _parameter = null);
-		void SetStorage(IStorage _storage);
-	}
-
-	public interface ITable<T> : IVariableBase, IListSuppoter<T>, IStorageSuppoter where T : IModelVariable, new()
+	public interface ITableContainer<T> : IDataBase, IListSuppoter<T>, IStorageSuppoter where T : IModelContainer, new()
 	{
 		#region event
 		event Action<T> OnAddedRow;
@@ -31,40 +24,18 @@ namespace BicDB
 		#endregion
 
 		#region Header&Property 
-		Dictionary<string, IVariableBase> Header { get; }
-		Dictionary<string, IVariableBase> Property { get; }
-		void SetOrChangeProperty (string _key, IVariableBase _variable);
-		void SetOrChangeHeader (string _key, IVariableBase _variable);
+		Dictionary<string, IDataBase> Header { get; }
+		Dictionary<string, IDataBase> Property { get; }
 		#endregion
 
 	}
-
-	public class Result{
-		public int Code = 0;
-		public string Message = "";
-
-		public Result(int _code, string _message = ""){
-			Code = _code;
-			Message = _message;
-		}
-	}
-
+		
 	static public class HeaderKey{
 		static public string PrimaryKey = "primaryKey";
 	}
 
-	public interface ILinqSupporter<T>
-	{
 
-		IEnumerable<T> Where(Func<T, bool> _func);
-		T FirstOrDefault(Func<T, bool> _func);
-		IEnumerable<U> Select<U>(Func<T, U> _func);
-		IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func);
-		IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func);
-	}
-
-
-	public class Table<T> : VariableBase, ITable<T> where T : class, IModelVariable, new(){
+	public class TableContainer<T> : ITableContainer<T> where T : class, IModelContainer, new(){
 		private List<T> rows = new List<T>();
 
 		#region event
@@ -73,7 +44,7 @@ namespace BicDB
 		#endregion
 
 		#region LifeCycle
-		public Table(string _name){
+		public TableContainer(string _name){
 			Name = _name;
 		}
 		#endregion
@@ -123,16 +94,6 @@ namespace BicDB
 			rows.Remove (_row);
 		}
 
-		public bool Contains(T _value){
-			foreach (var _item in rows) {
-				if (_value.AsFormattedString == _item.AsFormattedString) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
@@ -148,7 +109,7 @@ namespace BicDB
 
 		#region IVariable
 		public string AsFormattedString {get;set;}
-		public VariableType Type { get { return VariableType.List; }}
+		public DataType Type { get { return DataType.Table; }}
 		#endregion
 
 		#region ITable
@@ -208,27 +169,13 @@ namespace BicDB
 		#endregion
 
 		#region Header
-		private Dictionary<string, IVariableBase> header = new Dictionary<string, IVariableBase> ();
-		public Dictionary<string, IVariableBase> Header {get{ return header; }}
-		public void SetOrChangeHeader(string _key, IVariableBase _variable){
-			if (header.ContainsKey (_key)) {
-				header [_key].AsFormattedString = _variable.AsFormattedString;
-			} else {
-				header [_key] = _variable;
-			}
-		}
+		private Dictionary<string, IDataBase> header = new Dictionary<string, IDataBase> ();
+		public Dictionary<string, IDataBase> Header {get{ return header;}}
 		#endregion
 
 		#region Property
-		private Dictionary<string, IVariableBase> property = new Dictionary<string, IVariableBase> ();
-		public Dictionary<string, IVariableBase> Property {get{ return property; }}
-		public void SetOrChangeProperty(string _key, IVariableBase _variable){
-			if (property.ContainsKey (_key)) {
-				property [_key].AsFormattedString = _variable.AsFormattedString;
-			} else {
-				property [_key] = _variable;
-			}
-		}
+		private Dictionary<string, IDataBase> property = new Dictionary<string, IDataBase> ();
+		public Dictionary<string, IDataBase> Property{get{ return property;}}
 		#endregion
 	}
 

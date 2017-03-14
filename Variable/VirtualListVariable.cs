@@ -2,13 +2,14 @@
 using BicDB;
 using System.Collections.Generic;
 using System.Linq;
+using BicDB.Container;
 
 namespace BicDB.Variable
 {
 
-	public class VirtualListVariable<T> : VariableBase, IListVariable<T> where T : IVariableBase, new()
+	public class VirtualListVariable<T> : DataBase, IListContainer<T> where T : IDataBase, new()
 	{
-		public new event Action<IListVariable<T>, string> OnChangedValueActions;
+		public new event Action<IListContainer<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
@@ -19,7 +20,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return string.Empty; } set{ throwSetException ();} }
 		public float AsFloat{ get{ return 0; } set{ throwSetException ();} }
 		public bool AsBool{ get{ return false; } set{throwSetException ();} }
-		public VariableType Type { get { return VariableType.List; }}
+		public DataType Type { get { return DataType.List; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using BicDB.Utility;
 using BicDB.Variable;
+using BicDB.Container;
 
 namespace BicDB.Storage
 {
@@ -36,7 +37,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
@@ -44,13 +45,13 @@ namespace BicDB.Storage
 		}
 
 		private Action<Result> loadCallback = null;
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			loadCallback = _callback;
 			StartCoroutine(getTextFromWWW(_table));
 
 		}
 
-		private IEnumerator getTextFromWWW<T> (ITable<T> _table) where T : IModelVariable, new()
+		private IEnumerator getTextFromWWW<T> (ITableContainer<T> _table) where T : IModelContainer, new()
 		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);

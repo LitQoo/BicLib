@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
+using BicDB.Variable;
+using BicDB.Container;
 
 namespace BicDB
 {
@@ -13,10 +15,10 @@ namespace BicDB
 
 		[Test]
 		public void AddTableTest(){
-			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
-			Manager.AddTable<ModelVariable> (_table);
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer> ("tablename");
+			Manager.AddTable<ModelContainer> (_table);
 
-			var _getTable = Manager.GetTable<ModelVariable> ();
+			var _getTable = Manager.GetTable<ModelContainer> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
@@ -24,11 +26,11 @@ namespace BicDB
 
 		[Test]
 		public void AddAlreadyAddedTableTest(){
-			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
-			Manager.AddTable<ModelVariable> (_table);
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer> ("tablename");
+			Manager.AddTable<ModelContainer> (_table);
 
 			try {
-				Manager.AddTable<ModelVariable> (_table);
+				Manager.AddTable<ModelContainer> (_table);
 			} catch (System.Exception) {
 				Assert.Pass ();
 			}
@@ -39,20 +41,20 @@ namespace BicDB
 
 		[Test]
 		public void GetTableTestWithoutTablename(){
-			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
-			Manager.AddTable<ModelVariable> (_table);
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer> ("tablename");
+			Manager.AddTable<ModelContainer> (_table);
 
-			var _getTable = Manager.GetTable<ModelVariable> ();
+			var _getTable = Manager.GetTable<ModelContainer> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
 
 		[Test]
 		public void GetTableTestWithTablename(){
-			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
-			Manager.AddTable<ModelVariable> (_table);
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer> ("tablename");
+			Manager.AddTable<ModelContainer> (_table);
 
-			var _getTable = Manager.GetTable<ModelVariable> ("tablename");
+			var _getTable = Manager.GetTable<ModelContainer> ("tablename");
 
 			Assert.AreEqual (_table, _getTable);
 		}
@@ -60,26 +62,26 @@ namespace BicDB
 		[Test]
 		public void GetTableTestMissingTable(){
 			
-			var _getTable = Manager.GetTable<ModelVariable> ("???");
+			var _getTable = Manager.GetTable<ModelContainer> ("???");
 
 			Assert.IsNull (_getTable);
 		}
 
 		[Test]
 		public void CreateTableTest(){
-			ITable<ModelVariable> _table = Manager.CreateTable<ModelVariable>("tablename");
+			ITableContainer<ModelContainer> _table = Manager.CreateTable<ModelContainer>("tablename");
 
-			var _getTable = Manager.GetTable<ModelVariable> ();
+			var _getTable = Manager.GetTable<ModelContainer> ();
 
 			Assert.AreEqual (_table, _getTable);
 		}
 
 		[Test]
 		public void ClearTableTest(){
-			ITable<ModelVariable> _table = new Table<ModelVariable> ("tablename");
-			Manager.AddTable<ModelVariable> (_table);
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer> ("tablename");
+			Manager.AddTable<ModelContainer> (_table);
 			Manager.ClearTables ();
-			var _getTable = Manager.GetTable<ModelVariable> ();
+			var _getTable = Manager.GetTable<ModelContainer> ();
 
 			Assert.IsNull (_getTable);
 		}

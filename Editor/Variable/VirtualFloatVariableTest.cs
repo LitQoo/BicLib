@@ -59,7 +59,7 @@ namespace BicDB.Variable
 		{
 
 			VirtualFloatVariable _var = new VirtualFloatVariable (()=>{return 3845.23f;});
-			Assert.AreEqual(_var.Type, VariableType.Float);
+			Assert.AreEqual(_var.Type, DataType.Float);
 		}
 	}
 }

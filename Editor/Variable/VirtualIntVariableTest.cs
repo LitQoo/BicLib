@@ -61,7 +61,7 @@ namespace BicDB.Variable
 		{
 
 			VirtualIntVariable _var = new VirtualIntVariable (()=>{return 124;});
-			Assert.AreEqual(_var.Type, VariableType.Int);
+			Assert.AreEqual(_var.Type, DataType.Int);
 		}
 	}
 }

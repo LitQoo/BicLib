@@ -90,7 +90,7 @@ namespace BicDB.Variable
 		{
 
 			StringVariable _var = new StringVariable ("abcd");
-			Assert.AreEqual(_var.Type, VariableType.String);
+			Assert.AreEqual(_var.Type, DataType.String);
 		}
 
 		[Test]

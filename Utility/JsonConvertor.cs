@@ -3,6 +3,7 @@ using System.Collections;
 using BicDB.Variable;
 using System;
 using System.Linq;
+using BicDB.Container;
 
 namespace BicDB.Utility
 {
@@ -20,13 +21,13 @@ namespace BicDB.Utility
 		#endregion
 
 		#region StringFormatter
-		public void BuildFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new(){
+		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new(){
 			_json += "{";
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
 			//header
 			for(int i = 0; i < _propertyKeys.Length; i++){
-				IVariableBase _property = _table.Property[_propertyKeys [i]];
+				IDataBase _property = _table.Property[_propertyKeys [i]];
 
 				_json += "\"" + _propertyKeys[i] + "\":";
 				_property.BuildFormattedString(ref _json, this);
@@ -48,7 +49,7 @@ namespace BicDB.Utility
 			_json += "]}";
 		}
 
-		public void BuildFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariableBase, new(){
+		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
 			_json += "[";
 			int _size = _list.GetSize();
 			for (int i = 0; i < _size; i++) {
@@ -61,7 +62,7 @@ namespace BicDB.Utility
 			_json += "]";
 		}
 			
-		public void BuildFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariableBase, new(){
+		public void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new(){
 			var _keys = _dictionary.Keys;
 			_json += "{";
 
@@ -77,11 +78,11 @@ namespace BicDB.Utility
 			_json += "}";
 		}
 	
-		public void BuildFormattedString(IModelVariable _model, ref string _json){
+		public void BuildFormattedString(IModelContainer _model, ref string _json){
 			_json += "{";
 			var _columnKeys = _model.GetColumnNameList();
 			for (int j = 0; j < _columnKeys.Count; j++) {
-				IVariableBase _column = _model[_columnKeys[j]];
+				IDataBase _column = _model[_columnKeys[j]];
 
 				_json += "\"" + _columnKeys[j] + "\":";
 				_column.BuildFormattedString(ref _json, this);
@@ -96,7 +97,7 @@ namespace BicDB.Utility
 		}
 
 		public void BuildFormattedString(IVariable _variable, ref string _json){
-			if (_variable.Type == VariableType.String) {
+			if (_variable.Type == DataType.String) {
 				_json += "\"" + _variable.AsString.Replace("\"","\\\"") + "\"";
 			} else {
 				_json += _variable.AsString;
@@ -104,13 +105,13 @@ namespace BicDB.Utility
 		}
 
 
-		public void BuildFormattedString(IVariableBase _variable, ref string _json){
+		public void BuildFormattedString(IDataBase _variable, ref string _json){
 			_variable.BuildFormattedString(ref _json, this);
 		}
 		#endregion
 
 		#region StringParser
-		public void BuildTableVariable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new(){
+		public void BuildTableVariable<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -133,7 +134,6 @@ namespace BicDB.Utility
 						T _model = new T();
 						_model.BuildVariable(ref _json, ref _counter, this);
 						_table.Add(_model);
-						Console.WriteLine(_model.AsFormattedString + " - " + _json[_counter].ToString() + "-" + _counter.ToString());
 
 
 						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
@@ -147,7 +147,7 @@ namespace BicDB.Utility
 					increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
 					_counter++;
 				} else {
-					_table.SetOrChangeProperty (_fieldName, BuildVariable(ref _json, ref _counter));
+					_table.Property[_fieldName] = BuildVariable(ref _json, ref _counter);
 				}
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
@@ -159,7 +159,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public IVariableBase BuildVariable(ref string _json, ref int _counter){
+		public IDataBase BuildVariable(ref string _json, ref int _counter){
 
 			// find start point
 			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
@@ -171,12 +171,12 @@ namespace BicDB.Utility
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				ListVariable<StringVariable> _result = new ListVariable<StringVariable>();
+				ListContainer<StringVariable> _result = new ListContainer<StringVariable>();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			
 			} else if (_json[_counter] == '{') {
-				DictionaryVariable<StringVariable> _result = new DictionaryVariable<StringVariable>();
+				DictionaryContainer<StringVariable> _result = new DictionaryContainer<StringVariable>();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else {
@@ -186,7 +186,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildListVariable<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariableBase, new(){
+		public void BuildListVariable<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
@@ -220,7 +220,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildDictionaryVariable<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariableBase, new(){
+		public void BuildDictionaryVariable<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -252,7 +252,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildModelVariable(IModelVariable _model, ref string _json, ref int _counter){
+		public void BuildModelVariable(IModelContainer _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}

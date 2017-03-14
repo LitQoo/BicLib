@@ -3,19 +3,13 @@ using System.Collections.Generic;
 using System.CodeDom.Compiler;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
+using BicDB.Container;
 
 namespace BicDB.Variable
 {
-	public interface IVariableBase
-	{
-		void BuildVariable(ref string _json, ref int _counter, IStringParser _parser);
-		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
 
-		string AsFormattedString{get;set;}
-		VariableType Type { get; }
-	}
 
-	public interface IVariable : IVariableBase{
+	public interface IVariable : IDataBase{
 		event Action<IVariable, string> OnChangedValueActions;
 		void NotifyChanged(string _message = "");
 		bool IsEqual(IVariable _variable);
@@ -27,35 +21,7 @@ namespace BicDB.Variable
 		bool IsChanged{ get; set;}
 	}
 
-	public enum VariableType
-	{
-		Int,
-		Float,
-		String,
-		Bool,
-		List,
-		Dictionary,
-		Model
-	}
 
-	public class VariableBase{
-		public event Action<IVariable, string> OnChangedValueActions = delegate{};
-
-		public bool IsChanged{ get; set;}
-
-		public VariableBase(){
-			IsChanged = false;
-		}
-
-		public void NotifyChanged(string _message = ""){
-			IsChanged = true;
-			OnChangedValueActions (this as IVariable, _message);
-		}
-
-		public bool IsEqual(IVariable _variable){
-			return VariableUtil.IsEqual(this as IVariable, _variable);
-		}
-	}
 
 	public class OnChangedValueToDelegator<T> where  T : struct{
 		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
@@ -119,7 +85,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty<T>(ref IListVariable<T> _member, IListVariable<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IVariableBase, new(){
+		static public void SetVariableProperty<T>(ref IListContainer<T> _member, IListContainer<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IDataBase, new(){
 			if (_member != null) {
 				if (_addedCallback != null) {
 					_member.OnAddedValueActions -= _addedCallback;
@@ -144,15 +110,15 @@ namespace BicDB.Variable
 		static public bool IsEqual(IVariable _variable1, IVariable _variable2){
 			if (_variable1.Type == _variable2.Type) {
 				switch (_variable1.Type) {
-					case VariableType.Bool:
+					case DataType.Bool:
 						return _variable1.AsBool == _variable2.AsBool;
-					case VariableType.Float:
+					case DataType.Float:
 						return Math.Abs(_variable1.AsFloat - _variable2.AsFloat) < 0.00001f;
-					case VariableType.Int:
+					case DataType.Int:
 						return _variable1.AsInt == _variable2.AsInt;
-					case VariableType.List:
+					case DataType.List:
 						return false;
-					case VariableType.Dictionary:
+					case DataType.Dictionary:
 						return false;
 					default:
 						return _variable1.AsString == _variable2.AsString;

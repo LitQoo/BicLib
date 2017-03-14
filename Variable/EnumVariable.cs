@@ -12,7 +12,7 @@ namespace BicDB.Variable
 		T AsEnum{ get; set; }
 	}
 
-	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
+	public class EnumVariable<T> : DataBase, IEnumVariable<T> where  T : struct
 	{
 
 		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
@@ -24,7 +24,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return data.ToString (); } set{ AsInt = (int)Enum.Parse(typeof(T), value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
-		public VariableType Type { get { return VariableType.Int; }}
+		public DataType Type { get { return DataType.Int; }}
 		public string AsFormattedString { get; set; }
 
 		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}

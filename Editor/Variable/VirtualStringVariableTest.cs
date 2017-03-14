@@ -89,7 +89,7 @@ namespace BicDB.Variable
 		{
 
 			VirtualStringVariable _var = new VirtualStringVariable (()=>"abcd");
-			Assert.AreEqual(_var.Type, VariableType.String);
+			Assert.AreEqual(_var.Type, DataType.String);
 		}
 	}
 }

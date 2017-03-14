@@ -5,9 +5,9 @@ using UnityEditor;
 using System.Security.Cryptography;
 using System.Linq;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
-	public interface IDictionaryVariable<T> : IVariableBase where T : IVariableBase, new()
+	public interface IDictionaryContainer<T> : IDataBase where T : IDataBase, new()
 	{
 		T this [string _key] { get; }
 		string[] Keys{ get; }
@@ -15,12 +15,11 @@ namespace BicDB.Variable
 		int GetSize();
 		void Add(string _key, T _value);
 		void RemoveAt(string _key);
-		bool Contains(T _value);
 		bool Contains(string _key);
 		void Clear();
 	}
 
-	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable<T> where T : IVariableBase, new()
+	public class DictionaryContainer<T> : IDictionaryContainer<T> where T : IDataBase, new()
 	{
 
 		private Dictionary<string, T> data = new Dictionary<string, T>();
@@ -30,7 +29,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return string.Empty; } set{ } }
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
-		public VariableType Type { get { return VariableType.Dictionary; }}
+		public DataType Type { get { return DataType.Dictionary; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 
@@ -57,16 +56,6 @@ namespace BicDB.Variable
 			data.Remove (_key);	
 		}
 
-		public bool Contains(T _value){
-			foreach (var _item in data) {
-				if (_value.AsFormattedString == _item.Value.AsFormattedString) {
-					return true;
-				}
-			}
-
-			return false;	
-		}
-
 		public bool Contains(string _key){
 			return data.ContainsKey (_key);
 		}
@@ -83,7 +72,7 @@ namespace BicDB.Variable
 		#endregion
 
 		#region LifeCycle
-		public DictionaryVariable() : base(){
+		public DictionaryContainer() : base(){
 
 		}
 		#endregion
@@ -93,7 +82,6 @@ namespace BicDB.Variable
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			_parser.BuildDictionaryVariable(this, ref _json, ref _counter);
-			IsChanged = false;
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){

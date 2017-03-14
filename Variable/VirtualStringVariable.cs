@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualStringVariable : VariableBase, IVariable
+	public class VirtualStringVariable : DataBase, IVariable
 	{
 		#region AsValue
 		private Func<string> data;
@@ -11,7 +11,7 @@ namespace BicDB.Variable
 		public int AsInt{ get{ return Int32.Parse(AsString); } set{ throwSetException ();} }
 		public float AsFloat{ get{ return  (float)Double.Parse(AsString); } set{ throwSetException ();} }
 		public bool AsBool{ get{ return AsString.ToLower() == "true" ? true : false; } set{ throwSetException ();} }
-		public VariableType Type { get { return VariableType.String; }}
+		public DataType Type { get { return DataType.String; }}
 		public string AsFormattedString { get; set; }
 		#endregion
 

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using BicDB.Variable;
+using BicDB.Container;
+
+namespace BicDB
+{
+
+	public interface IStorageSuppoter{
+		void Save(Action<Result> _callaback = null, object _parameter = null);
+		void Load(Action<Result> _callaback = null, object _parameter = null);
+		void SetStorage(IStorage _storage);
+	}
+
+
+	public interface IStringParser{
+		void BuildTableVariable<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new();
+		void BuildListVariable<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildDictionaryVariable<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildModelVariable(IModelContainer _model, ref string _json, ref int _counter);
+		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
+		void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter);
+		IDataBase BuildVariable(ref string _json, ref int _counter);
+
+	}
+
+	public interface IStringFormatter{
+		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new();
+		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new();
+		void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();
+		void BuildFormattedString(IModelContainer _model, ref string _json);
+		void BuildFormattedString(IVariable _variable, ref string _json);
+		void BuildFormattedString(IDataBase _variable, ref string _json);
+	}
+
+	public interface IStorage
+	{
+		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
+		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
+	}
+}
+

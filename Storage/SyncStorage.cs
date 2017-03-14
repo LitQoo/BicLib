@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 using BicDB.Utility;
 using BicDB.Variable;
+using BicDB.Container;
 
 namespace BicDB.Storage
 {
@@ -38,7 +39,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
 				_encKey = (_table.Header[ENCRYPT_KEY] as IVariable).AsString.PadRight(16, '_');
@@ -53,7 +54,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		public void Load<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
@@ -96,7 +97,7 @@ namespace BicDB.Storage
 		}
 
 		private Action<Result> loadCallback = null;
-		private IEnumerator GetTextFromWWW<T> (ITable<T> _table) where T : IModelVariable, new()
+		private IEnumerator GetTextFromWWW<T> (ITableContainer<T> _table) where T : IModelContainer, new()
 		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);

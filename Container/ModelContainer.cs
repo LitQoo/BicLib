@@ -2,33 +2,33 @@
 using System.Collections.Generic;
 using BicDB.Variable;
 
-namespace BicDB
+namespace BicDB.Container
 {
-	public interface IModelVariable : IVariableBase{
-		IVariableBase this [string _key] { get; }
+	public interface IModelContainer : IDataBase{
+		IDataBase this [string _key] { get; }
 		bool Contains(string _key);
-		void AddManagedColumn(string _key, IVariableBase _value);
+		void AddManagedColumn(string _key, IDataBase _value);
 		List<string> GetColumnNameList();
 
-		event Action<IModelVariable, string> OnChangedValueActions;
+		event Action<IModelContainer, string> OnChangedValueActions;
 		void NotifyChanged(string _message = "");
 	}
 
-	public class ModelVariable : IModelVariable{
-		private Dictionary<string, IVariableBase> data = new Dictionary<string, IVariableBase>();
+	public class ModelContainer : IModelContainer{
+		private Dictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 
-		public event Action<IModelVariable, string> OnChangedValueActions;
+		public event Action<IModelContainer, string> OnChangedValueActions;
 		public void NotifyChanged(string _message = ""){
 			OnChangedValueActions(this, _message);
 		}
 
 		#region AsValue
 		public string AsFormattedString{get;set;}
-		public VariableType Type { get { return VariableType.Model; }}
+		public DataType Type { get { return DataType.Model; }}
 		#endregion
 
 		#region IDictionaryVariable
-		public IVariableBase this [string _key] { 
+		public IDataBase this [string _key] { 
 			get{ 
 				return data [_key];
 			} 
@@ -39,7 +39,7 @@ namespace BicDB
 		}
 
 
-		public void AddManagedColumn(string _key, IVariableBase _value){
+		public void AddManagedColumn(string _key, IDataBase _value){
 			data.Add (_key, _value);
 		}
 

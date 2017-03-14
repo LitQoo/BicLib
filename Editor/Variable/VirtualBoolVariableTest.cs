@@ -77,7 +77,7 @@ namespace BicDB.Variable
 		{
 
 			VirtualBoolVariable _var = new VirtualBoolVariable (()=>{return true;});
-			Assert.AreEqual(_var.Type, VariableType.Bool);
+			Assert.AreEqual(_var.Type, DataType.Bool);
 		}
 	}
 }

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using BicDB.Variable;
 using NUnit.Framework;
+using BicDB.Variable;
+using BicDB.Container;
 
 namespace BicDB
 {
 	public class ModelTest {
 		[Test]
 		public void AddManagedColumnTest(){
-			var _model = new ModelVariable ();
+			var _model = new ModelContainer ();
 			var _var = new IntVariable (0);
 			_model.AddManagedColumn ("key", _var);
 
@@ -17,9 +19,9 @@ namespace BicDB
 
 		[Test]
 		public void NotifyTest(){
-			var _model = new ModelVariable ();
+			var _model = new ModelContainer ();
 			string _msg = "msg";
-			_model.OnChangedValueActions += (IModelVariable _model2, string _message) => {
+			_model.OnChangedValueActions += (IModelContainer _model2, string _message) => {
 				if(_model2 == _model && _message == _msg){
 					Assert.Pass();
 				}
@@ -33,7 +35,7 @@ namespace BicDB
 
 		[Test]
 		public void IndexerTest(){
-			var _model = new ModelVariable ();
+			var _model = new ModelContainer ();
 			var _var = new IntVariable (123);
 			_model.AddManagedColumn ("key", _var);
 
@@ -42,7 +44,7 @@ namespace BicDB
 
 		[Test]
 		public void GetFieldNamesTest(){
-			var _model = new ModelVariable ();
+			var _model = new ModelContainer ();
 			var _var1 = new IntVariable (0);
 			var _var2 = new IntVariable (0);
 			_model.AddManagedColumn ("key1", _var1);

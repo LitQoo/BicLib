@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using BicDB.Variable;
+using BicDB.Container;
 
 
 namespace BicDB
@@ -9,7 +10,7 @@ namespace BicDB
 
 	}
 
-	public class TestStringModel : ModelVariable
+	public class TestStringModel : ModelContainer
 	{
 		static public string COLUMN_NAME = "data";
 
@@ -22,7 +23,7 @@ namespace BicDB
 
 
 
-	public class TestIntModel : ModelVariable
+	public class TestIntModel : ModelContainer
 	{
 		static public string COLUMN_NAME = "data";
 
@@ -34,13 +35,13 @@ namespace BicDB
 	}
 
 
-	public class TestWebModel : BicDB.ModelVariable{
-		public IVariableBase AndroidLink = new StringVariable("");
-		public IVariableBase Assetbundle = new StringVariable("");
-		public IVariableBase IosLink = new StringVariable("");
-		public IVariableBase Title = new StringVariable("");
-		public IVariableBase ViewWeight = new IntVariable(0);
-		public IListVariable<StringVariable> Images = new ListVariable<StringVariable>();
+	public class TestWebModel : ModelContainer{
+		public StringVariable AndroidLink = new StringVariable("");
+		public StringVariable Assetbundle = new StringVariable("");
+		public StringVariable IosLink = new StringVariable("");
+		public StringVariable Title = new StringVariable("");
+		public IntVariable ViewWeight = new IntVariable(0);
+		public ListContainer<StringVariable> Images = new ListContainer<StringVariable>();
 
 		public TestWebModel(){
 			AddManagedColumn ("androidLink", AndroidLink);
@@ -48,18 +49,18 @@ namespace BicDB
 			AddManagedColumn ("iosLink", IosLink);
 			AddManagedColumn ("title", Title);
 			AddManagedColumn ("viewWeight", ViewWeight);
-			AddManagedColumn ("images", Images as IVariableBase);
+			AddManagedColumn ("images", Images as IDataBase);
 		}
 	}
 
-	public class TestSyncModel : BicDB.ModelVariable{
-		public IVariableBase Key = new IntVariable(0);
-		public IVariableBase AndroidLink = new StringVariable("");
-		public IVariableBase Assetbundle = new StringVariable("");
-		public IVariableBase IosLink = new StringVariable("");
-		public IVariableBase Title = new StringVariable("");
-		public IVariableBase ViewWeight = new IntVariable(0);
-		public IListVariable<StringVariable> Images = new ListVariable<StringVariable>();
+	public class TestSyncModel : ModelContainer{
+		public IntVariable Key = new IntVariable(0);
+		public StringVariable AndroidLink = new StringVariable("");
+		public StringVariable Assetbundle = new StringVariable("");
+		public StringVariable IosLink = new StringVariable("");
+		public StringVariable Title = new StringVariable("");
+		public IntVariable ViewWeight = new IntVariable(0);
+		public ListContainer<StringVariable> Images = new ListContainer<StringVariable>();
 
 		public TestSyncModel(){
 			AddManagedColumn ("key", Key);
@@ -68,7 +69,7 @@ namespace BicDB
 			AddManagedColumn ("iosLink", IosLink);
 			AddManagedColumn ("title", Title);
 			AddManagedColumn ("viewWeight", ViewWeight);
-			AddManagedColumn ("images", Images as IVariableBase);
+			AddManagedColumn ("images", Images as IDataBase);
 		}
 	}
 
