@@ -5,6 +5,7 @@ using BicDB.Variable;
 using BicDB;
 using BicDB.Utility;
 using BicDB.Container;
+using System.Linq;
 
 namespace BicDB.Variable
 {
@@ -47,7 +48,7 @@ namespace BicDB.Variable
 			_var.Add(new StringVariable("3"));
 			_var.Add(new StringVariable("3"));
 
-			Assert.AreEqual(_var.GetSize(), 3);
+			Assert.AreEqual(_var.Count, 3);
 		}
 
 		[Test]
@@ -67,10 +68,10 @@ namespace BicDB.Variable
 			_var.Add(new StringVariable("2"));
 			_var.Add(new StringVariable("3"));
 
-			Assert.AreEqual(_var.GetSize(), 3);
+			Assert.AreEqual(_var.Count, 3);
 
 			_var.RemoveAt(0);
-			Assert.AreEqual(_var.GetSize(), 2);
+			Assert.AreEqual(_var.Count, 2);
 			Assert.AreEqual(_var[0].AsString, "2");
 		}
 
@@ -100,6 +101,30 @@ namespace BicDB.Variable
 			_var1[0] = new StringVariable("test");
 
 			Assert.AreEqual(_count, 2);
+		}
+
+		[Test]
+		public void LinqTest1(){
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
+			_var1.Add(new StringVariable("1"));
+			_var1.Add(new StringVariable("2"));
+
+			var _var2 =  _var1.FirstOrDefault(_row=>_row.AsString=="2");
+
+			Assert.AreNotEqual(_var2, null);
+
+		}
+
+		[Test]
+		public void LinqTest2(){
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
+			_var1.Add(new StringVariable("1"));
+			_var1.Add(new StringVariable("2"));
+
+			var _var2 =  _var1.FirstOrDefault(_row=>_row.AsString=="3");
+
+			Assert.AreEqual(_var2, null);
+
 		}
 	}
 }

@@ -4,7 +4,7 @@ using BicDB;
 namespace BicDB.Variable
 {
 
-	public class EncryptedIntVariable :  DataBase, IVariable{
+	public class EncryptedIntVariable :  VariableBase, IVariable{
 		#region static
 		private static System.Random random = new System.Random();
 		#endregion

@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualIntVariable : DataBase, IVariable
+	public class VirtualIntVariable : VariableBase, IVariable
 	{
 		#region AsValue
 		private Func<int> data;

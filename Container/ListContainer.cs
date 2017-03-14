@@ -7,18 +7,8 @@ using BicDB.Variable;
 
 namespace BicDB.Container
 {
-	public interface IListSuppoter<T> where T : IDataBase, new(){
-		T this [int _index] { get; set;}
-		int GetSize();
-		void Add(T _value);
-		void RemoveAt(int _index);
-		void Remove(T _value);
-		void Remove(Func<T, bool> _func);
-		void Clear();
-		void Insert(int _index, T _row);
-	}
 
-	public interface IListContainer<T> : IDataBase, ILinqSupporter<T>, IListSuppoter<T> where T : IDataBase, new(){
+	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new(){
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
@@ -27,105 +17,159 @@ namespace BicDB.Container
 
 	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
 	{
+		private IList<T> data = new List<T>();
+
+		#region Event
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 
-		#region AsValue
-		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return string.Empty; } set{ } }
-		public float AsFloat{ get{ return  0; } set{ } }
-		public bool AsBool{ get{ return false; } set{ } }
+		#endregion
+
+		#region IDataBase
 		public DataType Type { get { return DataType.List; }}
-		#endregion
 
-		#region IListVariable
-		public T this [int _index] { 
-			get{ 
-				return data[_index];
-			} 
-
-			set{ 
-				data[_index] = value;
-				OnChangedElementActions[_index](_index, data[_index]);
-			}
-		}
-
-		public int GetSize(){
-			return data.Count;
-		}
-
-		public void Add(T _value){
-			data.Add(_value);
-			OnAddedValueActions(_value);
-		}
-
-		public void RemoveAt(int _index){
-			data.RemoveAt(_index);
-		}
-
-		public void Remove(T _value)
-		{
-			data.Remove(_value);
-		}
-
-		public void Remove(Func<T, bool> _func)
-		{
-			for (int i = data.Count - 1; i >= 0; i--) {
-				if (_func (data [i])) {
-					data.RemoveAt (i);
-				}
-			}
-		}
-
-		public void Insert(int _index, T _value)
-		{
-			data.Insert (_index, _value);
-		}
-
-		public void Clear(){
-			data.Clear ();
-			OnClearedValueActions();
-		}
-		#endregion
-
-		#region Linq
-		public IEnumerable<T> Where(Func<T, bool> _func){
-			return data.Where(_func);
-		}
-
-		public T FirstOrDefault(Func<T, bool> _func){
-			return data.FirstOrDefault(_func);
-		}
-
-		public IEnumerable<U> Select<U>(Func<T, U> _func){
-			return data.Select(_func);
-		}
-
-		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
-			return data.OrderBy(_func);
-		}
-
-		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
-			return data.OrderByDescending(_func);
-		}
-		#endregion
-
-		private List<T> data = new List<T>();
-
-		public ListContainer() : base(){
-			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
-		}
-
-
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
 			_parser.BuildListVariable(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+		#endregion
+
+		#region IList
+		public int IndexOf(T _item)
+		{
+			return data.IndexOf(_item);
+		}
+
+		public void Insert(int _index, T _item)
+		{
+			data.Insert(_index, _item);
+			OnAddedValueActions(_item);
+		}
+
+		public void RemoveAt(int _index)
+		{
+			data.RemoveAt(_index);
+		}
+
+		public void Add(T _item)
+		{
+			data.Add(_item);
+			OnAddedValueActions(_item);
+		}
+
+		public void Clear()
+		{
+			data.Clear();
+			OnClearedValueActions();
+		}
+
+		public bool Contains(T _item)
+		{
+			return data.Contains(_item);
+		}
+
+		public void CopyTo(T[] _array, int _arrayIndex)
+		{
+			data.CopyTo(_array, _arrayIndex);
+		}
+
+		public bool Remove(T _item)
+		{
+			return data.Remove(_item);
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			return data.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return data.GetEnumerator();
+		}
+
+		public T this[int _index] {
+			get {
+				return data[_index];
+			}
+			set {
+				data[_index] = value;
+				OnChangedElementActions[_index](_index, data[_index]);
+			}
+		}
+
+		public int Count {
+			get {
+				return data.Count;
+			}
+		}
+
+		public bool IsReadOnly {
+			get {
+				return data.IsReadOnly;
+			}
+		}
+
+		#endregion
+		#region IListVariable
+//		public T this [int _index] { 
+//			get{ 
+//				return data[_index];
+//			} 
+//
+//			set{ 
+//				data[_index] = value;
+//				OnChangedElementActions[_index](_index, data[_index]);
+//			}
+//		}
+//
+//		public int GetSize(){
+//			return data.Count;
+//		}
+//
+//		public void Add(T _value){
+//			data.Add(_value);
+//			OnAddedValueActions(_value);
+//		}
+//
+//		public void RemoveAt(int _index){
+//			data.RemoveAt(_index);
+//		}
+//
+//		public void Remove(T _value)
+//		{
+//			data.Remove(_value);
+//		}
+//
+//		public void Remove(Func<T, bool> _func)
+//		{
+//			for (int i = data.Count - 1; i >= 0; i--) {
+//				if (_func (data [i])) {
+//					data.RemoveAt (i);
+//				}
+//			}
+//		}
+//
+//		public void Insert(int _index, T _value)
+//		{
+//			data.Insert (_index, _value);
+//		}
+//
+//		public void Clear(){
+//			data.Clear ();
+//			OnClearedValueActions();
+//		}
+		#endregion
+
+		public ListContainer() : base(){
+			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
+		}
+
+
 	}
 
 }

@@ -7,20 +7,16 @@ using BicDB.Container;
 namespace BicDB.Container
 {
 
-	public interface ITableContainer<T> : IDataBase, IListSuppoter<T>, IStorageSuppoter where T : IModelContainer, new()
+	public interface ITableContainer<T> : IDataBase, IList<T>, IStorageSuppoter where T : IModelContainer, new()
 	{
 		#region event
-		event Action<T> OnAddedRow;
-		event Action<T> OnRemovingRow;
+		event Action<T> OnAddedRowActions;
+		event Action<T> OnRemovingRowActions;
 		#endregion
 
 		#region get&set
 		string Name{ get; set;}
 		string PrimaryKey{ get; set; }
-		#endregion
-
-		#region indexer
-		new T this [int _index] { get; }
 		#endregion
 
 		#region Header&Property 
@@ -36,11 +32,11 @@ namespace BicDB.Container
 
 
 	public class TableContainer<T> : ITableContainer<T> where T : class, IModelContainer, new(){
-		private List<T> rows = new List<T>();
+		private IList<T> rows = new List<T>();
 
 		#region event
-		public event Action<T> OnAddedRow = delegate {};
-		public event Action<T> OnRemovingRow = delegate {};
+		public event Action<T> OnAddedRowActions = delegate {};
+		public event Action<T> OnRemovingRowActions = delegate {};
 		#endregion
 
 		#region LifeCycle
@@ -51,49 +47,90 @@ namespace BicDB.Container
 
 		#region IListVariable
 			
-		public int GetSize(){
-			return rows.Count;
-		}
-
-		public T this[int _index]
+		public int IndexOf(T _item)
 		{
-			get{return rows [_index] as T;}
-			set{ }
+			return rows.IndexOf(_item);
 		}
 
-		public void Add(T _row){
-			rows.Add(_row);
-			OnAddedRow (_row);
+		public void Insert(int _index, T _item)
+		{
+			rows.Insert(_index, _item);
+			OnAddedRowActions (_item);
 		}
 
-		public void Insert(int _index, T _row){
-			rows.Insert (_index, _row);
-			OnAddedRow (_row);
+		public void RemoveAt(int _index)
+		{
+			OnRemovingRowActions (rows [_index]);
+			rows.RemoveAt(_index);
 		}
 
-		public void Clear(){
-			Remove (_row => true);
+		public void Add(T _item)
+		{
+			rows.Add(_item);
+			OnAddedRowActions (_item);
 		}
 
-		public void RemoveAt (int _index){
-			OnRemovingRow (rows [_index]);
-			rows.RemoveAt (_index);
+		public void Clear()
+		{
+			rows.Clear();
 		}
 
-		public void Remove (Func<T, bool> _func){
-			for (int i = rows.Count - 1; i >= 0; i--) {
-				if (_func (rows [i])) {
-					OnRemovingRow (rows [i]);
-					rows.RemoveAt (i);
-				}
+		public bool Contains(T _item)
+		{
+			return rows.Contains(_item);
+		}
+
+		public void CopyTo(T[] _array, int _arrayIndex)
+		{
+			rows.CopyTo(_array, _arrayIndex);
+		}
+
+		public bool Remove(T _item)
+		{
+			
+			if (rows.Remove(_item)) {
+				OnRemovingRowActions (_item);
+				return true;
+			}
+
+			return false;
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			return rows.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return rows.GetEnumerator();
+		}
+
+		public T this[int _index] {
+			get {
+				return rows[_index];
+			}
+			set {
+				rows[_index] = value;
 			}
 		}
 
-		public void Remove (T _row){
-			OnRemovingRow (_row);
-			rows.Remove (_row);
+		public int Count {
+			get {
+				return rows.Count;
+			}
 		}
 
+		public bool IsReadOnly {
+			get {
+				return rows.IsReadOnly;
+			}
+		}
+
+		#endregion
+
+		#region IDatabase
+		public DataType Type { get { return DataType.Table; }}
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
@@ -104,17 +141,10 @@ namespace BicDB.Container
 		{
 			throw new NotImplementedException();
 		}
-
-		#endregion
-
-		#region IVariable
-		public DataType Type { get { return DataType.Table; }}
 		#endregion
 
 		#region ITable
 		public string Name{ get; set;}
-
-
 
 		public string PrimaryKey{ 
 			get{ 
@@ -127,28 +157,6 @@ namespace BicDB.Container
 		}
 
 
-		#endregion
-
-		#region Linq
-		public IEnumerable<T> Where(Func<T, bool> _func){
-			return rows.Where(_func);
-		}
-
-		public T FirstOrDefault(Func<T, bool> _func){
-			return rows.FirstOrDefault(_func);
-		}
-
-		public IEnumerable<U> Select<U>(Func<T, U> _func){
-			return rows.Select(_func);
-		}
-
-		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
-			return rows.OrderBy(_func);
-		}
-
-		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
-			return rows.OrderByDescending(_func);
-		}
 		#endregion
 
 		#region Storage

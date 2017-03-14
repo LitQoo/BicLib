@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class FloatVariable : DataBase, IVariable {
+	public class FloatVariable : VariableBase, IVariable {
 		#region AsValue
 		private float data;
 		public int AsInt{ get{ return (int)AsFloat; } set{ AsFloat = value; } }

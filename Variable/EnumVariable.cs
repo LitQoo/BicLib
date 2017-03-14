@@ -12,7 +12,7 @@ namespace BicDB.Variable
 		T AsEnum{ get; set; }
 	}
 
-	public class EnumVariable<T> : DataBase, IEnumVariable<T> where  T : struct
+	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
 
 		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};

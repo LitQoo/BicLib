@@ -7,7 +7,7 @@ using BicDB.Container;
 namespace BicDB.Variable
 {
 
-	public class VirtualListVariable<T> : DataBase, IListContainer<T> where T : IDataBase, new()
+	public class VirtualListVariable<T> : VariableBase, IListContainer<T> where T : IDataBase, new()
 	{
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
@@ -24,56 +24,75 @@ namespace BicDB.Variable
 
 
 		#region IListVariable
-		public T this [int _index] { 
-			get{ 
-				return data(_index);
-			} 
+		public int IndexOf(T item)
+		{
+			throw new NotImplementedException();
+		}
 
-			set{ 
-				throwSetException ();
+		public void Insert(int index, T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveAt(int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Add(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Clear()
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool Contains(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void CopyTo(T[] array, int arrayIndex)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool Remove(T item)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		public T this[int index] {
+			get {
+				return data(index);
+			}
+			set {
+				throw new NotImplementedException();
 			}
 		}
 
-		public int GetSize(){
-			return 0;
+		public int Count {
+			get {
+				throw new NotImplementedException();
+			}
 		}
 
-		public void Add(T _value){
-			throwSetException ();
-		}
-
-		public void Remove(int _index){
-			throwSetException ();
-		}
-
-		public bool Contains(T _value){
-			throwSetException ();
-
-			return false;
-		}
-
-		public void Clear(){
-			throwSetException ();
-		}
-
-		public void RemoveAt(int _index)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Remove(T _value)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Remove(Func<T, bool> _func)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Insert(int _index, T _row)
-		{
-			throw new NotImplementedException();
+		public bool IsReadOnly {
+			get {
+				throw new NotImplementedException();
+			}
 		}
 		#endregion
 

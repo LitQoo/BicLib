@@ -29,7 +29,7 @@ namespace BicDB
 	}
 
 
-	public class DataBase{
+	public class VariableBase{
 		public event Action<IVariable, string> OnChangedValueActions = delegate{};
 
 		public void NotifyChanged(string _message = ""){

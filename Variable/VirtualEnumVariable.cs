@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualEnumVariable<T> : DataBase, IVariable where  T : struct
+	public class VirtualEnumVariable<T> : VariableBase, IVariable where  T : struct
 	{
 		#region AsValue
 		private Func<T> data;

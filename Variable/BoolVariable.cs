@@ -5,7 +5,7 @@ using System;
 
 namespace BicDB.Variable
 {
-	public class BoolVariable : DataBase, IVariable{
+	public class BoolVariable : VariableBase, IVariable{
 		#region AsValue
 		private bool data;
 		public int AsInt{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }

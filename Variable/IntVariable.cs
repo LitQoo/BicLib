@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class IntVariable : DataBase, IVariable{
+	public class IntVariable : VariableBase, IVariable{
 		#region AsValue
 		protected int data;
 		public int AsInt{ get{ return data; } set{ data = value; NotifyChanged ();} }

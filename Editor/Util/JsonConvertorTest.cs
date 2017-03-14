@@ -139,7 +139,7 @@ namespace BicDB.Utility
 
 			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
-			Assert.AreEqual(_list.GetSize(), 4);
+			Assert.AreEqual(_list.Count, 4);
 		}
 
 		[Test]
@@ -150,7 +150,7 @@ namespace BicDB.Utility
 
 			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
-			Assert.AreEqual(_list.GetSize(), 4);
+			Assert.AreEqual(_list.Count, 4);
 			Assert.AreEqual(_list[0].Type, DataType.Int);
 		}
 
@@ -164,7 +164,7 @@ namespace BicDB.Utility
 			Console.WriteLine("test");
 			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
-			Assert.AreEqual(_list.GetSize(), 4);
+			Assert.AreEqual(_list.Count, 4);
 			Assert.AreEqual(_list[0].Type, DataType.String);
 			Assert.AreEqual(_list[0].AsString, " sdkf");
 			Assert.AreEqual(_list[1].AsString, " \t\" ");

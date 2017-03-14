@@ -46,7 +46,7 @@ namespace BicDB.Variable
 			_var.Add("t2", new StringVariable("3"));
 			_var.Add("t3", new StringVariable("3"));
 
-			Assert.AreEqual(_var.GetSize(), 3);
+			Assert.AreEqual(_var.Count, 3);
 		}
 
 		[Test]
@@ -66,10 +66,10 @@ namespace BicDB.Variable
 			_var.Add("key2", new StringVariable("2"));
 			_var.Add("key3", new StringVariable("3"));
 
-			Assert.AreEqual(_var.GetSize(), 3);
+			Assert.AreEqual(_var.Count, 3);
 
-			_var.RemoveAt("key1");
-			Assert.AreEqual(_var.GetSize(), 2);
+			_var.Remove("key1");
+			Assert.AreEqual(_var.Count, 2);
 			Assert.AreEqual(_var["key2"].AsString, "2");
 		}
 
@@ -85,9 +85,9 @@ namespace BicDB.Variable
 
 			_var.Clear ();
 
-			Assert.AreEqual(_var.Contains("key1"), false);
-			Assert.AreEqual(_var.Contains("key6"), false);
-			Assert.AreEqual(_var.GetSize(), 0);
+			Assert.AreEqual(_var.ContainsKey("key1"), false);
+			Assert.AreEqual(_var.ContainsKey("key6"), false);
+			Assert.AreEqual(_var.Count, 0);
 		}
 
 

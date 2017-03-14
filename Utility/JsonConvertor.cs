@@ -38,10 +38,10 @@ namespace BicDB.Utility
 			_json += "\"data\":[";
 
 			//data
-			for (int i = 0; i < _table.GetSize(); i++) {
+			for (int i = 0; i < _table.Count; i++) {
 				BuildFormattedString(_table[i], ref _json);
 
-				if (i != _table.GetSize() - 1) {
+				if (i != _table.Count - 1) {
 					_json += ",";
 				}
 			}
@@ -51,7 +51,7 @@ namespace BicDB.Utility
 
 		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
 			_json += "[";
-			int _size = _list.GetSize();
+			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
 				BuildFormattedString(_list[i], ref _json);
 
@@ -63,7 +63,7 @@ namespace BicDB.Utility
 		}
 			
 		public void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new(){
-			var _keys = _dictionary.Keys;
+			var _keys = _dictionary.Keys.ToArray();
 			_json += "{";
 
 			for (int i = 0; i < _keys.Length; i++) {
