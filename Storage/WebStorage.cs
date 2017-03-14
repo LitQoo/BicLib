@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using BicDB.Utility;
+using BicDB.Variable;
 
 namespace BicDB.Storage
 {
@@ -55,7 +56,7 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
-			WWW www = new WWW(_table.Header[LOAD_URL_KEY].AsString);
+			WWW www = new WWW((_table.Header[LOAD_URL_KEY] as IVariable).AsString);
 			yield return www;
 
 			var _result = new Result ((int)ResultCode.Success);
@@ -69,7 +70,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.GetInstance().ToTable(_table, ref _json, ref _counter);
+					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

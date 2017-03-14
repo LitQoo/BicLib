@@ -49,7 +49,7 @@ namespace BicDB.Variable
 
 			string _json = "123";
 			int _counter = 0;
-			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
 			Assert.AreEqual(_var.AsString, "123");
 		}

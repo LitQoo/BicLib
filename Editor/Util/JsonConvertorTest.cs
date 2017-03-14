@@ -16,7 +16,7 @@ namespace BicDB.Utility
 			string _json = "\"bb\\\"\t\nteset\"";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToString(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildStringVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsString, "bb\"\t\nteset");
 		}
@@ -27,7 +27,7 @@ namespace BicDB.Utility
 			string _json = "23948";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsInt, 23948);
 		}
@@ -38,7 +38,7 @@ namespace BicDB.Utility
 			string _json = "-23948";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsInt, -23948);
 		}
@@ -49,7 +49,7 @@ namespace BicDB.Utility
 			string _json = "23948.3323";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsFloat, 23948.3323f);
 		}
@@ -60,7 +60,7 @@ namespace BicDB.Utility
 			string _json = "-23948.3323";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsFloat, -23948.3323f);
 		}
@@ -71,7 +71,7 @@ namespace BicDB.Utility
 			string _json = "true";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsBool, true);
 		}
@@ -82,7 +82,7 @@ namespace BicDB.Utility
 			string _json = "false";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsBool, false);
 		}
@@ -92,7 +92,7 @@ namespace BicDB.Utility
 			string _json = "TrUe";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsBool, true);
 		}
@@ -103,7 +103,7 @@ namespace BicDB.Utility
 			string _json = "fALSE";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsBool, false);
 		}
@@ -114,7 +114,7 @@ namespace BicDB.Utility
 			string _json = "two";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsEnum, TestEnum.two);
 		}
@@ -125,7 +125,7 @@ namespace BicDB.Utility
 			string _json = "two";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToNumber(_number, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildNumberVariable(_number, ref _json, ref _counter);
 
 			Assert.AreEqual(_number.AsEnum, TestEnum.two);
 		}
@@ -136,7 +136,7 @@ namespace BicDB.Utility
 			string _json = "[1,2,3,4]";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToList(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.GetSize(), 4);
 		}
@@ -147,7 +147,7 @@ namespace BicDB.Utility
 			string _json = "[ 1333.1, 22242 ,\t3,\n\n -4 \n\t]";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToList(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.GetSize(), 4);
 			Assert.AreEqual(_list[0].Type, VariableType.Int);
@@ -161,7 +161,7 @@ namespace BicDB.Utility
 
 
 			Console.WriteLine("test");
-			JsonConvertor.GetInstance().ToList(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.GetSize(), 4);
 			Assert.AreEqual(_list[0].Type, VariableType.String);
@@ -177,7 +177,7 @@ namespace BicDB.Utility
 			string _json = "{\t  \"key\"  : -122.3\t,\"key2\":1111}\t";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToDictionary(_dictionary, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildDictionaryVariable(_dictionary, ref _json, ref _counter);
 
 			Assert.AreEqual(_dictionary["key"].AsFloat, -122.3f);
 			Assert.AreEqual(_dictionary["key2"].AsFloat, 1111f);
@@ -189,11 +189,11 @@ namespace BicDB.Utility
 			string _json = "{\t\"key1\":123,\"key2\":\"aaa\",\"key4\":-23.2,\"key3\":{\"key1\":12}}";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToModel(_model, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildModelVariable(_model, ref _json, ref _counter);
 
 			Assert.AreEqual(_model.member1.AsInt, 123);
 			Assert.AreEqual(_model.member2.AsString, "aaa");
-			Assert.AreEqual(_model["key4"].AsString, "-23.2");
+			Assert.AreEqual((_model["key4"] as IVariable).AsString, "-23.2");
 			Assert.AreEqual(_model.member3.member1.AsInt, 12);
 		}
 
@@ -203,13 +203,13 @@ namespace BicDB.Utility
 			string _json = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().ToTable(_table, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
 
 			Assert.AreEqual(_table[0].member1.AsInt, 123);
 			Assert.AreEqual(_table[1].member1.AsInt, 2);
-			Assert.AreEqual(_table.Property["name"].AsString, "test");
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
 			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
-			Assert.AreEqual(_table[0].member3["key2"].AsString, "test");
+			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
 		}	
 
 		[Test]
@@ -222,7 +222,7 @@ namespace BicDB.Utility
 				_row.member2.AsString = "two";
 				_row.member3.member1.AsInt = 2;
 
-				_table.AddRow(_row);
+				_table.Add(_row);
 			}
 
 			{
@@ -231,11 +231,11 @@ namespace BicDB.Utility
 				_row.member2.AsString = "two2";
 				_row.member3.member1.AsInt = 22;
 
-				_table.AddRow(_row);
+				_table.Add(_row);
 			}
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_table, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
 
 			Assert.AreEqual("{\"data\":[{\"key1\":1,\"key2\":\"two\",\"key3\":{\"key1\":2}},{\"key1\":12,\"key2\":\"two2\",\"key3\":{\"key1\":22}}]}", _json);
 		}
@@ -247,7 +247,7 @@ namespace BicDB.Utility
 			_dict.Add("key1", new StringVariable("test1"));
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_dict, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_dict, ref _json);
 
 			Assert.AreEqual("{\"test\":\"test\",\"key1\":\"test1\"}", _json);
 		}
@@ -259,7 +259,7 @@ namespace BicDB.Utility
 			_dict.Add(new StringVariable("test1"));
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_dict, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_dict, ref _json);
 
 			Assert.AreEqual("[\"test0\",\"test1\"]", _json);
 		}
@@ -272,7 +272,7 @@ namespace BicDB.Utility
 			_model.member3.member1.AsInt = 888;
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_model, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_model, ref _json);
 
 			Assert.AreEqual("{\"key1\":999,\"key2\":\"test\",\"key3\":{\"key1\":888}}", _json);
 		}
@@ -284,7 +284,7 @@ namespace BicDB.Utility
 			_value.AsString = "good";
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_value, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_value, ref _json);
 
 			Assert.AreEqual("\"good\"", _json);
 		}
@@ -295,7 +295,7 @@ namespace BicDB.Utility
 			_value.AsEnum = TestEnum.three;
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_value, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_value, ref _json);
 
 			Assert.AreEqual("three", _json);
 		}

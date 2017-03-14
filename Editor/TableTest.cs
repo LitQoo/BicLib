@@ -12,7 +12,7 @@ namespace BicDB
 		[Test]
 		public void GetRowSizeTest(){
 			var _table = new Table<ModelVariable>("tablename");
-			_table.AddRow(new ModelVariable());
+			_table.Add(new ModelVariable());
 
 			Assert.AreEqual(_table.GetSize(), 1);
 		}
@@ -21,7 +21,7 @@ namespace BicDB
 		public void GetRowTest(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model = new ModelVariable();
-			_table.AddRow(_model);
+			_table.Add(_model);
 
 			var _checkRow = _table[0];
 
@@ -32,7 +32,7 @@ namespace BicDB
 		public void IndexerTest(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model = new ModelVariable();
-			_table.AddRow(_model);
+			_table.Add(_model);
 
 
 
@@ -46,7 +46,7 @@ namespace BicDB
 		public void AddRowTest(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model = new ModelVariable();
-			_table.AddRow(_model);
+			_table.Add(_model);
 
 			var _checkRow = _table[0];
 
@@ -57,14 +57,14 @@ namespace BicDB
 		public void InsertRow1(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model1 = new ModelVariable();
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 			var _model2 = new ModelVariable();
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 			var _model3 = new ModelVariable();
-			_table.AddRow(_model3);
+			_table.Add(_model3);
 
 			var _model4 = new ModelVariable();
-			_table.InsertRow(1, _model4);
+			_table.Insert(1, _model4);
 
 			var _checkRow = _table[1];
 
@@ -84,7 +84,7 @@ namespace BicDB
 
 			var _model1 = new TestIntModel();
 			_model1.Data.AsInt = 123;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 
 			Assert.AreEqual (_isCalled, true);
 		}
@@ -100,9 +100,9 @@ namespace BicDB
 
 			var _model1 = new TestIntModel();
 			_model1.Data.AsInt = 123;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 
-			_table.RemoveRow (0);
+			_table.RemoveAt (0);
 
 			Assert.AreEqual (_isCalled, true);
 		}
@@ -112,11 +112,11 @@ namespace BicDB
 		public void ClearTest(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model1 = new ModelVariable();
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 			var _model2 = new ModelVariable();
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 			var _model3 = new ModelVariable();
-			_table.AddRow(_model3);
+			_table.Add(_model3);
 
 
 			Assert.AreEqual (_table.GetSize (), 3);
@@ -131,13 +131,13 @@ namespace BicDB
 		public void RemoveRowTest1(){
 			var _table = new Table<ModelVariable>("tablename");
 			var _model1 = new ModelVariable();
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 			var _model2 = new ModelVariable();
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 			var _model3 = new ModelVariable();
-			_table.AddRow(_model3);
+			_table.Add(_model3);
 
-			_table.RemoveRow(1);
+			_table.RemoveAt(1);
 
 			var _checkRow = _table[1];
 
@@ -152,15 +152,15 @@ namespace BicDB
 			var _table = new Table<TestIntModel>("tablename");
 			var _model1 = new TestIntModel();
 			_model1.Data.AsInt = 1;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 			var _model2 = new TestIntModel();
 			_model2.Data.AsInt = 2;
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 			var _model3 = new TestIntModel();
 			_model3.Data.AsInt = 3;
-			_table.AddRow(_model3);
+			_table.Add(_model3);
 
-			_table.RemoveRow(_row=>_row.Data.AsInt == 2);
+			_table.Remove(_row=>_row.Data.AsInt == 2);
 
 			var _checkRow = _table[1];
 
@@ -175,15 +175,15 @@ namespace BicDB
 			var _table = new Table<TestIntModel>("tablename");
 			var _model1 = new TestIntModel();
 			_model1.Data.AsInt = 1;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 			var _model2 = new TestIntModel();
 			_model2.Data.AsInt = 2;
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 			var _model3 = new TestIntModel();
 			_model3.Data.AsInt = 3;
-			_table.AddRow(_model3);
+			_table.Add(_model3);
 
-			_table.RemoveRow(_model2);
+			_table.Remove(_model2);
 
 			var _checkRow = _table[1];
 
@@ -200,11 +200,11 @@ namespace BicDB
 
 			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 
 			var _model2 = new TestStringModel();
 			_model2.Data.AsInt = _testValue;
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 
 			var _result = _table.Where(_row => _row.Data.AsInt == _testValue);
 
@@ -221,11 +221,11 @@ namespace BicDB
 
 			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 
 			var _model2 = new TestStringModel();
 			_model2.Data.AsInt = _testValue;
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 
 			var _result = _table.FirstOrDefault(_row => _row.Data.AsInt == _testValue);
 
@@ -239,11 +239,11 @@ namespace BicDB
 
 			var _model1 = new TestStringModel();
 			_model1.Data.AsInt = _testValue + 100;
-			_table.AddRow(_model1);
+			_table.Add(_model1);
 
 			var _model2 = new TestStringModel();
 			_model2.Data.AsInt = _testValue;
-			_table.AddRow(_model2);
+			_table.Add(_model2);
 
 			var _result = _table.Select(_row => _row);
 

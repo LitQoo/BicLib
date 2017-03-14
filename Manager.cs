@@ -9,7 +9,7 @@ namespace BicDB
 
 		static private List<object> tables = new List<object> ();
 
-		static public ITable<T> GetTable<T> (string _tableName = ""){
+		static public ITable<T> GetTable<T> (string _tableName = "") where T : IModelVariable, new(){
 
 			foreach (var _item in tables) {
 				if (_item is ITable<T>) {
@@ -23,7 +23,7 @@ namespace BicDB
 			return null;
 		}
 
-		static public void AddTable<T>(ITable<T> _table){
+		static public void AddTable<T>(ITable<T> _table) where T : IModelVariable, new(){
 			if (!tables.Contains (_table)) {
 				tables.Add (_table);			
 			} else {

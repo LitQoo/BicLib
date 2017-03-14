@@ -4,30 +4,31 @@ using BicDB.Variable;
 
 namespace BicDB
 {
-	public interface IModelVariable : IVariable{
-		new event Action<IModelVariable, string> OnChangedValueActions;
-		IVariable this [string _key] { get; }
+	public interface IModelVariable : IVariableBase{
+		IVariableBase this [string _key] { get; }
 		bool Contains(string _key);
-		void AddManagedColumn(string _key, IVariable _value);
+		void AddManagedColumn(string _key, IVariableBase _value);
 		List<string> GetColumnNameList();
+
+		event Action<IModelVariable, string> OnChangedValueActions;
+		void NotifyChanged(string _message = "");
 	}
 
-	public class ModelVariable : VariableBase, IModelVariable{
-		private Dictionary<string, IVariable> data = new Dictionary<string, IVariable>();
+	public class ModelVariable : IModelVariable{
+		private Dictionary<string, IVariableBase> data = new Dictionary<string, IVariableBase>();
 
-		public new event Action<IModelVariable, string> OnChangedValueActions = delegate{};
-
+		public event Action<IModelVariable, string> OnChangedValueActions;
+		public void NotifyChanged(string _message = ""){
+			OnChangedValueActions(this, _message);
+		}
 
 		#region AsValue
-		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return string.Empty; } set{ } }
-		public float AsFloat{ get{ return  0; } set{ } }
-		public bool AsBool{ get{ return false; } set{ } }
+		public string AsFormattedString{get;set;}
 		public VariableType Type { get { return VariableType.Model; }}
 		#endregion
 
 		#region IDictionaryVariable
-		public IVariable this [string _key] { 
+		public IVariableBase this [string _key] { 
 			get{ 
 				return data [_key];
 			} 
@@ -38,7 +39,7 @@ namespace BicDB
 		}
 
 
-		public void AddManagedColumn(string _key, IVariable _value){
+		public void AddManagedColumn(string _key, IVariableBase _value){
 			data.Add (_key, _value);
 		}
 
@@ -54,20 +55,15 @@ namespace BicDB
 
 		#region Logic
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.ToModel(this, ref _json, ref _counter);
-			IsChanged = false;
+			_parser.BuildModelVariable(this, ref _json, ref _counter);
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 
-		public new void NotifyChanged(string _message = ""){
-			IsChanged = true;
-			OnChangedValueActions (this, _message);
-		}
 		#endregion
 	}
 }

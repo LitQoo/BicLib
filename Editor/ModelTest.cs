@@ -37,7 +37,7 @@ namespace BicDB
 			var _var = new IntVariable (123);
 			_model.AddManagedColumn ("key", _var);
 
-			Assert.AreEqual(_model["key"].AsInt, 123); 
+			Assert.AreEqual((_model["key"] as IntVariable).AsInt, 123); 
 		}
 
 		[Test]

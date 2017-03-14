@@ -12,6 +12,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return AsFloat.ToString (); } set{ throwSetException (); } }
 		public bool AsBool{ get{ return AsFloat == 0 ? false : true; } set{ throwSetException (); } }
 		public VariableType Type { get { return VariableType.Float; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 		public VirtualFloatVariable() : base(){
@@ -21,13 +22,13 @@ namespace BicDB.Variable
 			data = _func;
 		}
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			throwSetException ();
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 
 		private void throwSetException(){

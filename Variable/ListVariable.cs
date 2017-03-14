@@ -6,23 +6,27 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-
-	public interface IListVariable<T> : IVariable, ILinqSupporter<T> where T : IVariable, new(){
-		new event Action<IListVariable<T>, string> OnChangedValueActions;
-		event Action<T> OnAddedValueActions;
-		event Action OnClearedValueActions;
-		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
-
+	public interface IListSuppoter<T> where T : IVariableBase, new(){
 		T this [int _index] { get; set;}
 		int GetSize();
 		void Add(T _value);
 		void RemoveAt(int _index);
+		void Remove(T _value);
+		void Remove(Func<T, bool> _func);
 		bool Contains(T _value);
 		void Clear();
+		void Insert(int _index, T _row);
+	}
+
+	public interface IListVariable<T> : IVariableBase, ILinqSupporter<T>, IListSuppoter<T> where T : IVariableBase, new(){
+		event Action<IListVariable<T>, string> OnChangedValueActions;
+		event Action<T> OnAddedValueActions;
+		event Action OnClearedValueActions;
+		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
 	}
 
 
-	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariable, new()
+	public class ListVariable<T> : VariableBase, IListVariable<T> where T : IVariableBase, new()
 	{
 		public new event Action<IListVariable<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
@@ -35,6 +39,7 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.List; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 		#region IListVariable
@@ -62,9 +67,28 @@ namespace BicDB.Variable
 			data.RemoveAt(_index);
 		}
 
+		public void Remove(T _value)
+		{
+			data.Remove(_value);
+		}
+
+		public void Remove(Func<T, bool> _func)
+		{
+			for (int i = data.Count - 1; i >= 0; i--) {
+				if (_func (data [i])) {
+					data.RemoveAt (i);
+				}
+			}
+		}
+
+		public void Insert(int _index, T _value)
+		{
+			data.Insert (_index, _value);
+		}
+
 		public bool Contains(T _value){
 			foreach (var _item in data) {
-				if (_value.AsString == _item.AsString) {
+				if (_value.AsFormattedString == _item.AsFormattedString) {
 					return true;
 				}
 			}
@@ -111,14 +135,14 @@ namespace BicDB.Variable
 			OnChangedValueActions (this, _message);
 		}
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.ToList(this, ref _json, ref _counter);
+			_parser.BuildListVariable(this, ref _json, ref _counter);
 			IsChanged = false;
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 	}
 

@@ -39,7 +39,7 @@ namespace BicDB.Storage{
 			int _counter = 0;
 			if (!string.IsNullOrEmpty(_data)) {
 				try{
-					JsonConvertor.GetInstance().ToTable(_table, ref _data, ref _counter);
+					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _data, ref _counter);
 				}catch(SystemException){
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

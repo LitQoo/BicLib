@@ -22,6 +22,7 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public VariableType Type { get { return VariableType.Int; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 		public IntVariable() : base(){
@@ -32,14 +33,14 @@ namespace BicDB.Variable
 			data = _value;
 		}
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.ToNumber(this, ref _json, ref _counter);
+			_parser.BuildNumberVariable(this, ref _json, ref _counter);
 			IsChanged = false;
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 	}
 }

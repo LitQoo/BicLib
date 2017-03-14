@@ -6,7 +6,7 @@ using System.Linq;
 namespace BicDB.Variable
 {
 
-	public class VirtualListVariable<T> : VariableBase, IListVariable<T> where T : IVariable, new()
+	public class VirtualListVariable<T> : VariableBase, IListVariable<T> where T : IVariableBase, new()
 	{
 		public new event Action<IListVariable<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
@@ -20,6 +20,7 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return 0; } set{ throwSetException ();} }
 		public bool AsBool{ get{ return false; } set{throwSetException ();} }
 		public VariableType Type { get { return VariableType.List; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 
@@ -42,7 +43,7 @@ namespace BicDB.Variable
 			throwSetException ();
 		}
 
-		public void RemoveAt(int _index){
+		public void Remove(int _index){
 			throwSetException ();
 		}
 
@@ -54,6 +55,26 @@ namespace BicDB.Variable
 
 		public void Clear(){
 			throwSetException ();
+		}
+
+		public void RemoveAt(int _index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Remove(T _value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Remove(Func<T, bool> _func)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Insert(int _index, T _row)
+		{
+			throw new NotImplementedException();
 		}
 		#endregion
 
@@ -91,13 +112,13 @@ namespace BicDB.Variable
 			data = _func;
 		}
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			throwSetException ();
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 
 		private void throwSetException(){

@@ -6,27 +6,15 @@ using BicDB.Variable;
 namespace BicDB
 {
 
-	public interface IStringParser{
-		void ToTable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new();
-		void ToList<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariable, new();
-		void ToDictionary<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariable, new();
-		void ToModel(IModelVariable _model, ref string _json, ref int _counter);
-		void ToString(IVariable _variable, ref string _json, ref int _counter);
-		void ToNumber(IVariable _variable, ref string _json, ref int _counter);
-		IVariable ToVariable(ref string _json, ref int _counter);
 
+
+	public interface IStorageSuppoter{
+		void Save(Action<Result> _callaback = null, object _parameter = null);
+		void Load(Action<Result> _callaback = null, object _parameter = null);
+		void SetStorage(IStorage _storage);
 	}
 
-	public interface IStringFormatter{
-		void ToFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new();
-		void ToFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariable, new();
-		void ToFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariable, new();
-		void ToFormattedString(IModelVariable _model, ref string _json);
-		void ToFormattedString(IVariable _variable, ref string _json);
-
-	}
-
-	public interface ITable<T> : ILinqSupporter<T>
+	public interface ITable<T> : IVariableBase, IListSuppoter<T>, IStorageSuppoter where T : IModelVariable, new()
 	{
 		#region event
 		event Action<T> OnAddedRow;
@@ -39,26 +27,14 @@ namespace BicDB
 		#endregion
 
 		#region indexer
-		T this [int _index] { get; }
-		#endregion
-
-		#region method
-		void AddRow(T _row);
-		void Save(Action<Result> _callaback = null, object _parameter = null);
-		void Load(Action<Result> _callaback = null, object _parameter = null);
-		void SetStorage(IStorage _storage);
-		int GetSize();
-		void Clear();
-		void RemoveRow (int _index);
-		void RemoveRow (T _row);
-		void RemoveRow (Func<T, bool> _func);
+		new T this [int _index] { get; }
 		#endregion
 
 		#region Header&Property 
-		Dictionary<string, IVariable> Header { get; }
-		Dictionary<string, IVariable> Property { get; }
-		void SetOrChangeProperty (string _key, IVariable _variable);
-		void SetOrChangeHeader (string _key, IVariable _variable);
+		Dictionary<string, IVariableBase> Header { get; }
+		Dictionary<string, IVariableBase> Property { get; }
+		void SetOrChangeProperty (string _key, IVariableBase _variable);
+		void SetOrChangeHeader (string _key, IVariableBase _variable);
 		#endregion
 
 	}
@@ -88,7 +64,7 @@ namespace BicDB
 	}
 
 
-	public class Table<T> : ITable<T> where T : class, IModelVariable, new(){
+	public class Table<T> : VariableBase, ITable<T> where T : class, IModelVariable, new(){
 		private List<T> rows = new List<T>();
 
 		#region event
@@ -102,9 +78,8 @@ namespace BicDB
 		}
 		#endregion
 
-		#region ITable
-		public string Name{ get; set;}
-
+		#region IListVariable
+			
 		public int GetSize(){
 			return rows.Count;
 		}
@@ -112,38 +87,29 @@ namespace BicDB
 		public T this[int _index]
 		{
 			get{return rows [_index] as T;}
+			set{ }
 		}
 
-		public void AddRow(T _row){
+		public void Add(T _row){
 			rows.Add(_row);
 			OnAddedRow (_row);
 		}
 
-		public void InsertRow(int _index, T _row){
+		public void Insert(int _index, T _row){
 			rows.Insert (_index, _row);
 			OnAddedRow (_row);
 		}
 
 		public void Clear(){
-			RemoveRow (_row => true);
+			Remove (_row => true);
 		}
 
-		public string PrimaryKey{ 
-			get{ 
-				return Header[HeaderKey.PrimaryKey].AsString;
-			} 
-
-			set{ 
-				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
-			} 
-		}
-
-		public void RemoveRow (int _index){
+		public void RemoveAt (int _index){
 			OnRemovingRow (rows [_index]);
 			rows.RemoveAt (_index);
 		}
 
-		public void RemoveRow (Func<T, bool> _func){
+		public void Remove (Func<T, bool> _func){
 			for (int i = rows.Count - 1; i >= 0; i--) {
 				if (_func (rows [i])) {
 					OnRemovingRow (rows [i]);
@@ -152,10 +118,55 @@ namespace BicDB
 			}
 		}
 
-		public void RemoveRow (T _row){
+		public void Remove (T _row){
 			OnRemovingRow (_row);
 			rows.Remove (_row);
 		}
+
+		public bool Contains(T _value){
+			foreach (var _item in rows) {
+				if (_value.AsFormattedString == _item.AsFormattedString) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region IVariable
+		public string AsFormattedString {get;set;}
+		public VariableType Type { get { return VariableType.List; }}
+		#endregion
+
+		#region ITable
+		public string Name{ get; set;}
+
+
+
+		public string PrimaryKey{ 
+			get{ 
+				return (Header[HeaderKey.PrimaryKey] as IVariable).AsString;
+			} 
+
+			set{ 
+				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
+			} 
+		}
+
+
 		#endregion
 
 		#region Linq
@@ -169,10 +180,6 @@ namespace BicDB
 
 		public IEnumerable<U> Select<U>(Func<T, U> _func){
 			return rows.Select(_func);
-		}
-
-		public IEnumerable<T> GetChangedRows(){
-			return Where ((T _row)=> _row.IsChanged);
 		}
 
 		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
@@ -201,11 +208,11 @@ namespace BicDB
 		#endregion
 
 		#region Header
-		private Dictionary<string, IVariable> header = new Dictionary<string, IVariable> ();
-		public Dictionary<string, IVariable> Header {get{ return header; }}
-		public void SetOrChangeHeader(string _key, IVariable _variable){
+		private Dictionary<string, IVariableBase> header = new Dictionary<string, IVariableBase> ();
+		public Dictionary<string, IVariableBase> Header {get{ return header; }}
+		public void SetOrChangeHeader(string _key, IVariableBase _variable){
 			if (header.ContainsKey (_key)) {
-				header [_key].AsString = _variable.AsString;
+				header [_key].AsFormattedString = _variable.AsFormattedString;
 			} else {
 				header [_key] = _variable;
 			}
@@ -213,11 +220,11 @@ namespace BicDB
 		#endregion
 
 		#region Property
-		private Dictionary<string, IVariable> property = new Dictionary<string, IVariable> ();
-		public Dictionary<string, IVariable> Property {get{ return property; }}
-		public void SetOrChangeProperty(string _key, IVariable _variable){
+		private Dictionary<string, IVariableBase> property = new Dictionary<string, IVariableBase> ();
+		public Dictionary<string, IVariableBase> Property {get{ return property; }}
+		public void SetOrChangeProperty(string _key, IVariableBase _variable){
 			if (property.ContainsKey (_key)) {
-				property [_key].AsString = _variable.AsString;
+				property [_key].AsFormattedString = _variable.AsFormattedString;
 			} else {
 				property [_key] = _variable;
 			}

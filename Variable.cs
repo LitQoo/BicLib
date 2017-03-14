@@ -6,24 +6,26 @@ using System.Runtime.Serialization;
 
 namespace BicDB.Variable
 {
-	public interface IVariable
+	public interface IVariableBase
 	{
+		void BuildVariable(ref string _json, ref int _counter, IStringParser _parser);
+		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
+
+		string AsFormattedString{get;set;}
+		VariableType Type { get; }
+	}
+
+	public interface IVariable : IVariableBase{
 		event Action<IVariable, string> OnChangedValueActions;
+		void NotifyChanged(string _message = "");
+		bool IsEqual(IVariable _variable);
 
 		int AsInt{ get; set; }
 		string AsString{ get; set; }
 		float AsFloat{ get; set; }
 		bool AsBool{ get; set; }
-		VariableType Type { get; }
 		bool IsChanged{ get; set;}
-
-		void NotifyChanged(string _message = "");
-		bool IsEqual(IVariable _variable);
-
-		void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser);
-		void GetFormatString(ref string _json, IStringFormatter _formatter);
 	}
-
 
 	public enum VariableType
 	{
@@ -117,7 +119,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty<T>(ref IListVariable<T> _member, IListVariable<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IVariable, new(){
+		static public void SetVariableProperty<T>(ref IListVariable<T> _member, IListVariable<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IVariableBase, new(){
 			if (_member != null) {
 				if (_addedCallback != null) {
 					_member.OnAddedValueActions -= _addedCallback;

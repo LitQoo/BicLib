@@ -15,7 +15,7 @@ namespace BicDB.Variable
 			DictionaryVariable<StringVariable> _var = new DictionaryVariable<StringVariable> ();
 			string _json = "{\"test1\" : \"test\", \"test2\":\"123a\", \"test3\":\t\"456\"}";
 			int _counter = 0;
-			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
 			Assert.AreEqual(_var["test1"].AsString, "test");
 			Assert.AreEqual(_var["test2"].AsString, "123a");
@@ -29,7 +29,7 @@ namespace BicDB.Variable
 			DictionaryVariable<IntVariable> _var = new DictionaryVariable<IntVariable> ();
 			string _json = "{\"test1\" : 123, \"test2\":	456, \"test3\":789}";
 			int _counter = 0;
-			_var.LoadFormatString(ref _json, ref _counter, JsonConvertor.GetInstance());
+			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
 			Assert.AreEqual(_var["test1"].AsInt, 123);
 			Assert.AreEqual(_var["test2"].AsInt, 456);
@@ -102,21 +102,6 @@ namespace BicDB.Variable
 			Assert.AreEqual(_var.GetSize(), 0);
 		}
 
-		[Test]
-		public void IsEqualTest1(){
-			DictionaryVariable<StringVariable> _var1 = new DictionaryVariable<StringVariable> ();
-			DictionaryVariable<StringVariable> _var2 = new DictionaryVariable<StringVariable> ();
 
-			_var1.Add("key", new StringVariable("1"));
-			_var2.Add("key", new StringVariable("2"));
-
-			Assert.AreEqual(_var1.IsEqual(_var2), false);
-			Assert.AreEqual(_var1.IsEqual(_var2), false);
-
-			_var2["key"].AsString = "1";
-
-			Assert.AreEqual(_var1.IsEqual(_var2), false);
-			Assert.AreEqual(_var1.IsEqual(_var2), false);
-		}
 	}
 }

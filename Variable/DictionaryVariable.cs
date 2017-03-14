@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BicDB.Variable
 {
-	public interface IDictionaryVariable<T> : IVariable where T : IVariable, new()
+	public interface IDictionaryVariable<T> : IVariableBase where T : IVariableBase, new()
 	{
 		T this [string _key] { get; }
 		string[] Keys{ get; }
@@ -20,7 +20,7 @@ namespace BicDB.Variable
 		void Clear();
 	}
 
-	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable<T> where T : IVariable, new()
+	public class DictionaryVariable<T> : VariableBase, IDictionaryVariable<T> where T : IVariableBase, new()
 	{
 
 		private Dictionary<string, T> data = new Dictionary<string, T>();
@@ -31,6 +31,7 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public VariableType Type { get { return VariableType.Dictionary; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 		#region IDictionaryVariable
@@ -58,7 +59,7 @@ namespace BicDB.Variable
 
 		public bool Contains(T _value){
 			foreach (var _item in data) {
-				if (_value.AsString == _item.Value.AsString) {
+				if (_value.AsFormattedString == _item.Value.AsFormattedString) {
 					return true;
 				}
 			}
@@ -89,14 +90,14 @@ namespace BicDB.Variable
 
 		#region Logic
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.ToDictionary(this, ref _json, ref _counter);
+			_parser.BuildDictionaryVariable(this, ref _json, ref _counter);
 			IsChanged = false;
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 		#endregion
 	}

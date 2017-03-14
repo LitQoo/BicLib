@@ -35,11 +35,11 @@ namespace BicDB
 
 
 	public class TestWebModel : BicDB.ModelVariable{
-		public IVariable AndroidLink = new StringVariable("");
-		public IVariable Assetbundle = new StringVariable("");
-		public IVariable IosLink = new StringVariable("");
-		public IVariable Title = new StringVariable("");
-		public IVariable ViewWeight = new IntVariable(0);
+		public IVariableBase AndroidLink = new StringVariable("");
+		public IVariableBase Assetbundle = new StringVariable("");
+		public IVariableBase IosLink = new StringVariable("");
+		public IVariableBase Title = new StringVariable("");
+		public IVariableBase ViewWeight = new IntVariable(0);
 		public IListVariable<StringVariable> Images = new ListVariable<StringVariable>();
 
 		public TestWebModel(){
@@ -48,17 +48,17 @@ namespace BicDB
 			AddManagedColumn ("iosLink", IosLink);
 			AddManagedColumn ("title", Title);
 			AddManagedColumn ("viewWeight", ViewWeight);
-			AddManagedColumn ("images", Images as IVariable);
+			AddManagedColumn ("images", Images as IVariableBase);
 		}
 	}
 
 	public class TestSyncModel : BicDB.ModelVariable{
-		public IVariable Key = new IntVariable(0);
-		public IVariable AndroidLink = new StringVariable("");
-		public IVariable Assetbundle = new StringVariable("");
-		public IVariable IosLink = new StringVariable("");
-		public IVariable Title = new StringVariable("");
-		public IVariable ViewWeight = new IntVariable(0);
+		public IVariableBase Key = new IntVariable(0);
+		public IVariableBase AndroidLink = new StringVariable("");
+		public IVariableBase Assetbundle = new StringVariable("");
+		public IVariableBase IosLink = new StringVariable("");
+		public IVariableBase Title = new StringVariable("");
+		public IVariableBase ViewWeight = new IntVariable(0);
 		public IListVariable<StringVariable> Images = new ListVariable<StringVariable>();
 
 		public TestSyncModel(){
@@ -68,7 +68,7 @@ namespace BicDB
 			AddManagedColumn ("iosLink", IosLink);
 			AddManagedColumn ("title", Title);
 			AddManagedColumn ("viewWeight", ViewWeight);
-			AddManagedColumn ("images", Images as IVariable);
+			AddManagedColumn ("images", Images as IVariableBase);
 		}
 	}
 

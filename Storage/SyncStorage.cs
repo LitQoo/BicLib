@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using BicDB.Utility;
+using BicDB.Variable;
 
 namespace BicDB.Storage
 {
@@ -40,11 +41,11 @@ namespace BicDB.Storage
 		public void Save<T>(ITable<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelVariable, new() {
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
-				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
+				_encKey = (_table.Header[ENCRYPT_KEY] as IVariable).AsString.PadRight(16, '_');
 			}
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().ToFormattedString(_table, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
 			FileStorage.Write(_json, getFileName(_table.Name), _encKey);
 
 			if (_callback != null) {
@@ -56,7 +57,7 @@ namespace BicDB.Storage
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 			string _encKey = FileStorage.GetDefaultEncryptKey();
 			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
-				_encKey = _table.Header[ENCRYPT_KEY].AsString.PadRight(16, '_');
+				_encKey = (_table.Header[ENCRYPT_KEY] as IVariable).AsString.PadRight(16, '_');
 			}
 
 			string _data = FileStorage.Read(getFileName(_table.Name), _encKey);
@@ -65,7 +66,7 @@ namespace BicDB.Storage
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
-					JsonConvertor.GetInstance().ToTable(_table, ref _data, ref _counter);
+					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _data, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();
@@ -101,7 +102,7 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
-			WWW www = new WWW(_table.Header[LOAD_URL_KEY].AsString);
+			WWW www = new WWW((_table.Header[LOAD_URL_KEY] as IVariable).AsString);
 			yield return www;
 
 			var _result = new Result ((int)ResultCode.Success);
@@ -116,7 +117,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.GetInstance().ToTable(_table, ref _json, ref _counter);
+					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

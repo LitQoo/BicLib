@@ -20,16 +20,16 @@ namespace BicDB.Utility
 		#endregion
 
 		#region StringFormatter
-		public void ToFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new(){
+		public void BuildFormattedString<T>(ITable<T> _table, ref string _json) where T : IModelVariable, new(){
 			_json += "{";
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
 			//header
 			for(int i = 0; i < _propertyKeys.Length; i++){
-				IVariable _property = _table.Property[_propertyKeys [i]];
+				IVariableBase _property = _table.Property[_propertyKeys [i]];
 
 				_json += "\"" + _propertyKeys[i] + "\":";
-				_property.GetFormatString(ref _json, this);
+				_property.BuildFormattedString(ref _json, this);
 
 				_json += ",";
 			}
@@ -38,7 +38,7 @@ namespace BicDB.Utility
 
 			//data
 			for (int i = 0; i < _table.GetSize(); i++) {
-				ToFormattedString(_table[i], ref _json);
+				BuildFormattedString(_table[i], ref _json);
 
 				if (i != _table.GetSize() - 1) {
 					_json += ",";
@@ -48,11 +48,11 @@ namespace BicDB.Utility
 			_json += "]}";
 		}
 
-		public void ToFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariable, new(){
+		public void BuildFormattedString<T>(IListVariable<T> _list, ref string _json) where T : IVariableBase, new(){
 			_json += "[";
 			int _size = _list.GetSize();
 			for (int i = 0; i < _size; i++) {
-				ToFormattedString(_list[i], ref _json);
+				BuildFormattedString(_list[i], ref _json);
 
 				if (i != _size - 1) {
 					_json += ",";
@@ -61,13 +61,13 @@ namespace BicDB.Utility
 			_json += "]";
 		}
 			
-		public void ToFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariable, new(){
+		public void BuildFormattedString<T>(IDictionaryVariable<T> _dictionary, ref string _json) where T : IVariableBase, new(){
 			var _keys = _dictionary.Keys;
 			_json += "{";
 
 			for (int i = 0; i < _keys.Length; i++) {
 				_json += "\"" + _keys[i] + "\":";
-				_dictionary[_keys[i]].GetFormatString(ref _json, this);
+				_dictionary[_keys[i]].BuildFormattedString(ref _json, this);
 
 				if (i != _keys.Length - 1) {
 					_json += ",";
@@ -77,14 +77,14 @@ namespace BicDB.Utility
 			_json += "}";
 		}
 	
-		public void ToFormattedString(IModelVariable _model, ref string _json){
+		public void BuildFormattedString(IModelVariable _model, ref string _json){
 			_json += "{";
 			var _columnKeys = _model.GetColumnNameList();
 			for (int j = 0; j < _columnKeys.Count; j++) {
-				IVariable _column = _model[_columnKeys[j]];
+				IVariableBase _column = _model[_columnKeys[j]];
 
 				_json += "\"" + _columnKeys[j] + "\":";
-				_column.GetFormatString(ref _json, this);
+				_column.BuildFormattedString(ref _json, this);
 
 				if (j != _columnKeys.Count - 1) {
 					_json += ",";
@@ -95,17 +95,22 @@ namespace BicDB.Utility
 
 		}
 
-		public void ToFormattedString(IVariable _variable, ref string _json){
+		public void BuildFormattedString(IVariable _variable, ref string _json){
 			if (_variable.Type == VariableType.String) {
 				_json += "\"" + _variable.AsString.Replace("\"","\\\"") + "\"";
 			} else {
 				_json += _variable.AsString;
 			}
 		}
+
+
+		public void BuildFormattedString(IVariableBase _variable, ref string _json){
+			_variable.BuildFormattedString(ref _json, this);
+		}
 		#endregion
 
 		#region StringParser
-		public void ToTable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new(){
+		public void BuildTableVariable<T>(ITable<T> _table, ref string _json, ref int _counter) where T : IModelVariable, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -126,9 +131,9 @@ namespace BicDB.Utility
 					while (_counter < _json.Length) {
 						Console.WriteLine("add row");
 						T _model = new T();
-						_model.LoadFormatString(ref _json, ref _counter, this);
-						_table.AddRow(_model);
-						Console.WriteLine(_model.AsString + " - " + _json[_counter].ToString() + "-" + _counter.ToString());
+						_model.BuildVariable(ref _json, ref _counter, this);
+						_table.Add(_model);
+						Console.WriteLine(_model.AsFormattedString + " - " + _json[_counter].ToString() + "-" + _counter.ToString());
 
 
 						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
@@ -142,7 +147,7 @@ namespace BicDB.Utility
 					increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
 					_counter++;
 				} else {
-					_table.SetOrChangeProperty (_fieldName, ToVariable(ref _json, ref _counter));
+					_table.SetOrChangeProperty (_fieldName, BuildVariable(ref _json, ref _counter));
 				}
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
@@ -154,7 +159,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public IVariable ToVariable(ref string _json, ref int _counter){
+		public IVariableBase BuildVariable(ref string _json, ref int _counter){
 
 			// find start point
 			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
@@ -163,25 +168,25 @@ namespace BicDB.Utility
 
 			if (_json[_counter] == '"') {
 				StringVariable _result = new StringVariable();
-				_result.LoadFormatString(ref _json, ref _counter, this);
+				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
-			} else if (_json[_counter] == '{') {
+			} else if (_json[_counter] == '[') {
 				ListVariable<StringVariable> _result = new ListVariable<StringVariable>();
-				_result.LoadFormatString(ref _json, ref _counter, this);
+				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			
-			} else if (_json[_counter] == '[') {
+			} else if (_json[_counter] == '{') {
 				DictionaryVariable<StringVariable> _result = new DictionaryVariable<StringVariable>();
-				_result.LoadFormatString(ref _json, ref _counter, this);
+				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else {
 				FloatVariable _result = new FloatVariable();
-				_result.LoadFormatString(ref _json, ref _counter, this);
+				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			}
 		}
 
-		public void ToList<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariable, new(){
+		public void BuildListVariable<T>(IListVariable<T> _list, ref string _json, ref int _counter) where T : IVariableBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
@@ -195,7 +200,7 @@ namespace BicDB.Utility
 
 			while (_counter < _json.Length) {
 				T _variable = new T();
-				_variable.LoadFormatString(ref _json, ref _counter, this);
+				_variable.BuildVariable(ref _json, ref _counter, this);
 				_list.Add(_variable);
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
@@ -215,7 +220,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void ToDictionary<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariable, new(){
+		public void BuildDictionaryVariable<T>(IDictionaryVariable<T> _dictionary, ref string _json, ref int _counter) where T : IVariableBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -234,7 +239,7 @@ namespace BicDB.Utility
 				_counter++;
 
 				T _variable = new T();
-				_variable.LoadFormatString(ref _json, ref _counter, this);
+				_variable.BuildVariable(ref _json, ref _counter, this);
 				_dictionary.Add(_fieldName, _variable);
 
 
@@ -247,7 +252,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void ToModel(IModelVariable _model, ref string _json, ref int _counter){
+		public void BuildModelVariable(IModelVariable _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -266,9 +271,9 @@ namespace BicDB.Utility
 				_counter++;
 
 				if (_model.Contains(_fieldName)) {
-					_model[_fieldName].LoadFormatString(ref _json, ref _counter, this);
+					_model[_fieldName].BuildVariable(ref _json, ref _counter, this);
 				} else {
-					_model.AddManagedColumn(_fieldName, ToVariable(ref _json, ref _counter));
+					_model.AddManagedColumn(_fieldName, BuildVariable(ref _json, ref _counter));
 
 				}
 
@@ -283,7 +288,7 @@ namespace BicDB.Utility
 			_counter++;
 		}
 
-		public void ToString(IVariable _variable, ref string _json, ref int _counter){
+		public void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
 				throw new SystemException("fail find first \"");
 			}
@@ -309,7 +314,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void ToNumber(IVariable _variable, ref string _json, ref int _counter){
+		public void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter){
 			increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \n\t");
 
 			string _result = string.Empty;

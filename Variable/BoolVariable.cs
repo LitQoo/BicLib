@@ -13,6 +13,7 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
 		public bool AsBool{ get{ return data; } set{ data = value; NotifyChanged ();} }
 		public VariableType Type { get { return VariableType.Bool; }}
+		public string AsFormattedString { get; set; }
 		#endregion
 
 		public BoolVariable() : base(){
@@ -22,19 +23,14 @@ namespace BicDB.Variable
 		public BoolVariable(bool _value) : base(){
 			data = _value;
 		}
-			
-		public void LoadValue(string _value){
-			AsString = _value;
-			IsChanged = false;
-		}
 
-		public void LoadFormatString(ref string _json, ref int _counter, IStringParser _parser)
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.ToNumber(this, ref _json, ref _counter);
+			_parser.BuildNumberVariable(this, ref _json, ref _counter);
 		}
 
-		public void GetFormatString(ref string _json, IStringFormatter _formatter){
-			_formatter.ToFormattedString(this, ref _json);
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 
 	}
