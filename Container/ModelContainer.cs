@@ -23,7 +23,6 @@ namespace BicDB.Container
 		}
 
 		#region AsValue
-		public string AsFormattedString{get;set;}
 		public DataType Type { get { return DataType.Model; }}
 		#endregion
 

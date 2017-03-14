@@ -32,14 +32,7 @@ namespace BicDB
 	public class DataBase{
 		public event Action<IVariable, string> OnChangedValueActions = delegate{};
 
-		public bool IsChanged{ get; set;}
-
-		public DataBase(){
-			IsChanged = false;
-		}
-
 		public void NotifyChanged(string _message = ""){
-			IsChanged = true;
 			OnChangedValueActions (this as IVariable, _message);
 		}
 

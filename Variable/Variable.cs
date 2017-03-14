@@ -18,7 +18,6 @@ namespace BicDB.Variable
 		string AsString{ get; set; }
 		float AsFloat{ get; set; }
 		bool AsBool{ get; set; }
-		bool IsChanged{ get; set;}
 	}
 
 

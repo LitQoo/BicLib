@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using BicDB.Variable;
 using NUnit.Framework;
-using BicDB.Variable;
 using BicDB.Container;
 
 namespace BicDB

@@ -19,7 +19,6 @@ namespace BicDB.Container
 	}
 
 	public interface IListContainer<T> : IDataBase, ILinqSupporter<T>, IListSuppoter<T> where T : IDataBase, new(){
-		event Action<IListContainer<T>, string> OnChangedValueActions;
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
@@ -28,7 +27,6 @@ namespace BicDB.Container
 
 	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
 	{
-		public event Action<IListContainer<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
@@ -39,7 +37,6 @@ namespace BicDB.Container
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public DataType Type { get { return DataType.List; }}
-		public string AsFormattedString { get; set; }
 		#endregion
 
 		#region IListVariable

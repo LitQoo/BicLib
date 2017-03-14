@@ -108,7 +108,6 @@ namespace BicDB.Container
 		#endregion
 
 		#region IVariable
-		public string AsFormattedString {get;set;}
 		public DataType Type { get { return DataType.Table; }}
 		#endregion
 

@@ -9,7 +9,6 @@ namespace BicDB.Variable
 
 	public class VirtualListVariable<T> : DataBase, IListContainer<T> where T : IDataBase, new()
 	{
-		public new event Action<IListContainer<T>, string> OnChangedValueActions;
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
@@ -21,7 +20,6 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return 0; } set{ throwSetException ();} }
 		public bool AsBool{ get{ return false; } set{throwSetException ();} }
 		public DataType Type { get { return DataType.List; }}
-		public string AsFormattedString { get; set; }
 		#endregion
 
 
@@ -124,11 +122,6 @@ namespace BicDB.Variable
 
 		private void throwSetException(){
 			throw new SystemException ("this variable not support to write");
-		}
-
-		public new void NotifyChanged(string _message = ""){
-			IsChanged = true;
-			OnChangedValueActions (this, _message);
 		}
 	}
 }

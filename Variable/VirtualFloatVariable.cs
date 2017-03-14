@@ -12,7 +12,6 @@ namespace BicDB.Variable
 		public string AsString{ get{ return AsFloat.ToString (); } set{ throwSetException (); } }
 		public bool AsBool{ get{ return AsFloat == 0 ? false : true; } set{ throwSetException (); } }
 		public DataType Type { get { return DataType.Float; }}
-		public string AsFormattedString { get; set; }
 		#endregion
 
 		public VirtualFloatVariable() : base(){

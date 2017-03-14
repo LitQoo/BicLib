@@ -30,7 +30,6 @@ namespace BicDB.Container
 		public float AsFloat{ get{ return  0; } set{ } }
 		public bool AsBool{ get{ return false; } set{ } }
 		public DataType Type { get { return DataType.Dictionary; }}
-		public string AsFormattedString { get; set; }
 		#endregion
 
 		#region IDictionaryVariable
