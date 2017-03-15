@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BicDB.Variable;
 using NUnit.Framework;
 using BicDB.Container;
+using System.Linq;
 
 namespace BicDB
 {
@@ -49,9 +50,9 @@ namespace BicDB
 			_model.AddManagedColumn ("key1", _var1);
 			_model.AddManagedColumn ("key2", _var2);
 
-			var _fieldList = _model.GetColumnNameList();
+			var _fieldList = _model.Keys.ToArray();
 
-			Assert.AreEqual(_fieldList.Count, 2);
+			Assert.AreEqual(_fieldList.Length, 2);
 			Assert.AreEqual(_fieldList[0], "key1");
 			Assert.AreEqual(_fieldList[1], "key2");
 		}

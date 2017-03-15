@@ -9,14 +9,7 @@ namespace BicDB.Container
 {
 	public interface IDictionaryContainer<T> : IDictionary<string, T>, IDataBase where T : IDataBase, new()
 	{
-//		T this [string _key] { get; }
-//		string[] Keys{ get; }
-//
-//		int GetSize();
-//		void Add(string _key, T _value);
-//		void RemoveAt(string _key);
-//		bool Contains(string _key);
-//		void Clear();
+
 	}
 
 	public class DictionaryContainer<T> : IDictionaryContainer<T> where T : IDataBase, new()
@@ -24,12 +17,17 @@ namespace BicDB.Container
 
 		private IDictionary<string, T> data = new Dictionary<string, T>();
 
-		#region AsValue
-		public int AsInt{ get{ return 0; } set{} }
-		public string AsString{ get{ return string.Empty; } set{ } }
-		public float AsFloat{ get{ return  0; } set{ } }
-		public bool AsBool{ get{ return false; } set{ } }
+		#region IDataBase
 		public DataType Type { get { return DataType.Dictionary; }}
+
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			_parser.BuildDictionaryVariable(this, ref _json, ref _counter);
+		}
+
+		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, ref _json);
+		}
 		#endregion
 
 		#region IDictionary
@@ -118,24 +116,6 @@ namespace BicDB.Container
 			get {
 				return data.IsReadOnly;
 			}
-		}
-		#endregion
-
-		#region LifeCycle
-		public DictionaryContainer() : base(){
-
-		}
-		#endregion
-
-		#region Logic
-
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
-			_parser.BuildDictionaryVariable(this, ref _json, ref _counter);
-		}
-
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
 		}
 		#endregion
 	}

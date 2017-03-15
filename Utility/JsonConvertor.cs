@@ -4,6 +4,7 @@ using BicDB.Variable;
 using System;
 using System.Linq;
 using BicDB.Container;
+using UnityEditor.VersionControl;
 
 namespace BicDB.Utility
 {
@@ -80,14 +81,14 @@ namespace BicDB.Utility
 	
 		public void BuildFormattedString(IModelContainer _model, ref string _json){
 			_json += "{";
-			var _columnKeys = _model.GetColumnNameList();
-			for (int j = 0; j < _columnKeys.Count; j++) {
+			var _columnKeys = _model.Keys.ToArray();
+			for (int j = 0; j < _columnKeys.Length; j++) {
 				IDataBase _column = _model[_columnKeys[j]];
 
 				_json += "\"" + _columnKeys[j] + "\":";
 				_column.BuildFormattedString(ref _json, this);
 
-				if (j != _columnKeys.Count - 1) {
+				if (j != _columnKeys.Length - 1) {
 					_json += ",";
 				}
 			}
@@ -111,6 +112,7 @@ namespace BicDB.Utility
 		#endregion
 
 		#region StringParser
+
 		public void BuildTableVariable<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
@@ -270,7 +272,7 @@ namespace BicDB.Utility
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
-				if (_model.Contains(_fieldName)) {
+				if (_model.ContainsKey(_fieldName)) {
 					_model[_fieldName].BuildVariable(ref _json, ref _counter, this);
 				} else {
 					_model.AddManagedColumn(_fieldName, BuildVariable(ref _json, ref _counter));

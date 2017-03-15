@@ -59,13 +59,17 @@ namespace BicDB
 		public void InsertRow1(){
 			var _table = new TableContainer<ModelContainer>("tablename");
 			var _model1 = new ModelContainer();
+			_model1.Add("key1", new StringVariable("test1"));
 			_table.Add(_model1);
 			var _model2 = new ModelContainer();
+			_model2.Add("key1", new StringVariable("test2"));
 			_table.Add(_model2);
 			var _model3 = new ModelContainer();
+			_model3.Add("key1", new StringVariable("test3"));
 			_table.Add(_model3);
 
 			var _model4 = new ModelContainer();
+			_model4.Add("key1", new StringVariable("test4"));
 			_table.Insert(1, _model4);
 
 			var _checkRow = _table[1];
@@ -133,10 +137,13 @@ namespace BicDB
 		public void RemoveRowTest1(){
 			var _table = new TableContainer<ModelContainer>("tablename");
 			var _model1 = new ModelContainer();
+			_model1["key1"] = new StringVariable("test");
 			_table.Add(_model1);
 			var _model2 = new ModelContainer();
+			_model2["key1"] = new StringVariable("test");
 			_table.Add(_model2);
 			var _model3 = new ModelContainer();
+			_model1["key1"] = new StringVariable("test");
 			_table.Add(_model3);
 
 			_table.RemoveAt(1);
@@ -151,7 +158,6 @@ namespace BicDB
 
 		[Test]
 		public void RemoveRowTest2(){
-			Assert.Ignore();
 //			var _table = new TableContainer<TestIntModel>("tablename");
 //			var _model1 = new TestIntModel();
 //			_model1.Data.AsInt = 1;

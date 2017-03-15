@@ -4,18 +4,19 @@ using BicDB.Variable;
 
 namespace BicDB.Container
 {
-	public interface IModelContainer : IDataBase{
-		IDataBase this [string _key] { get; }
-		bool Contains(string _key);
+	public interface IModelContainer :  IDictionary<string, IDataBase>, IDataBase{
+		//IDataBase this [string _key] { get; }
+		//bool Contains(string _key);
 		void AddManagedColumn(string _key, IDataBase _value);
-		List<string> GetColumnNameList();
+		//List<string> GetColumnNameList();
 
 		event Action<IModelContainer, string> OnChangedValueActions;
 		void NotifyChanged(string _message = "");
 	}
 
+
 	public class ModelContainer : IModelContainer{
-		private Dictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
+		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 
 		public event Action<IModelContainer, string> OnChangedValueActions;
 		public void NotifyChanged(string _message = ""){
@@ -24,35 +25,6 @@ namespace BicDB.Container
 
 		#region AsValue
 		public DataType Type { get { return DataType.Model; }}
-		#endregion
-
-		#region IDictionaryVariable
-		public IDataBase this [string _key] { 
-			get{ 
-				return data [_key];
-			} 
-
-			protected set{ 
-				data [_key] = value;
-			} 
-		}
-
-
-		public void AddManagedColumn(string _key, IDataBase _value){
-			data.Add (_key, _value);
-		}
-
-		public bool Contains(string _key){
-			return data.ContainsKey (_key);
-		}
-
-		public List<string> GetColumnNameList(){
-			return new List<string>(data.Keys);
-		}
-		#endregion
-
-
-		#region Logic
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
@@ -62,6 +34,125 @@ namespace BicDB.Container
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+		#endregion
+
+		#region IDictionary
+		public void Add(string _key, IDataBase _value)
+		{
+			data.Add(_key, _value);
+		}
+
+		public bool ContainsKey(string _key)
+		{
+			return data.ContainsKey(_key);
+		}
+
+		public bool Remove(string _key)
+		{
+			return data.Remove(_key);
+		}
+
+		public bool TryGetValue(string _key, out IDataBase _value)
+		{
+			return data.TryGetValue(_key, out _value);
+		}
+
+		public void Add(KeyValuePair<string, IDataBase> _item)
+		{
+			data.Add(_item);
+		}
+
+		public void Clear()
+		{
+			data.Clear();
+		}
+
+		public bool Contains(KeyValuePair<string, IDataBase> _item)
+		{
+			return data.Contains(_item);
+		}
+
+		public void CopyTo(KeyValuePair<string, IDataBase>[] _array, int _arrayIndex){
+			data.CopyTo(_array, _arrayIndex);
+		}
+
+		public bool Remove(KeyValuePair<string, IDataBase> _item)
+		{
+			return data.Remove(_item);
+		}
+
+		public IEnumerator<KeyValuePair<string, IDataBase>> GetEnumerator()
+		{
+			return data.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return data.GetEnumerator();
+		}
+
+		public IDataBase this[string _key] {
+			get {
+				return data[_key];
+			}
+			set {
+				data[_key] = value;
+			}
+		}
+
+		public ICollection<string> Keys {
+			get {
+				return data.Keys;
+			}
+		}
+
+		public ICollection<IDataBase> Values {
+			get {
+				return data.Values;
+			}
+		}
+
+		public int Count {
+			get {
+				return data.Count;
+			}
+		}
+
+		public bool IsReadOnly {
+			get {
+				return data.IsReadOnly;
+			}
+		}
+		#endregion
+
+		#region IDictionaryVariable
+//		public IDataBase this [string _key] { 
+//			get{ 
+//				return data [_key];
+//			} 
+//
+//			protected set{ 
+//				data [_key] = value;
+//			} 
+//		}
+
+
+		public void AddManagedColumn(string _key, IDataBase _value){
+			data.Add (_key, _value);
+		}
+
+//		public bool Contains(string _key){
+//			return data.ContainsKey (_key);
+//		}
+//
+//		public List<string> GetColumnNameList(){
+//			return new List<string>(data.Keys);
+//		}
+		#endregion
+
+
+		#region Logic
+
 
 		#endregion
 	}
