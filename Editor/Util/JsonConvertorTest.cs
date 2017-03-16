@@ -137,7 +137,7 @@ namespace BicDB.Utility
 			string _json = "[1,2,3,4]";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListContainer(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.Count, 4);
 		}
@@ -148,7 +148,7 @@ namespace BicDB.Utility
 			string _json = "[ 1333.1, 22242 ,\t3,\n\n -4 \n\t]";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListContainer(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.Count, 4);
 			Assert.AreEqual(_list[0].Type, DataType.Int);
@@ -162,7 +162,7 @@ namespace BicDB.Utility
 
 
 			Console.WriteLine("test");
-			JsonConvertor.GetInstance().BuildListVariable(_list, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildListContainer(_list, ref _json, ref _counter);
 
 			Assert.AreEqual(_list.Count, 4);
 			Assert.AreEqual(_list[0].Type, DataType.String);
@@ -178,7 +178,7 @@ namespace BicDB.Utility
 			string _json = "{\t  \"key\"  : -122.3\t,\"key2\":1111}\t";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildDictionaryVariable(_dictionary, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildDictionaryContainer(_dictionary, ref _json, ref _counter);
 
 			Assert.AreEqual(_dictionary["key"].AsFloat, -122.3f);
 			Assert.AreEqual(_dictionary["key2"].AsFloat, 1111f);
@@ -190,7 +190,7 @@ namespace BicDB.Utility
 			string _json = "{\t\"key1\":123,\"key2\":\"aaa\",\"key4\":-23.2,\"key3\":{\"key1\":12}}";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildModelVariable(_model, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json, ref _counter);
 
 			Assert.AreEqual(_model.member1.AsInt, 123);
 			Assert.AreEqual(_model.member2.AsString, "aaa");
@@ -204,7 +204,7 @@ namespace BicDB.Utility
 			string _json = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 
 			Assert.AreEqual(_table[0].member1.AsInt, 123);
 			Assert.AreEqual(_table[1].member1.AsInt, 2);

@@ -134,12 +134,12 @@ namespace BicDB.Container
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			throw new NotImplementedException();
+			_parser.BuildTableContainer(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter)
 		{
-			throw new NotImplementedException();
+			_formatter.BuildFormattedString(this, ref _json);
 		}
 		#endregion
 

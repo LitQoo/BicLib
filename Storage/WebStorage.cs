@@ -71,7 +71,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

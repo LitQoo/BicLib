@@ -22,6 +22,12 @@ namespace BicDB.Utility
 		#endregion
 
 		#region StringFormatter
+		public string ToFormattedString<T>(ITableContainer<T> _table) where T : IModelContainer, new(){
+			string _result = string.Empty;
+			BuildFormattedString(_table, ref _result);
+			return _result;
+		}
+
 		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new(){
 			_json += "{";
 
@@ -113,7 +119,7 @@ namespace BicDB.Utility
 
 		#region StringParser
 
-		public void BuildTableVariable<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new(){
+		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -188,7 +194,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildListVariable<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
+		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
@@ -222,7 +228,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildDictionaryVariable<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
+		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -254,7 +260,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildModelVariable(IModelContainer _model, ref string _json, ref int _counter){
+		public void BuildModelContainer(IModelContainer _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}

@@ -11,7 +11,6 @@ namespace BicDB.Storage
 	public class SyncStorage : MonoBehaviour, IStorage {
 		#region Constant
 		static public string LOAD_URL_KEY = "syncstorageLoadURL";
-		static public string ENCRYPT_KEY = "ecky";
 		#endregion
 
 		public enum ResultCode
@@ -38,16 +37,19 @@ namespace BicDB.Storage
 		}  
 		#endregion
 
+		#region EncryptKey
+		private string encryptKey = "bicdbbicdbbicdbd";
+		public void SetEncryptKey(string _key){
+			encryptKey = _key.PadRight(16, '_');
+		}
+		#endregion
+
 		#region IStorage
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
-			string _encKey = FileStorage.GetDefaultEncryptKey();
-			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
-				_encKey = (_table.Header[ENCRYPT_KEY] as IVariable).AsString.PadRight(16, '_');
-			}
 
 			string _json = string.Empty;
 			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
-			FileStorage.Write(_json, getFileName(_table.Name), _encKey);
+			FileStorage.Write(_json, getFileName(_table.Name), encryptKey);
 
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
@@ -56,18 +58,14 @@ namespace BicDB.Storage
 
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
-			string _encKey = FileStorage.GetDefaultEncryptKey();
-			if (_encKey == string.Empty || _table.Header.ContainsKey(ENCRYPT_KEY)) {
-				_encKey = (_table.Header[ENCRYPT_KEY] as IVariable).AsString.PadRight(16, '_');
-			}
 
-			string _data = FileStorage.Read(getFileName(_table.Name), _encKey);
+			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
-					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _data, ref _counter);
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();
@@ -118,7 +116,7 @@ namespace BicDB.Storage
 			else
 			{
 				try {
-					JsonConvertor.GetInstance().BuildTableVariable(_table, ref _json, ref _counter);
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 				} catch (Exception) {
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = ResultCode.FailedConvertJson.ToString ();

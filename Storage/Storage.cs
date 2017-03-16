@@ -14,10 +14,10 @@ namespace BicDB
 
 
 	public interface IStringParser{
-		void BuildTableVariable<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new();
-		void BuildListVariable<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
-		void BuildDictionaryVariable<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
-		void BuildModelVariable(IModelContainer _model, ref string _json, ref int _counter);
+		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new();
+		void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildModelContainer(IModelContainer _model, ref string _json, ref int _counter);
 		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
 		void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter);
 		IDataBase BuildVariable(ref string _json, ref int _counter);
@@ -25,6 +25,7 @@ namespace BicDB
 	}
 
 	public interface IStringFormatter{
+		string ToFormattedString<T>(ITableContainer<T> _table) where T : IModelContainer, new();
 		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new();
 		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new();
 		void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();

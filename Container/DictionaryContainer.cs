@@ -22,7 +22,7 @@ namespace BicDB.Container
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.BuildDictionaryVariable(this, ref _json, ref _counter);
+			_parser.BuildDictionaryContainer(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){

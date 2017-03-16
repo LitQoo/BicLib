@@ -30,7 +30,7 @@ namespace BicDB.Container
 		public DataType Type { get { return DataType.List; }}
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
-			_parser.BuildListVariable(this, ref _json, ref _counter);
+			_parser.BuildListContainer(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
@@ -114,55 +114,6 @@ namespace BicDB.Container
 			}
 		}
 
-		#endregion
-		#region IListVariable
-//		public T this [int _index] { 
-//			get{ 
-//				return data[_index];
-//			} 
-//
-//			set{ 
-//				data[_index] = value;
-//				OnChangedElementActions[_index](_index, data[_index]);
-//			}
-//		}
-//
-//		public int GetSize(){
-//			return data.Count;
-//		}
-//
-//		public void Add(T _value){
-//			data.Add(_value);
-//			OnAddedValueActions(_value);
-//		}
-//
-//		public void RemoveAt(int _index){
-//			data.RemoveAt(_index);
-//		}
-//
-//		public void Remove(T _value)
-//		{
-//			data.Remove(_value);
-//		}
-//
-//		public void Remove(Func<T, bool> _func)
-//		{
-//			for (int i = data.Count - 1; i >= 0; i--) {
-//				if (_func (data [i])) {
-//					data.RemoveAt (i);
-//				}
-//			}
-//		}
-//
-//		public void Insert(int _index, T _value)
-//		{
-//			data.Insert (_index, _value);
-//		}
-//
-//		public void Clear(){
-//			data.Clear ();
-//			OnClearedValueActions();
-//		}
 		#endregion
 
 		public ListContainer() : base(){

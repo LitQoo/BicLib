@@ -5,30 +5,32 @@ using BicDB.Variable;
 namespace BicDB.Container
 {
 	public interface IModelContainer :  IDictionary<string, IDataBase>, IDataBase{
-		//IDataBase this [string _key] { get; }
-		//bool Contains(string _key);
-		void AddManagedColumn(string _key, IDataBase _value);
-		//List<string> GetColumnNameList();
-
 		event Action<IModelContainer, string> OnChangedValueActions;
 		void NotifyChanged(string _message = "");
-	}
 
+		void AddManagedColumn(string _key, IDataBase _value);
+	}
 
 	public class ModelContainer : IModelContainer{
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 
+		#region IModelContainer
 		public event Action<IModelContainer, string> OnChangedValueActions;
+
 		public void NotifyChanged(string _message = ""){
 			OnChangedValueActions(this, _message);
 		}
 
+		public void AddManagedColumn(string _key, IDataBase _value){
+			data.Add (_key, _value);
+		}
+		#endregion
+
 		#region AsValue
 		public DataType Type { get { return DataType.Model; }}
 
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
-			_parser.BuildModelVariable(this, ref _json, ref _counter);
+		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
+			_parser.BuildModelContainer(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
@@ -123,37 +125,6 @@ namespace BicDB.Container
 				return data.IsReadOnly;
 			}
 		}
-		#endregion
-
-		#region IDictionaryVariable
-//		public IDataBase this [string _key] { 
-//			get{ 
-//				return data [_key];
-//			} 
-//
-//			protected set{ 
-//				data [_key] = value;
-//			} 
-//		}
-
-
-		public void AddManagedColumn(string _key, IDataBase _value){
-			data.Add (_key, _value);
-		}
-
-//		public bool Contains(string _key){
-//			return data.ContainsKey (_key);
-//		}
-//
-//		public List<string> GetColumnNameList(){
-//			return new List<string>(data.Keys);
-//		}
-		#endregion
-
-
-		#region Logic
-
-
 		#endregion
 	}
 }
