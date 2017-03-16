@@ -7,9 +7,9 @@ using BicDB.Utility;
 using BicDB.Container;
 using System.Linq;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
-	public class ListVariableTest
+	public class ListTest
 	{
 		[Test]
 		public void CreateStringTest1()

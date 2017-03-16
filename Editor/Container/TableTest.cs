@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using BicDB.Container;
 using System.Linq;
 
-namespace BicDB
+namespace BicDB.Container
 {
 	public class TableTest {
 		[Test]

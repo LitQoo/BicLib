@@ -7,7 +7,7 @@ using BicDB.Container;
 namespace BicDB.Container
 {
 
-	public interface ITableContainer<T> : IDataBase, IList<T>, IStorageSuppoter where T : IModelContainer, new()
+	public interface ITableContainer<T> : IDataBase, IList<T>, IStorageSuppoter where T : IModelContainer
 	{
 		#region event
 		event Action<T> OnAddedRowActions;
@@ -20,8 +20,8 @@ namespace BicDB.Container
 		#endregion
 
 		#region Header&Property 
-		Dictionary<string, IDataBase> Header { get; }
-		Dictionary<string, IDataBase> Property { get; }
+		IModelContainer Header { get; }
+		IModelContainer Property { get; }
 		#endregion
 
 	}
@@ -176,13 +176,13 @@ namespace BicDB.Container
 		#endregion
 
 		#region Header
-		private Dictionary<string, IDataBase> header = new Dictionary<string, IDataBase> ();
-		public Dictionary<string, IDataBase> Header {get{ return header;}}
+		public IModelContainer header = new ModelContainer();
+		public IModelContainer Header {get{ return header;}}
 		#endregion
 
 		#region Property
-		private Dictionary<string, IDataBase> property = new Dictionary<string, IDataBase> ();
-		public Dictionary<string, IDataBase> Property{get{ return property;}}
+		private IModelContainer property = new ModelContainer();
+		public IModelContainer Property{get{ return property;}}
 		#endregion
 	}
 

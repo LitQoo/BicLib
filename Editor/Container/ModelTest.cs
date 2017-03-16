@@ -5,7 +5,7 @@ using NUnit.Framework;
 using BicDB.Container;
 using System.Linq;
 
-namespace BicDB
+namespace BicDB.Container
 {
 	public class ModelTest {
 		[Test]

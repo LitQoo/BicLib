@@ -235,10 +235,12 @@ namespace BicDB.Utility
 				_table.Add(_row);
 			}
 
+			_table.Property["test"] = new StringVariable("testvalue");
+
 			string _json = string.Empty;
 			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
 
-			Assert.AreEqual("{\"data\":[{\"key1\":1,\"key2\":\"two\",\"key3\":{\"key1\":2}},{\"key1\":12,\"key2\":\"two2\",\"key3\":{\"key1\":22}}]}", _json);
+			Assert.AreEqual("{\"test\":\"testvalue\",\"data\":[{\"key1\":1,\"key2\":\"two\",\"key3\":{\"key1\":2}},{\"key1\":12,\"key2\":\"two2\",\"key3\":{\"key1\":22}}]}", _json);
 		}
 
 		[Test]

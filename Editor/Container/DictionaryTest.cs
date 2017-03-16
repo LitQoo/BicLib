@@ -5,9 +5,9 @@ using BicDB.Utility;
 using BicDB.Variable;
 using BicDB.Container;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
-	public class DictionaryVariableTest {
+	public class DictionaryTest {
 
 
 		[Test]
