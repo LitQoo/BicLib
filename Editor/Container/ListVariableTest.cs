@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using NUnit.Framework;
-using BicDB.Variable;
+using BicDB.Container;
 using BicDB;
 using BicDB.Utility;
-using BicDB.Container;
 using System.Linq;
 
 namespace BicDB.Container

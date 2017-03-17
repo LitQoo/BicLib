@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BicDB;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 	public interface IEnumVariable<T> : IVariable where  T : struct
 	{

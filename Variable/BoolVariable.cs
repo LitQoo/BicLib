@@ -3,7 +3,7 @@ using System.Collections;
 using BicDB;
 using System;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 	public class BoolVariable : VariableBase, IVariable{
 		#region AsValue

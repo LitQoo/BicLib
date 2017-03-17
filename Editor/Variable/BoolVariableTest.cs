@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using NUnit.Framework;
-using BicDB.Variable;
+using BicDB.Container;
 using BicDB;
 using System;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 	public class BoolVariableTest
 	{

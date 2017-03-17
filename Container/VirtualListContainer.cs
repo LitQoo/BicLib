@@ -3,11 +3,12 @@ using BicDB;
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Container;
+using BicDB.Container;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 
-	public class VirtualListVariable<T> : VariableBase, IListContainer<T> where T : IDataBase, new()
+	public class VirtualListContainer<T> : VariableBase, IListContainer<T> where T : IDataBase, new()
 	{
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
@@ -123,10 +124,10 @@ namespace BicDB.Variable
 		}
 		#endregion
 
-		public VirtualListVariable() : base(){
+		public VirtualListContainer() : base(){
 		}
 
-		public VirtualListVariable(Func<int, T> _func) : base(){
+		public VirtualListContainer(Func<int, T> _func) : base(){
 			data = _func;
 		}
 

@@ -2,7 +2,7 @@
 using UnityEditor;
 using NUnit.Framework;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 	public class VirtualBoolVariableTest {
 

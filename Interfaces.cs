@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using BicDB.Variable;
+using BicDB.Container;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -49,16 +49,6 @@ namespace BicDB
 			Code = _code;
 			Message = _message;
 		}
-	}
-
-	public interface ILinqSupporter<T>
-	{
-
-		IEnumerable<T> Where(Func<T, bool> _func);
-		T FirstOrDefault(Func<T, bool> _func);
-		IEnumerable<U> Select<U>(Func<T, U> _func);
-		IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func);
-		IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func);
 	}
 
 

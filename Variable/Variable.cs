@@ -5,7 +5,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
 using BicDB.Container;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 
 

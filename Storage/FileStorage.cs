@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 using BicDB.Utility;
-using BicDB.Variable;
+using BicDB.Container;
 using BicDB.Container;
 
 namespace BicDB.Storage
@@ -23,8 +23,8 @@ namespace BicDB.Storage
 		}
 
 		#region Singleton
-		static private IStorage instance = null;
-		static public IStorage GetInstance(){
+		static private FileStorage instance = null;
+		static public FileStorage GetInstance(){
 			if (instance == null) {
 				instance = new FileStorage();
 			}
@@ -34,9 +34,11 @@ namespace BicDB.Storage
 		#endregion
 
 		#region EncryptKey
-		private string encryptKey = "bicdbbicdbbicdbd";
+		private string encryptKey = "";
 		public void SetEncryptKey(string _key){
-			encryptKey = _key.PadRight(16, '_');
+			if (_key != string.Empty) {
+				encryptKey = _key.PadRight(16, '_');
+			}
 		}
 		#endregion
 
@@ -56,6 +58,7 @@ namespace BicDB.Storage
 			int _counter = 0;
 
 			var _result = new Result ((int)ResultCode.Success);
+
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
@@ -85,7 +88,13 @@ namespace BicDB.Storage
 			string _path = Application.persistentDataPath + "/" + _fileName;
 			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
 			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
-			_streamWriter.WriteLine(AESEncrypt256(_data, _key));
+
+			if(_key != string.Empty){
+				_streamWriter.WriteLine(AESEncrypt256(_data, _key));
+			}else{
+				_streamWriter.WriteLine(_data);
+			}
+
 			_streamWriter.Close();
 			_file.Close();
 
@@ -109,7 +118,12 @@ namespace BicDB.Storage
 				_data = _stream.ReadLine ();
 				_stream.Close();
 				_file.Close();
-				return AESDecrypt256(_data, _key);
+
+				if(_key != string.Empty){
+					return AESDecrypt256(_data, _key);
+				}else{
+					return _data;
+				}
 			}
 			else
 			{

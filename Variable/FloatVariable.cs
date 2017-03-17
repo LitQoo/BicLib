@@ -1,7 +1,7 @@
 ﻿using System;
 using BicDB;
 
-namespace BicDB.Variable
+namespace BicDB.Container
 {
 	public class FloatVariable : VariableBase, IVariable {
 		#region AsValue
