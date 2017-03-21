@@ -4,7 +4,7 @@ using NUnit.Framework;
 using BicDB.Container;
 using BicDB;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 	public class StringVariableTest {
 

@@ -1,15 +1,15 @@
 ﻿using System;
 using BicDB;
-using UnityEditor;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Collections.Generic;
+using BicDB.Utility;
 
 namespace BicDB.Container
 {
 	public interface IDictionaryContainer<T> : IDictionary<string, T>, IDataBase where T : IDataBase, new()
 	{
-
+		
 	}
 
 	public class DictionaryContainer<T> : IDictionaryContainer<T> where T : IDataBase, new()
@@ -27,6 +27,17 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
 		}
 		#endregion
 

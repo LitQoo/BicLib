@@ -6,7 +6,7 @@ using System.Text;
 using System.IO;
 using BicDB.Utility;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 
 namespace BicDB.Storage
 {
@@ -53,7 +53,18 @@ namespace BicDB.Storage
 			}
 		}
 
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		{
+			loadByFile(_table, _callback, _parameter);
+		}
+
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+			_table.Clear();
+			loadByFile(_table, _callback, _parameter);
+		}
+
+		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		{
 			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
 			int _counter = 0;
 
@@ -72,8 +83,7 @@ namespace BicDB.Storage
 			if (_callback != null) {
 				_callback (_result);
 			}
-
-		}
+		} 
 
 		private string getFileName(string _tableName){
 			return FILE_NAME_PREFIX + _tableName;

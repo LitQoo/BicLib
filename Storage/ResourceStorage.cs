@@ -34,7 +34,17 @@ namespace BicDB.Storage{
 			}
 		}
 
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		{
+			loadByResourceFile(_table, _callback, _parameter);
+		}
+
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+			_table.Clear();
+			loadByResourceFile(_table, _callback, _parameter);
+		}
+
+		private void loadByResourceFile<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;

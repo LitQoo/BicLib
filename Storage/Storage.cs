@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 
 namespace BicDB
 {
 
 	public interface IStorageSuppoter{
-		void Save(Action<Result> _callaback = null, object _parameter = null);
-		void Load(Action<Result> _callaback = null, object _parameter = null);
+		void Save(Action<Result> _callback = null, object _parameter = null);
+		void Load(Action<Result> _callback = null, object _parameter = null);
+		void Pull(Action<Result> _callback = null, object _parameter = null);
 		void SetStorage(IStorage _storage);
 	}
 
@@ -38,6 +39,7 @@ namespace BicDB
 	{
 		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
 		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
+		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new();
 	}
 }
 

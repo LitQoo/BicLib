@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
+using BicDB.Utility;
 
 namespace BicDB.Container
 {
@@ -141,6 +142,17 @@ namespace BicDB.Container
 		{
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
+		}
 		#endregion
 
 		#region ITable
@@ -165,13 +177,16 @@ namespace BicDB.Container
 			storage = _storage;
 		}
 
-		public void Save(Action<Result> _callaback = null, object _parameter = null){
-			storage.Save(this, _callaback, _parameter);
+		public void Save(Action<Result> _callback = null, object _parameter = null){
+			storage.Save(this, _callback, _parameter);
 		}
 
+		public void Load(Action<Result> _callback = null, object _parameter = null){
+			storage.Load(this, _callback, _parameter);
+		}
 
-		public void Load(Action<Result> _callaback = null, object _parameter = null){
-			storage.Load(this, _callaback, _parameter);
+		public void Pull(Action<Result> _callback = null, object _parameter = null){
+			storage.Pull(this, _callback, _parameter);
 		}
 		#endregion
 

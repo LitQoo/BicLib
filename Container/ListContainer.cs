@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BicDB.Storage;
 using BicDB.Container;
+using BicDB.Variable;
+using BicDB.Utility;
 
 namespace BicDB.Container
 {
@@ -35,6 +37,17 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
 		}
 		#endregion
 

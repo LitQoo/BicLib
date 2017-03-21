@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Collections;
 using BicDB.Utility;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 
 namespace BicDB.Storage
 {
@@ -56,6 +56,11 @@ namespace BicDB.Storage
 			}
 		}
 
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new (){
+			loadCallback = _callback;
+			StartCoroutine (GetTextFromWWW (_table));
+		}
+
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 
@@ -82,11 +87,11 @@ namespace BicDB.Storage
 
 
 			if (_result.Code == (int)ResultCode.Success) {
-				loadCallback = _callback;
-				StartCoroutine (GetTextFromWWW (_table));
+				Pull(_table, _callback, _parameter);
 			} else if(_callback != null) {
 				_callback (_result);
 			}
+
 
 		}
 

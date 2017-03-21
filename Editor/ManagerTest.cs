@@ -2,7 +2,7 @@
 using UnityEditor;
 using NUnit.Framework;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 
 namespace BicDB
 {

@@ -4,6 +4,7 @@ using BicDB.Container;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using BicDB.Variable;
 
 namespace BicDB
 {
@@ -13,6 +14,7 @@ namespace BicDB
 		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
 
 		DataType Type { get; }
+		String GetFormattedString(IStringFormatter _formatter = null);
 	}
 
 

@@ -2,7 +2,7 @@
 using System.Collections;
 using NUnit.Framework;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 using BicDB;
 using System;
 using System.IO;
@@ -211,6 +211,33 @@ namespace BicDB.Utility
 			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
 			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
 			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
+		}	
+
+		[Test]
+		public void JsonToTable2(){
+			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
+			_table.PrimaryKey = "key1";
+			string _json1 = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
+			int _counter1 = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_table[0].member2.AsString, "string");
+
+			string _json2 = "{ \"data\" : [{\"key1\":123, \"key2\" :\"modify\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":444, \"key2\" :\"add~\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
+			int _counter2 = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json2, ref _counter2);
+
+			Assert.AreEqual(_table[0].member1.AsInt, 123);
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+
+			Assert.AreEqual(_table[0].member2.AsString, "modify");
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
+			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
+			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
+			Assert.AreEqual(_table[2].member1.AsInt, 444);
 		}	
 
 		[Test]

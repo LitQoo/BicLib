@@ -3,8 +3,7 @@ using System.Collections;
 using BicDB.Container;
 using System;
 using System.Linq;
-using BicDB.Container;
-using UnityEditor.VersionControl;
+using BicDB.Variable;
 
 namespace BicDB.Utility
 {
@@ -138,14 +137,25 @@ namespace BicDB.Utility
 					_counter++;
 
 					while (_counter < _json.Length) {
-						Console.WriteLine("add row");
+
 						T _model = new T();
 						_model.BuildVariable(ref _json, ref _counter, this);
-						_table.Add(_model);
 
+						object _findRow = null;
+
+						try {
+							_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IModelContainer)[_table.PrimaryKey], (_model as IModelContainer)[_table.PrimaryKey]));
+						} catch (Exception) {
+							
+						}
+
+						if (_findRow != null) {
+							(_findRow as IModelContainer).CopyBy(_model);
+						} else {
+							_table.Add(_model);
+						}
 
 						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
-							Console.WriteLine("break" + _json[_counter].ToString() + " - " + _counter.ToString());
 							break;
 						}
 

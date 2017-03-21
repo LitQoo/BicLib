@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
 
 
 namespace BicDB

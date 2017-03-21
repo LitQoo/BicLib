@@ -5,7 +5,7 @@ using BicDB.Container;
 using BicDB;
 using System;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 	public class VirtualIntVariableTest {
 

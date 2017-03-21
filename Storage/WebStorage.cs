@@ -3,7 +3,8 @@ using System.Collections;
 using System;
 using BicDB.Utility;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
+using System.Runtime.CompilerServices;
 
 namespace BicDB.Storage
 {
@@ -46,9 +47,15 @@ namespace BicDB.Storage
 
 		private Action<Result> loadCallback = null;
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+			_table.Clear();
 			loadCallback = _callback;
 			StartCoroutine(getTextFromWWW(_table));
 
+		}
+
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new (){
+			loadCallback = _callback;
+			StartCoroutine(getTextFromWWW(_table));
 		}
 
 		private IEnumerator getTextFromWWW<T> (ITableContainer<T> _table) where T : IModelContainer, new()

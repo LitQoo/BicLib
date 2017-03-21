@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using BicDB;
+using BicDB.Utility;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 	public interface IEnumVariable<T> : IVariable where  T : struct
 	{
@@ -15,8 +16,6 @@ namespace BicDB.Container
 	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
 
-		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
-		public OnChangedValueToDelegator<T> OnSetValueActions{ get; set; } 
 
 		#region AsValue
 		protected T data;
@@ -25,10 +24,9 @@ namespace BicDB.Container
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public DataType Type { get { return DataType.Int; }}
-
-		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}
 		#endregion
 
+		#region LifeCycle
 		public EnumVariable() : base(){
 			OnSetValueActions = new OnChangedValueToDelegator<T>();
 		}
@@ -37,13 +35,23 @@ namespace BicDB.Container
 			data = _value;
 			OnSetValueActions = new OnChangedValueToDelegator<T>();
 		}
+		#endregion
+
+		#region IEnumVariable
+		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
+		public OnChangedValueToDelegator<T> OnSetValueActions{ get; set; } 
+
+		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}
 
 		public void NotifyChanged(){
 			OnSetValueActions[data]();
 			OnChangedValueActions (this as IEnumVariable<T>);
-
 		}
 
+		#endregion
+
+
+		#region IDatabase
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			_parser.BuildNumberVariable(this, ref _json, ref _counter);
@@ -52,6 +60,18 @@ namespace BicDB.Container
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
+		}
+		#endregion
 
 	}
 }

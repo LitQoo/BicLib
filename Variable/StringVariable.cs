@@ -1,7 +1,8 @@
 ﻿using System;
 using BicDB;
+using BicDB.Utility;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 	public class StringVariable : VariableBase, IVariable
 	{
@@ -14,6 +15,7 @@ namespace BicDB.Container
 		public DataType Type { get { return DataType.String; }}
 		#endregion
 
+		#region LifeCycle
 		public StringVariable() : base(){
 			
 		}
@@ -21,7 +23,9 @@ namespace BicDB.Container
 		public StringVariable(string _value) : base(){
 			data = _value;
 		}
+		#endregion
 
+		#region IDataBase
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			_parser.BuildStringVariable(this, ref _json, ref _counter);
@@ -30,5 +34,17 @@ namespace BicDB.Container
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
+		}
+		#endregion
 	}
 }

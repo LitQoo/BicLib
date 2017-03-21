@@ -3,7 +3,8 @@ using BicDB;
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Container;
-using BicDB.Container;
+using BicDB.Variable;
+using BicDB.Utility;
 
 namespace BicDB.Container
 {
@@ -22,7 +23,6 @@ namespace BicDB.Container
 		public bool AsBool{ get{ return false; } set{throwSetException ();} }
 		public DataType Type { get { return DataType.List; }}
 		#endregion
-
 
 		#region IListVariable
 		public int IndexOf(T item)
@@ -124,13 +124,20 @@ namespace BicDB.Container
 		}
 		#endregion
 
+		#region Logic
 		public VirtualListContainer() : base(){
 		}
 
 		public VirtualListContainer(Func<int, T> _func) : base(){
 			data = _func;
 		}
+		
+		private void throwSetException(){
+			throw new SystemException ("this variable not support to write");
+		}
+		#endregion
 
+		#region IDatabase
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
 			throwSetException ();
@@ -140,8 +147,16 @@ namespace BicDB.Container
 			_formatter.BuildFormattedString(this, ref _json);
 		}
 
-		private void throwSetException(){
-			throw new SystemException ("this variable not support to write");
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
 		}
+		#endregion
 	}
 }

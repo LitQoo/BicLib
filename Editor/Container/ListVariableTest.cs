@@ -5,6 +5,7 @@ using BicDB.Container;
 using BicDB;
 using BicDB.Utility;
 using System.Linq;
+using BicDB.Variable;
 
 namespace BicDB.Container
 {

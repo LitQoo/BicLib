@@ -5,7 +5,7 @@ using BicDB.Container;
 using BicDB;
 using BicDB.Utility;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 	public class EncryptedIntVariableTest {
 

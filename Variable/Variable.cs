@@ -4,8 +4,9 @@ using System.CodeDom.Compiler;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
 using BicDB.Container;
+using System.Runtime.InteropServices;
 
-namespace BicDB.Container
+namespace BicDB.Variable
 {
 
 
@@ -107,6 +108,12 @@ namespace BicDB.Container
 		}
 
 		static public bool IsEqual(IVariable _variable1, IVariable _variable2){
+			if (_variable1 == null && _variable2 == null) {
+				return true;
+			}else if (_variable1 == null || _variable2 == null) {
+				return false;
+			}
+
 			if (_variable1.Type == _variable2.Type) {
 				switch (_variable1.Type) {
 					case DataType.Bool:
@@ -126,6 +133,18 @@ namespace BicDB.Container
 
 			return false;
 		}
+
+		static public bool IsEqual(IDataBase _variable1, IDataBase _variable2){
+			if (_variable1 == null && _variable2 == null) {
+				return true;
+			} else if (_variable1 == null || _variable2 == null) {
+				return false;
+			}
+
+			return _variable1.GetFormattedString() == _variable2.GetFormattedString();
+		}
+
+
 	}
 }
 

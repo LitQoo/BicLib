@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using BicDB.Container;
+using BicDB.Variable;
+using BicDB.Utility;
 
 namespace BicDB.Container
 {
@@ -9,6 +11,8 @@ namespace BicDB.Container
 		void NotifyChanged(string _message = "");
 
 		void AddManagedColumn(string _key, IDataBase _value);
+		void CopyBy(IModelContainer _model);
+		T GetValue<T>(string _key) where T : class, IDataBase;
 	}
 
 	public class ModelContainer : IModelContainer{
@@ -24,6 +28,14 @@ namespace BicDB.Container
 		public void AddManagedColumn(string _key, IDataBase _value){
 			data.Add (_key, _value);
 		}
+
+		public T GetValue<T>(string _key) where T : class, IDataBase{
+			if (!data.ContainsKey(_key)) {
+				return default(T);
+			}
+
+			return (data[_key] as T);
+		}
 		#endregion
 
 		#region AsValue
@@ -35,6 +47,17 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public string GetFormattedString(IStringFormatter _formatter = null)
+		{
+			if (_formatter == null) {
+				_formatter = JsonConvertor.GetInstance();
+			}
+
+			string _result = string.Empty;
+			_formatter.BuildFormattedString(this, ref _result);
+			return _result;
 		}
 		#endregion
 
@@ -123,6 +146,20 @@ namespace BicDB.Container
 		public bool IsReadOnly {
 			get {
 				return data.IsReadOnly;
+			}
+		}
+
+		public void CopyBy(IModelContainer _model){
+			foreach (var _item in _model) {
+				if (data.ContainsKey(_item.Key)) {
+					if ((data[_item.Key] as IVariable) == null || (_item.Value as IVariable) == null) {
+						data[_item.Key] = _item.Value;
+					} else if (!VariableUtil.IsEqual((data[_item.Key] as IVariable), (_item.Value as IVariable))) {
+						(data[_item.Key] as IVariable).AsString = (_item.Value as IVariable).AsString;
+					} 
+				} else {
+					data.Add(_item.Key, _item.Value);
+				}
 			}
 		}
 		#endregion
