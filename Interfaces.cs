@@ -14,7 +14,6 @@ namespace BicDB
 		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
 
 		DataType Type { get; }
-		String GetFormattedString(IStringFormatter _formatter = null);
 	}
 
 

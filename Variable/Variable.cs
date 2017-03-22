@@ -5,6 +5,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
 using BicDB.Container;
 using System.Runtime.InteropServices;
+using BicDB.Utility;
 
 namespace BicDB.Variable
 {
@@ -12,6 +13,7 @@ namespace BicDB.Variable
 
 	public interface IVariable : IDataBase{
 		event Action<IVariable, string> OnChangedValueActions;
+
 		void NotifyChanged(string _message = "");
 		bool IsEqual(IVariable _variable);
 
@@ -134,14 +136,20 @@ namespace BicDB.Variable
 			return false;
 		}
 
-		static public bool IsEqual(IDataBase _variable1, IDataBase _variable2){
-			if (_variable1 == null && _variable2 == null) {
+		static public bool IsEqual(IDataBase _data1, IDataBase _data2){
+			if (_data1 == null && _data2 == null) {
 				return true;
-			} else if (_variable1 == null || _variable2 == null) {
+			} else if (_data1 == null || _data2 == null) {
 				return false;
 			}
 
-			return _variable1.GetFormattedString() == _variable2.GetFormattedString();
+			string _data1FormattedString = string.Empty;
+			string _data2FormattedString = string.Empty;
+
+			_data1.BuildFormattedString(ref _data1FormattedString, JsonConvertor.GetInstance());
+			_data2.BuildFormattedString(ref _data2FormattedString, JsonConvertor.GetInstance());
+
+			return _data1FormattedString == _data2FormattedString;
 		}
 
 

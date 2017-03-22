@@ -123,6 +123,7 @@ namespace BicDB.Utility
 				throw new SystemException("fail find {");
 			}
 
+
 			_counter++;
 
 
@@ -132,19 +133,24 @@ namespace BicDB.Utility
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
+
+
 				if (_fieldName == "data") {
 					increaseCounterUntilFoundChar(ref _json, ref _counter, '[');
+
 					_counter++;
 
 					while (_counter < _json.Length) {
 
+
 						T _model = new T();
 						_model.BuildVariable(ref _json, ref _counter, this);
-
 						object _findRow = null;
 
 						try {
-							_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IModelContainer)[_table.PrimaryKey], (_model as IModelContainer)[_table.PrimaryKey]));
+							if(!string.IsNullOrEmpty(_table.PrimaryKey)){
+								_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IModelContainer)[_table.PrimaryKey], (_model as IModelContainer)[_table.PrimaryKey]));
+							}
 						} catch (Exception) {
 							
 						}
@@ -178,7 +184,6 @@ namespace BicDB.Utility
 		}
 
 		public IDataBase BuildVariable(ref string _json, ref int _counter){
-
 			// find start point
 			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
 				throw new SystemException("not found value");
@@ -240,7 +245,7 @@ namespace BicDB.Utility
 
 		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find {");
+				throw new SystemException("fail find { at ");
 			}
 
 			_counter++;
@@ -256,23 +261,30 @@ namespace BicDB.Utility
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
-				T _variable = new T();
-				_variable.BuildVariable(ref _json, ref _counter, this);
-				_dictionary.Add(_fieldName, _variable);
+
+				if (_dictionary.ContainsKey(_fieldName)) {
+					_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
+				} else {
+					T _variable = new T();
+					_variable.BuildVariable(ref _json, ref _counter, this);
+					_dictionary.Add(_fieldName, _variable);
+				}
 
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					_counter++;
 					break;
 				}
 
 				_counter++;
 
 			}
+
 		}
 
 		public void BuildModelContainer(IModelContainer _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find {");
+				throw new SystemException("fail find { at BuildModelContainer");
 			}
 
 			_counter++;

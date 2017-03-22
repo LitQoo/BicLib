@@ -7,7 +7,8 @@ using BicDB.Utility;
 namespace BicDB.Container
 {
 	public interface IModelContainer :  IDictionary<string, IDataBase>, IDataBase{
-		event Action<IModelContainer, string> OnChangedValueActions;
+		IModelContainerParent Parent{ get; set; }
+		Action<IModelContainer, string> OnChangedValueActions{ get; set;}
 		void NotifyChanged(string _message = "");
 
 		void AddManagedColumn(string _key, IDataBase _value);
@@ -16,13 +17,19 @@ namespace BicDB.Container
 	}
 
 	public class ModelContainer : IModelContainer{
+
+		#region Logic
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
+		#endregion
 
 		#region IModelContainer
-		public event Action<IModelContainer, string> OnChangedValueActions;
+		public IModelContainerParent Parent{ get; set; }
+		public virtual Action<IModelContainer, string> OnChangedValueActions{ get; set;}
 
 		public void NotifyChanged(string _message = ""){
-			OnChangedValueActions(this, _message);
+			if (OnChangedValueActions != null) {
+				OnChangedValueActions(this, _message);
+			}
 		}
 
 		public void AddManagedColumn(string _key, IDataBase _value){
@@ -47,17 +54,6 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
-		}
-
-		public string GetFormattedString(IStringFormatter _formatter = null)
-		{
-			if (_formatter == null) {
-				_formatter = JsonConvertor.GetInstance();
-			}
-
-			string _result = string.Empty;
-			_formatter.BuildFormattedString(this, ref _result);
-			return _result;
 		}
 		#endregion
 

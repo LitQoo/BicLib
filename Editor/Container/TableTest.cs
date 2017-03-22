@@ -99,7 +99,7 @@ namespace BicDB.Container
 		public void OnRemovingRowTest(){
 			var _table = new TableContainer<TestIntModel>("tablename");
 			bool _isCalled = false;
-			_table.OnRemovingRowActions += (TestIntModel _row) => {
+			_table.OnAddedRowActions += (TestIntModel _row) => {
 				Assert.AreEqual(_row.Data.AsInt, 123);
 				_isCalled = true;
 			};

@@ -198,10 +198,42 @@ namespace BicDB.Utility
 			Assert.AreEqual(_model.member3.member1.AsInt, 12);
 		}
 
+
+		[Test]
+		public void JsonToModel2(){
+			TestClass _model = new TestClass();
+			string _json = "{\t\"key3\":{\"key1\":12, \"key2\":\"vv\"},\"key1\":123,\"key2\":\"aaa\",\"key4\":-23.2}";
+			int _counter = 0;
+
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json, ref _counter);
+
+			Assert.AreEqual(_model.member1.AsInt, 123);
+			Assert.AreEqual(_model.member2.AsString, "aaa");
+			Assert.AreEqual((_model["key4"] as IVariable).AsString, "-23.2");
+			Assert.AreEqual(_model.member3.member1.AsInt, 12);
+		}
+
+
+
+		[Test]
+		public void JsonToModel3(){
+			ModelContainer _model = new ModelContainer();
+			string _json1 = "{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":10,\"name\":\"mike\"}";
+			int _counter1 = 0;
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json1, ref _counter1);
+
+
+			string _json2 = "{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"}";
+			int _counter2 = 0;
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json2, ref _counter2);
+
+			Assert.AreEqual(_model.GetValue<IVariable>("age").AsInt, 13);
+		}
+
 		[Test]
 		public void JsonToTable1(){
 			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
-			string _json = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
+			string _json = "{\"data\":[{\"key1\":123,\"key2\":\"string\",\"key3\":{\"key1\":119,\"key2\":\"test\"}},{\"key1\":2,\"key2\":\"string\",\"key3\":{\"key1\":222}}],\"name\":\"test\"}";
 			int _counter = 0;
 
 			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
@@ -238,6 +270,23 @@ namespace BicDB.Utility
 			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
 			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
 			Assert.AreEqual(_table[2].member1.AsInt, 444);
+		}	
+
+		[Test]
+		public void JsonToTable3(){
+			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer>("test");
+			string _json = "{\"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
+			int _counter = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
+
+			Assert.AreEqual(_table.Count, 2);
+			Assert.AreEqual(_table[0].GetValue<IVariable>("age").AsInt, 13);
+			Assert.AreEqual(_table[1].GetValue<IVariable>("age").AsInt, 14);
+			Assert.AreEqual(_table[0].GetValue<IVariable>("name").AsString, "mike");
+			Assert.AreEqual(_table[1].GetValue<IVariable>("name").AsString, "js");
+			Assert.AreEqual(_table[1].GetValue<IDictionaryContainer<StringVariable>>("adress")["city"].AsString, "seoul");
+			Assert.AreEqual(_table[0].GetValue<IDictionaryContainer<StringVariable>>("adress")["city"].AsString, "gogo");
 		}	
 
 		[Test]

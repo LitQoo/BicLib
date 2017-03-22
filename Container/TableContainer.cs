@@ -4,17 +4,21 @@ using System.Linq;
 using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Utility;
+using System.Diagnostics;
 
 namespace BicDB.Container
 {
 
-	public interface ITableContainer<T> : IDataBase, IList<T>, IStorageSuppoter where T : IModelContainer
+	public interface ITableContainer<T> : IDataBase, IList<T>, IModelContainerParent, IStorageSuppoter where T : IModelContainer
 	{
 		#region event
-		event Action<T> OnAddedRowActions;
-		event Action<T> OnRemovingRowActions;
+		Action<T> OnAddedRowActions { get; set; }
+		Action<T> OnRemovedRowActions { get; set;}
 		#endregion
+	}
 
+	public interface IModelContainerParent
+	{
 		#region get&set
 		string Name{ get; set;}
 		string PrimaryKey{ get; set; }
@@ -25,6 +29,7 @@ namespace BicDB.Container
 		IModelContainer Property { get; }
 		#endregion
 
+		int GetIndex(IModelContainer _row);
 	}
 		
 	static public class HeaderKey{
@@ -35,14 +40,45 @@ namespace BicDB.Container
 	public class TableContainer<T> : ITableContainer<T> where T : class, IModelContainer, new(){
 		private IList<T> rows = new List<T>();
 
-		#region event
-		public event Action<T> OnAddedRowActions = delegate {};
-		public event Action<T> OnRemovingRowActions = delegate {};
+		#region IModelContainerParent
+		public string Name{ get; set;}
+
+		public string PrimaryKey{ 
+			get{ 
+				if (Header.ContainsKey(HeaderKey.PrimaryKey)) {
+					return (Header[HeaderKey.PrimaryKey] as IVariable).AsString;
+				} else {
+					return string.Empty;
+				}
+			} 
+
+			set{ 
+				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
+			} 
+		}
+
+		public IModelContainer header = new ModelContainer();
+		public IModelContainer Header {get{ return header;}}
+
+		private IModelContainer property = new ModelContainer();
+		public IModelContainer Property{get{ return property;}}
+
+		public int GetIndex(IModelContainer _row){
+			return rows.IndexOf(_row as T);
+		}
+		#endregion
+
+
+		#region ITableContainer
+		public virtual Action<T> OnAddedRowActions { get; set; }
+		public virtual Action<T> OnRemovedRowActions { get; set; }
 		#endregion
 
 		#region LifeCycle
 		public TableContainer(string _name){
 			Name = _name;
+
+			OnAddedRowActions = delegate {};
 		}
 		#endregion
 
@@ -55,24 +91,32 @@ namespace BicDB.Container
 
 		public void Insert(int _index, T _item)
 		{
+			_item.Parent = this;
 			rows.Insert(_index, _item);
 			OnAddedRowActions (_item);
 		}
 
 		public void RemoveAt(int _index)
 		{
-			OnRemovingRowActions (rows [_index]);
+			rows [_index].Parent = null;
+			OnRemovedRowActions (rows [_index]);
 			rows.RemoveAt(_index);
 		}
 
 		public void Add(T _item)
 		{
+			_item.Parent = this;
 			rows.Add(_item);
 			OnAddedRowActions (_item);
 		}
 
 		public void Clear()
 		{
+			foreach (var _item in rows) {
+				_item.Parent = null;
+				OnRemovedRowActions(_item);
+			}
+
 			rows.Clear();
 		}
 
@@ -90,7 +134,8 @@ namespace BicDB.Container
 		{
 			
 			if (rows.Remove(_item)) {
-				OnRemovingRowActions (_item);
+				_item.Parent = null;
+				OnRemovedRowActions (_item);
 				return true;
 			}
 
@@ -112,6 +157,11 @@ namespace BicDB.Container
 				return rows[_index];
 			}
 			set {
+				if (rows[_index] != null) {
+					rows[_index].Parent = null;
+				}
+
+				value.Parent = this;
 				rows[_index] = value;
 			}
 		}
@@ -142,34 +192,8 @@ namespace BicDB.Container
 		{
 			_formatter.BuildFormattedString(this, ref _json);
 		}
-
-		public string GetFormattedString(IStringFormatter _formatter = null)
-		{
-			if (_formatter == null) {
-				_formatter = JsonConvertor.GetInstance();
-			}
-
-			string _result = string.Empty;
-			_formatter.BuildFormattedString(this, ref _result);
-			return _result;
-		}
 		#endregion
 
-		#region ITable
-		public string Name{ get; set;}
-
-		public string PrimaryKey{ 
-			get{ 
-				return (Header[HeaderKey.PrimaryKey] as IVariable).AsString;
-			} 
-
-			set{ 
-				Header [HeaderKey.PrimaryKey] = new StringVariable (value);
-			} 
-		}
-
-
-		#endregion
 
 		#region Storage
 		private IStorage storage;
@@ -188,16 +212,6 @@ namespace BicDB.Container
 		public void Pull(Action<Result> _callback = null, object _parameter = null){
 			storage.Pull(this, _callback, _parameter);
 		}
-		#endregion
-
-		#region Header
-		public IModelContainer header = new ModelContainer();
-		public IModelContainer Header {get{ return header;}}
-		#endregion
-
-		#region Property
-		private IModelContainer property = new ModelContainer();
-		public IModelContainer Property{get{ return property;}}
 		#endregion
 	}
 
