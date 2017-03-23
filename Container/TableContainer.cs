@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace BicDB.Container
 {
 
-	public interface ITableContainer<T> : IDataBase, IList<T>, IModelContainerParent, IStorageSuppoter where T : IRecordContainer
+	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
 	{
 		#region event
 		Action<T> OnAddedRowActions { get; set; }
@@ -17,30 +17,12 @@ namespace BicDB.Container
 		#endregion
 	}
 
-	public interface IModelContainerParent
-	{
-		#region get&set
-		string Name{ get; set;}
-		string PrimaryKey{ get; set; }
-		#endregion
-
-		#region Header&Property 
-		IRecordContainer Header { get; }
-		IRecordContainer Property { get; }
-		#endregion
-
-		int GetIndex(IRecordContainer _row);
-	}
 		
-	static public class HeaderKey{
-		static public string PrimaryKey = "primaryKey";
-	}
-
 
 	public class TableContainer<T> : ITableContainer<T> where T : class, IRecordContainer, new(){
 		private IList<T> rows = new List<T>();
 
-		#region IModelContainerParent
+		#region IRecordContainerParent
 		public string Name{ get; set;}
 
 		public string PrimaryKey{ 
@@ -63,8 +45,8 @@ namespace BicDB.Container
 		private IRecordContainer property = new RecordContainer();
 		public IRecordContainer Property{get{ return property;}}
 
-		public int GetIndex(IRecordContainer _row){
-			return rows.IndexOf(_row as T);
+		public IVariable GetRecordKey(IRecordContainer _record){
+			return new IntVariable(IndexOf(_record as T));
 		}
 		#endregion
 
@@ -77,8 +59,6 @@ namespace BicDB.Container
 		#region LifeCycle
 		public TableContainer(string _name){
 			Name = _name;
-
-			OnAddedRowActions = delegate {};
 		}
 		#endregion
 
@@ -93,13 +73,17 @@ namespace BicDB.Container
 		{
 			_item.Parent = this;
 			rows.Insert(_index, _item);
-			OnAddedRowActions (_item);
+			if (OnAddedRowActions != null) {
+				OnAddedRowActions(_item);
+			}
 		}
 
 		public void RemoveAt(int _index)
 		{
 			rows [_index].Parent = null;
-			OnRemovedRowActions (rows [_index]);
+			if (OnRemovedRowActions != null) {
+				OnRemovedRowActions(rows [_index]);
+			}
 			rows.RemoveAt(_index);
 		}
 
@@ -107,14 +91,19 @@ namespace BicDB.Container
 		{
 			_item.Parent = this;
 			rows.Add(_item);
-			OnAddedRowActions (_item);
+			Console.WriteLine("added~!");
+			if (OnAddedRowActions != null) {
+				OnAddedRowActions(_item);
+			}
 		}
 
 		public void Clear()
 		{
 			foreach (var _item in rows) {
 				_item.Parent = null;
-				OnRemovedRowActions(_item);
+				if (OnRemovedRowActions != null) {
+					OnRemovedRowActions(_item);
+				}
 			}
 
 			rows.Clear();
@@ -135,7 +124,9 @@ namespace BicDB.Container
 			
 			if (rows.Remove(_item)) {
 				_item.Parent = null;
-				OnRemovedRowActions (_item);
+				if (OnRemovedRowActions != null) {
+					OnRemovedRowActions(_item);
+				}
 				return true;
 			}
 
@@ -196,8 +187,8 @@ namespace BicDB.Container
 
 
 		#region Storage
-		private IStorage storage;
-		public void SetStorage(IStorage _storage){
+		private ITableStorage storage;
+		public void SetStorage(ITableStorage _storage){
 			storage = _storage;
 		}
 

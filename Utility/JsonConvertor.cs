@@ -55,6 +55,36 @@ namespace BicDB.Utility
 			_json += "]}";
 		}
 
+		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json) where T : IRecordContainer, new(){
+			_json += "{";
+
+			var _propertyKeys = _table.Property.Keys.ToArray();
+			//header
+			for(int i = 0; i < _propertyKeys.Length; i++){
+				IDataBase _property = _table.Property[_propertyKeys [i]];
+
+				_json += "\"" + _propertyKeys[i] + "\":";
+				_property.BuildFormattedString(ref _json, this);
+
+				_json += ",";
+			}
+
+			_json += "\"data\":{";
+
+			//data
+
+			var _lastItem = _table.Last();
+			foreach (var _item in _table) {
+				_json += "\"" + _item.Key + "\":";
+				BuildFormattedString(_item.Value, ref _json);
+				if (_item.Key != _lastItem.Key) {
+					_json += ",";
+				}
+			}
+
+			_json += "}}";
+		}
+
 		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
 			_json += "[";
 			int _size = _list.Count;
@@ -183,6 +213,68 @@ namespace BicDB.Utility
 			}
 		}
 
+		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new(){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				throw new SystemException("fail find {");
+			}
+
+
+			_counter++;
+
+
+			while(_counter < _json.Length){
+				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+				_counter++;
+
+				if (_fieldName == "data") {
+					increaseCounterUntilFoundChar(ref _json, ref _counter, '{');
+					_counter++;
+
+					while (_counter < _json.Length) {
+
+						string _keyName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+						increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+						_counter++;
+
+						if (_table.ContainsKey(_keyName)) {
+							_table[_keyName].BuildVariable(ref _json, ref _counter, this);
+						} else {
+							T _model = new T();
+							_model.BuildVariable(ref _json, ref _counter, this);
+							_table.Add(_keyName, _model);
+						}
+
+						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+							break;
+						}
+
+						_counter++;
+					}
+
+					increaseCounterUntilFoundChar(ref _json, ref _counter, '}');
+					_counter++;
+				} else {
+					_table.Property[_fieldName] = BuildVariable(ref _json, ref _counter);
+				}
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					break;
+				}
+
+				_counter++;
+
+			}
+
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '}')) {
+				throw new SystemException("fail find }");
+			}
+
+
+		}
+
 		public IDataBase BuildVariable(ref string _json, ref int _counter){
 			// find start point
 			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
@@ -304,7 +396,6 @@ namespace BicDB.Utility
 					_model[_fieldName].BuildVariable(ref _json, ref _counter, this);
 				} else {
 					_model.AddManagedColumn(_fieldName, BuildVariable(ref _json, ref _counter));
-
 				}
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
@@ -315,6 +406,9 @@ namespace BicDB.Utility
 
 			}
 
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '}')) {
+				throw new SystemException("fail find } at BuildModelContainer");
+			}
 			_counter++;
 		}
 

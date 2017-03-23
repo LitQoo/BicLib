@@ -7,7 +7,7 @@ using BicDB.Utility;
 namespace BicDB.Container
 {
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
-		IModelContainerParent Parent{ get; set; }
+		IRecordContainerParent Parent{ get; set; }
 		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
 		void NotifyChanged(string _message = "");
 
@@ -22,9 +22,10 @@ namespace BicDB.Container
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 		#endregion
 
-		#region IModelContainer
-		public IModelContainerParent Parent{ get; set; }
+		#region IRecordContainer
+		public IRecordContainerParent Parent{ get; set; }
 		public virtual Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
+		Func<IRecordContainer, IVariable> GetRecordKey{ get; set;}
 
 		public void NotifyChanged(string _message = ""){
 			if (OnChangedValueActions != null) {

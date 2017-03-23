@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace BicDB.Storage
 {
-	public class WebStorage : MonoBehaviour, IStorage {
+	public class WebStorage : MonoBehaviour, ITableStorage {
 		#region Static
 		static public string LOAD_URL_KEY = "webstorageLoadURL";
 		#endregion
@@ -21,15 +21,15 @@ namespace BicDB.Storage
 		}
 
 		#region singleton
-		private static IStorage instance = null;  
+		private static ITableStorage instance = null;  
 		private static GameObject container;  
-		public static IStorage GetInstance()  
+		public static ITableStorage GetInstance()  
 		{  
 			if(instance == null)  
 			{  
 				container = new GameObject();  
 				container.name = "BicDBWebStorage";  
-				instance = container.AddComponent(typeof(WebStorage)) as IStorage;  
+				instance = container.AddComponent(typeof(WebStorage)) as ITableStorage;  
 				DontDestroyOnLoad(container);
 			}  
 

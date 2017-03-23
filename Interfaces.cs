@@ -17,6 +17,21 @@ namespace BicDB
 	}
 
 
+	public interface IRecordContainerParent
+	{
+		#region get&set
+		string Name{ get; set;}
+		string PrimaryKey{ get; set; }
+		#endregion
+
+		#region Header&Property 
+		IRecordContainer Header { get; }
+		IRecordContainer Property { get; }
+		#endregion
+
+		IVariable GetRecordKey(IRecordContainer _record);
+	}
+
 	public enum DataType
 	{
 		Int,
@@ -26,7 +41,8 @@ namespace BicDB
 		List,
 		Dictionary,
 		Model,
-		Table
+		Table,
+		DataStore
 	}
 
 
@@ -52,5 +68,9 @@ namespace BicDB
 		}
 	}
 
+
+	static public class HeaderKey{
+		static public string PrimaryKey = "primaryKey";
+	}
 
 }

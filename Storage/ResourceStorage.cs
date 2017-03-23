@@ -8,7 +8,7 @@ using BicDB.Container;
 
 namespace BicDB.Storage{
 
-	public class ResourceStorage : IStorage {
+	public class ResourceStorage : ITableStorage {
 		static public string FILE_NAME_PREFIX = "bdb_"; 
 
 		public enum ResultCode
@@ -17,8 +17,8 @@ namespace BicDB.Storage{
 			FailedConvertJson = 1
 		}
 		#region static
-		static private IStorage instance = null;
-		static public IStorage GetInstance(){
+		static private ITableStorage instance = null;
+		static public ITableStorage GetInstance(){
 			if (instance == null) {
 				instance = new ResourceStorage();
 			}

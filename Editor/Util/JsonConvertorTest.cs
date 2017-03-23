@@ -320,6 +320,42 @@ namespace BicDB.Utility
 		}
 
 		[Test]
+		public void JsonToDataStore1(){
+			IDataStoreContainer<TestClass> _table = new DataStoreContainer<TestClass>("test");
+			string _json = "{\"data\":{\"sklfslkdfsdf\":{\"key1\":123,\"key2\":\"string\",\"key3\":{\"key1\":119,\"key2\":\"test\"}},\"aaaasedf\":{\"key1\":2,\"key2\":\"string\",\"key3\":{\"key1\":222}}},\"name\":\"test\"}";
+			int _counter = 0;
+
+			JsonConvertor.GetInstance().BuildDataStoreContainer(_table, ref _json, ref _counter);
+
+			Assert.AreEqual(_table["sklfslkdfsdf"].member1.AsInt, 123);
+			Assert.AreEqual(_table["aaaasedf"].member1.AsInt, 2);
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
+			Assert.AreEqual(_table["sklfslkdfsdf"].member3.member1.AsInt, 119);
+			Assert.AreEqual((_table["sklfslkdfsdf"].member3["key2"] as IVariable).AsString, "test");
+		}	
+
+		[Test]
+		public void JsonToDataStore2(){
+			IDataStoreContainer<TestClass> _table = new DataStoreContainer<TestClass>("test");
+			string _json1 = "{\"data\":{\"2\":{\"age\":1,\"name\":\"bb\"},\"sakdjfefdf\":{\"age\":99,\"name\":\"jacka\"}}}";
+			int _counter1 = 0;
+
+			JsonConvertor.GetInstance().BuildDataStoreContainer(_table, ref _json1, ref _counter1);
+
+			string _json2 = "{\"data\":{\"2\":{\"age\":100,\"name\":\"js\"},\"sakdjfefdf\":{\"age\":77,\"name\":\"jack\"}}}";
+			int _counter2 = 0;
+
+			JsonConvertor.GetInstance().BuildDataStoreContainer(_table, ref _json2, ref _counter2);
+
+			Assert.AreEqual(_table["2"].GetValue<IVariable>("age").AsInt, 100);
+			Assert.AreEqual(_table["2"].GetValue<IVariable>("name").AsString, "js");
+
+			Assert.AreEqual(_table["sakdjfefdf"].GetValue<IVariable>("age").AsInt, 77);
+			Assert.AreEqual(_table["sakdjfefdf"].GetValue<IVariable>("name").AsString, "jack");
+		}	
+
+
+		[Test]
 		public void DictionaryToJson(){
 			DictionaryContainer<StringVariable> _dict = new DictionaryContainer<StringVariable>();
 			_dict.Add("test", new StringVariable("test"));

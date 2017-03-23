@@ -11,7 +11,7 @@ using BicDB.Variable;
 namespace BicDB.Storage
 {
 
-	public class FileStorage : IStorage{
+	public class FileStorage : ITableStorage{
 		#region Constant
 		static public string FILE_NAME_PREFIX = "bdb_"; 
 		#endregion

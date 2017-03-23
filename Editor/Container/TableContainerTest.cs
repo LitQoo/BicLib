@@ -266,7 +266,7 @@ namespace BicDB.Container
 		[Test]
 		public void SetStorageTest(){
 			var _table = new TableContainer<RecordContainer>("tablename");
-			var _storage = Substitute.For<IStorage>();
+			var _storage = Substitute.For<ITableStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
 
@@ -281,7 +281,7 @@ namespace BicDB.Container
 		[Test]
 		public void SaveTest(){
 			var _table = new TableContainer<RecordContainer>("tablename");
-			var _storage = Substitute.For<IStorage>();
+			var _storage = Substitute.For<ITableStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
 
@@ -296,7 +296,7 @@ namespace BicDB.Container
 		[Test]
 		public void LoadTest(){
 			var _table = new TableContainer<RecordContainer>("tablename");
-			var _storage = Substitute.For<IStorage>();
+			var _storage = Substitute.For<ITableStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
 

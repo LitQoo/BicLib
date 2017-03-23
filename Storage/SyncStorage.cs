@@ -8,7 +8,7 @@ using BicDB.Variable;
 
 namespace BicDB.Storage
 {
-	public class SyncStorage : MonoBehaviour, IStorage {
+	public class SyncStorage : MonoBehaviour, ITableStorage {
 		#region Constant
 		static public string LOAD_URL_KEY = "syncstorageLoadURL";
 		#endregion
@@ -21,15 +21,15 @@ namespace BicDB.Storage
 		}
 
 		#region static
-		private static IStorage instance = null;  
+		private static ITableStorage instance = null;  
 		private static GameObject container;  
-		public static IStorage GetInstance()  
+		public static ITableStorage GetInstance()  
 		{  
 			if(instance == null)  
 			{  
 				container = new GameObject();  
 				container.name = "BicDBSyncStorage";  
-				instance = container.AddComponent(typeof(SyncStorage)) as IStorage;  
+				instance = container.AddComponent(typeof(SyncStorage)) as ITableStorage;  
 				DontDestroyOnLoad(container);
 			}  
 
