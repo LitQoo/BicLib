@@ -43,7 +43,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
 
 			FileStorage.Write(_json, getFileName(_table.Name), encryptKey);
@@ -53,17 +53,17 @@ namespace BicDB.Storage
 			}
 		}
 
-		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			loadByFile(_table, _callback, _parameter);
 		}
 
-		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
 			loadByFile(_table, _callback, _parameter);
 		}
 
-		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
 			int _counter = 0;

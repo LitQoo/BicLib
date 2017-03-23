@@ -11,7 +11,7 @@ namespace BicDB.Container
 	public class ModelTest {
 		[Test]
 		public void AddManagedColumnTest(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			var _var = new IntVariable (0);
 			_model.AddManagedColumn ("key", _var);
 
@@ -20,9 +20,9 @@ namespace BicDB.Container
 
 		[Test]
 		public void NotifyTest(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			string _msg = "msg";
-			_model.OnChangedValueActions += (IModelContainer _model2, string _message) => {
+			_model.OnChangedValueActions += (IRecordContainer _model2, string _message) => {
 				if(_model2 == _model && _message == _msg){
 					Assert.Pass();
 				}
@@ -36,7 +36,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void IndexerTest(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			var _var = new IntVariable (123);
 			_model.AddManagedColumn ("key", _var);
 
@@ -45,7 +45,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void GetFieldNamesTest(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			var _var1 = new IntVariable (0);
 			var _var2 = new IntVariable (0);
 			_model.AddManagedColumn ("key1", _var1);
@@ -60,13 +60,13 @@ namespace BicDB.Container
 
 		[Test]
 		public void CopyByTest1(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			var _var1 = new IntVariable (1);
 			var _var2 = new IntVariable (2);
 			_model.AddManagedColumn ("key1", _var1);
 			_model.AddManagedColumn ("key2", _var2);
 
-			var _model2 = new ModelContainer ();
+			var _model2 = new RecordContainer ();
 			var _var3 = new IntVariable (3);
 			var _var4 = new IntVariable (4);
 			_model2.AddManagedColumn ("key1", _var3);
@@ -81,7 +81,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void CopyByTest2(){
-			var _model = new ModelContainer ();
+			var _model = new RecordContainer ();
 			var _var1 = new ListContainer<IntVariable>();
 			_var1.Add(new IntVariable(11));
 			var _var2 = new ListContainer<IntVariable>();
@@ -89,7 +89,7 @@ namespace BicDB.Container
 			_model.AddManagedColumn ("key1", _var1);
 			_model.AddManagedColumn ("key2", _var2);
 
-			var _model2 = new ModelContainer ();
+			var _model2 = new RecordContainer ();
 			var _var3 = new ListContainer<IntVariable>();
 			_var3.Add(new IntVariable(33));
 			var _var4 = new ListContainer<IntVariable>();

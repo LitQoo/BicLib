@@ -45,7 +45,7 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 
 			string _json = string.Empty;
 			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
@@ -56,12 +56,12 @@ namespace BicDB.Storage
 			}
 		}
 
-		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new (){
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
 			loadCallback = _callback;
 			StartCoroutine (GetTextFromWWW (_table));
 		}
 
-		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			SyncStorageParameter _param = _parameter as SyncStorageParameter;
 
 			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
@@ -100,7 +100,7 @@ namespace BicDB.Storage
 		}
 
 		private Action<Result> loadCallback = null;
-		private IEnumerator GetTextFromWWW<T> (ITableContainer<T> _table) where T : IModelContainer, new()
+		private IEnumerator GetTextFromWWW<T> (ITableContainer<T> _table) where T : IRecordContainer, new()
 		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);

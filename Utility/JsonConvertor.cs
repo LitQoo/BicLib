@@ -21,13 +21,13 @@ namespace BicDB.Utility
 		#endregion
 
 		#region StringFormatter
-		public string ToFormattedString<T>(ITableContainer<T> _table) where T : IModelContainer, new(){
+		public string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new(){
 			string _result = string.Empty;
 			BuildFormattedString(_table, ref _result);
 			return _result;
 		}
 
-		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new(){
+		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IRecordContainer, new(){
 			_json += "{";
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
@@ -84,7 +84,7 @@ namespace BicDB.Utility
 			_json += "}";
 		}
 	
-		public void BuildFormattedString(IModelContainer _model, ref string _json){
+		public void BuildFormattedString(IRecordContainer _model, ref string _json){
 			_json += "{";
 			var _columnKeys = _model.Keys.ToArray();
 			for (int j = 0; j < _columnKeys.Length; j++) {
@@ -118,7 +118,7 @@ namespace BicDB.Utility
 
 		#region StringParser
 
-		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new(){
+		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -149,14 +149,14 @@ namespace BicDB.Utility
 
 						try {
 							if(!string.IsNullOrEmpty(_table.PrimaryKey)){
-								_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IModelContainer)[_table.PrimaryKey], (_model as IModelContainer)[_table.PrimaryKey]));
+								_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IRecordContainer)[_table.PrimaryKey], (_model as IRecordContainer)[_table.PrimaryKey]));
 							}
 						} catch (Exception) {
 							
 						}
 
 						if (_findRow != null) {
-							(_findRow as IModelContainer).CopyBy(_model);
+							(_findRow as IRecordContainer).CopyBy(_model);
 						} else {
 							_table.Add(_model);
 						}
@@ -282,7 +282,7 @@ namespace BicDB.Utility
 
 		}
 
-		public void BuildModelContainer(IModelContainer _model, ref string _json, ref int _counter){
+		public void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find { at BuildModelContainer");
 			}

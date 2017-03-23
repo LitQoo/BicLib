@@ -10,7 +10,7 @@ namespace BicDB
 
 		static private List<object> tables = new List<object> ();
 
-		static public ITableContainer<T> GetTable<T> (string _tableName = "") where T : IModelContainer, new(){
+		static public ITableContainer<T> GetTable<T> (string _tableName = "") where T : IRecordContainer, new(){
 
 			foreach (var _item in tables) {
 				if (_item is ITableContainer<T>) {
@@ -24,7 +24,7 @@ namespace BicDB
 			return null;
 		}
 
-		static public void AddTable<T>(ITableContainer<T> _table) where T : IModelContainer, new(){
+		static public void AddTable<T>(ITableContainer<T> _table) where T : IRecordContainer, new(){
 			if (!tables.Contains (_table)) {
 				tables.Add (_table);			
 			} else {
@@ -32,13 +32,13 @@ namespace BicDB
 			}
 		}
 
-		static public ITableContainer<T> CreateTable<T>(string _name) where T : class, IModelContainer, new() {
+		static public ITableContainer<T> CreateTable<T>(string _name) where T : class, IRecordContainer, new() {
 			var _table = new TableContainer<T>(_name);
 			Manager.AddTable<T>(_table);
 			return _table;
 		}
 
-		static public ITableContainer<T> GetOrCreateTable<T>(string _name) where T : class, IModelContainer, new() {
+		static public ITableContainer<T> GetOrCreateTable<T>(string _name) where T : class, IRecordContainer, new() {
 
 			var _table = GetTable<T>(_name);
 

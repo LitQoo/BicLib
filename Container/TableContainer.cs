@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace BicDB.Container
 {
 
-	public interface ITableContainer<T> : IDataBase, IList<T>, IModelContainerParent, IStorageSuppoter where T : IModelContainer
+	public interface ITableContainer<T> : IDataBase, IList<T>, IModelContainerParent, IStorageSuppoter where T : IRecordContainer
 	{
 		#region event
 		Action<T> OnAddedRowActions { get; set; }
@@ -25,11 +25,11 @@ namespace BicDB.Container
 		#endregion
 
 		#region Header&Property 
-		IModelContainer Header { get; }
-		IModelContainer Property { get; }
+		IRecordContainer Header { get; }
+		IRecordContainer Property { get; }
 		#endregion
 
-		int GetIndex(IModelContainer _row);
+		int GetIndex(IRecordContainer _row);
 	}
 		
 	static public class HeaderKey{
@@ -37,7 +37,7 @@ namespace BicDB.Container
 	}
 
 
-	public class TableContainer<T> : ITableContainer<T> where T : class, IModelContainer, new(){
+	public class TableContainer<T> : ITableContainer<T> where T : class, IRecordContainer, new(){
 		private IList<T> rows = new List<T>();
 
 		#region IModelContainerParent
@@ -57,13 +57,13 @@ namespace BicDB.Container
 			} 
 		}
 
-		public IModelContainer header = new ModelContainer();
-		public IModelContainer Header {get{ return header;}}
+		public IRecordContainer header = new RecordContainer();
+		public IRecordContainer Header {get{ return header;}}
 
-		private IModelContainer property = new ModelContainer();
-		public IModelContainer Property{get{ return property;}}
+		private IRecordContainer property = new RecordContainer();
+		public IRecordContainer Property{get{ return property;}}
 
-		public int GetIndex(IModelContainer _row){
+		public int GetIndex(IRecordContainer _row){
 			return rows.IndexOf(_row as T);
 		}
 		#endregion

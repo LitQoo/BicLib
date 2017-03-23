@@ -13,16 +13,16 @@ namespace BicDB.Container
 	public class TableTest {
 		[Test]
 		public void GetRowSizeTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			_table.Add(new ModelContainer());
+			var _table = new TableContainer<RecordContainer>("tablename");
+			_table.Add(new RecordContainer());
 
 			Assert.AreEqual(_table.Count, 1);
 		}
 
 		[Test]
 		public void GetRowTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model = new RecordContainer();
 			_table.Add(_model);
 
 			var _checkRow = _table[0];
@@ -32,8 +32,8 @@ namespace BicDB.Container
 
 		[Test]
 		public void IndexerTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model = new RecordContainer();
 			_table.Add(_model);
 
 
@@ -46,8 +46,8 @@ namespace BicDB.Container
 
 		[Test]
 		public void AddRowTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model = new RecordContainer();
 			_table.Add(_model);
 
 			var _checkRow = _table[0];
@@ -57,18 +57,18 @@ namespace BicDB.Container
 
 		[Test]
 		public void InsertRow1(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model1 = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model1 = new RecordContainer();
 			_model1.Add("key1", new StringVariable("test1"));
 			_table.Add(_model1);
-			var _model2 = new ModelContainer();
+			var _model2 = new RecordContainer();
 			_model2.Add("key1", new StringVariable("test2"));
 			_table.Add(_model2);
-			var _model3 = new ModelContainer();
+			var _model3 = new RecordContainer();
 			_model3.Add("key1", new StringVariable("test3"));
 			_table.Add(_model3);
 
-			var _model4 = new ModelContainer();
+			var _model4 = new RecordContainer();
 			_model4.Add("key1", new StringVariable("test4"));
 			_table.Insert(1, _model4);
 
@@ -116,12 +116,12 @@ namespace BicDB.Container
 
 		[Test]
 		public void ClearTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model1 = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model1 = new RecordContainer();
 			_table.Add(_model1);
-			var _model2 = new ModelContainer();
+			var _model2 = new RecordContainer();
 			_table.Add(_model2);
-			var _model3 = new ModelContainer();
+			var _model3 = new RecordContainer();
 			_table.Add(_model3);
 
 
@@ -135,14 +135,14 @@ namespace BicDB.Container
 
 		[Test]
 		public void RemoveRowTest1(){
-			var _table = new TableContainer<ModelContainer>("tablename");
-			var _model1 = new ModelContainer();
+			var _table = new TableContainer<RecordContainer>("tablename");
+			var _model1 = new RecordContainer();
 			_model1["key1"] = new StringVariable("test");
 			_table.Add(_model1);
-			var _model2 = new ModelContainer();
+			var _model2 = new RecordContainer();
 			_model2["key1"] = new StringVariable("test");
 			_table.Add(_model2);
-			var _model3 = new ModelContainer();
+			var _model3 = new RecordContainer();
 			_model1["key1"] = new StringVariable("test");
 			_table.Add(_model3);
 
@@ -265,7 +265,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void SetStorageTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
+			var _table = new TableContainer<RecordContainer>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -274,13 +274,13 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<ModelContainer>(_table, _callback);
+			_storage.Received().Save<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 
 		[Test]
 		public void SaveTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
+			var _table = new TableContainer<RecordContainer>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -289,13 +289,13 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<ModelContainer>(_table, _callback);
+			_storage.Received().Save<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 
 		[Test]
 		public void LoadTest(){
-			var _table = new TableContainer<ModelContainer>("tablename");
+			var _table = new TableContainer<RecordContainer>("tablename");
 			var _storage = Substitute.For<IStorage>();
 			Action<Result> _callback = (Result _result) => {
 			};
@@ -304,7 +304,7 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Load(_callback);
 
-			_storage.Received().Load<ModelContainer>(_table, _callback);
+			_storage.Received().Load<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 	}

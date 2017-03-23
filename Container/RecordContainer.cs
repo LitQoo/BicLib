@@ -6,17 +6,17 @@ using BicDB.Utility;
 
 namespace BicDB.Container
 {
-	public interface IModelContainer :  IDictionary<string, IDataBase>, IDataBase{
+	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
 		IModelContainerParent Parent{ get; set; }
-		Action<IModelContainer, string> OnChangedValueActions{ get; set;}
+		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
 		void NotifyChanged(string _message = "");
 
 		void AddManagedColumn(string _key, IDataBase _value);
-		void CopyBy(IModelContainer _model);
+		void CopyBy(IRecordContainer _model);
 		T GetValue<T>(string _key) where T : class, IDataBase;
 	}
 
-	public class ModelContainer : IModelContainer{
+	public class RecordContainer : IRecordContainer{
 
 		#region Logic
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
@@ -24,7 +24,7 @@ namespace BicDB.Container
 
 		#region IModelContainer
 		public IModelContainerParent Parent{ get; set; }
-		public virtual Action<IModelContainer, string> OnChangedValueActions{ get; set;}
+		public virtual Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
 
 		public void NotifyChanged(string _message = ""){
 			if (OnChangedValueActions != null) {
@@ -145,7 +145,7 @@ namespace BicDB.Container
 			}
 		}
 
-		public void CopyBy(IModelContainer _model){
+		public void CopyBy(IRecordContainer _model){
 			foreach (var _item in _model) {
 				if (data.ContainsKey(_item.Key)) {
 					if ((data[_item.Key] as IVariable) == null || (_item.Value as IVariable) == null) {

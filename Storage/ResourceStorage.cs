@@ -28,23 +28,23 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region IStorage
-		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}
 		}
 
-		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new ()
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			loadByResourceFile(_table, _callback, _parameter);
 		}
 
-		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
 			loadByResourceFile(_table, _callback, _parameter);
 		}
 
-		private void loadByResourceFile<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IModelContainer, new() {
+		private void loadByResourceFile<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;

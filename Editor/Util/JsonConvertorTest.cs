@@ -217,7 +217,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToModel3(){
-			ModelContainer _model = new ModelContainer();
+			RecordContainer _model = new RecordContainer();
 			string _json1 = "{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":10,\"name\":\"mike\"}";
 			int _counter1 = 0;
 			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json1, ref _counter1);
@@ -274,7 +274,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToTable3(){
-			ITableContainer<ModelContainer> _table = new TableContainer<ModelContainer>("test");
+			ITableContainer<RecordContainer> _table = new TableContainer<RecordContainer>("test");
 			string _json = "{\"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
 			int _counter = 0;
 
@@ -381,7 +381,7 @@ namespace BicDB.Utility
 
 
 
-		class TestClass : ModelContainer{
+		class TestClass : RecordContainer{
 			public IntVariable member1 = new IntVariable(0);
 			public StringVariable member2 = new StringVariable("");
 			public TestClass2 member3 = new TestClass2();
@@ -393,7 +393,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		class TestClass2 : ModelContainer{
+		class TestClass2 : RecordContainer{
 			public IntVariable member1 = new IntVariable(0);
 
 			public TestClass2(){

@@ -15,10 +15,10 @@ namespace BicDB
 
 
 	public interface IStringParser{
-		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IModelContainer, new();
+		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new();
 		void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
 		void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
-		void BuildModelContainer(IModelContainer _model, ref string _json, ref int _counter);
+		void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter);
 		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
 		void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter);
 		IDataBase BuildVariable(ref string _json, ref int _counter);
@@ -26,20 +26,20 @@ namespace BicDB
 	}
 
 	public interface IStringFormatter{
-		string ToFormattedString<T>(ITableContainer<T> _table) where T : IModelContainer, new();
-		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IModelContainer, new();
+		string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new();
+		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IRecordContainer, new();
 		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new();
 		void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();
-		void BuildFormattedString(IModelContainer _model, ref string _json);
+		void BuildFormattedString(IRecordContainer _model, ref string _json);
 		void BuildFormattedString(IVariable _variable, ref string _json);
 		void BuildFormattedString(IDataBase _variable, ref string _json);
 	}
 
 	public interface IStorage
 	{
-		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
-		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IModelContainer, new();
-		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IModelContainer, new();
+		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
+		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
+		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new();
 	}
 }
 
