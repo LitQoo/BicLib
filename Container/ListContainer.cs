@@ -9,14 +9,6 @@ using BicDB.Utility;
 
 namespace BicDB.Container
 {
-
-	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new(){
-		event Action<T> OnAddedValueActions;
-		event Action OnClearedValueActions;
-		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
-	}
-
-
 	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
 	{
 		private IList<T> data = new List<T>();

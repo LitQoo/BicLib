@@ -174,14 +174,14 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToDictionary1(){
-			IDictionaryContainer<FloatVariable> _dictionary = new DictionaryContainer<FloatVariable>();
+			IDictionaryContainer _dictionary = new DictionaryContainer();
 			string _json = "{\t  \"key\"  : -122.3\t,\"key2\":1111}\t";
 			int _counter = 0;
 
 			JsonConvertor.GetInstance().BuildDictionaryContainer(_dictionary, ref _json, ref _counter);
 
-			Assert.AreEqual(_dictionary["key"].AsFloat, -122.3f);
-			Assert.AreEqual(_dictionary["key2"].AsFloat, 1111f);
+			Assert.AreEqual((_dictionary["key"] as IVariable).AsFloat, -122.3f);
+			Assert.AreEqual((_dictionary["key2"] as IVariable).AsFloat, 1111f);
 		}
 
 		[Test]
@@ -285,8 +285,8 @@ namespace BicDB.Utility
 			Assert.AreEqual(_table[1].GetValue<IVariable>("age").AsInt, 14);
 			Assert.AreEqual(_table[0].GetValue<IVariable>("name").AsString, "mike");
 			Assert.AreEqual(_table[1].GetValue<IVariable>("name").AsString, "js");
-			Assert.AreEqual(_table[1].GetValue<IDictionaryContainer<StringVariable>>("adress")["city"].AsString, "seoul");
-			Assert.AreEqual(_table[0].GetValue<IDictionaryContainer<StringVariable>>("adress")["city"].AsString, "gogo");
+			Assert.AreEqual(_table[1].GetValue<IDictionaryContainer>("adress").GetValue<IVariable>("city").AsString, "seoul");
+			Assert.AreEqual(_table[0].GetValue<IDictionaryContainer>("adress").GetValue<StringVariable>("city").AsString, "gogo");
 		}	
 
 		[Test]
@@ -357,7 +357,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void DictionaryToJson(){
-			DictionaryContainer<StringVariable> _dict = new DictionaryContainer<StringVariable>();
+			DictionaryContainer _dict = new DictionaryContainer();
 			_dict.Add("test", new StringVariable("test"));
 			_dict.Add("key1", new StringVariable("test1"));
 

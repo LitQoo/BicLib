@@ -8,17 +8,6 @@ using System.Diagnostics;
 
 namespace BicDB.Container
 {
-
-	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
-	{
-		#region event
-		Action<T> OnAddedRowActions { get; set; }
-		Action<T> OnRemovedRowActions { get; set;}
-		#endregion
-	}
-
-		
-
 	public class TableContainer<T> : ITableContainer<T> where T : class, IRecordContainer, new(){
 		private IList<T> rows = new List<T>();
 
@@ -39,11 +28,11 @@ namespace BicDB.Container
 			} 
 		}
 
-		public IRecordContainer header = new RecordContainer();
-		public IRecordContainer Header {get{ return header;}}
+		public DictionaryContainer header = new DictionaryContainer();
+		public DictionaryContainer Header {get{ return header;}}
 
-		private IRecordContainer property = new RecordContainer();
-		public IRecordContainer Property{get{ return property;}}
+		private DictionaryContainer property = new DictionaryContainer();
+		public DictionaryContainer Property{get{ return property;}}
 
 		public IVariable GetRecordKey(IRecordContainer _record){
 			return new IntVariable(IndexOf(_record as T));

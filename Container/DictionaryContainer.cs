@@ -7,15 +7,20 @@ using BicDB.Utility;
 
 namespace BicDB.Container
 {
-	public interface IDictionaryContainer<T> : IDictionary<string, T>, IDataBase where T : IDataBase, new()
-	{
-		
-	}
-
-	public class DictionaryContainer<T> : IDictionaryContainer<T> where T : IDataBase, new()
+	public class DictionaryContainer : IDictionaryContainer
 	{
 
-		private IDictionary<string, T> data = new Dictionary<string, T>();
+		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
+
+		#region IDictionaryContainer
+		public T GetValue<T>(string _key) where T : class, IDataBase{
+			if (!data.ContainsKey(_key)) {
+				return default(T);
+			}
+
+			return (data[_key] as T);
+		}
+		#endregion
 
 		#region IDataBase
 		public DataType Type { get { return DataType.Dictionary; }}
@@ -31,7 +36,7 @@ namespace BicDB.Container
 		#endregion
 
 		#region IDictionary
-		public void Add(string _key, T _value)
+		public void Add(string _key, IDataBase _value)
 		{
 			data.Add(_key, _value);
 		}
@@ -46,12 +51,12 @@ namespace BicDB.Container
 			return data.Remove(_key);
 		}
 
-		public bool TryGetValue(string _key, out T _value)
+		public bool TryGetValue(string _key, out IDataBase _value)
 		{
 			return data.TryGetValue(_key, out _value);
 		}
 
-		public void Add(KeyValuePair<string, T> _item)
+		public void Add(KeyValuePair<string, IDataBase> _item)
 		{
 			data.Add(_item);
 		}
@@ -61,21 +66,21 @@ namespace BicDB.Container
 			data.Clear();
 		}
 
-		public bool Contains(KeyValuePair<string, T> _item)
+		public bool Contains(KeyValuePair<string, IDataBase> _item)
 		{
 			return data.Contains(_item);
 		}
 
-		public void CopyTo(KeyValuePair<string, T>[] _array, int _arrayIndex){
+		public void CopyTo(KeyValuePair<string, IDataBase>[] _array, int _arrayIndex){
 			data.CopyTo(_array, _arrayIndex);
 		}
 
-		public bool Remove(KeyValuePair<string, T> _item)
+		public bool Remove(KeyValuePair<string, IDataBase> _item)
 		{
 			return data.Remove(_item);
 		}
 
-		public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
+		public IEnumerator<KeyValuePair<string, IDataBase>> GetEnumerator()
 		{
 			return data.GetEnumerator();
 		}
@@ -85,7 +90,7 @@ namespace BicDB.Container
 			return data.GetEnumerator();
 		}
 
-		public T this[string _key] {
+		public IDataBase this[string _key] {
 			get {
 				return data[_key];
 			}
@@ -100,7 +105,7 @@ namespace BicDB.Container
 			}
 		}
 
-		public ICollection<T> Values {
+		public ICollection<IDataBase> Values {
 			get {
 				return data.Values;
 			}

@@ -5,14 +5,6 @@ using BicDB.Utility;
 
 namespace BicDB.Variable
 {
-	public interface IEnumVariable<T> : IVariable where  T : struct
-	{
-		new event Action<IEnumVariable<T>> OnChangedValueActions;
-
-		OnChangedValueToDelegator<T> OnSetValueActions{ get; set;}
-		T AsEnum{ get; set; }
-	}
-
 	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
 

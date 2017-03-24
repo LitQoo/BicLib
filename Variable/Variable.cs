@@ -9,22 +9,6 @@ using BicDB.Utility;
 
 namespace BicDB.Variable
 {
-
-
-	public interface IVariable : IDataBase{
-		event Action<IVariable, string> OnChangedValueActions;
-
-		void NotifyChanged(string _message = "");
-		bool IsEqual(IVariable _variable);
-
-		int AsInt{ get; set; }
-		string AsString{ get; set; }
-		float AsFloat{ get; set; }
-		bool AsBool{ get; set; }
-	}
-
-
-
 	public class OnChangedValueToDelegator<T> where  T : struct{
 		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
 
@@ -127,6 +111,12 @@ namespace BicDB.Variable
 					case DataType.List:
 						return false;
 					case DataType.Dictionary:
+						return false;
+					case DataType.Table:
+						return false;
+					case DataType.DataStore:
+						return false;
+					case DataType.Record:
 						return false;
 					default:
 						return _variable1.AsString == _variable2.AsString;

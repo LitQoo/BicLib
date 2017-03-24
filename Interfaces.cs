@@ -25,8 +25,8 @@ namespace BicDB
 		#endregion
 
 		#region Header&Property 
-		IRecordContainer Header { get; }
-		IRecordContainer Property { get; }
+		DictionaryContainer Header { get; }
+		DictionaryContainer Property { get; }
 		#endregion
 
 		IVariable GetRecordKey(IRecordContainer _record);
@@ -40,7 +40,7 @@ namespace BicDB
 		Bool,
 		List,
 		Dictionary,
-		Model,
+		Record,
 		Table,
 		DataStore
 	}
@@ -73,4 +73,62 @@ namespace BicDB
 		static public string PrimaryKey = "primaryKey";
 	}
 
+
+	public interface IDataStoreContainer<T> : IDataBase, IDictionary<string, T>, IRecordContainerParent, IDataStoreStorageSuppoter where T : IRecordContainer
+	{
+		#region event
+		Action<string, T> OnAddedRowActions { get; set; }
+		Action<string, T> OnRemovedRowActions { get; set;}
+		#endregion
+	}
+
+	public interface IDictionaryContainer : IDataBase, IDictionary<string, IDataBase>
+	{
+		T GetValue<T>(string _key) where T : class, IDataBase;
+	}
+
+
+	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new(){
+		event Action<T> OnAddedValueActions;
+		event Action OnClearedValueActions;
+		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
+	}
+
+	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
+		IRecordContainerParent Parent{ get; set; }
+		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
+		void NotifyChanged(string _message = "");
+
+		void AddManagedColumn(string _key, IDataBase _value);
+		void CopyBy(IRecordContainer _model);
+		T GetValue<T>(string _key) where T : class, IDataBase;
+	}
+
+	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
+	{
+		#region event
+		Action<T> OnAddedRowActions { get; set; }
+		Action<T> OnRemovedRowActions { get; set;}
+		#endregion
+	}
+
+	public interface IEnumVariable<T> : IVariable where  T : struct
+	{
+		new event Action<IEnumVariable<T>> OnChangedValueActions;
+
+		OnChangedValueToDelegator<T> OnSetValueActions{ get; set;}
+		T AsEnum{ get; set; }
+	}
+
+	public interface IVariable : IDataBase{
+		event Action<IVariable, string> OnChangedValueActions;
+
+		void NotifyChanged(string _message = "");
+		bool IsEqual(IVariable _variable);
+
+		int AsInt{ get; set; }
+		string AsString{ get; set; }
+		float AsFloat{ get; set; }
+		bool AsBool{ get; set; }
+	}
 }

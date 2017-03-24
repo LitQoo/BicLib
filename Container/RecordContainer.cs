@@ -6,16 +6,6 @@ using BicDB.Utility;
 
 namespace BicDB.Container
 {
-	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
-		IRecordContainerParent Parent{ get; set; }
-		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
-		void NotifyChanged(string _message = "");
-
-		void AddManagedColumn(string _key, IDataBase _value);
-		void CopyBy(IRecordContainer _model);
-		T GetValue<T>(string _key) where T : class, IDataBase;
-	}
-
 	public class RecordContainer : IRecordContainer{
 
 		#region Logic
@@ -47,7 +37,7 @@ namespace BicDB.Container
 		#endregion
 
 		#region AsValue
-		public DataType Type { get { return DataType.Model; }}
+		public DataType Type { get { return DataType.Record; }}
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
 			_parser.BuildModelContainer(this, ref _json, ref _counter);

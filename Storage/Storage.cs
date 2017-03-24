@@ -26,7 +26,7 @@ namespace BicDB
 		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new();
 		void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new();
 		void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
-		void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildDictionaryContainer(IDictionaryContainer _dictionary, ref string _json, ref int _counter);
 		void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter);
 		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
 		void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter);	
@@ -39,7 +39,7 @@ namespace BicDB
 		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IRecordContainer, new();
 		void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json) where T : IRecordContainer, new();
 		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new();
-		void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();
+		void BuildFormattedString(IDictionaryContainer _dictionary, ref string _json);
 		void BuildFormattedString(IRecordContainer _model, ref string _json);
 		void BuildFormattedString(IVariable _variable, ref string _json);
 		void BuildFormattedString(IDataBase _variable, ref string _json);

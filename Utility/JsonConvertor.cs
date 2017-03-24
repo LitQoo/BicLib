@@ -98,7 +98,7 @@ namespace BicDB.Utility
 			_json += "]";
 		}
 			
-		public void BuildFormattedString<T>(IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new(){
+		public void BuildFormattedString(IDictionaryContainer _dictionary, ref string _json){
 			var _keys = _dictionary.Keys.ToArray();
 			_json += "{";
 
@@ -291,10 +291,17 @@ namespace BicDB.Utility
 				return _result;
 			
 			} else if (_json[_counter] == '{') {
-				DictionaryContainer<StringVariable> _result = new DictionaryContainer<StringVariable>();
+				DictionaryContainer _result = new DictionaryContainer();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
-			} else {
+			} else if (_json[_counter] == 'n'){
+				_counter += 4;
+				return null;
+			}else if(_json[_counter] == 't' || _json[_counter] == 'f'){
+				BoolVariable _result = new BoolVariable();
+				_result.BuildVariable(ref _json, ref _counter, this);
+				return _result;
+			}else {
 				FloatVariable _result = new FloatVariable();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
@@ -335,7 +342,7 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
+		public void BuildDictionaryContainer(IDictionaryContainer _dictionary, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find { at ");
 			}
@@ -357,9 +364,9 @@ namespace BicDB.Utility
 				if (_dictionary.ContainsKey(_fieldName)) {
 					_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
 				} else {
-					T _variable = new T();
-					_variable.BuildVariable(ref _json, ref _counter, this);
-					_dictionary.Add(_fieldName, _variable);
+					//T _variable = new T();
+					//_variable.BuildVariable(ref _json, ref _counter, this);
+					_dictionary.Add(_fieldName, BuildVariable(ref _json, ref _counter));
 				}
 
 

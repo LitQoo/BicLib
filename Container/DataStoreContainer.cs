@@ -8,21 +8,6 @@ using System.Diagnostics;
 
 namespace BicDB.Container
 {
-
-	public interface IDataStoreContainer<T> : IDataBase, IDictionary<string, T>, IRecordContainerParent, IDataStoreStorageSuppoter where T : IRecordContainer
-	{
-		#region event
-		Action<string, T> OnAddedRowActions { get; set; }
-		Action<string, T> OnRemovedRowActions { get; set;}
-		#endregion
-	}
-
-
-	static public class HeaderKey{
-		static public string PrimaryKey = "primaryKey";
-	}
-
-
 	public class DataStoreContainer<T> : IDataStoreContainer<T> where T : class, IRecordContainer, new(){
 		protected IDictionary<string, T> data = new Dictionary<string, T>();
 
@@ -43,11 +28,11 @@ namespace BicDB.Container
 			} 
 		}
 
-		public IRecordContainer header = new RecordContainer();
-		public IRecordContainer Header {get{ return header;}}
+		public DictionaryContainer header = new DictionaryContainer();
+		public DictionaryContainer Header {get{ return header;}}
 
-		private IRecordContainer property = new RecordContainer();
-		public IRecordContainer Property{get{ return property;}}
+		private DictionaryContainer property = new DictionaryContainer();
+		public DictionaryContainer Property{get{ return property;}}
 
 		public IVariable GetRecordKey(IRecordContainer _record){
 			return new StringVariable(this.FirstOrDefault(_item => _item.Value == _record as T).Key);
@@ -69,6 +54,10 @@ namespace BicDB.Container
 		#region IDictionary
 		public void Add(string _key, T _item)
 		{
+			if (ContainsKey(_key)) {
+				return;
+			}
+
 			_item.Parent = this;
 			data.Add(_key, _item);
 			if (OnAddedRowActions != null) {
@@ -78,6 +67,10 @@ namespace BicDB.Container
 
 		public void Add(KeyValuePair<string, T> _item)
 		{
+			if (ContainsKey(_item.Key)) {
+				return;
+			}
+
 			_item.Value.Parent = this;
 			data.Add(_item);
 
@@ -94,16 +87,31 @@ namespace BicDB.Container
 
 		public bool Remove(string _key)
 		{
+
+			if (!ContainsKey(_key)) {
+				return false;
+			}
+
 			if (OnRemovedRowActions != null) {
 				OnRemovedRowActions(_key, data[_key]);
 			}
 			return data.Remove(_key);
 		}
 
-		public bool TryGetValue(string _key, out T _value)
+
+		public bool Remove(KeyValuePair<string, T> _item)
 		{
-			return data.TryGetValue(_key, out _value);
+			if (!ContainsKey(_item.Key)) {
+				return false;
+			}
+
+			if (OnRemovedRowActions != null) {
+				OnRemovedRowActions(_item.Key, _item.Value);
+			}
+
+			return data.Remove(_item);
 		}
+
 		public void Clear()
 		{
 			foreach (var _item in data) {
@@ -116,6 +124,12 @@ namespace BicDB.Container
 			data.Clear();
 		}
 
+
+		public bool TryGetValue(string _key, out T _value)
+		{
+			return data.TryGetValue(_key, out _value);
+		}
+
 		public bool Contains(KeyValuePair<string, T> _item)
 		{
 			return data.Contains(_item);
@@ -124,16 +138,6 @@ namespace BicDB.Container
 		public void CopyTo(KeyValuePair<string, T>[] _array, int _arrayIndex){
 			data.CopyTo(_array, _arrayIndex);
 		}
-
-		public bool Remove(KeyValuePair<string, T> _item)
-		{
-			if (OnRemovedRowActions != null) {
-				OnRemovedRowActions(_item.Key, _item.Value);
-			}
-
-			return data.Remove(_item);
-		}
-
 		public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
 		{
 			return data.GetEnumerator();
