@@ -9,14 +9,26 @@ using BicDB.Utility;
 namespace BicDB.Container
 {
 
-	public class VirtualListContainer<T> : VariableBase, IListContainer<T> where T : IDataBase, new()
+	public class VirtualListContainer : VariableBase, IListContainer
 	{
-		public event Action<T> OnAddedValueActions = delegate{};
+		public event Action<IDataBase> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
-		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
+		public OnChangedElementDelegator<int, IDataBase> OnChangedElementActions{ get; set;}
+
+		public IVariable GetVariable(int _index){
+			return GetValue<IVariable>(_index);
+		}
+
+		public T GetValue<T>(int _index) where T : class, IDataBase{
+			return (data(_index) as T);
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
 
 		#region AsValue
-		private Func<int, T> data;
+		private Func<int, IDataBase> data;
 		public int AsInt{ get{ return 0; } set{throwSetException ();} }
 		public string AsString{ get{ return string.Empty; } set{ throwSetException ();} }
 		public float AsFloat{ get{ return 0; } set{ throwSetException ();} }
@@ -25,12 +37,12 @@ namespace BicDB.Container
 		#endregion
 
 		#region IListVariable
-		public int IndexOf(T item)
+		public int IndexOf(IDataBase item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void Insert(int index, T item)
+		public void Insert(int index, IDataBase item)
 		{
 			throw new NotImplementedException();
 		}
@@ -40,7 +52,7 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public void Add(T item)
+		public void Add(IDataBase item)
 		{
 			throw new NotImplementedException();
 		}
@@ -50,22 +62,22 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public bool Contains(T item)
+		public bool Contains(IDataBase item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void CopyTo(T[] array, int arrayIndex)
+		public void CopyTo(IDataBase[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool Remove(T item)
+		public bool Remove(IDataBase item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public IEnumerator<T> GetEnumerator()
+		public IEnumerator<IDataBase> GetEnumerator()
 		{
 			throw new NotImplementedException();
 		}
@@ -75,7 +87,7 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public T this[int index] {
+		public IDataBase this[int index] {
 			get {
 				return data(index);
 			}
@@ -98,27 +110,27 @@ namespace BicDB.Container
 		#endregion
 
 		#region Linq
-		public IEnumerable<T> Where(Func<T, bool> _func){
+		public IEnumerable<IDataBase> Where(Func<IDataBase, bool> _func){
 			throwSetException();
 			return null;
 		}
 
-		public T FirstOrDefault(Func<T, bool> _func){
+		public IDataBase FirstOrDefault(Func<IDataBase, bool> _func){
 			throwSetException();
 			return data(0);
 		}
 
-		public IEnumerable<U> Select<U>(Func<T, U> _func){
+		public IEnumerable<U> Select<U>(Func<IDataBase, U> _func){
 			throwSetException();
 			return null;
 		}
 
-		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
+		public IOrderedEnumerable<IDataBase> OrderBy<U>(Func<IDataBase, U> _func){
 			throwSetException();
 			return null;
 		}
 
-		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
+		public IOrderedEnumerable<IDataBase> OrderByDescending<U>(Func<IDataBase, U> _func){
 			throwSetException();
 			return null;
 		}
@@ -128,7 +140,7 @@ namespace BicDB.Container
 		public VirtualListContainer() : base(){
 		}
 
-		public VirtualListContainer(Func<int, T> _func) : base(){
+		public VirtualListContainer(Func<int, IDataBase> _func) : base(){
 			data = _func;
 		}
 		
@@ -145,6 +157,12 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
 		}
 		#endregion
 	}

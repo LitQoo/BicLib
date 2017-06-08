@@ -6,18 +6,31 @@ using BicDB.Storage;
 using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Utility;
+using UnityEditor.VersionControl;
+using System.Configuration;
 
 namespace BicDB.Container
 {
-	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
+	public class ListContainer : IListContainer
 	{
-		private IList<T> data = new List<T>();
+		private IList<IDataBase> data = new List<IDataBase>();
 
-		#region Event
-		public event Action<T> OnAddedValueActions = delegate{};
+		#region IListContainer
+		public event Action<IDataBase> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
-		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
+		public OnChangedElementDelegator<int, IDataBase> OnChangedElementActions{ get; set;}
 
+		public IVariable GetVariable(int _index){
+			return GetValue<IVariable>(_index);
+		}
+
+		public U GetValue<U>(int _index) where U : class, IDataBase{
+			if (data.Count <= _index) {
+				return null;
+			}
+
+			return (data[_index] as U);
+		}
 		#endregion
 
 		#region IDataBase
@@ -30,15 +43,25 @@ namespace BicDB.Container
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
 		#endregion
 
 		#region IList
-		public int IndexOf(T _item)
+		public int IndexOf(IDataBase _item)
 		{
 			return data.IndexOf(_item);
 		}
 
-		public void Insert(int _index, T _item)
+		public void Insert(int _index, IDataBase _item)
 		{
 			data.Insert(_index, _item);
 			OnAddedValueActions(_item);
@@ -49,34 +72,34 @@ namespace BicDB.Container
 			data.RemoveAt(_index);
 		}
 
-		public void Add(T _item)
+		public void Add(IDataBase _item)
 		{
 			data.Add(_item);
 			OnAddedValueActions(_item);
 		}
-
+			
 		public void Clear()
 		{
 			data.Clear();
 			OnClearedValueActions();
 		}
 
-		public bool Contains(T _item)
+		public bool Contains(IDataBase _item)
 		{
 			return data.Contains(_item);
 		}
 
-		public void CopyTo(T[] _array, int _arrayIndex)
+		public void CopyTo(IDataBase[] _array, int _arrayIndex)
 		{
 			data.CopyTo(_array, _arrayIndex);
 		}
 
-		public bool Remove(T _item)
+		public bool Remove(IDataBase _item)
 		{
 			return data.Remove(_item);
 		}
 
-		public IEnumerator<T> GetEnumerator()
+		public IEnumerator<IDataBase> GetEnumerator()
 		{
 			return data.GetEnumerator();
 		}
@@ -86,7 +109,7 @@ namespace BicDB.Container
 			return data.GetEnumerator();
 		}
 
-		public T this[int _index] {
+		public IDataBase this[int _index] {
 			get {
 				return data[_index];
 			}
@@ -111,7 +134,7 @@ namespace BicDB.Container
 		#endregion
 
 		public ListContainer() : base(){
-			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
+			OnChangedElementActions = new OnChangedElementDelegator<int, IDataBase>();
 		}
 
 

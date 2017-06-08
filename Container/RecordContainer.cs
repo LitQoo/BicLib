@@ -36,7 +36,7 @@ namespace BicDB.Container
 		}
 		#endregion
 
-		#region AsValue
+		#region IDataBase
 		public DataType Type { get { return DataType.Record; }}
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
@@ -45,6 +45,16 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
 		}
 		#endregion
 

@@ -5,6 +5,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Utility;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace BicDB.Container
 {
@@ -67,16 +68,7 @@ namespace BicDB.Container
 
 		public void Add(KeyValuePair<string, T> _item)
 		{
-			if (ContainsKey(_item.Key)) {
-				return;
-			}
-
-			_item.Value.Parent = this;
-			data.Add(_item);
-
-			if (OnAddedRowActions != null) {
-				OnAddedRowActions(_item.Key, _item.Value);
-			}
+			Add(_item.Key, _item.Value);
 		}
 
 
@@ -95,21 +87,15 @@ namespace BicDB.Container
 			if (OnRemovedRowActions != null) {
 				OnRemovedRowActions(_key, data[_key]);
 			}
+
 			return data.Remove(_key);
 		}
 
 
 		public bool Remove(KeyValuePair<string, T> _item)
 		{
-			if (!ContainsKey(_item.Key)) {
-				return false;
-			}
 
-			if (OnRemovedRowActions != null) {
-				OnRemovedRowActions(_item.Key, _item.Value);
-			}
-
-			return data.Remove(_item);
+			return Remove(_item.Key);
 		}
 
 		public void Clear()
@@ -197,8 +183,19 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter)
 		{
-			_formatter.BuildFormattedString(this, ref _json);
+			_formatter.BuildFormattedString(this, ref _json, null);
 		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
+
 		#endregion
 
 

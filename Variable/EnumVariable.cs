@@ -52,6 +52,16 @@ namespace BicDB.Variable
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return this;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
 		#endregion
 
 	}

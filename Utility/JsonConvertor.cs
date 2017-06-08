@@ -4,11 +4,17 @@ using BicDB.Container;
 using System;
 using System.Linq;
 using BicDB.Variable;
+using System.Collections.Generic;
+using UnityEngine.Assertions;
+using UnityEditor.VersionControl;
 
 namespace BicDB.Utility
 {
 	public class JsonConvertor : IStringParser, IStringFormatter
 	{
+		public static string OPTION_DATA_FIELD_NAME = "dataFieldName";
+		public static string OPTION_DATA_FIELD_NAME_DEFAULT = "data";
+
 		#region Singleton
 		static private JsonConvertor instance = null;
 		static public JsonConvertor GetInstance(){
@@ -23,12 +29,17 @@ namespace BicDB.Utility
 		#region StringFormatter
 		public string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new(){
 			string _result = string.Empty;
-			BuildFormattedString(_table, ref _result);
+			BuildFormattedString(_table, ref _result, null);
 			return _result;
 		}
 
-		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json) where T : IRecordContainer, new(){
+		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			_json += "{";
+
+			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
+			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
+				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
+			}
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
 			//header
@@ -41,7 +52,7 @@ namespace BicDB.Utility
 				_json += ",";
 			}
 
-			_json += "\"data\":[";
+			_json += "\"" + _dataFieldName + "\":[";
 
 			//data
 			for (int i = 0; i < _table.Count; i++) {
@@ -55,8 +66,13 @@ namespace BicDB.Utility
 			_json += "]}";
 		}
 
-		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json) where T : IRecordContainer, new(){
+		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			_json += "{";
+
+			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
+			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
+				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
+			}
 
 			var _propertyKeys = _table.Property.Keys.ToArray();
 			//header
@@ -69,7 +85,7 @@ namespace BicDB.Utility
 				_json += ",";
 			}
 
-			_json += "\"data\":{";
+			_json += "\"" + _dataFieldName + "\":{";
 
 			//data
 
@@ -85,7 +101,7 @@ namespace BicDB.Utility
 			_json += "}}";
 		}
 
-		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
+		public void BuildFormattedString(IListContainer _list, ref string _json){
 			_json += "[";
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
@@ -148,24 +164,29 @@ namespace BicDB.Utility
 
 		#region StringParser
 
-		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new(){
+		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
 
+
+			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
+			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
+				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
+			}
 
 			_counter++;
 
 
 			while(_counter < _json.Length){
 				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
-
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
 
 
-				if (_fieldName == "data") {
+				if (_fieldName == _dataFieldName) {
+					
 					increaseCounterUntilFoundChar(ref _json, ref _counter, '[');
 
 					_counter++;
@@ -195,7 +216,6 @@ namespace BicDB.Utility
 							break;
 						}
 
-						_counter++;
 					}
 
 					increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
@@ -205,19 +225,26 @@ namespace BicDB.Utility
 				}
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					
 					break;
 				}
 
 				_counter++;
 
 			}
+
 		}
 
-		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new(){
+		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
 
+
+			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
+			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
+				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
+			}
 
 			_counter++;
 
@@ -228,7 +255,7 @@ namespace BicDB.Utility
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
-				if (_fieldName == "data") {
+				if (_fieldName == _dataFieldName) {
 					increaseCounterUntilFoundChar(ref _json, ref _counter, '{');
 					_counter++;
 
@@ -286,10 +313,9 @@ namespace BicDB.Utility
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				ListContainer<StringVariable> _result = new ListContainer<StringVariable>();
+				ListContainer _result = new ListContainer();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
-			
 			} else if (_json[_counter] == '{') {
 				DictionaryContainer _result = new DictionaryContainer();
 				_result.BuildVariable(ref _json, ref _counter, this);
@@ -297,7 +323,7 @@ namespace BicDB.Utility
 			} else if (_json[_counter] == 'n'){
 				_counter += 4;
 				return null;
-			}else if(_json[_counter] == 't' || _json[_counter] == 'f'){
+			}else if(_json[_counter] == 't' || _json[_counter] == 'f' || _json[_counter] == 'T' || _json[_counter] == 'F'){
 				BoolVariable _result = new BoolVariable();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
@@ -308,22 +334,30 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
+		public void BuildListContainer(IListContainer _list, ref string _json, ref int _counter){
+			Console.WriteLine("BuildListContainer1 at " + _counter.ToString());
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
 
+			Console.WriteLine("BuildListContainer2 at " + _counter.ToString() + "," + _json[_counter].ToString());
+
 			_counter++;
 
-			if (_json [_counter] == ']') {
-				_counter++;
-				return;
-			}
+//			if (_json [_counter] == ']') {
+//				_counter++;
+//				return;
+//			}
 
 			while (_counter < _json.Length) {
-				T _variable = new T();
-				_variable.BuildVariable(ref _json, ref _counter, this);
+				IDataBase _variable = BuildVariable(ref _json, ref _counter);
+//				T _variable = new T();
+//				_variable.BuildVariable(ref _json, ref _counter, this);
 				_list.Add(_variable);
+
+				string _string = "";
+				BuildFormattedString(_variable, ref _string);
+				Console.WriteLine("add variable " + _string);
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
 					_counter++;

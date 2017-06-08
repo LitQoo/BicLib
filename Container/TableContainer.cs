@@ -80,7 +80,6 @@ namespace BicDB.Container
 		{
 			_item.Parent = this;
 			rows.Add(_item);
-			Console.WriteLine("added~!");
 			if (OnAddedRowActions != null) {
 				OnAddedRowActions(_item);
 			}
@@ -170,7 +169,17 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter)
 		{
-			_formatter.BuildFormattedString(this, ref _json);
+			_formatter.BuildFormattedString(this, ref _json, null);
+		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
 		}
 		#endregion
 

@@ -12,11 +12,7 @@ namespace BicDB.Variable
 		public string AsString{ 
 			get{ return AsInt.ToString (); } 
 			set{
-				try {
-					AsInt = int.Parse (value);
-				} catch (Exception) {
-					AsInt = (int)float.Parse (value);
-				} 
+				AsInt = parse(value);
 			} 
 		}
 
@@ -43,6 +39,26 @@ namespace BicDB.Variable
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return this;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
+		#endregion
+
+		#region parser
+		private int parse(string _value){
+			try {
+				return int.Parse(_value);
+			} catch (Exception) {
+				return (int)float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
+			}
 		}
 		#endregion
 	}

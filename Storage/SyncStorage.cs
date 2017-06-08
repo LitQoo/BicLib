@@ -48,7 +48,7 @@ namespace BicDB.Storage
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 
 			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json);
+			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json, null);
 			FileStorage.Write(_json, getFileName(_table.Name), encryptKey);
 
 			if (_callback != null) {

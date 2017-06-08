@@ -13,13 +13,8 @@ namespace BicDB.Container
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 
 		#region IDictionaryContainer
-		public T GetValue<T>(string _key) where T : class, IDataBase{
-			if (!data.ContainsKey(_key)) {
-				return default(T);
-			}
-
-			return (data[_key] as T);
-		}
+		public Action<string, IDataBase> OnAddedRowActions { get; set; }
+		public Action<string, IDataBase> OnRemovedRowActions { get; set; }
 		#endregion
 
 		#region IDataBase
@@ -33,14 +28,33 @@ namespace BicDB.Container
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
 		}
+
+		public IVariable AsVariable{ 
+			get{ 
+				return null;	
+			} 
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
+		}
 		#endregion
 
 		#region IDictionary
 		public void Add(string _key, IDataBase _value)
 		{
 			data.Add(_key, _value);
+
+			if (OnAddedRowActions != null) {
+				OnAddedRowActions(_key, _value);
+			}
 		}
 
+		public void Add(KeyValuePair<string, IDataBase> _item)
+		{
+			Add(_item.Key, _item.Value);
+		}
+			
 		public bool ContainsKey(string _key)
 		{
 			return data.ContainsKey(_key);
@@ -48,22 +62,37 @@ namespace BicDB.Container
 
 		public bool Remove(string _key)
 		{
+
+			if (!ContainsKey(_key)) {
+				return false;
+			}
+
+			if (OnRemovedRowActions != null) {
+				OnRemovedRowActions(_key, data[_key]);
+			}
+
 			return data.Remove(_key);
+		}
+
+		public bool Remove(KeyValuePair<string, IDataBase> _item)
+		{
+			return Remove(_item.Key);
+		}
+
+		public void Clear()
+		{
+			foreach (var _item in data) {
+				if (OnRemovedRowActions != null) {
+					OnRemovedRowActions(_item.Key, _item.Value);
+				}
+			}
+
+			data.Clear();
 		}
 
 		public bool TryGetValue(string _key, out IDataBase _value)
 		{
 			return data.TryGetValue(_key, out _value);
-		}
-
-		public void Add(KeyValuePair<string, IDataBase> _item)
-		{
-			data.Add(_item);
-		}
-
-		public void Clear()
-		{
-			data.Clear();
 		}
 
 		public bool Contains(KeyValuePair<string, IDataBase> _item)
@@ -73,12 +102,7 @@ namespace BicDB.Container
 
 		public void CopyTo(KeyValuePair<string, IDataBase>[] _array, int _arrayIndex){
 			data.CopyTo(_array, _arrayIndex);
-		}
-
-		public bool Remove(KeyValuePair<string, IDataBase> _item)
-		{
-			return data.Remove(_item);
-		}
+		} 
 
 		public IEnumerator<KeyValuePair<string, IDataBase>> GetEnumerator()
 		{

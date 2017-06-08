@@ -19,9 +19,9 @@ namespace BicDB.Container
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
-			Assert.AreEqual(_var.GetValue<StringVariable>("test1").AsString, "test");
-			Assert.AreEqual(_var.GetValue<StringVariable>("test2").AsString, "123a");
-			Assert.AreEqual(_var.GetValue<StringVariable>("test3").AsString, "456");
+			Assert.AreEqual(_var["test1"].AsVariable.AsString, "test");
+			Assert.AreEqual(_var["test2"].AsVariable.AsString, "123a");
+			Assert.AreEqual(_var["test3"].AsVariable.AsString, "456");
 		}
 
 		[Test]
@@ -33,16 +33,15 @@ namespace BicDB.Container
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
-			Assert.AreEqual(_var.GetValue<IVariable>("test1").AsInt, 123);
-			Assert.AreEqual(_var.GetValue<IVariable>("test2").AsInt, 456);
-			Assert.AreEqual(_var.GetValue<IVariable>("test3").AsInt, 789);
-			Assert.AreEqual(_var.GetValue<IVariable>("test3").AsInt, 789);
+			Assert.AreEqual(_var["test1"].AsVariable.AsInt, 123);
+			Assert.AreEqual(_var["test2"].AsVariable.AsInt, 456);
+			Assert.AreEqual(_var["test3"].AsVariable.AsInt, 789);
 			Assert.AreEqual(_var["test4"], null);
 			Assert.AreEqual(_var.ContainsKey("test4"), true);
-			Assert.AreEqual(_var.GetValue<IVariable>("test5").AsBool, true);
-			Assert.AreEqual(_var.GetValue<IVariable>("test6").AsFloat, 12.34f);
-			Assert.AreEqual(_var.GetValue<IVariable>("test7").AsBool, false);
-			Assert.AreEqual(_var.GetValue<IVariable>("test8").AsBool, true);
+			Assert.AreEqual(_var["test5"].AsVariable.AsBool, true);
+			Assert.AreEqual(_var["test6"].AsVariable.AsFloat, 12.34f);
+			Assert.AreEqual(_var["test7"].AsVariable.AsBool, false);
+			Assert.AreEqual(_var["test8"].AsVariable.AsBool, true);
 		}
 
 		[Test]
@@ -62,7 +61,7 @@ namespace BicDB.Container
 			DictionaryContainer _var = new DictionaryContainer ();
 			_var.Add("test", new StringVariable("1"));
 
-			Assert.AreEqual(_var.GetValue<StringVariable>("test").AsString, "1");
+			Assert.AreEqual(_var["test"].AsVariable.AsString, "1");
 		}
 
 		[Test]
@@ -77,7 +76,7 @@ namespace BicDB.Container
 
 			_var.Remove("key1");
 			Assert.AreEqual(_var.Count, 2);
-			Assert.AreEqual(_var.GetValue<StringVariable>("key2").AsString, "2");
+			Assert.AreEqual(_var["key2"].AsVariable.AsString, "2");
 		}
 
 	

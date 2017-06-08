@@ -82,26 +82,26 @@ namespace BicDB.Container
 		[Test]
 		public void CopyByTest2(){
 			var _model = new RecordContainer ();
-			var _var1 = new ListContainer<IntVariable>();
+			var _var1 = new ListContainer();
 			_var1.Add(new IntVariable(11));
-			var _var2 = new ListContainer<IntVariable>();
+			var _var2 = new ListContainer();
 			_var2.Add(new IntVariable(22));
 			_model.AddManagedColumn ("key1", _var1);
 			_model.AddManagedColumn ("key2", _var2);
 
 			var _model2 = new RecordContainer ();
-			var _var3 = new ListContainer<IntVariable>();
+			var _var3 = new ListContainer();
 			_var3.Add(new IntVariable(33));
-			var _var4 = new ListContainer<IntVariable>();
+			var _var4 = new ListContainer();
 			_var4.Add(new IntVariable(44));
 			_model2.AddManagedColumn ("key1", _var3);
 			_model2.AddManagedColumn ("key3", _var4);
 
 			_model.CopyBy(_model2);
 
-			Assert.AreEqual((_model["key1"] as IListContainer<IntVariable>)[0].AsInt, 33);
-			Assert.AreEqual((_model["key2"] as IListContainer<IntVariable>)[0].AsInt, 22);
-			Assert.AreEqual((_model["key3"] as IListContainer<IntVariable>)[0].AsInt, 44);
+			Assert.AreEqual((_model["key1"] as IListContainer)[0].AsVariable.AsInt, 33);
+			Assert.AreEqual((_model["key2"] as IListContainer)[0].AsVariable.AsInt, 22);
+			Assert.AreEqual((_model["key3"] as IListContainer)[0].AsVariable.AsInt, 44);
 		}
 	}
 }

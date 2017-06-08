@@ -12,8 +12,11 @@ namespace BicDB
 	{
 		void BuildVariable(ref string _json, ref int _counter, IStringParser _parser);
 		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
+		T As<T>() where T : class, IDataBase;
 
 		DataType Type { get; }
+		IVariable AsVariable{ get; }
+
 	}
 
 
@@ -84,14 +87,17 @@ namespace BicDB
 
 	public interface IDictionaryContainer : IDataBase, IDictionary<string, IDataBase>
 	{
-		T GetValue<T>(string _key) where T : class, IDataBase;
+		#region event
+		Action<string, IDataBase> OnAddedRowActions { get; set; }
+		Action<string, IDataBase> OnRemovedRowActions { get; set;}
+		#endregion
 	}
 
 
-	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new(){
-		event Action<T> OnAddedValueActions;
+	public interface IListContainer : IDataBase, IList<IDataBase> {
+		event Action<IDataBase> OnAddedValueActions;
 		event Action OnClearedValueActions;
-		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
+		OnChangedElementDelegator<int, IDataBase> OnChangedElementActions { get; set;}
 	}
 
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
@@ -101,7 +107,6 @@ namespace BicDB
 
 		void AddManagedColumn(string _key, IDataBase _value);
 		void CopyBy(IRecordContainer _model);
-		T GetValue<T>(string _key) where T : class, IDataBase;
 	}
 
 	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
