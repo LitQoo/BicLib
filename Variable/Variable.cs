@@ -71,7 +71,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty(ref IListContainer _member, IListContainer _value, Action<IDataBase> _addedCallback, Action _clearedCallback = null){
+		static public void SetVariableProperty<T>(ref IListContainer<T> _member, IListContainer<T> _value, Action<T> _addedCallback, Action _clearedCallback = null) where T : IDataBase{
 			if (_member != null) {
 				if (_addedCallback != null) {
 					_member.OnAddedValueActions -= _addedCallback;

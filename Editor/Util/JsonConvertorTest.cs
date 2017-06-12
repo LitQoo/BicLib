@@ -133,7 +133,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList1(){
-			IListContainer _list = new ListContainer();
+			IListContainer<IVariable> _list = new ListContainer<IVariable>();
 			string _json = "[1,2,3,4]";
 			int _counter = 0;
 
@@ -144,7 +144,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList2(){
-			IListContainer _list = new ListContainer();
+			IListContainer<IVariable> _list = new ListContainer<IVariable>();
 			string _json = "[ 1333.1, 22242 ,\t3,\n\n -4 \n\t]";
 			int _counter = 0;
 
@@ -156,7 +156,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList3(){
-			IListContainer _list = new ListContainer();
+			IListContainer<IVariable> _list = new ListContainer<IVariable>();
 			string _json = "  [\n\t\t    \" sdkf\"\t\n ,  \n\t\" \t\\\" \",\"3\",\"4\"]";
 			int _counter = 0;
 
@@ -291,6 +291,31 @@ namespace BicDB.Utility
 		}	
 
 		[Test]
+		public void JsonToTable4(){
+			ITableContainer<TestClass3> _table = new TableContainer<TestClass3>("test4");
+			_table.PrimaryKey = "key1";
+			string _json1 = "{ \"data\" : [{\"key4\":[4,3,2,1],\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key4\":[5,6,7,8],\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
+			int _counter1 = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_table[0].member1.AsInt, 123);
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+
+			Assert.AreEqual(_table[0].member2.AsString, "string");
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
+			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
+			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
+
+			Assert.AreEqual (_table [0].member4.Count, 4);
+			Assert.AreEqual (_table [0].member4[0].AsFloat, 4);
+			Assert.AreEqual (_table [0].member4[1].AsFloat, 3);
+			Assert.AreEqual (_table [0].member4[2].AsFloat, 2);
+			Assert.AreEqual (_table [0].member4[3].AsFloat, 1);
+		}	
+
+		[Test]
 		public void BuildVariableTest(){
 			string _json = "{\"head\":\"value\",\"list\":[100,200,300], \"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
 			int _counter = 0;
@@ -302,7 +327,7 @@ namespace BicDB.Utility
 			Assert.AreEqual(_value["head"].AsVariable.AsString, "value");
 			Assert.IsTrue(_value.ContainsKey("list"));
 			Assert.AreEqual(_value["list"].Type, DataType.List);
-			Assert.AreEqual((_value["list"] as IListContainer)[1].AsVariable.AsString, "200");
+			Assert.AreEqual(_value["list"].As<IListContainer<IDataBase>>()[1].AsVariable.AsString, "200");
 			Assert.IsTrue(_value.ContainsKey("data"));
 			Assert.AreEqual(_value["name"].AsVariable.AsString, "test");
 
@@ -388,7 +413,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void ListToJson(){
-			ListContainer _dict = new ListContainer();
+			ListContainer<IVariable> _dict = new ListContainer<IVariable>();
 			_dict.Add(new StringVariable("test0"));
 			_dict.Add(new StringVariable("test1"));
 
@@ -453,6 +478,20 @@ namespace BicDB.Utility
 
 			public TestClass2(){
 				AddManagedColumn("key1", member1);
+			}
+		}
+
+		class TestClass3 : RecordContainer{
+			public IntVariable member1 = new IntVariable(0);
+			public StringVariable member2 = new StringVariable("");
+			public TestClass2 member3 = new TestClass2();
+			public ListContainer<IntVariable> member4 = new ListContainer<IntVariable>();
+
+			public TestClass3(){
+				AddManagedColumn("key1", member1);
+				AddManagedColumn("key2", member2);
+				AddManagedColumn("key3", member3);
+				AddManagedColumn("key4", member4);
 			}
 		}
 

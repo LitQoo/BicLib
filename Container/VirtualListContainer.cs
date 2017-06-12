@@ -9,45 +9,35 @@ using BicDB.Utility;
 namespace BicDB.Container
 {
 
-	public class VirtualListContainer : VariableBase, IListContainer
+	public class VirtualListContainer<T> : VariableBase, IListContainer<T> where T : IDataBase
 	{
-		public event Action<IDataBase> OnAddedValueActions = delegate{};
+		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
-		public OnChangedElementDelegator<int, IDataBase> OnChangedElementActions{ get; set;}
-
-		public IVariable GetVariable(int _index){
-			return GetValue<IVariable>(_index);
-		}
-
-		public T GetValue<T>(int _index) where T : class, IDataBase{
-			return (data(_index) as T);
-		}
-
-		public D As<D>() where D : class, IDataBase{
-			return this as D;
-		}
+		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 
 		#region AsValue
-		private Func<int, IDataBase> data;
-		public int AsInt{ get{ return 0; } set{throwSetException ();} }
-		public string AsString{ get{ return string.Empty; } set{ throwSetException ();} }
-		public float AsFloat{ get{ return 0; } set{ throwSetException ();} }
-		public bool AsBool{ get{ return false; } set{throwSetException ();} }
+		private Func<int, T> data;
 		public DataType Type { get { return DataType.List; }}
+
 		#endregion
 
 		#region IListVariable
-		public int IndexOf(IDataBase item)
+		public int IndexOf(T item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void Insert(int index, IDataBase item)
+		public void Insert(int index, T item)
 		{
 			throw new NotImplementedException();
 		}
 
 		public void RemoveAt(int index)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Add(T item)
 		{
 			throw new NotImplementedException();
 		}
@@ -62,22 +52,22 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public bool Contains(IDataBase item)
+		public bool Contains(T item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void CopyTo(IDataBase[] array, int arrayIndex)
+		public void CopyTo(T[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool Remove(IDataBase item)
+		public bool Remove(T item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public IEnumerator<IDataBase> GetEnumerator()
+		public IEnumerator<T> GetEnumerator()
 		{
 			throw new NotImplementedException();
 		}
@@ -87,7 +77,7 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public IDataBase this[int index] {
+		public T this[int index] {
 			get {
 				return data(index);
 			}
@@ -110,27 +100,27 @@ namespace BicDB.Container
 		#endregion
 
 		#region Linq
-		public IEnumerable<IDataBase> Where(Func<IDataBase, bool> _func){
+		public IEnumerable<T> Where(Func<T, bool> _func){
 			throwSetException();
 			return null;
 		}
 
-		public IDataBase FirstOrDefault(Func<IDataBase, bool> _func){
+		public T FirstOrDefault(Func<T, bool> _func){
 			throwSetException();
 			return data(0);
 		}
 
-		public IEnumerable<U> Select<U>(Func<IDataBase, U> _func){
+		public IEnumerable<U> Select<U>(Func<T, U> _func){
 			throwSetException();
 			return null;
 		}
 
-		public IOrderedEnumerable<IDataBase> OrderBy<U>(Func<IDataBase, U> _func){
+		public IOrderedEnumerable<T> OrderBy<U>(Func<T, U> _func){
 			throwSetException();
 			return null;
 		}
 
-		public IOrderedEnumerable<IDataBase> OrderByDescending<U>(Func<IDataBase, U> _func){
+		public IOrderedEnumerable<T> OrderByDescending<U>(Func<T, U> _func){
 			throwSetException();
 			return null;
 		}
@@ -140,7 +130,7 @@ namespace BicDB.Container
 		public VirtualListContainer() : base(){
 		}
 
-		public VirtualListContainer(Func<int, IDataBase> _func) : base(){
+		public VirtualListContainer(Func<int, T> _func) : base(){
 			data = _func;
 		}
 		
@@ -157,6 +147,10 @@ namespace BicDB.Container
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
 			_formatter.BuildFormattedString(this, ref _json);
+		}
+
+		public D As<D>() where D : class, IDataBase{
+			return this as D;
 		}
 
 		public IVariable AsVariable{ 

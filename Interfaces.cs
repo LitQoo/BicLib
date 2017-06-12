@@ -19,7 +19,6 @@ namespace BicDB
 
 	}
 
-
 	public interface IRecordContainerParent
 	{
 		#region get&set
@@ -94,10 +93,12 @@ namespace BicDB
 	}
 
 
-	public interface IListContainer : IDataBase, IList<IDataBase> {
-		event Action<IDataBase> OnAddedValueActions;
+	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase {
+		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
-		OnChangedElementDelegator<int, IDataBase> OnChangedElementActions { get; set;}
+		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
+
+		void Add (IDataBase _data);
 	}
 
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{

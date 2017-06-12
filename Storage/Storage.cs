@@ -24,7 +24,7 @@ namespace BicDB
 	public interface IStringParser{
 		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new();
 		void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildListContainer(IListContainer _list, ref string _json, ref int _counter);
+		void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase;
 		void BuildDictionaryContainer(IDictionaryContainer _dictionary, ref string _json, ref int _counter);
 		void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter);
 		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
@@ -37,7 +37,7 @@ namespace BicDB
 		string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new();
 		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new();
 		void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildFormattedString(IListContainer _list, ref string _json);
+		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase;
 		void BuildFormattedString(IDictionaryContainer _dictionary, ref string _json);
 		void BuildFormattedString(IRecordContainer _model, ref string _json);
 		void BuildFormattedString(IVariable _variable, ref string _json);

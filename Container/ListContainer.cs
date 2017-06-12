@@ -6,31 +6,18 @@ using BicDB.Storage;
 using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Utility;
-using UnityEditor.VersionControl;
-using System.Configuration;
+using System.Collections;
 
 namespace BicDB.Container
 {
-	public class ListContainer : IListContainer
+	public class ListContainer<T> : IListContainer<T> where T : class, IDataBase
 	{
 		private IList<IDataBase> data = new List<IDataBase>();
 
 		#region IListContainer
-		public event Action<IDataBase> OnAddedValueActions = delegate{};
+		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
-		public OnChangedElementDelegator<int, IDataBase> OnChangedElementActions{ get; set;}
-
-		public IVariable GetVariable(int _index){
-			return GetValue<IVariable>(_index);
-		}
-
-		public U GetValue<U>(int _index) where U : class, IDataBase{
-			if (data.Count <= _index) {
-				return null;
-			}
-
-			return (data[_index] as U);
-		}
+		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 		#endregion
 
 		#region IDataBase
@@ -56,12 +43,12 @@ namespace BicDB.Container
 		#endregion
 
 		#region IList
-		public int IndexOf(IDataBase _item)
+		public int IndexOf(T _item)
 		{
 			return data.IndexOf(_item);
 		}
 
-		public void Insert(int _index, IDataBase _item)
+		public void Insert(int _index, T _item)
 		{
 			data.Insert(_index, _item);
 			OnAddedValueActions(_item);
@@ -72,10 +59,15 @@ namespace BicDB.Container
 			data.RemoveAt(_index);
 		}
 
-		public void Add(IDataBase _item)
+		public void Add(T _item)
 		{
 			data.Add(_item);
 			OnAddedValueActions(_item);
+		}
+
+		public void Add(IDataBase _item){
+			data.Add (_item);
+			OnAddedValueActions (_item as T);
 		}
 			
 		public void Clear()
@@ -84,24 +76,24 @@ namespace BicDB.Container
 			OnClearedValueActions();
 		}
 
-		public bool Contains(IDataBase _item)
+		public bool Contains(T _item)
 		{
 			return data.Contains(_item);
 		}
 
-		public void CopyTo(IDataBase[] _array, int _arrayIndex)
+		public void CopyTo(T[] _array, int _arrayIndex)
 		{
 			data.CopyTo(_array, _arrayIndex);
 		}
 
-		public bool Remove(IDataBase _item)
+		public bool Remove(T _item)
 		{
 			return data.Remove(_item);
 		}
 
-		public IEnumerator<IDataBase> GetEnumerator()
+		public IEnumerator<T> GetEnumerator()
 		{
-			return data.GetEnumerator();
+			return new ListContainerEnumerator<T> (data.ToArray());
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -109,13 +101,13 @@ namespace BicDB.Container
 			return data.GetEnumerator();
 		}
 
-		public IDataBase this[int _index] {
+		public T this[int _index] {
 			get {
-				return data[_index];
+				return data[_index] as T;
 			}
 			set {
 				data[_index] = value;
-				OnChangedElementActions[_index](_index, data[_index]);
+				OnChangedElementActions[_index](_index, data[_index] as T);
 			}
 		}
 
@@ -134,11 +126,59 @@ namespace BicDB.Container
 		#endregion
 
 		public ListContainer() : base(){
-			OnChangedElementActions = new OnChangedElementDelegator<int, IDataBase>();
+			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
 		}
 
 
 	}
 
+	public class ListContainerEnumerator<T> : IEnumerator<T> where T : class, IDataBase
+	{
+		public IDataBase[] _data;
+
+		int position = -1;
+
+		public ListContainerEnumerator(IDataBase[] list)
+		{
+			_data = list;
+		}
+
+		public bool MoveNext()
+		{
+			position++;
+			return (position < _data.Length);
+		}
+
+		public void Reset()
+		{
+			position = -1;
+		}
+
+		object IEnumerator.Current
+		{
+			get
+			{
+				return Current;
+			}
+		}
+
+		public T Current
+		{
+			get
+			{
+				try
+				{
+					return _data[position] as T;
+				}
+				catch (IndexOutOfRangeException)
+				{
+					throw new InvalidOperationException();
+				}
+			}
+		}
+
+
+		void IDisposable.Dispose() { }
+	}
 }
 

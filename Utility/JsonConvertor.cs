@@ -101,7 +101,7 @@ namespace BicDB.Utility
 			_json += "}}";
 		}
 
-		public void BuildFormattedString(IListContainer _list, ref string _json){
+		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase{
 			_json += "[";
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
@@ -313,7 +313,7 @@ namespace BicDB.Utility
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				ListContainer _result = new ListContainer();
+				ListContainer<IDataBase> _result = new ListContainer<IDataBase>();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '{') {
@@ -334,30 +334,19 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildListContainer(IListContainer _list, ref string _json, ref int _counter){
-			Console.WriteLine("BuildListContainer1 at " + _counter.ToString());
+		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase{
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
-
-			Console.WriteLine("BuildListContainer2 at " + _counter.ToString() + "," + _json[_counter].ToString());
-
+				
 			_counter++;
-
-//			if (_json [_counter] == ']') {
-//				_counter++;
-//				return;
-//			}
 
 			while (_counter < _json.Length) {
 				IDataBase _variable = BuildVariable(ref _json, ref _counter);
-//				T _variable = new T();
-//				_variable.BuildVariable(ref _json, ref _counter, this);
 				_list.Add(_variable);
 
 				string _string = "";
 				BuildFormattedString(_variable, ref _string);
-				Console.WriteLine("add variable " + _string);
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
 					_counter++;
@@ -398,8 +387,6 @@ namespace BicDB.Utility
 				if (_dictionary.ContainsKey(_fieldName)) {
 					_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
 				} else {
-					//T _variable = new T();
-					//_variable.BuildVariable(ref _json, ref _counter, this);
 					_dictionary.Add(_fieldName, BuildVariable(ref _json, ref _counter));
 				}
 
