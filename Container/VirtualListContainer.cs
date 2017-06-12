@@ -9,7 +9,7 @@ using BicDB.Utility;
 namespace BicDB.Container
 {
 
-	public class VirtualListContainer<T> : VariableBase, IListContainer<T> where T : IDataBase
+	public class VirtualListContainer<T> : VariableBase, IListContainer<T> where T : IDataBase, new()
 	{
 		public event Action<T> OnAddedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
@@ -42,10 +42,10 @@ namespace BicDB.Container
 			throw new NotImplementedException();
 		}
 
-		public void Add(IDataBase item)
-		{
-			throw new NotImplementedException();
-		}
+//		public void Add(IDataBase item)
+//		{
+//			throw new NotImplementedException();
+//		}
 
 		public void Clear()
 		{

@@ -101,7 +101,7 @@ namespace BicDB.Utility
 			_json += "}}";
 		}
 
-		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase{
+		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
 			_json += "[";
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
@@ -313,8 +313,7 @@ namespace BicDB.Utility
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				ListContainer<IDataBase> _result = new ListContainer<IDataBase>();
-				_result.BuildVariable(ref _json, ref _counter, this);
+				var _result = BuildListContainer (ref _json, ref _counter);
 				return _result;
 			} else if (_json[_counter] == '{') {
 				DictionaryContainer _result = new DictionaryContainer();
@@ -327,14 +326,89 @@ namespace BicDB.Utility
 				BoolVariable _result = new BoolVariable();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
-			}else {
-				FloatVariable _result = new FloatVariable();
-				_result.BuildVariable(ref _json, ref _counter, this);
-				return _result;
+			} else {
+				if (IsInt (ref _json, _counter)) {
+					IntVariable _result = new IntVariable ();
+					_result.BuildVariable (ref _json, ref _counter, this);
+					return _result;
+				} else {
+					FloatVariable _result = new FloatVariable ();
+					_result.BuildVariable (ref _json, ref _counter, this);
+					return _result;
+				}
 			}
 		}
 
-		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase{
+		public bool IsInt(ref string _json, int _counter){
+			while (_counter < _json.Length) {
+				if (!"-0123456789\t\n ".Contains (_json [_counter].ToString())) {
+					if (_json [_counter] == '.') {
+						return false;
+					} else if(_json[_counter] != '[') {
+						return true;
+					}
+				}
+
+				_counter++;
+			}
+
+			return true;
+		}
+
+
+		public IDataBase BuildListContainer(ref string _json, ref int _counter){
+			int _startCounter = _counter;
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
+				throw new SystemException("BuildListContainer fail find [");
+			}
+
+			_counter++;
+
+
+			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
+				throw new SystemException("not found value");
+			}
+
+			if (_json [_counter] == ']') {
+				return new ListContainer<IntVariable> ();
+			}
+
+			char _checkString = _json [_counter];
+			_counter = _startCounter;
+
+			if (_checkString == '"') {
+				var _result = new ListContainer<StringVariable> ();
+				BuildListContainer (_result, ref _json, ref _counter);
+				return _result;
+			} else if (_checkString == '[') {
+				_counter++;
+
+				throw new NotImplementedException ("not implemented list in list");
+			} else if (_checkString == '{') {
+				var _result = new ListContainer<DictionaryContainer> ();
+				BuildListContainer (_result, ref _json, ref _counter);
+				return _result;
+			} else if (_checkString == 'n') {
+				_counter += 4;
+				return null;
+			} else if (_checkString == 't' ||_checkString == 'f' || _checkString == 'T' || _checkString == 'F') {
+				var _result = new ListContainer<BoolVariable> ();
+				BuildListContainer (_result, ref _json, ref _counter);
+				return _result;
+			} else {
+				if (IsInt (ref _json, _counter)) {
+					var _result = new ListContainer<IntVariable> ();
+					BuildListContainer (_result, ref _json, ref _counter);
+					return _result;
+				} else {
+					var _result = new ListContainer<FloatVariable> ();
+					BuildListContainer (_result, ref _json, ref _counter);
+					return _result;
+				}
+			}
+		}
+
+		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
@@ -342,11 +416,12 @@ namespace BicDB.Utility
 			_counter++;
 
 			while (_counter < _json.Length) {
-				IDataBase _variable = BuildVariable(ref _json, ref _counter);
-				_list.Add(_variable);
-
-				string _string = "";
-				BuildFormattedString(_variable, ref _string);
+				var _value = new T();
+				_value.BuildVariable (ref _json, ref _counter, this);
+				_list.Add(_value);
+				string _f = "";
+				_value.BuildFormattedString (ref _f, this);
+					
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
 					_counter++;
@@ -437,6 +512,7 @@ namespace BicDB.Utility
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '}')) {
 				throw new SystemException("fail find } at BuildModelContainer");
 			}
+
 			_counter++;
 		}
 

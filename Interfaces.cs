@@ -93,12 +93,12 @@ namespace BicDB
 	}
 
 
-	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase {
+	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new() {
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
 
-		void Add (IDataBase _data);
+		//void Add (IDataBase _data);
 	}
 
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{

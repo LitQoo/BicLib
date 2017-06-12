@@ -41,7 +41,7 @@ namespace BicDB
 		public StringVariable IosLink = new StringVariable("");
 		public StringVariable Title = new StringVariable("");
 		public IntVariable ViewWeight = new IntVariable(0);
-		public ListContainer<IVariable> Images = new ListContainer<IVariable>();
+		public ListContainer<StringVariable> Images = new ListContainer<StringVariable>();
 
 		public TestWebModel(){
 			AddManagedColumn ("androidLink", AndroidLink);
@@ -60,7 +60,7 @@ namespace BicDB
 		public StringVariable IosLink = new StringVariable("");
 		public StringVariable Title = new StringVariable("");
 		public IntVariable ViewWeight = new IntVariable(0);
-		public ListContainer<IVariable> Images = new ListContainer<IVariable>();
+		public ListContainer<StringVariable> Images = new ListContainer<StringVariable>();
 
 		public TestSyncModel(){
 			AddManagedColumn ("key", Key);

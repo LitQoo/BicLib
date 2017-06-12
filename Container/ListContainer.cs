@@ -10,9 +10,9 @@ using System.Collections;
 
 namespace BicDB.Container
 {
-	public class ListContainer<T> : IListContainer<T> where T : class, IDataBase
+	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new()
 	{
-		private IList<IDataBase> data = new List<IDataBase>();
+		private IList<T> data = new List<T>();
 
 		#region IListContainer
 		public event Action<T> OnAddedValueActions = delegate{};
@@ -65,10 +65,11 @@ namespace BicDB.Container
 			OnAddedValueActions(_item);
 		}
 
-		public void Add(IDataBase _item){
-			data.Add (_item);
-			OnAddedValueActions (_item as T);
-		}
+//		public void Add(T _item){
+//			data.Add (_item);
+//
+//			OnAddedValueActions (_item);
+//		}
 			
 		public void Clear()
 		{
@@ -93,7 +94,8 @@ namespace BicDB.Container
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			return new ListContainerEnumerator<T> (data.ToArray());
+			return data.GetEnumerator ();
+			//return new ListContainerEnumerator<T> (data.ToArray());
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -103,11 +105,11 @@ namespace BicDB.Container
 
 		public T this[int _index] {
 			get {
-				return data[_index] as T;
+				return data[_index];
 			}
 			set {
 				data[_index] = value;
-				OnChangedElementActions[_index](_index, data[_index] as T);
+				OnChangedElementActions[_index](_index, data[_index]);
 			}
 		}
 
@@ -127,58 +129,59 @@ namespace BicDB.Container
 
 		public ListContainer() : base(){
 			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
+
 		}
 
 
 	}
 
-	public class ListContainerEnumerator<T> : IEnumerator<T> where T : class, IDataBase
-	{
-		public IDataBase[] _data;
-
-		int position = -1;
-
-		public ListContainerEnumerator(IDataBase[] list)
-		{
-			_data = list;
-		}
-
-		public bool MoveNext()
-		{
-			position++;
-			return (position < _data.Length);
-		}
-
-		public void Reset()
-		{
-			position = -1;
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return Current;
-			}
-		}
-
-		public T Current
-		{
-			get
-			{
-				try
-				{
-					return _data[position] as T;
-				}
-				catch (IndexOutOfRangeException)
-				{
-					throw new InvalidOperationException();
-				}
-			}
-		}
-
-
-		void IDisposable.Dispose() { }
-	}
+//	public class ListContainerEnumerator<T> : IEnumerator<T> where T : class, IDataBase
+//	{
+//		public IDataBase[] _data;
+//
+//		int position = -1;
+//
+//		public ListContainerEnumerator(IDataBase[] list)
+//		{
+//			_data = list;
+//		}
+//
+//		public bool MoveNext()
+//		{
+//			position++;
+//			return (position < _data.Length);
+//		}
+//
+//		public void Reset()
+//		{
+//			position = -1;
+//		}
+//
+//		object IEnumerator.Current
+//		{
+//			get
+//			{
+//				return Current;
+//			}
+//		}
+//
+//		public T Current
+//		{
+//			get
+//			{
+//				try
+//				{
+//					return _data[position] as T;
+//				}
+//				catch (IndexOutOfRangeException)
+//				{
+//					throw new InvalidOperationException();
+//				}
+//			}
+//		}
+//
+//
+//		void IDisposable.Dispose() { }
+//	}
 }
 

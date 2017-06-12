@@ -133,7 +133,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList1(){
-			IListContainer<IVariable> _list = new ListContainer<IVariable>();
+			IListContainer<IntVariable> _list = new ListContainer<IntVariable>();
 			string _json = "[1,2,3,4]";
 			int _counter = 0;
 
@@ -144,7 +144,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList2(){
-			IListContainer<IVariable> _list = new ListContainer<IVariable>();
+			IListContainer<FloatVariable> _list = new ListContainer<FloatVariable>();
 			string _json = "[ 1333.1, 22242 ,\t3,\n\n -4 \n\t]";
 			int _counter = 0;
 
@@ -156,7 +156,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void JsonToList3(){
-			IListContainer<IVariable> _list = new ListContainer<IVariable>();
+			IListContainer<StringVariable> _list = new ListContainer<StringVariable>();
 			string _json = "  [\n\t\t    \" sdkf\"\t\n ,  \n\t\" \t\\\" \",\"3\",\"4\"]";
 			int _counter = 0;
 
@@ -327,11 +327,120 @@ namespace BicDB.Utility
 			Assert.AreEqual(_value["head"].AsVariable.AsString, "value");
 			Assert.IsTrue(_value.ContainsKey("list"));
 			Assert.AreEqual(_value["list"].Type, DataType.List);
-			Assert.AreEqual(_value["list"].As<IListContainer<IDataBase>>()[1].AsVariable.AsString, "200");
+			Assert.AreEqual(_value["list"].As<IListContainer<IntVariable>>()[1].AsString, "200");
 			Assert.IsTrue(_value.ContainsKey("data"));
 			Assert.AreEqual(_value["name"].AsVariable.AsString, "test");
 
 		}	
+
+		[Test]
+		public void BuildVariableTest2(){
+			string _json = "{\"head\":\"value\",\"dict\":{\"k1\":100,\"k2\":200,\"k3\":300}, \"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance().BuildVariable(ref _json, ref _counter) as DictionaryContainer;
+
+			Assert.AreEqual(_value.Type, DataType.Dictionary);
+			Assert.IsTrue(_value.ContainsKey("head"));
+			Assert.AreEqual(_value["head"].AsVariable.AsString, "value");
+			Assert.IsTrue(_value.ContainsKey("dict"));
+			Assert.AreEqual(_value["dict"].Type, DataType.Dictionary);
+			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k1"].AsVariable.AsInt, 100);
+			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k2"].AsVariable.AsInt, 200);
+			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k3"].AsVariable.AsInt, 300);
+			Assert.IsTrue(_value.ContainsKey("data"));
+			Assert.AreEqual(_value["name"].AsVariable.AsString, "test");
+
+		}	
+
+		[Test]
+		public void BuildListContainerTest(){
+			string _json = "[\"test\" , \"test2\",\t\n \"test3\"]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+
+			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () .Count, 3);
+			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [0].AsString, "test");
+			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [1].AsString, "test2");
+			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [2].AsString, "test3");
+		}
+
+		[Test]
+		public void BuildListContainerTest2(){
+			string _json = "[222 , 333,\t\n 444]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+
+			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () .Count, 3);
+			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [0].AsInt, 222);
+			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [1].AsInt, 333);
+			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [2].AsInt, 444);
+		}
+
+		[Test]
+		public void BuildListContainerTest3(){
+			string _json = "[222.1 , 333.0,\t\n 444.5]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+
+			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () .Count, 3);
+			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [0].AsFloat, 222.1f);
+			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [1].AsFloat, 333.0f);
+			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [2].AsFloat, 444.5f);
+		}
+
+		[Test]
+		public void IsIntTest(){
+			string _json = "111.2";
+
+			Assert.AreEqual (JsonConvertor.GetInstance ().IsInt (ref _json, 0), false);
+
+
+			_json = "111";
+
+			Assert.AreEqual (JsonConvertor.GetInstance ().IsInt (ref _json, 0), true);
+		}
+
+
+		[Test]
+		public void BuildListContainerTest4(){
+			string _json = "[]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+
+			Assert.AreEqual (_value.As<ListContainer<IntVariable>> ().Count, 0);
+		}
+
+
+		[Test]
+		public void BuildListContainerTest5(){
+			string _json = "[true , false,\t\n false]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+
+			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () .Count, 3);
+			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [0].AsBool, true);
+			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [1].AsBool, false);
+			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [2].AsBool, false);
+		}
+
+		[Test]
+		public void BuildListContainerTest6(){
+			string _json = "[[1,2,3] , [2, 3, 4],\t\n [0, 1, 0]]";
+			int _counter = 0;
+
+			var _value = JsonConvertor.GetInstance ().BuildVariable (ref _json, ref _counter);
+		
+			Assert.AreEqual (_value.As<ListContainer<ListContainer<IntVariable>>> () .Count, 3);
+			Assert.AreEqual (_value.As<ListContainer<ListContainer<IntVariable>>> () [0].As<ListContainer<IntVariable>>()[1].AsInt, 2);
+
+		}
+
 
 		[Test]
 		public void TableToJson1(){
@@ -413,7 +522,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void ListToJson(){
-			ListContainer<IVariable> _dict = new ListContainer<IVariable>();
+			ListContainer<StringVariable> _dict = new ListContainer<StringVariable>();
 			_dict.Add(new StringVariable("test0"));
 			_dict.Add(new StringVariable("test1"));
 

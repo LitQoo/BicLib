@@ -15,7 +15,7 @@ namespace BicDB.Container
 		public void CreateStringTest1()
 		{
 
-			ListContainer<IVariable> _var = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 
 			string _json = "[\"test\", \"123\", \"456\"]";
 			int _counter = 0;
@@ -30,7 +30,7 @@ namespace BicDB.Container
 		public void CreateIntTest()
 		{
 
-			ListContainer<IVariable> _var = new ListContainer<IVariable> ();
+			ListContainer<IntVariable> _var = new ListContainer<IntVariable> ();
 			string _json = "[123,456,789]";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -43,7 +43,7 @@ namespace BicDB.Container
 		[Test]
 		public void GetSizeTest()
 		{
-			ListContainer<IVariable> _var = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 			_var.Add(new StringVariable("3"));
 			_var.Add(new StringVariable("3"));
@@ -54,7 +54,7 @@ namespace BicDB.Container
 		[Test]
 		public void AddTest()
 		{
-			ListContainer<IVariable> _var = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 
 			Assert.AreEqual(_var[0].AsString, "1");
@@ -63,7 +63,7 @@ namespace BicDB.Container
 		[Test]
 		public void RemoveAtTest()
 		{
-			ListContainer<IVariable> _var = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 			_var.Add(new StringVariable("1"));
 			_var.Add(new StringVariable("2"));
 			_var.Add(new StringVariable("3"));
@@ -77,24 +77,24 @@ namespace BicDB.Container
 
 		[Test]
 		public void OnChangedElementNotifyTest(){
-			ListContainer<IVariable> _var1 = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
 			int _count = 0;
 			_var1.Add(new StringVariable("1"));
 			_var1.Add(new StringVariable("1"));
 
-			_var1.OnChangedElementActions[0] += (int _index, IVariable _variable) => {
+			_var1.OnChangedElementActions[0] += (int _index, StringVariable _variable) => {
 				if(_variable.AsString == "test"){
 					_count++;
 				}
 			};
 
-			_var1.OnChangedElementActions[0] += (int _index, IVariable _variable) => {
+			_var1.OnChangedElementActions[0] += (int _index, StringVariable _variable) => {
 				if(_variable.AsString == "test"){
 					_count++;
 				}
 			};
 
-			_var1.OnChangedElementActions[1] += (int _index, IVariable _variable) => {
+			_var1.OnChangedElementActions[1] += (int _index, StringVariable _variable) => {
 				_count = -1;
 			};
 
@@ -105,7 +105,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void LinqTest1(){
-			ListContainer<IVariable> _var1 = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
 			_var1.Add(new StringVariable("1"));
 			_var1.Add(new StringVariable("2"));
 
@@ -117,7 +117,7 @@ namespace BicDB.Container
 
 		[Test]
 		public void LinqTest2(){
-			ListContainer<IVariable> _var1 = new ListContainer<IVariable> ();
+			ListContainer<StringVariable> _var1 = new ListContainer<StringVariable> ();
 			_var1.Add(new StringVariable("1"));
 			_var1.Add(new StringVariable("2"));
 
