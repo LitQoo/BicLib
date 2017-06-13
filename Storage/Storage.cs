@@ -22,10 +22,12 @@ namespace BicDB
 
 
 	public interface IStringParser{
-		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
-		void BuildDictionaryContainer(IDictionaryContainer _dictionary, ref string _json, ref int _counter);
+		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildMutableListContainer (IMutableListContainer _list, ref string _json, ref int _counter);
+		void BuildListContainer<T> (IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new();
+		void BuildMutableDictionaryContainer(IMutableDictionaryContainer _dictionary, ref string _json, ref int _counter);
+		void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new();
 		void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter);
 		void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter);
 		void BuildNumberVariable(IVariable _variable, ref string _json, ref int _counter);	
@@ -35,10 +37,11 @@ namespace BicDB
 
 	public interface IStringFormatter{
 		string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new();
-		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new();
-		void BuildFormattedString(IDictionaryContainer _dictionary, ref string _json);
+		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildFormattedString(IMutableListContainer _list, ref string _json);
+		void BuildFormattedString<T> (IListContainer<T> _list, ref string _json) where T : IDataBase, new();
+		void BuildFormattedString(IMutableDictionaryContainer _dictionary, ref string _json);
 		void BuildFormattedString(IRecordContainer _model, ref string _json);
 		void BuildFormattedString(IVariable _variable, ref string _json);
 		void BuildFormattedString(IDataBase _variable, ref string _json);

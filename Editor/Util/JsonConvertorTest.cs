@@ -173,12 +173,12 @@ namespace BicDB.Utility
 		}
 
 		[Test]
-		public void JsonToDictionary1(){
-			IDictionaryContainer _dictionary = new DictionaryContainer();
+		public void JsonToMutableDictionary1(){
+			IMutableDictionaryContainer _dictionary = new MutableDictionaryContainer();
 			string _json = "{\t  \"key\"  : -122.3\t,\"key2\":1111}\t";
 			int _counter = 0;
 
-			JsonConvertor.GetInstance().BuildDictionaryContainer(_dictionary, ref _json, ref _counter);
+			JsonConvertor.GetInstance().BuildMutableDictionaryContainer(_dictionary, ref _json, ref _counter);
 
 			Assert.AreEqual((_dictionary["key"] as IVariable).AsFloat, -122.3f);
 			Assert.AreEqual((_dictionary["key2"] as IVariable).AsFloat, 1111f);
@@ -285,8 +285,8 @@ namespace BicDB.Utility
 			Assert.AreEqual(_table[1].GetValue<IVariable>("age").AsInt, 14);
 			Assert.AreEqual(_table[0].GetValue<IVariable>("name").AsString, "mike");
 			Assert.AreEqual(_table[1].GetValue<IVariable>("name").AsString, "js");
-			Assert.AreEqual(_table[1]["adress"].As<IDictionaryContainer>()["city"].AsVariable.AsString, "seoul");
-			Assert.AreEqual(_table[0]["adress"].As<IDictionaryContainer>()["city"].AsVariable.AsString, "gogo");
+			Assert.AreEqual(_table[1]["adress"].As<IMutableDictionaryContainer>()["city"].AsVariable.AsString, "seoul");
+			Assert.AreEqual(_table[0]["adress"].As<IMutableDictionaryContainer>()["city"].AsVariable.AsString, "gogo");
 			Assert.AreEqual(_table.Property["name"].AsVariable.AsString, "test");
 		}	
 
@@ -320,14 +320,14 @@ namespace BicDB.Utility
 			string _json = "{\"head\":\"value\",\"list\":[100,200,300], \"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance().BuildVariable(ref _json, ref _counter) as DictionaryContainer;
+			var _value = JsonConvertor.GetInstance().BuildVariable(ref _json, ref _counter) as MutableDictionaryContainer;
 
 			Assert.AreEqual(_value.Type, DataType.Dictionary);
 			Assert.IsTrue(_value.ContainsKey("head"));
 			Assert.AreEqual(_value["head"].AsVariable.AsString, "value");
 			Assert.IsTrue(_value.ContainsKey("list"));
 			Assert.AreEqual(_value["list"].Type, DataType.List);
-			Assert.AreEqual(_value["list"].As<IListContainer<IntVariable>>()[1].AsString, "200");
+			Assert.AreEqual(_value["list"].As<MutableListContainer>()[1].AsVariable.AsString, "200");
 			Assert.IsTrue(_value.ContainsKey("data"));
 			Assert.AreEqual(_value["name"].AsVariable.AsString, "test");
 
@@ -338,16 +338,16 @@ namespace BicDB.Utility
 			string _json = "{\"head\":\"value\",\"dict\":{\"k1\":100,\"k2\":200,\"k3\":300}, \"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance().BuildVariable(ref _json, ref _counter) as DictionaryContainer;
+			var _value = JsonConvertor.GetInstance().BuildVariable(ref _json, ref _counter) as MutableDictionaryContainer;
 
 			Assert.AreEqual(_value.Type, DataType.Dictionary);
 			Assert.IsTrue(_value.ContainsKey("head"));
 			Assert.AreEqual(_value["head"].AsVariable.AsString, "value");
 			Assert.IsTrue(_value.ContainsKey("dict"));
 			Assert.AreEqual(_value["dict"].Type, DataType.Dictionary);
-			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k1"].AsVariable.AsInt, 100);
-			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k2"].AsVariable.AsInt, 200);
-			Assert.AreEqual(_value["dict"].As<IDictionaryContainer>()["k3"].AsVariable.AsInt, 300);
+			Assert.AreEqual(_value["dict"].As<IMutableDictionaryContainer>()["k1"].AsVariable.AsInt, 100);
+			Assert.AreEqual(_value["dict"].As<IMutableDictionaryContainer>()["k2"].AsVariable.AsInt, 200);
+			Assert.AreEqual(_value["dict"].As<IMutableDictionaryContainer>()["k3"].AsVariable.AsInt, 300);
 			Assert.IsTrue(_value.ContainsKey("data"));
 			Assert.AreEqual(_value["name"].AsVariable.AsString, "test");
 
@@ -358,12 +358,12 @@ namespace BicDB.Utility
 			string _json = "[\"test\" , \"test2\",\t\n \"test3\"]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
 
-			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () .Count, 3);
-			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [0].AsString, "test");
-			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [1].AsString, "test2");
-			Assert.AreEqual (_value.As<ListContainer<StringVariable>> () [2].AsString, "test3");
+			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsString, "test");
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].AsVariable.AsString, "test2");
+			Assert.AreEqual (_value.As<MutableListContainer> () [2].AsVariable.AsString, "test3");
 		}
 
 		[Test]
@@ -371,12 +371,12 @@ namespace BicDB.Utility
 			string _json = "[222 , 333,\t\n 444]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
 
-			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () .Count, 3);
-			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [0].AsInt, 222);
-			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [1].AsInt, 333);
-			Assert.AreEqual (_value.As<ListContainer<IntVariable>> () [2].AsInt, 444);
+			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsInt, 222);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].AsVariable.AsInt, 333);
+			Assert.AreEqual (_value.As<MutableListContainer> () [2].AsVariable.AsInt, 444);
 		}
 
 		[Test]
@@ -384,12 +384,12 @@ namespace BicDB.Utility
 			string _json = "[222.1 , 333.0,\t\n 444.5]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
 
-			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () .Count, 3);
-			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [0].AsFloat, 222.1f);
-			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [1].AsFloat, 333.0f);
-			Assert.AreEqual (_value.As<ListContainer<FloatVariable>> () [2].AsFloat, 444.5f);
+			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsFloat, 222.1f);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].AsVariable.AsFloat, 333.0f);
+			Assert.AreEqual (_value.As<MutableListContainer> () [2].AsVariable.AsFloat, 444.5f);
 		}
 
 		[Test]
@@ -410,9 +410,9 @@ namespace BicDB.Utility
 			string _json = "[]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
 
-			Assert.AreEqual (_value.As<ListContainer<IntVariable>> ().Count, 0);
+			Assert.AreEqual (_value.As<MutableListContainer> ().Count, 0);
 		}
 
 
@@ -421,23 +421,29 @@ namespace BicDB.Utility
 			string _json = "[true , false,\t\n false]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildListContainer (ref _json, ref _counter);
+			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
 
-			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () .Count, 3);
-			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [0].AsBool, true);
-			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [1].AsBool, false);
-			Assert.AreEqual (_value.As<ListContainer<BoolVariable>> () [2].AsBool, false);
+			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsBool, true);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].AsVariable.AsBool, false);
+			Assert.AreEqual (_value.As<MutableListContainer> () [2].AsVariable.AsBool, false);
 		}
 
 		[Test]
 		public void BuildListContainerTest6(){
-			string _json = "[[1,2,3] , [2, 3, 4],\t\n [0, 1, 0]]";
+			string _json = "[[1,2,3] , [4, 5, 6],\t\n [7, 8, 9]]";
 			int _counter = 0;
 
 			var _value = JsonConvertor.GetInstance ().BuildVariable (ref _json, ref _counter);
 		
-			Assert.AreEqual (_value.As<ListContainer<ListContainer<IntVariable>>> () .Count, 3);
-			Assert.AreEqual (_value.As<ListContainer<ListContainer<IntVariable>>> () [0].As<ListContainer<IntVariable>>()[1].AsInt, 2);
+			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].As<MutableListContainer>()[0].Type, DataType.Int);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].As<MutableListContainer>()[0].AsVariable.AsInt, 1);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].As<MutableListContainer>()[1].AsVariable.AsInt, 2);
+			Assert.AreEqual (_value.As<MutableListContainer> () [0].As<MutableListContainer>()[2].AsVariable.AsInt, 3);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].As<MutableListContainer>()[0].AsVariable.AsInt, 4);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].As<MutableListContainer>()[1].AsVariable.AsInt, 5);
+			Assert.AreEqual (_value.As<MutableListContainer> () [1].As<MutableListContainer>()[2].AsVariable.AsInt, 6);
 
 		}
 
@@ -510,7 +516,7 @@ namespace BicDB.Utility
 
 		[Test]
 		public void DictionaryToJson(){
-			DictionaryContainer _dict = new DictionaryContainer();
+			MutableDictionaryContainer _dict = new MutableDictionaryContainer();
 			_dict.Add("test", new StringVariable("test"));
 			_dict.Add("key1", new StringVariable("test1"));
 

@@ -14,7 +14,7 @@ namespace BicDB.Container
 		public void CreateStringTest1()
 		{
 
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			string _json = "{\"test1\" : \"test\", \"test2\":\"123a\", \"test3\":\t\"456\"}";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -28,7 +28,7 @@ namespace BicDB.Container
 		public void CreateIntTest()
 		{
 
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			string _json = "{\"test1\" : 123, \"test2\":	456, \"test3\":789, \"test4\":null, \"test5\":true, \"test6\":12.34, \"test7\":false, \"test8\":true  }";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
@@ -47,7 +47,7 @@ namespace BicDB.Container
 		[Test]
 		public void GetSizeTest()
 		{
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			_var.Add("t1", new StringVariable("1"));
 			_var.Add("t2", new StringVariable("3"));
 			_var.Add("t3", new StringVariable("3"));
@@ -58,7 +58,7 @@ namespace BicDB.Container
 		[Test]
 		public void AddTest()
 		{
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			_var.Add("test", new StringVariable("1"));
 
 			Assert.AreEqual(_var["test"].AsVariable.AsString, "1");
@@ -67,7 +67,7 @@ namespace BicDB.Container
 		[Test]
 		public void RemoveAtTest()
 		{
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			_var.Add("key1", new StringVariable("1"));
 			_var.Add("key2", new StringVariable("2"));
 			_var.Add("key3", new StringVariable("3"));
@@ -84,7 +84,7 @@ namespace BicDB.Container
 		[Test]
 		public void ClearTest1()
 		{
-			DictionaryContainer _var = new DictionaryContainer ();
+			MutableDictionaryContainer _var = new MutableDictionaryContainer ();
 			_var.Add("key1", new StringVariable("1"));
 			_var.Add("key2", new StringVariable("2"));
 			_var.Add("key3", new StringVariable("3"));

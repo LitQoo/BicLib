@@ -27,8 +27,8 @@ namespace BicDB
 		#endregion
 
 		#region Header&Property 
-		DictionaryContainer Header { get; }
-		DictionaryContainer Property { get; }
+		MutableDictionaryContainer Header { get; }
+		MutableDictionaryContainer Property { get; }
 		#endregion
 
 		IVariable GetRecordKey(IRecordContainer _record);
@@ -84,21 +84,25 @@ namespace BicDB
 		#endregion
 	}
 
-	public interface IDictionaryContainer : IDataBase, IDictionary<string, IDataBase>
+	public interface IMutableDictionaryContainer : IDictionaryContainer<IDataBase>
 	{
-		#region event
-		Action<string, IDataBase> OnAddedRowActions { get; set; }
-		Action<string, IDataBase> OnRemovedRowActions { get; set;}
-		#endregion
+
+	}
+
+	public interface IDictionaryContainer<T> : IDataBase, IDictionary<string, T> where T : IDataBase{
+		Action<string, T> OnAddedRowActions { get; set; }
+		Action<string, T> OnRemovedRowActions { get; set;}
 	}
 
 
-	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase, new() {
+	public interface IMutableListContainer : IListContainer<IDataBase> {
+
+	}
+
+	public interface IListContainer<T> : IDataBase, IList<T> where T : IDataBase{
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
-
-		//void Add (IDataBase _data);
 	}
 
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{

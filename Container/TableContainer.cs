@@ -28,11 +28,11 @@ namespace BicDB.Container
 			} 
 		}
 
-		public DictionaryContainer header = new DictionaryContainer();
-		public DictionaryContainer Header {get{ return header;}}
+		public MutableDictionaryContainer header = new MutableDictionaryContainer();
+		public MutableDictionaryContainer Header {get{ return header;}}
 
-		private DictionaryContainer property = new DictionaryContainer();
-		public DictionaryContainer Property{get{ return property;}}
+		private MutableDictionaryContainer property = new MutableDictionaryContainer();
+		public MutableDictionaryContainer Property{get{ return property;}}
 
 		public IVariable GetRecordKey(IRecordContainer _record){
 			return new IntVariable(IndexOf(_record as T));

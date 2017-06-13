@@ -7,14 +7,14 @@ using BicDB.Utility;
 
 namespace BicDB.Container
 {
-	public class DictionaryContainer<T> : IDictionaryContainer<T> where T : IDataBase, new()
+	public class MutableDictionaryContainer : IMutableDictionaryContainer
 	{
 
-		private IDictionary<string, T> data = new Dictionary<string, T>();
+		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 
 		#region IDictionaryContainer
-		public Action<string, T> OnAddedRowActions { get; set; }
-		public Action<string, T> OnRemovedRowActions { get; set; }
+		public Action<string, IDataBase> OnAddedRowActions { get; set; }
+		public Action<string, IDataBase> OnRemovedRowActions { get; set; }
 		#endregion
 
 		#region IDataBase
@@ -22,7 +22,7 @@ namespace BicDB.Container
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.BuildDictionaryContainer(this, ref _json, ref _counter);
+			_parser.BuildMutableDictionaryContainer(this, ref _json, ref _counter);
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
@@ -40,9 +40,8 @@ namespace BicDB.Container
 		}
 		#endregion
 
-
 		#region IDictionary
-		public void Add(string _key, T _value)
+		public void Add(string _key, IDataBase _value)
 		{
 			data.Add(_key, _value);
 
@@ -51,11 +50,11 @@ namespace BicDB.Container
 			}
 		}
 
-		public void Add(KeyValuePair<string, T> _item)
+		public void Add(KeyValuePair<string, IDataBase> _item)
 		{
 			Add(_item.Key, _item.Value);
 		}
-
+			
 		public bool ContainsKey(string _key)
 		{
 			return data.ContainsKey(_key);
@@ -75,7 +74,7 @@ namespace BicDB.Container
 			return data.Remove(_key);
 		}
 
-		public bool Remove(KeyValuePair<string, T> _item)
+		public bool Remove(KeyValuePair<string, IDataBase> _item)
 		{
 			return Remove(_item.Key);
 		}
@@ -91,21 +90,21 @@ namespace BicDB.Container
 			data.Clear();
 		}
 
-		public bool TryGetValue(string _key, out T _value)
+		public bool TryGetValue(string _key, out IDataBase _value)
 		{
 			return data.TryGetValue(_key, out _value);
 		}
 
-		public bool Contains(KeyValuePair<string, T> _item)
+		public bool Contains(KeyValuePair<string, IDataBase> _item)
 		{
 			return data.Contains(_item);
 		}
 
-		public void CopyTo(KeyValuePair<string, T>[] _array, int _arrayIndex){
+		public void CopyTo(KeyValuePair<string, IDataBase>[] _array, int _arrayIndex){
 			data.CopyTo(_array, _arrayIndex);
 		} 
 
-		public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
+		public IEnumerator<KeyValuePair<string, IDataBase>> GetEnumerator()
 		{
 			return data.GetEnumerator();
 		}
@@ -115,7 +114,7 @@ namespace BicDB.Container
 			return data.GetEnumerator();
 		}
 
-		public T this[string _key] {
+		public IDataBase this[string _key] {
 			get {
 				return data[_key];
 			}
@@ -130,7 +129,7 @@ namespace BicDB.Container
 			}
 		}
 
-		public ICollection<T> Values {
+		public ICollection<IDataBase> Values {
 			get {
 				return data.Values;
 			}

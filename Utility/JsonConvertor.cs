@@ -33,7 +33,7 @@ namespace BicDB.Utility
 			return _result;
 		}
 
-		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
+		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			_json += "{";
 
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
@@ -66,7 +66,7 @@ namespace BicDB.Utility
 			_json += "]}";
 		}
 
-		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
+		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			_json += "{";
 
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
@@ -101,7 +101,7 @@ namespace BicDB.Utility
 			_json += "}}";
 		}
 
-		public void BuildFormattedString<T>(IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
+		public void BuildFormattedString(IMutableListContainer _list, ref string _json){
 			_json += "[";
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
@@ -113,8 +113,22 @@ namespace BicDB.Utility
 			}
 			_json += "]";
 		}
-			
-		public void BuildFormattedString(IDictionaryContainer _dictionary, ref string _json){
+
+
+		public void BuildFormattedString<T> (IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
+			_json += "[";
+			int _size = _list.Count;
+			for (int i = 0; i < _size; i++) {
+				BuildFormattedString(_list[i], ref _json);
+
+				if (i != _size - 1) {
+					_json += ",";
+				}
+			}
+			_json += "]";
+		}
+
+		public void BuildFormattedString(IMutableDictionaryContainer _dictionary, ref string _json){
 			var _keys = _dictionary.Keys.ToArray();
 			_json += "{";
 
@@ -164,7 +178,7 @@ namespace BicDB.Utility
 
 		#region StringParser
 
-		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IDictionaryContainer _option = null) where T : IRecordContainer, new(){
+		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -235,7 +249,7 @@ namespace BicDB.Utility
 
 		}
 
-		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IDictionaryContainer _option = null) where T : IRecordContainer, new(){
+		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -313,10 +327,10 @@ namespace BicDB.Utility
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				var _result = BuildListContainer (ref _json, ref _counter);
+				var _result = BuildMutableListContainer (ref _json, ref _counter);
 				return _result;
 			} else if (_json[_counter] == '{') {
-				DictionaryContainer _result = new DictionaryContainer();
+				MutableDictionaryContainer _result = new MutableDictionaryContainer();
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == 'n'){
@@ -356,6 +370,32 @@ namespace BicDB.Utility
 		}
 
 
+		public IDataBase BuildMutableListContainer(ref string _json, ref int _counter){
+			int _startCounter = _counter;
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
+				throw new SystemException("BuildListContainer fail find [");
+			}
+
+			_counter++;
+
+
+			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
+				throw new SystemException("not found value");
+			}
+
+			if (_json [_counter] == ']') {
+				return new MutableListContainer ();
+			}
+
+			char _checkString = _json [_counter];
+			_counter = _startCounter;
+
+			var _result = new MutableListContainer ();
+			BuildMutableListContainer (_result, ref _json, ref _counter);
+			return _result;
+		}
+
+
 		public IDataBase BuildListContainer(ref string _json, ref int _counter){
 			int _startCounter = _counter;
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
@@ -370,22 +410,25 @@ namespace BicDB.Utility
 			}
 
 			if (_json [_counter] == ']') {
-				return new ListContainer<IntVariable> ();
+				return new MutableListContainer ();
 			}
 
 			char _checkString = _json [_counter];
 			_counter = _startCounter;
+
 
 			if (_checkString == '"') {
 				var _result = new ListContainer<StringVariable> ();
 				BuildListContainer (_result, ref _json, ref _counter);
 				return _result;
 			} else if (_checkString == '[') {
-				_counter++;
 
-				throw new NotImplementedException ("not implemented list in list");
+				var _result = new ListContainer<MutableListContainer> ();
+				BuildListContainer (_result, ref _json, ref _counter);
+				return _result;
+
 			} else if (_checkString == '{') {
-				var _result = new ListContainer<DictionaryContainer> ();
+				var _result = new ListContainer<MutableDictionaryContainer> ();
 				BuildListContainer (_result, ref _json, ref _counter);
 				return _result;
 			} else if (_checkString == 'n') {
@@ -407,8 +450,12 @@ namespace BicDB.Utility
 				}
 			}
 		}
-
-		public void BuildListContainer<T>(IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new(){
+//
+//		private DataType getDataType(ref string _json, int _counter){
+//			return DataType.Int;
+//		}
+//
+		public void BuildMutableListContainer(IMutableListContainer _list, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
@@ -416,12 +463,38 @@ namespace BicDB.Utility
 			_counter++;
 
 			while (_counter < _json.Length) {
+				_list.Add (BuildVariable (ref _json, ref _counter));
+					
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
+					_counter++;
+					break;
+				} else {
+					if (_json[_counter] == ',') {
+					} else if (_json[_counter] == ']') {
+						_counter++;
+						return;
+					} else {
+						throw new SystemException("JsonToList error");
+					}
+				}
+
+				_counter++;
+			}
+		}
+
+		public void BuildListContainer<T> (IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new()
+		{
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
+				throw new SystemException("fail find [");
+			}
+
+			_counter++;
+
+			while (_counter < _json.Length) {
 				var _value = new T();
 				_value.BuildVariable (ref _json, ref _counter, this);
 				_list.Add(_value);
-				string _f = "";
-				_value.BuildFormattedString (ref _f, this);
-					
+
 
 				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
 					_counter++;
@@ -440,7 +513,45 @@ namespace BicDB.Utility
 			}
 		}
 
-		public void BuildDictionaryContainer(IDictionaryContainer _dictionary, ref string _json, ref int _counter){
+		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				throw new SystemException("fail find { at ");
+			}
+
+			_counter++;
+
+			if (_json[_counter] == '}') {
+				_counter++;
+				return;
+			}
+
+			while(_counter < _json.Length){
+				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
+
+				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
+				_counter++;
+
+
+				if (_dictionary.ContainsKey(_fieldName)) {
+					_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
+				} else {
+					var _value = new T ();
+					_value.BuildVariable (ref _json, ref _counter, this);
+					_dictionary.Add(_fieldName, _value);
+				}
+
+
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
+					_counter++;
+					break;
+				}
+
+				_counter++;
+
+			}
+		}
+
+		public void BuildMutableDictionaryContainer(IMutableDictionaryContainer _dictionary, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find { at ");
 			}
