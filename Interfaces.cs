@@ -44,7 +44,9 @@ namespace BicDB
 		Dictionary,
 		Record,
 		Table,
-		DataStore
+		DataStore,
+		Object,
+		None
 	}
 
 
