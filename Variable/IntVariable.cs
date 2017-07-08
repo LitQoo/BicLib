@@ -6,7 +6,7 @@ namespace BicDB.Variable
 {
 	public class IntVariable : VariableBase, IVariable{
 		#region AsValue
-		protected int data;
+		virtual protected int data { get; set;}
 		public int AsInt{ get{ return data; } set{ data = value; NotifyChanged ();} }
 
 		public string AsString{ 

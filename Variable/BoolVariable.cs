@@ -8,7 +8,7 @@ namespace BicDB.Variable
 {
 	public class BoolVariable : VariableBase, IVariable{
 		#region AsValue
-		private bool data;
+		virtual protected bool data { get; set; }
 		public int AsInt{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }
 		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{ AsBool = bool.Parse (value);} }
 		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{ AsBool = value == 0 ? false : true;} }

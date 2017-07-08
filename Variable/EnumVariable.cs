@@ -10,7 +10,7 @@ namespace BicDB.Variable
 
 
 		#region AsValue
-		protected T data;
+		virtual protected T data { get; set; }
 		public int AsInt{ get{ return (int)Enum.ToObject(typeof(T), data); } set{ data = (T)Enum.ToObject(typeof(T), value); NotifyChanged ();} }
 		public string AsString{ get{ return data.ToString (); } set{ AsInt = (int)Enum.Parse(typeof(T), value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }

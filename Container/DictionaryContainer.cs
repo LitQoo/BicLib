@@ -1,6 +1,5 @@
 ﻿using System;
 using BicDB;
-using System.Security.Cryptography;
 using System.Linq;
 using System.Collections.Generic;
 using BicDB.Utility;

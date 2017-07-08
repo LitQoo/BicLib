@@ -11,7 +11,15 @@ using System.Collections;
 namespace BicDB.Container
 {
 	public class ListContainer<T> : IListContainer<T> where T : IDataBase, new(){
-		private IList<T> data = new List<T>();
+		private IList<T> originData = new List<T>();
+		virtual protected IList<T> data {
+			get{ 
+				return originData;
+			}
+			set{ 
+				originData = value;
+			}
+		}
 
 		#region IListContainer
 		public event Action<T> OnAddedValueActions = delegate{};
@@ -122,7 +130,6 @@ namespace BicDB.Container
 
 		public ListContainer() : base(){
 			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
-
 		}
 
 	}

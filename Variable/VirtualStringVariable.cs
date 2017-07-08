@@ -4,51 +4,24 @@ using BicDB.Utility;
 
 namespace BicDB.Variable
 {
-	public class VirtualStringVariable : VariableBase, IVariable
+	public class VirtualStringVariable : StringVariable
 	{
-		#region AsValue
-		private Func<string> data;
-		public string AsString{ get{ return data(); } set{ throwSetException (); } }
-		public int AsInt{ get{ return Int32.Parse(AsString); } set{ throwSetException ();} }
-		public float AsFloat{ get{ return  (float)Double.Parse(AsString); } set{ throwSetException ();} }
-		public bool AsBool{ get{ return AsString.ToLower() == "true" ? true : false; } set{ throwSetException ();} }
-		public DataType Type { get { return DataType.String; }}
-		#endregion
+		override protected string data {
+			get { 
+				return getter ();
+			}
 
-		#region LifeCycle
-		public VirtualStringVariable() : base(){
+			set { 
+				setter (value);
+			}
 		}
 
-		public VirtualStringVariable(Func<string> _func) : base(){
-			data = _func;
-		}
-		#endregion
+		private Func<string> getter;
+		private Action<string> setter;
 
-		#region IDataBase
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
-			throwSetException ();
+		public VirtualStringVariable(Func<string> _getter, Action<string> _setter = null) : base(){
+			getter = _getter;
+			setter = _setter;
 		}
-
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
-		}
-
-		public IVariable AsVariable{ 
-			get{ 
-				return this;	
-			} 
-		}
-
-		public D As<D>() where D : class, IDataBase{
-			return this as D;
-		}
-		#endregion
-
-		#region Logic
-		private void throwSetException(){
-			throw new SystemException ("this variable not support to write");
-		}
-		#endregion
 	}
 }

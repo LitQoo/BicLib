@@ -70,7 +70,7 @@ namespace BicDB.Variable
 		{
 
 			VirtualStringVariable _var = new VirtualStringVariable (()=>"True");
-			Assert.AreEqual(_var.AsBool, true);
+			Assert.AreEqual (_var.AsBool, true);
 		}
 
 

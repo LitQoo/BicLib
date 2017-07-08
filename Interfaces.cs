@@ -143,4 +143,5 @@ namespace BicDB
 		float AsFloat{ get; set; }
 		bool AsBool{ get; set; }
 	}
+
 }

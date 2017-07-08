@@ -6,7 +6,7 @@ namespace BicDB.Variable
 {
 	public class FloatVariable : VariableBase, IVariable {
 		#region AsValue
-		private float data;
+		protected virtual float data{ get; set;}
 		public int AsInt{ get{ return (int)AsFloat; } set{ AsFloat = value; } }
 		public string AsString{ get{ return AsFloat.ToString (); } set{ AsFloat = parse (value);} }
 		public float AsFloat{ get{ return data; } set{ data = value; NotifyChanged ();} }

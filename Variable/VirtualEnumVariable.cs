@@ -4,51 +4,24 @@ using BicDB.Utility;
 
 namespace BicDB.Variable
 {
-	public class VirtualEnumVariable<T> : VariableBase, IVariable where  T : struct
+	public class VirtualEnumVariable<T> : EnumVariable<T> where  T : struct
 	{
-		#region AsValue
-		private Func<T> data;
-		public int AsInt{ get{ return (int)Enum.ToObject(typeof(T), data()); } set{ throwSetException(); } }
-		public string AsString{ get{ return data().ToString (); } set{ throwSetException(); } }
-		public float AsFloat{ get{ return (float)AsInt; } set{ throwSetException(); } }
-		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ throwSetException(); } }
-		public DataType Type { get { return DataType.Int; }}
-		#endregion
+		override protected T data {
+			get { 
+				return getter ();
+			}
 
-		#region IDataBase
-		public VirtualEnumVariable() : base(){
+			set { 
+				setter (value);
+			}
 		}
 
-		public VirtualEnumVariable(Func<T> _func) : base(){
-			data = _func;
-		}
-		#endregion
+		private Func<T> getter;
+		private Action<T> setter;
 
-		#region IDataBase
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
-			throwSetException ();
+		public VirtualEnumVariable(Func<T> _getter, Action<T> _setter = null) : base(){
+			getter = _getter;
+			setter = _setter;
 		}
-
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
-		}
-
-		public IVariable AsVariable{ 
-			get{ 
-				return this;	
-			} 
-		}
-
-		public D As<D>() where D : class, IDataBase{
-			return this as D;
-		}
-		#endregion
-
-		#region Logic
-		private void throwSetException(){
-			throw new SystemException ("this variable not support to write");
-		}
-		#endregion
 	}
 }

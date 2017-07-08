@@ -4,52 +4,25 @@ using BicDB.Utility;
 
 namespace BicDB.Variable
 {
-	public class VirtualBoolVariable : VariableBase, IVariable
+	public class VirtualBoolVariable : BoolVariable
 	{
-		#region AsValue
-		private Func<bool> data;
-		public int AsInt{ get{ return AsBool ? 1 : 0; } set{throwSetException ();} }
-		public string AsString{ get{ return AsBool.ToString().ToLower(); } set{throwSetException ();} }
-		public float AsFloat{ get{ return AsBool ? 1 : 0; } set{throwSetException ();} }
-		public bool AsBool{ get{ return data(); } set{throwSetException ();} }
-		public DataType Type { get { return DataType.Bool; }}
-		#endregion
+		override protected bool data {
+			get { 
+				return getter ();
+			}
 
-		#region LifeCycle
-		public VirtualBoolVariable() : base(){
+			set { 
+				setter (value);
+			}
 		}
 
-		public VirtualBoolVariable(Func<bool> _func) : base(){
-			data = _func;
-		}
-		#endregion
+		private Func<bool> getter;
+		private Action<bool> setter;
 
-		#region IDataBase
-		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
-		{
-			throwSetException ();
+		public VirtualBoolVariable(Func<bool> _getter, Action<bool> _setter = null) : base(){
+			getter = _getter;
+			setter = _setter;
 		}
-
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
-		}
-
-		public IVariable AsVariable{ 
-			get{ 
-				return this;	
-			} 
-		}
-
-		public D As<D>() where D : class, IDataBase{
-			return this as D;
-		}
-		#endregion
-
-		#region Logic
-		private void throwSetException(){
-			throw new SystemException ("this variable not support to write");
-		}
-		#endregion
 
 	}
 }

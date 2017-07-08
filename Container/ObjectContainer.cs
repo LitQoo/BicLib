@@ -8,10 +8,14 @@ namespace BicDB.Container
 	public class ObjectContainer<T> : IObjectContainer<T>
 	{
 		#region Member
-		private T data;
+		virtual protected T data{ get; set;}
 		#endregion
 
 		#region LifeCycle
+		public ObjectContainer(){
+		
+		}
+
 		public ObjectContainer(T _object){
 			data = _object;
 		}
