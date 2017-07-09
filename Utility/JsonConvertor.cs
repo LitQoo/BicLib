@@ -143,7 +143,23 @@ namespace BicDB.Utility
 
 			_json += "}";
 		}
-	
+
+		public void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new(){
+			var _keys = _dictionary.Keys.ToArray();
+			_json += "{";
+
+			for (int i = 0; i < _keys.Length; i++) {
+				_json += "\"" + _keys[i] + "\":";
+				_dictionary[_keys[i]].BuildFormattedString(ref _json, this);
+
+				if (i != _keys.Length - 1) {
+					_json += ",";
+				}
+			}
+
+			_json += "}";
+		}
+
 		public void BuildFormattedString(IRecordContainer _model, ref string _json){
 			_json += "{";
 			var _columnKeys = _model.Keys.ToArray();

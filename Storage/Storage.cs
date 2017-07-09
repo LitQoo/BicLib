@@ -42,6 +42,7 @@ namespace BicDB
 		void BuildFormattedString(IMutableListContainer _list, ref string _json);
 		void BuildFormattedString<T> (IListContainer<T> _list, ref string _json) where T : IDataBase, new();
 		void BuildFormattedString(IMutableDictionaryContainer _dictionary, ref string _json);
+		void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();
 		void BuildFormattedString(IRecordContainer _model, ref string _json);
 		void BuildFormattedString(IVariable _variable, ref string _json);
 		void BuildFormattedString(IDataBase _variable, ref string _json);
