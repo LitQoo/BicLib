@@ -56,6 +56,12 @@ namespace BicDB.Container
 		public D As<D>() where D : class, IDataBase{
 			return this as D;
 		}
+
+		public override string ToString(){
+			string _result = string.Empty;
+			BuildFormattedString (ref _result, JsonConvertor.GetInstance ());
+			return _result;
+		}
 		#endregion
 
 		#region IDictionary
@@ -147,6 +153,7 @@ namespace BicDB.Container
 		}
 
 		public void CopyBy(IRecordContainer _model){
+
 			foreach (var _item in _model) {
 				if (data.ContainsKey(_item.Key)) {
 
