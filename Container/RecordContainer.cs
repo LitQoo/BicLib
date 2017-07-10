@@ -149,11 +149,11 @@ namespace BicDB.Container
 		public void CopyBy(IRecordContainer _model){
 			foreach (var _item in _model) {
 				if (data.ContainsKey(_item.Key)) {
-					if ((data[_item.Key] as IVariable) == null || (_item.Value as IVariable) == null) {
-						data[_item.Key] = _item.Value;
-					} else if (!VariableUtil.IsEqual((data[_item.Key] as IVariable), (_item.Value as IVariable))) {
-						(data[_item.Key] as IVariable).AsString = (_item.Value as IVariable).AsString;
-					} 
+
+					string _json = "";
+					int _counter = 0;
+					_model.BuildFormattedString (ref _json, JsonConvertor.GetInstance ());
+					this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 				} else {
 					data.Add(_item.Key, _item.Value);
 				}
