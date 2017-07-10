@@ -60,6 +60,10 @@ namespace BicDB
 		public bool IsEqual(IVariable _variable){
 			return VariableUtil.IsEqual(this as IVariable, _variable);
 		}
+
+		public void RemoveAllOnChangedValueActions(){
+			OnChangedValueActions = delegate{};
+		}
 	}
 
 	public class Result{
@@ -137,6 +141,7 @@ namespace BicDB
 
 		void NotifyChanged(string _message = "");
 		bool IsEqual(IVariable _variable);
+		void RemoveAllOnChangedValueActions ();
 
 		int AsInt{ get; set; }
 		string AsString{ get; set; }

@@ -99,9 +99,8 @@ namespace BicDB.Container
 
 			_model.CopyBy(_model2);
 
-			Assert.AreEqual(_model["key1"].As<IListContainer<IntVariable>>()[0].AsInt, 33);
-			Assert.AreEqual((_model["key2"] as IListContainer<IntVariable>)[0].AsInt, 22);
-			Assert.AreEqual((_model["key3"] as IListContainer<IntVariable>)[0].AsInt, 44);
+			Assert.AreEqual(_model["key1"].As<IListContainer<IntVariable>>()[0].AsInt, 11);
+			Assert.AreEqual(_model["key2"].As<IListContainer<IntVariable>>()[0].AsInt, 22);
 		}
 	}
 }

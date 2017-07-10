@@ -149,5 +149,20 @@ namespace BicDB.Variable
 
 			Assert.Pass();
 		}
+
+		[Test]
+		public void RemoveAllOnChangedValueTest(){
+			BoolVariable _var = new BoolVariable (false);
+
+			_var.OnChangedValueActions += (IVariable _changer, string _message) => {
+				Assert.Fail();
+			};
+
+			_var.RemoveAllOnChangedValueActions ();
+
+			_var.AsBool = true;
+
+			Assert.Pass();
+		}
 	}
 }
