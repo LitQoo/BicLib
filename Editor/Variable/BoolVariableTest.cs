@@ -158,7 +158,7 @@ namespace BicDB.Variable
 				Assert.Fail();
 			};
 
-			_var.RemoveAllOnChangedValueActions ();
+			_var.ClearOnChangedValueActions ();
 
 			_var.AsBool = true;
 

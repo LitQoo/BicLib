@@ -34,6 +34,10 @@ namespace BicDB.Container
 
 			return (data[_key] as T);
 		}
+
+		public void ClearOnChangedValueActions(){
+			OnChangedValueActions = delegate{};
+		}
 		#endregion
 
 		#region IDataBase

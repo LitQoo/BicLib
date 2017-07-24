@@ -61,7 +61,7 @@ namespace BicDB
 			return VariableUtil.IsEqual(this as IVariable, _variable);
 		}
 
-		public void RemoveAllOnChangedValueActions(){
+		public void ClearOnChangedValueActions(){
 			OnChangedValueActions = delegate{};
 		}
 	}
@@ -118,6 +118,7 @@ namespace BicDB
 
 		void AddManagedColumn(string _key, IDataBase _value);
 		void CopyBy(IRecordContainer _model);
+		void ClearOnChangedValueActions();
 	}
 
 	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
@@ -141,7 +142,7 @@ namespace BicDB
 
 		void NotifyChanged(string _message = "");
 		bool IsEqual(IVariable _variable);
-		void RemoveAllOnChangedValueActions ();
+		void ClearOnChangedValueActions ();
 
 		int AsInt{ get; set; }
 		string AsString{ get; set; }
