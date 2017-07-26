@@ -48,6 +48,7 @@ namespace BicDB.Storage{
 			string _data = Read(getFileName(_table.Name));
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;
+
 			if (!string.IsNullOrEmpty(_data)) {
 				try{
 					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
@@ -75,8 +76,10 @@ namespace BicDB.Storage{
 			{
 				FileStream tFile = new FileStream (tPath, FileMode.Open, FileAccess.Read);
 				StreamReader tStream = new StreamReader(tFile);
-				string tStr = null;
-				tStr = tStream.ReadLine ();
+				string tStr = string.Empty;
+				while(!tStream.EndOfStream){
+					tStr += tStream.ReadLine ();
+				}
 				tStream.Close();
 				tFile.Close();
 				return tStr;

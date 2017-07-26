@@ -223,7 +223,6 @@ namespace BicDB.Utility
 
 					while (_counter < _json.Length) {
 
-
 						T _model = new T();
 						_model.BuildVariable(ref _json, ref _counter, this);
 						object _findRow = null;
