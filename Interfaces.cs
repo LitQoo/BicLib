@@ -40,6 +40,7 @@ namespace BicDB
 		Float,
 		String,
 		Bool,
+		Enum,
 		List,
 		Dictionary,
 		Record,

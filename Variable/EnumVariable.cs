@@ -15,7 +15,7 @@ namespace BicDB.Variable
 		public string AsString{ get{ return data.ToString (); } set{ AsInt = (int)Enum.Parse(typeof(T), value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
-		public DataType Type { get { return DataType.Int; }}
+		public DataType Type { get { return DataType.Enum; }}
 		#endregion
 
 		#region LifeCycle

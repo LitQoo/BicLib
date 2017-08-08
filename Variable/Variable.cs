@@ -47,6 +47,14 @@ namespace BicDB.Variable
 	}
 
 	static public class VariableUtil{
+		static public bool IsVariableType(DataType _type){
+			if (_type == DataType.Bool || _type == DataType.Float || _type == DataType.Int || _type == DataType.String) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable, string>[] _callback){
 			if (_member != null) {
 				for (int i = 0; i < _callback.Length; i++) {
@@ -107,6 +115,8 @@ namespace BicDB.Variable
 					case DataType.Float:
 						return Math.Abs(_variable1.AsFloat - _variable2.AsFloat) < 0.00001f;
 					case DataType.Int:
+						return _variable1.AsInt == _variable2.AsInt;
+					case DataType.Enum:
 						return _variable1.AsInt == _variable2.AsInt;
 					case DataType.List:
 						return false;
