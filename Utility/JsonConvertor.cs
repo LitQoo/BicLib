@@ -6,7 +6,6 @@ using System.Linq;
 using BicDB.Variable;
 using System.Collections.Generic;
 using UnityEngine.Assertions;
-using UnityEditor.VersionControl;
 
 namespace BicDB.Utility
 {
