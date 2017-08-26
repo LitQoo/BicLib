@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	public abstract class SkinBase : MonoBehaviour{
 		[SerializeField]

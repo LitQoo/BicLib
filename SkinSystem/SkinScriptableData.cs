@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	[CreateAssetMenu(menuName = "Create SkinData")]
 	public class SkinScriptableData : ScriptableObject {

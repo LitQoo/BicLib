@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	[RequireComponent(typeof(LineRenderer))]
 	public class SkinLineRendererColor : SkinBase {

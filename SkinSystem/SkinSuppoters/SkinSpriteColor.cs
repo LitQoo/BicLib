@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	[RequireComponent(typeof(SpriteRenderer))]
 	public class SkinSpriteColor : SkinBase {

@@ -6,7 +6,7 @@ using BicDB.Variable;
 using System.Linq;
 using System;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	public class SkinController{
 		private string applyedSkinName;

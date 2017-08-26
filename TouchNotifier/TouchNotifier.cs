@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Events;
 
-namespace BicUtil.Components.TouchNotifier
+namespace BicUtil.TouchNotifier
 {
 	public class TouchNotifier : MonoBehaviour {
 		#region Event

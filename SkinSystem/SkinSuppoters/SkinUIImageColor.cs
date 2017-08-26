@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BicUtil.Components.SkinSystem
+namespace BicUtil.SkinSystem
 {
 	[RequireComponent(typeof(UnityEngine.UI.Image))]
 	public class SkinUIImageColor : SkinBase {
