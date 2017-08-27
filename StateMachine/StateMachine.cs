@@ -8,24 +8,37 @@ namespace BicUtil.StateMachine{
 	public class StateMachine<T> where T : struct{
 		public T Current{ get{ return currentState; } }
 		public T Last{ get{ return lastState; } }
+		public int ChainNo { get { return chainNo; } }
+		public Dictionary<string, bool> LastTriggerList = new Dictionary<string, bool>();
 
 		private T currentState;
 		private T lastState;
+		private int chainNo = 0;
 
 		private Dictionary<T, List<Action>> stateCallbacks = new Dictionary<T, List<Action>> ();
-		//private Dictionary<string, bool> waitStat = new Dictionary<string, bool>();
-		private Dictionary<T, Dictionary<string, bool>> waitInfo = new Dictionary<T, Dictionary<string, bool>>();
+
+		// [State][ChainNo][trigger] = triggerValue
+		private Dictionary<T, Dictionary<int, Dictionary<string, bool>>> waitInfo = new Dictionary<T, Dictionary<int, Dictionary<string, bool>>> ();
 
 		public bool Load(T _state){
 
-			if (isComplete(_state) == false) {
+			var _chainNo = isComplete (_state);
+			if (_chainNo == 0) {
 				return false;
 			}
 
-			var _list = stateCallbacks [_state];
+			if (waitInfo.ContainsKey (_state)) {
+				LastTriggerList = waitInfo [_state][_chainNo];
+			} else {
+				LastTriggerList = new Dictionary<string, bool> ();
+			}
+
+			chainNo = _chainNo;
 			waitInfo.Clear ();
 			lastState = currentState;
 			currentState = _state;
+
+			var _list = stateCallbacks [_state];
 			for (int i = 0; i < _list.Count; i++) {
 				_list [i] ();
 			}
@@ -33,31 +46,42 @@ namespace BicUtil.StateMachine{
 			return true;
 		}
 
-		public void Complete(string _tag){
-			foreach (var _item in waitInfo) {
-				var waitStat = _item.Value;
-				if (!waitStat.ContainsKey (_tag)) {
-					
-				} else {
-					waitStat [_tag] = true;
-					if (Load (_item.Key) == true) {
-						return;
+		public void Complete(string _trigger){
+			bool _isFind = false;
+
+			foreach (var _v in waitInfo){
+				foreach (var _item in _v.Value) {
+					var waitStat = _item.Value;
+					if (waitStat.ContainsKey (_trigger)) {
+						waitStat [_trigger] = true;
+						_isFind = true;
+						if (Load (_v.Key) == true) {
+							return;
+						}
 					}
 				}
 			}
+
+			if (_isFind == false) {
+				UnityEngine.Debug.LogWarning (_trigger + " trigger is not registered in any state");
+			}
 		}
 
-		public void WaitAndLoad(string _tag, T _state){
+		public void WaitAndLoad(string _trigger, T _state, int _chainNo = 1){
 			if (!waitInfo.ContainsKey (_state)) {
-				waitInfo [_state] = new Dictionary<string, bool> ();
+				waitInfo [_state] = new Dictionary<int, Dictionary<string, bool>> ();
 			}
 
-			var waitStat = waitInfo [_state];
+			if(!waitInfo[_state].ContainsKey(_chainNo)){
+				waitInfo [_state] [_chainNo] = new Dictionary<string, bool> ();
+			}
 
-			if (waitStat.ContainsKey (_tag)) {
-				throw new SystemException (_tag + " is already added");
+			var _waitStat = waitInfo [_state][_chainNo];
+
+			if (_waitStat.ContainsKey (_trigger)) {
+				throw new SystemException (_trigger + " is already added");
 			} else {
-				waitStat.Add (_tag, false);
+				_waitStat.Add (_trigger, false);
 			}
 		}
 
@@ -65,18 +89,25 @@ namespace BicUtil.StateMachine{
 			waitInfo.Clear ();
 		}
 
-		private bool isComplete(T _state){
-			bool isComplete = true;
+		private int isComplete(T _state){
 
 			if (!waitInfo.ContainsKey (_state)) {
-				return isComplete;
-			}
-				
-			foreach (var _item in waitInfo[_state]) {
-				isComplete = isComplete && _item.Value;
+				return 1;
 			}
 
-			return isComplete;
+			bool isComplete = true;
+			foreach (var _v in waitInfo[_state]) {
+				isComplete = true;
+				foreach (var _item in _v.Value) {
+					isComplete = isComplete && _item.Value;
+				}
+
+				if (isComplete == true) {
+					return _v.Key;
+				}
+			}
+
+			return 0;
 		}
 
 
