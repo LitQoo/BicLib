@@ -43,6 +43,8 @@ namespace BicUtil.TableView
 				return this.GetType().Name; 
 			} 
 		}
+
+		public int CellIndex = -1;
 		#endregion
 
 		#region LifeCycle

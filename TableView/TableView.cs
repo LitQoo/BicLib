@@ -584,7 +584,9 @@ namespace BicUtil.TableView
 
 		public TableCell GetCellForRowInTableView(TableView _tableView, int _row)
 		{
-			return _tableView.CreateTableCell(); // 셀 리턴
+			var _tableCell = _tableView.CreateTableCell(); // 셀 리턴
+			_tableCell.CellIndex = _row;
+			return _tableCell;
 		}
 	}
 
