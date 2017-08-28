@@ -35,7 +35,7 @@ namespace BicUtil.TableView
 				return _table.Count;
 			};
 
-			dataSource = new TableDataSourceAuto();
+			DataSource = new TableDataSourceAuto();
 		}
 
         [System.Serializable]
@@ -265,7 +265,7 @@ namespace BicUtil.TableView
 		private bool m_isVertical;
 		private float m_rowHeight;
 
-		private ITableViewDataSource dataSource
+		public ITableViewDataSource DataSource
 		{
 			get { return m_dataSource; }
 			set { m_dataSource = value; m_requiresReload = true; }
@@ -336,8 +336,6 @@ namespace BicUtil.TableView
             m_reusableCellContainer.SetParent(this.transform, false);
             m_reusableCellContainer.gameObject.SetActive(false);
             m_reusableCells = new Dictionary<string, LinkedList<TableCell>>();
-
-
         }
         
         void Update()
