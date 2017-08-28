@@ -10,8 +10,11 @@ namespace BicUtil.SkinSystem
 {
 	public class SkinController{
 		private string applyedSkinName;
-		public SkinConfig Config { get; private set; }
 		private List<SkinBase> SkinObjetList = new List<SkinBase> ();
+
+		public SkinConfig Config { get; private set; }
+		public event Action OnChangedSkin;
+
 		public void Init(SkinConfig _config){
 			Config = _config;
 			Load (Config.SkinName);
@@ -29,6 +32,10 @@ namespace BicUtil.SkinSystem
 
 			for (int i = 0; i < SkinObjetList.Count; i++) {
 				SkinObjetList [i].ApplySkinAndSaveLastConfig (Config);
+			}
+
+			if (OnChangedSkin != null) {
+				OnChangedSkin ();
 			}
 		}
 
