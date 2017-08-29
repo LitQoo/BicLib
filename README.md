@@ -17,6 +17,7 @@ BicDB를 유니티 프로젝트 Asset폴더내 적절한 곳에 submoudle 형태
 
 *Variable
 **IntVariable
+{
 // 1로 초기화된 객체 생성
 IVariable _variable = new IntVariable(1);
 // int 형태로 출력
@@ -31,10 +32,10 @@ _variable.OnChangedValue += (IVariable _variable, string _message)=>{
 
 //아래 처럼 값을 변경하면 OnChangedValue에 등록한 함수가 실행됩니다.
 _variable.AsInt = 10;
-
+}
 **Container
 **TableContainer & RecordContainer
-
+{
 class Character : RecordContainer
 {
     StringVariable Name = new StringVariable();
@@ -62,7 +63,7 @@ characterTable.Load(_result=>{
     }
 }, new LocalStorageParameter("filename"));
 
------ 로드 완료된 후 ----
+//----- 로드 완료된 후 ----
 
 //0번째 캐릭터 값 변경
 characterTable[0].Name.AsString = "Jhon";
@@ -77,7 +78,7 @@ Character _findCharacter = characterTable.FirstOrDefault(_row=>_row.Name.AsStrin
 
 //로컬에 데이터 저장
 characterTable.Save(_result=>{
- ...
+ //...
 });
-
+}
 
