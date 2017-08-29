@@ -17,68 +17,65 @@ BicDB를 유니티 프로젝트 Asset폴더내 적절한 곳에 submoudle 형태
 
 *Variable
 **IntVariable
-{
-// 1로 초기화된 객체 생성
-IVariable _variable = new IntVariable(1);
-// int 형태로 출력
-int _value1 = _variable.AsInt;
-// string 형태로 출력
-string _value2 = _variable.AsString
+    // 1로 초기화된 객체 생성
+    IVariable _variable = new IntVariable(1);
+    // int 형태로 출력
+    int _value1 = _variable.AsInt;
+    // string 형태로 출력
+    string _value2 = _variable.AsString
 
-//값 변경시 통지 받음
-_variable.OnChangedValue += (IVariable _variable, string _message)=>{
-	Debug.Log("값이 변경되었습니다. " + _variable.AsString);
-}
+    //값 변경시 통지 받음
+    _variable.OnChangedValue += (IVariable _variable, string _message)=>{
+        Debug.Log("값이 변경되었습니다. " + _variable.AsString);
+    }
 
-//아래 처럼 값을 변경하면 OnChangedValue에 등록한 함수가 실행됩니다.
-_variable.AsInt = 10;
-}
+    //아래 처럼 값을 변경하면 OnChangedValue에 등록한 함수가 실행됩니다.
+    _variable.AsInt = 10;
 **Container
 **TableContainer & RecordContainer
-{
-class Character : RecordContainer
-{
-    StringVariable Name = new StringVariable();
-    IntVariable Health = new IntVariable();
-    FloatVariable Speed = new FloatVariable();
-    
-    public Caracter(){
-        AddManagedColumn("Name", Name);
-        AddManagedColumn("Health", Health);
-        AddManagedColumn("Speed", Speed);
+    class Character : RecordContainer
+    {
+        StringVariable Name = new StringVariable();
+        IntVariable Health = new IntVariable();
+        FloatVariable Speed = new FloatVariable();
+
+        public Caracter(){
+            AddManagedColumn("Name", Name);
+            AddManagedColumn("Health", Health);
+            AddManagedColumn("Speed", Speed);
+        }
     }
-}
 
 
-//새로운 테이블 추가
-ITableContainer<Character> characterTable = new TableContainer<Character>("characterTable");
+    //새로운 테이블 추가
+    ITableContainer<Character> characterTable = new TableContainer<Character>("characterTable");
 
-//스토리지 로컬 저장소로 세팅
-characterTable.SetStroage(LocalStorage.GetInstance());
+    //스토리지 로컬 저장소로 세팅
+    characterTable.SetStroage(LocalStorage.GetInstance());
 
-//로컬에 저장된 데이터 로드
-characterTable.Load(_result=>{
-    if(_result == LocalStorageResult.Success){
-        //성공
+    //로컬에 저장된 데이터 로드
+    characterTable.Load(_result=>{
+        if(_result == LocalStorageResult.Success){
+            //성공
+        }
+    }, new LocalStorageParameter("filename"));
+
+    //----- 로드 완료된 후 ----
+
+    //0번째 캐릭터 값 변경
+    characterTable[0].Name.AsString = "Jhon";
+    characterTable[0].Health.AsInt = 100;
+    characterTable[0].Speed.Asfloat = 10f;
+
+    //새로운 캐릭터 추가
+    characterTable.Add(new Character());
+
+    //Linq를 이용하여 테이블내에 이름으로 캐릭터찾기
+    Character _findCharacter = characterTable.FirstOrDefault(_row=>_row.Name.AsString == "Jhon"); 
+
+    //로컬에 데이터 저장
+    characterTable.Save(_result=>{
+     //...
+    });
     }
-}, new LocalStorageParameter("filename"));
-
-//----- 로드 완료된 후 ----
-
-//0번째 캐릭터 값 변경
-characterTable[0].Name.AsString = "Jhon";
-characterTable[0].Health.AsInt = 100;
-characterTable[0].Speed.Asfloat = 10f;
-
-//새로운 캐릭터 추가
-characterTable.Add(new Character());
-
-//Linq를 이용하여 테이블내에 이름으로 캐릭터찾기
-Character _findCharacter = characterTable.FirstOrDefault(_row=>_row.Name.AsString == "Jhon"); 
-
-//로컬에 데이터 저장
-characterTable.Save(_result=>{
- //...
-});
-}
 
