@@ -111,12 +111,16 @@ namespace BicUtil.StateMachine{
 		}
 
 
-		public void SetOnChangedStateTo(T _state, Action _callback){
+		public void SetOnChangedStateTo(T _state, Action _callback, int _insertPosition = -1){
 			if(!stateCallbacks.ContainsKey(_state)){
 				stateCallbacks[_state] = new List<Action>();
 			}
 
-			stateCallbacks [_state].Add (_callback);
+			if (_insertPosition == -1) {
+				stateCallbacks [_state].Add (_callback);
+			} else {
+				stateCallbacks [_state].Insert (_insertPosition, _callback);
+			}
 		}
 	}
 
