@@ -13,8 +13,8 @@ namespace BicUtil.SkinSystem
 		static private Dictionary<string, SkinController> skinControllers = new Dictionary<string, SkinController>();
 
 		static public SkinController Get(string _groupName){
-			if(!skinControllers.ContainsKey(_groupName)){
-				skinControllers[_groupName] = new SkinController();	
+			if (skinControllers.ContainsKey (_groupName) == false) {
+				throw new SystemException ("Need Config at SkinManager.SkinConfigList, groupName: " + _groupName);
 			}
 
 			return skinControllers[_groupName];
@@ -27,6 +27,7 @@ namespace BicUtil.SkinSystem
 		private void Awake(){
 			for (int i = 0; i < SkinConfigList.Count; i++) {
 				var _skinConfig = SkinConfigList [i];
+				skinControllers[_skinConfig.GroupName] = new SkinController();	
 				Get (_skinConfig.GroupName).Init (_skinConfig);
 			}
 		}
