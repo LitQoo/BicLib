@@ -9,11 +9,12 @@ namespace BicUtil.TouchNotifier
 	public class TouchNotifier : MonoBehaviour {
 		#region Event
 		[System.Serializable]
-		public class TouchEvent : UnityEvent <Vector2> {}
+		public class TouchEvent : UnityEvent<Vector2> {}
 
 		public TouchEvent OnTouchDown;
 		public TouchEvent OnTouchMove;
 		public TouchEvent OnTouchUp;
+		public TouchEvent OnTouchBackKey;
 
 		private bool isTouchIn = false;
 
@@ -44,6 +45,13 @@ namespace BicUtil.TouchNotifier
 					} else if(isTouchIn == true){
 						OnTouchMove.Invoke (Camera.main.ScreenToWorldPoint (Input.mousePosition));
 					}
+				}
+			}
+
+			if(Application.platform == RuntimePlatform.Android){
+				if(Input.GetKey(KeyCode.Escape))
+				{
+					OnTouchBackKey.Invoke(Vector2.zero);
 				}
 			}
 			#endif
