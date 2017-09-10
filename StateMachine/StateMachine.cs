@@ -8,32 +8,32 @@ namespace BicUtil.StateMachine{
 	public class StateMachine<T> where T : struct{
 		public T Current{ get{ return currentState; } }
 		public T Last{ get{ return lastState; } }
-		public int ChainNo { get { return chainNo; } }
+		public string ChainName { get { return chainName; } }
 		public Dictionary<string, bool> LastTriggerList = new Dictionary<string, bool>();
 
 		private T currentState;
 		private T lastState;
-		private int chainNo = 0;
+		private string chainName = "none";
 
 		private Dictionary<T, List<Action>> stateCallbacks = new Dictionary<T, List<Action>> ();
 
-		// [State][ChainNo][trigger] = triggerValue
-		private Dictionary<T, Dictionary<int, Dictionary<string, bool>>> waitInfo = new Dictionary<T, Dictionary<int, Dictionary<string, bool>>> ();
+		// [State][ChainName][trigger] = triggerValue
+		private Dictionary<T, Dictionary<string, Dictionary<string, bool>>> waitInfo = new Dictionary<T, Dictionary<string, Dictionary<string, bool>>> ();
 
 		public bool Load(T _state){
 
-			var _chainNo = isComplete (_state);
-			if (_chainNo == 0) {
+			var _chainName = isComplete (_state);
+			if (_chainName == "none") {
 				return false;
 			}
 
 			if (waitInfo.ContainsKey (_state)) {
-				LastTriggerList = waitInfo [_state][_chainNo];
+				LastTriggerList = waitInfo [_state][_chainName];
 			} else {
 				LastTriggerList = new Dictionary<string, bool> ();
 			}
 
-			chainNo = _chainNo;
+			chainName = _chainName;
 			waitInfo.Clear ();
 			lastState = currentState;
 			currentState = _state;
@@ -67,16 +67,16 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
-		public void WaitAndLoad(string _trigger, T _state, int _chainNo = 1){
+		public void WaitAndLoad(string _trigger, T _state, string _chainName = "default"){
 			if (!waitInfo.ContainsKey (_state)) {
-				waitInfo [_state] = new Dictionary<int, Dictionary<string, bool>> ();
+				waitInfo [_state] = new Dictionary<string, Dictionary<string, bool>> ();
 			}
 
-			if(!waitInfo[_state].ContainsKey(_chainNo)){
-				waitInfo [_state] [_chainNo] = new Dictionary<string, bool> ();
+			if(!waitInfo[_state].ContainsKey(_chainName)){
+				waitInfo [_state] [_chainName] = new Dictionary<string, bool> ();
 			}
 
-			var _waitStat = waitInfo [_state][_chainNo];
+			var _waitStat = waitInfo [_state][_chainName];
 
 			if (_waitStat.ContainsKey (_trigger)) {
 				throw new SystemException (_trigger + " is already added");
@@ -89,10 +89,10 @@ namespace BicUtil.StateMachine{
 			waitInfo.Clear ();
 		}
 
-		private int isComplete(T _state){
+		private string isComplete(T _state){
 
 			if (!waitInfo.ContainsKey (_state)) {
-				return 1;
+				return "default";
 			}
 
 			bool isComplete = true;
@@ -107,7 +107,7 @@ namespace BicUtil.StateMachine{
 				}
 			}
 
-			return 0;
+			return "none";
 		}
 
 
