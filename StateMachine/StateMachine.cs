@@ -6,34 +6,37 @@ using System;
 
 namespace BicUtil.StateMachine{
 	public class StateMachine<T> where T : struct{
+		private static readonly string FlowNameDefault = "__default__";
+		private static readonly string FlowNameNone = "__none__";
+
 		public T Current{ get{ return currentState; } }
 		public T Last{ get{ return lastState; } }
-		public string ChainName { get { return chainName; } }
+		public string FlowName { get { return flowName; } }
 		public Dictionary<string, bool> LastTriggerList = new Dictionary<string, bool>();
 
 		private T currentState;
 		private T lastState;
-		private string chainName = "none";
+		private string flowName = FlowNameNone;
 
 		private Dictionary<T, List<Action>> stateCallbacks = new Dictionary<T, List<Action>> ();
 
-		// [State][ChainName][trigger] = triggerValue
+		// [State][FlowName][trigger] = triggerValue
 		private Dictionary<T, Dictionary<string, Dictionary<string, bool>>> waitInfo = new Dictionary<T, Dictionary<string, Dictionary<string, bool>>> ();
 
 		public bool Load(T _state){
 
-			var _chainName = isComplete (_state);
-			if (_chainName == "none") {
+			var _flowName = isComplete (_state);
+			if (_flowName == FlowNameNone) {
 				return false;
 			}
 
 			if (waitInfo.ContainsKey (_state)) {
-				LastTriggerList = waitInfo [_state][_chainName];
+				LastTriggerList = waitInfo [_state][_flowName];
 			} else {
 				LastTriggerList = new Dictionary<string, bool> ();
 			}
 
-			chainName = _chainName;
+			flowName = _flowName;
 			waitInfo.Clear ();
 			lastState = currentState;
 			currentState = _state;
@@ -67,16 +70,20 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
-		public void WaitAndLoad(string _trigger, T _state, string _chainName = "default"){
+		public void WaitAndLoad(string _trigger, T _state, string _flowName = ""){
+			if (_flowName == "") {
+				_flowName = FlowNameDefault;
+			}
+
 			if (!waitInfo.ContainsKey (_state)) {
 				waitInfo [_state] = new Dictionary<string, Dictionary<string, bool>> ();
 			}
 
-			if(!waitInfo[_state].ContainsKey(_chainName)){
-				waitInfo [_state] [_chainName] = new Dictionary<string, bool> ();
+			if(!waitInfo[_state].ContainsKey(_flowName)){
+				waitInfo [_state] [_flowName] = new Dictionary<string, bool> ();
 			}
 
-			var _waitStat = waitInfo [_state][_chainName];
+			var _waitStat = waitInfo [_state][_flowName];
 
 			if (_waitStat.ContainsKey (_trigger)) {
 				throw new SystemException (_trigger + " is already added");
@@ -92,7 +99,7 @@ namespace BicUtil.StateMachine{
 		private string isComplete(T _state){
 
 			if (!waitInfo.ContainsKey (_state)) {
-				return "default";
+				return FlowNameDefault;
 			}
 
 			bool isComplete = true;
@@ -107,7 +114,7 @@ namespace BicUtil.StateMachine{
 				}
 			}
 
-			return "none";
+			return FlowNameNone;
 		}
 
 
