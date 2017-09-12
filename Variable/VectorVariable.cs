@@ -11,7 +11,7 @@ namespace BicDB.Variable
 	public class VectorVariable : DictionaryContainer<FloatVariable>
 	{
 		#region Event
-		public event Action<VectorVariable, string> OnChangedValueActions = delegate{};
+		public event Action<VectorVariable, string> OnChangedValueActions;
 		#endregion
 
 		#region LifeCycle
@@ -50,7 +50,9 @@ namespace BicDB.Variable
 
 		#region Logic
 		public void NotifyChanged(string _message = ""){
-			OnChangedValueActions (this, _message);
+			if (OnChangedValueActions != null) {
+				OnChangedValueActions (this, _message);
+			}
 		}
 		#endregion
 	}
