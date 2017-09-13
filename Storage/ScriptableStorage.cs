@@ -41,6 +41,7 @@ namespace BicDB.Storage {
 				if (_record == null) {
 					throw new System.Exception ("Need to use ScriptableRecordContainer");
 				}
+
 				_record.ApplyInspectorValue ();
 
 				_table.Add (_scriptableData.List[i]);
