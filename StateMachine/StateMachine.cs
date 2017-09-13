@@ -41,8 +41,8 @@ namespace BicUtil.StateMachine{
 			lastState = currentState;
 			currentState = _state;
 
-			var _list = stateCallbacks [_state];
-			for (int i = 0; i < _list.Count; i++) {
+			var _list = stateCallbacks [_state].ToArray();
+			for (int i = 0; i < _list.Length; i++) {
 				_list [i] ();
 			}
 
@@ -129,6 +129,20 @@ namespace BicUtil.StateMachine{
 				stateCallbacks [_state].Insert (_insertPosition, _callback);
 			}
 		}
+
+		public void RemoveOnChangedStateTo(T _state, Action _callback){
+			if(!stateCallbacks.ContainsKey(_state)){
+				UnityEngine.Debug.LogWarning (_state.ToString () + " State not found");
+				return;
+			}
+
+			if (stateCallbacks [_state].Contains (_callback)) {
+				stateCallbacks [_state].Remove (_callback);
+			} else {
+				UnityEngine.Debug.LogWarning (_state.ToString () + " State Callback not found");
+			}
+		}
+
 	}
 
 	public class OnChangedStateToDelegator<T> where  T : struct{
