@@ -9,8 +9,6 @@ namespace BicUtil
 	public class SpotlightView : MonoBehaviour {
 		#region LinkingObject
 		[SerializeField]
-		private UnityEngine.UI.Text discriptionText;
-		[SerializeField]
 		private UnityEngine.UI.Image maskImage;
 		[SerializeField]
 		private UnityEngine.UI.Image backImage;
@@ -27,9 +25,6 @@ namespace BicUtil
 		#region Interface
 		public Action OnClickedButtonActions;
 
-		public void SetDiscription(string _text){
-			discriptionText.text = _text;
-		}
 
 		public void SetMask(int _maskIndex, Vector2 _position, Vector2 _size){
 			if (maskList.Count <= _maskIndex) {
@@ -48,25 +43,20 @@ namespace BicUtil
 			}
 		}
 
-		public void Close(){
+		public void Close(float _animationTime = 0.5f){
 			HideSpotAnimation (()=>{});
 			SetButtonEnabled (false);
-			discriptionText.gameObject.SetActive (false);
-			CoroutineTween.Instance.Alpha (backImage, 0.7f, 0f, 0.5f, () => {
+			CoroutineTween.Instance.Alpha (backImage, backImage.color.a, 0f, _animationTime, () => {
 				gameObject.SetActive (false);
 			});
 		}
 
-		public void Open(Action _callback){
+		public void Open(Action _callback, float _dimmedAlpha = 0.7f, float _animationTime = 0.5f){
 			gameObject.SetActive (true);
 			DisableAllMask ();
 			SetButtonEnabled (false);
-			discriptionText.gameObject.SetActive (false);
 
-			CoroutineTween.Instance.Alpha (backImage, 0, 0.7f, 0.5f, () => {
-				discriptionText.gameObject.SetActive (true);
-				_callback ();
-			});
+			CoroutineTween.Instance.Alpha (backImage, 0, _dimmedAlpha, _animationTime, _callback);
 		}
 
 		public void SetButtonEnabled(bool _isEnabled){
