@@ -49,7 +49,7 @@ namespace BicUtil.StateMachine{
 			return true;
 		}
 
-		public void Complete(string _trigger){
+		public void Finish(string _trigger){
 			bool _isFind = false;
 
 			foreach (var _v in waitInfo){
@@ -66,7 +66,7 @@ namespace BicUtil.StateMachine{
 			}
 
 			if (_isFind == false) {
-				UnityEngine.Debug.LogWarning (_trigger + " trigger is not registered in any state");
+				UnityEngine.Debug.LogWarning (_trigger + " trigger is not registered in " + currentState.ToString() + " state");
 			}
 		}
 
@@ -143,53 +143,5 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
-	}
-
-	public class OnChangedStateToDelegator<T> where  T : struct{
-		private Dictionary<T, Func<StateResultType>> onSetValueActions = new Dictionary<T, Func<StateResultType>>();
-
-		public Func<StateResultType> this[T _enum]{
-			get{
-				if (!onSetValueActions.ContainsKey(_enum)) {
-					return null;
-				}
-
-				return onSetValueActions[_enum];
-			}
-
-			set{ 
-				onSetValueActions[_enum] = value;
-			}
-		}
-	}
-
-	public enum StateResultType 
-	{
-		Complete,
-		WaitUserInput,
-		WaitAnimation,
-		WaitValue
-	}
-
-	public class StateResult<T> where T : struct{
-		static public readonly StateResult<T> WaitAnimation = new StateResult<T>(StateResultType.WaitAnimation);
-		static public readonly StateResult<T> WaitValue = new StateResult<T>(StateResultType.WaitValue);
-		static public readonly StateResult<T> WaitUserInput = new StateResult<T>(StateResultType.WaitUserInput);
-		static public readonly StateResult<T> Complete = new StateResult<T>(StateResultType.Complete);
-		static public StateResult<T> CompleteAndSetNext(T _nextState){
-			return new StateResult<T> (StateResultType.Complete, _nextState);
-		}
-
-		public StateResultType Result;
-		public T NextState;
-
-		private StateResult(StateResultType _result){
-			Result = _result;
-		}
-
-		private StateResult(StateResultType _result, T _nextStage){
-			Result = _result;
-			NextState = _nextStage;
-		}
 	}
 }
