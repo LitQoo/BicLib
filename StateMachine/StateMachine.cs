@@ -24,7 +24,7 @@ namespace BicUtil.StateMachine{
 		private Dictionary<T, Dictionary<string, Dictionary<string, bool>>> waitInfo = new Dictionary<T, Dictionary<string, Dictionary<string, bool>>> ();
 
 		public bool Load(T _state){
-
+			
 			var _flowName = isComplete (_state);
 			if (_flowName == FlowNameNone) {
 				return false;
