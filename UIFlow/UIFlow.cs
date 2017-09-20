@@ -25,25 +25,13 @@ namespace BicUtil.UIFlow
 				currentUiInfo.UI.Disable ();
 			}
 
-			uiStack.Push (new UIInfo(_ui, _openMode, _parameter));
-			currentUiInfo.UI.Enable ();
-			currentUiInfo.UI.OnOpenedUI (_parameter);
+			open (_ui, _openMode, _parameter);
 		}
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
-			currentUiInfo.UI.OnClosedUI(_parameter);
-
 			var _openMode = currentUiInfo.OpenMode;
-			switch (_closeMode) {
-			case CloseMode.Destroy:
-				currentUiInfo.UI.Destroy ();
-				break;
-			case CloseMode.Disable:
-				currentUiInfo.UI.Disable ();
-				break;
-			}
+			close (currentUiInfo.UI, _closeMode, _parameter);
 
-			uiStack.Pop ();
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 				currentUiInfo.UI.Enable ();
 			}
@@ -60,21 +48,52 @@ namespace BicUtil.UIFlow
 
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
 			if (uiStack.Count > 0) {
-				currentUiInfo.UI.OnClosedUI (_closeParameter);
-				uiStack.Pop ();
+				close (currentUiInfo.UI, _closeMode, _closeParameter);
 			}
 
-			uiStack.Push (new UIInfo(_ui, _openMode, _openParameter));
-			currentUiInfo.UI.Enable ();
-			currentUiInfo.UI.OnOpenedUI (_openParameter);
+			open (_ui, _openMode, _openParameter);
 		}
+
+		private void close(IUIFlowObject _ui, CloseMode _closeMode, object _parameter){
+			currentUiInfo.UI.OnClosedUI (_parameter);
+
+			switch (_closeMode) {
+			case CloseMode.Destroy:
+				_ui.Destroy ();
+				break;
+			case CloseMode.Disable:
+				_ui.Disable ();
+				break;
+			}
+
+			uiStack.Pop ();
+		}
+
+		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
+			uiStack.Push (new UIInfo(_ui, _openMode, _parameter));
+			currentUiInfo.UI.Enable ();
+			currentUiInfo.UI.OnOpenedUI (_parameter);
+		}
+
+		#region LifeCycle
+		#if UNITY_ANDROID
+		private void Update(){
+			checkBackKey ();
+		}
+		#endif
+		private void checkBackKey(){
+			if(Input.GetKey(KeyCode.Escape))
+			{
+				Back (CloseMode.Disable);
+			}
+		}
+		#endregion
 	}
 
 	public class UIInfo{
 		public IUIFlowObject UI;
 		public OpenMode OpenMode;
 		public object Parameter;
-
 
 		public UIInfo(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
 			UI = _ui;
