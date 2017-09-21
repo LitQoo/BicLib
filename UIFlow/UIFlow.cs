@@ -55,7 +55,7 @@ namespace BicUtil.UIFlow
 		}
 
 		private void close(IUIFlowObject _ui, CloseMode _closeMode, object _parameter){
-			currentUiInfo.UI.OnClosedUI (_parameter);
+			_ui.OnClosedUI (_parameter);
 
 			switch (_closeMode) {
 			case CloseMode.Destroy:
@@ -100,15 +100,6 @@ namespace BicUtil.UIFlow
 			Parameter = _parameter;
 			OpenMode = _openMode;
 		}
-	}
-
-	public interface IUIFlowObject
-	{
-		void OnOpenedUI(object _paramter);
-		void OnClosedUI (object parameter);
-		void Destroy();
-		void Disable();
-		void Enable();
 	}
 
 	public enum OpenMode 
