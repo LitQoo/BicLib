@@ -84,7 +84,9 @@ namespace BicUtil.UIFlow
 		private void checkBackKey(){
 			if(Input.GetKey(KeyCode.Escape))
 			{
-				Back (CloseMode.Disable);
+				if (uiStack.Count > 0) {
+					Back (CloseMode.Disable);
+				}
 			}
 		}
 		#endregion
