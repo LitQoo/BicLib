@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BicDB;
+using BicDB.Container;
 
 
 namespace BicUtil.MVCSystem
 {
 	public interface IControllerObject<T> where T : IRecordContainer
 	{
-		T Model { get; set; }
+		T Model { get;}
 
-		void SetModel(T _model);
+		void BindModel(T _model);
 	}
 }

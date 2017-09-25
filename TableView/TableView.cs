@@ -6,7 +6,6 @@ using UnityEngine.SocialPlatforms;
 using BicDB.Container;
 using BicDB;
 using System;
-using System.Diagnostics;
 
 namespace BicUtil.TableView
 {
