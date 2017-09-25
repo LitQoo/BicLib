@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using BicDB.Container;
 using BicDB.Variable;
 
-namespace BicDB
+namespace BicDB.Storage
 {
-
 	public interface IStorageSuppoter{
 		void Save(Action<Result> _callback = null, object _parameter = null);
 		void Load(Action<Result> _callback = null, object _parameter = null);
@@ -19,7 +18,6 @@ namespace BicDB
 	public interface IDataStoreStorageSuppoter : IStorageSuppoter{
 		void SetStorage(IDataStoreStorage _storage);
 	}
-
 
 	public interface IStringParser{
 		void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();

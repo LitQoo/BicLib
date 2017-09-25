@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BicDB;
 using BicUtil.SingletonBase;
+using BicDB.Container;
 
 namespace BicDB.Storage {
 	public class ScriptableStorage : MonoBehaviourHardBase<ScriptableStorage> , ITableStorage {

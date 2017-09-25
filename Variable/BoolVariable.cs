@@ -2,7 +2,7 @@
 using System.Collections;
 using BicDB;
 using System;
-using BicDB.Utility;
+using BicDB.Storage;
 
 namespace BicDB.Variable
 {

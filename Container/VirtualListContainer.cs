@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BicDB.Container;
 using BicDB.Variable;
-using BicDB.Utility;
 
 namespace BicDB.Container
 {

@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
-using BicDB.Utility;
 using BicDB.Container;
 using BicDB.Variable;
 using System.Runtime.CompilerServices;
+using BicUtil.Json;
 
 namespace BicDB.Storage
 {

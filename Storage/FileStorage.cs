@@ -4,9 +4,9 @@ using UnityEngine;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
-using BicDB.Utility;
 using BicDB.Container;
 using BicDB.Variable;
+using BicUtil.Json;
 
 namespace BicDB.Storage
 {

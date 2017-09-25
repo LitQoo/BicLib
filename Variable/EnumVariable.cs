@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BicDB;
-using BicDB.Utility;
+using BicDB.Storage;
 
 namespace BicDB.Variable
 {

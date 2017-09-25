@@ -4,7 +4,7 @@ using NUnit.Framework;
 using BicDB.Container;
 using BicDB;
 using System;
-using BicDB.Utility;
+using BicUtil.Json;
 
 namespace BicDB.Variable
 {

@@ -3,9 +3,9 @@ using System.Collections;
 using NUnit.Framework;
 using BicDB.Container;
 using BicDB;
-using BicDB.Utility;
 using System.Linq;
 using BicDB.Variable;
+using BicUtil.Json;
 
 namespace BicDB.Container
 {

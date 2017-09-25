@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using BicDB.Utility;
 using BicDB.Container;
 using BicDB.Variable;
+using BicUtil.Json;
 
 namespace BicDB.Storage
 {

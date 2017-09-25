@@ -3,7 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using BicDB.Container;
 using BicDB;
-using BicDB.Utility;
+using BicUtil.Json;
 
 namespace BicDB.Variable
 {

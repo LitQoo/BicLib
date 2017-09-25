@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
-using BicDB.Utility;
 using BicDB.Container;
 using BicDB.Variable;
+using BicUtil.Json;
 
 namespace BicDB.Container
 {

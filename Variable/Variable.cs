@@ -1,14 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.CodeDom.Compiler;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Serialization;
 using BicDB.Container;
-using System.Runtime.InteropServices;
-using BicDB.Utility;
+using BicUtil.Json;
 
 namespace BicDB.Variable
 {
+
+	public interface IVariable : IDataBase, IBindRmover{
+		event Action<IVariable, string> OnChangedValueActions;
+
+		void NotifyChanged(string _message = "");
+		void NotifyChanged(IVariable _value, string _message = "");
+
+		bool IsEqual(IVariable _variable);
+
+		int AsInt{ get; set; }
+		string AsString{ get; set; }
+		float AsFloat{ get; set; }
+		bool AsBool{ get; set; }
+	}
+
+	public interface IEnumVariable<T> : IVariable where  T : struct
+	{
+		new event Action<IEnumVariable<T>> OnChangedValueActions;
+
+		OnChangedValueToDelegator<T> OnSetValueActions{ get; set;}
+		T AsEnum{ get; set; }
+	}
+
+	public class VariableBase{
+		public event Action<IVariable, string> OnChangedValueActions = delegate{};
+
+		public void NotifyChanged(string _message = ""){
+			OnChangedValueActions (this as IVariable, _message);
+		}
+
+		public void NotifyChanged(IVariable _value, string _message = ""){
+			OnChangedValueActions (this as IVariable, _message);
+		}
+
+		public bool IsEqual(IVariable _variable){
+			return VariableUtil.IsEqual(this as IVariable, _variable);
+		}
+
+		public void ClearNotifyAndBinding(){
+			OnChangedValueActions = delegate{};
+		}
+	}
+
 	public class OnChangedValueToDelegator<T> where  T : struct{
 		private Dictionary<T, Action> onSetValueActions = new Dictionary<T, Action>();
 
