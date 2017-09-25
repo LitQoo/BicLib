@@ -6,22 +6,31 @@ namespace BicDB.Variable
 {
 	public class VirtualBoolVariable : BoolVariable
 	{
+		private bool _data;
 		override protected bool data {
 			get { 
-				return getter ();
+				_data = Getter ();
+				return _data;
 			}
 
 			set { 
-				setter (value);
+				_data = value;
+				Setter (_data);
 			}
 		}
 
-		private Func<bool> getter;
-		private Action<bool> setter;
+		public Func<bool> Getter;
+		public Action<bool> Setter;
 
-		public VirtualBoolVariable(Func<bool> _getter, Action<bool> _setter = null) : base(){
-			getter = _getter;
-			setter = _setter;
+		public VirtualBoolVariable(Func<bool> _getter = null, Action<bool> _setter = null) : base(){
+			Getter = _getter;
+			Setter = _setter;
+		}
+
+		public new void ClearNotifyAndBinding(){
+			base.ClearNotifyAndBinding ();
+			Getter = null;
+			Setter = null;
 		}
 
 	}

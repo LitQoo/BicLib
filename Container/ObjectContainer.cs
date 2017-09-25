@@ -32,6 +32,15 @@ namespace BicDB.Container
 		public void NotifyChanged(string _message = ""){
 			OnChangedValueActions (this, _message);
 		}
+
+
+		public void NotifyChanged(ObjectContainer<T> _objectContainer ,string _message = ""){
+			OnChangedValueActions (this, _message);
+		}
+
+		public void ClearNotifyAndBinding(){
+			OnChangedValueActions = delegate {};
+		}
 		#endregion
 
 		#region IDataBase
@@ -55,10 +64,12 @@ namespace BicDB.Container
 				return null;
 			}
 		}
+
+
 		#endregion
 	}
 
-	public interface IObjectContainer<T> : IDataBase
+	public interface IObjectContainer<T> : IDataBase, IBindRmover
 	{
 		event Action<IObjectContainer<T>, string> OnChangedValueActions;
 

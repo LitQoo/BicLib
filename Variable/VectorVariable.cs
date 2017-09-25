@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace BicDB.Variable
 {
-	public class VectorVariable : DictionaryContainer<FloatVariable>
+	public class VectorVariable : DictionaryContainer<FloatVariable>, IBindRmover
 	{
 		#region Event
 		public event Action<VectorVariable, string> OnChangedValueActions;
@@ -54,44 +54,10 @@ namespace BicDB.Variable
 				OnChangedValueActions (this, _message);
 			}
 		}
+
+		public void ClearNotifyAndBinding (){
+			OnChangedValueActions = null;
+		}
 		#endregion
 	}
-//
-//	public class VirtualVectorVariable : DictionaryContainer<FloatVariable>
-//	{
-//		public FloatVariable X {
-//			get{ 
-//				return this ["x"].AsFloat;
-//			}
-//			set{ 
-//				this ["x"].AsFloat = value;
-//			}
-//		}
-//
-//		public FloatVariable Y {
-//			get{ 
-//				return this ["y"].AsFloat;
-//			}
-//
-//			set{ 
-//				this ["y"].AsFloat = value;
-//			}
-//		}
-//
-//		public Vector2 AsVector{
-//			get{
-//				return new Vector2 (this ["x"].AsFloat, this ["y"].AsFloat);
-//			}
-//
-//			set{ 
-//				this ["x"].AsFloat = value.x;
-//				this ["y"].AsFloat = value.y;
-//			}
-//		}
-//
-//		public VirtualVectorVariable(Action<float> _setter, Func<float> _getter) : base(){
-//			//this ["x"] = new VirtualFloatVariable(
-//			//this ["y"] = new FloatVariable (y);
-//		}
-//	}
 }

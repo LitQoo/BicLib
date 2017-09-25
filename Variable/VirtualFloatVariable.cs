@@ -6,22 +6,31 @@ namespace BicDB.Variable
 {
 	public class VirtualFloatVariable : FloatVariable
 	{
+		private float _data;
 		override protected float data {
 			get { 
-				return getter ();
+				_data = Getter ();
+				return _data;
 			}
 
 			set { 
-				setter (value);
+				_data = value;
+				Setter (_data);
 			}
 		}
 
-		private Func<float> getter;
-		private Action<float> setter;
+		public Func<float> Getter;
+		public Action<float> Setter;
 
-		public VirtualFloatVariable(Func<float> _getter, Action<float> _setter = null) : base(){
-			getter = _getter;
-			setter = _setter;
+		public VirtualFloatVariable(Func<float> _getter = null, Action<float> _setter = null) : base(){
+			Getter = _getter;
+			Setter = _setter;
+		}
+
+		public new void ClearNotifyAndBinding(){
+			base.ClearNotifyAndBinding ();
+			Getter = null;
+			Setter = null;
 		}
 	}
 }

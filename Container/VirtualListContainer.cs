@@ -11,22 +11,25 @@ namespace BicDB.Container
 
 	public class VirtualListContainer<T> : ListContainer<T> where T : IDataBase, new()
 	{
+		private IList<T> _data;
 		override protected IList<T> data {
 			get { 
-				return getter ();
+				_data = Getter ();
+				return _data;
 			}
 
 			set { 
-				setter (value);
+				_data = value;
+				Setter (_data);
 			}
 		}
+			
+		private Func<IList<T>> Getter;
+		private Action<IList<T>> Setter;
 
-		private Func<IList<T>> getter;
-		private Action<IList<T>> setter;
-
-		public VirtualListContainer(Func<IList<T>> _getter, Action<IList<T>> _setter = null) : base(){
-			getter = _getter;
-			setter = _setter;
+		public VirtualListContainer(Func<IList<T>> _getter = null, Action<IList<T>> _setter = null) : base(){
+			Getter = _getter;
+			Setter = _setter;
 		}
 	}
 }

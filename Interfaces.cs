@@ -58,11 +58,15 @@ namespace BicDB
 			OnChangedValueActions (this as IVariable, _message);
 		}
 
+		public void NotifyChanged(IVariable _value, string _message = ""){
+			OnChangedValueActions (this as IVariable, _message);
+		}
+
 		public bool IsEqual(IVariable _variable){
 			return VariableUtil.IsEqual(this as IVariable, _variable);
 		}
 
-		public void ClearOnChangedValueActions(){
+		public void ClearNotifyAndBinding(){
 			OnChangedValueActions = delegate{};
 		}
 	}
@@ -138,17 +142,22 @@ namespace BicDB
 		T AsEnum{ get; set; }
 	}
 
-	public interface IVariable : IDataBase{
+	public interface IVariable : IDataBase, IBindRmover{
 		event Action<IVariable, string> OnChangedValueActions;
 
 		void NotifyChanged(string _message = "");
+		void NotifyChanged(IVariable _value, string _message = "");
+
 		bool IsEqual(IVariable _variable);
-		void ClearOnChangedValueActions ();
 
 		int AsInt{ get; set; }
 		string AsString{ get; set; }
 		float AsFloat{ get; set; }
 		bool AsBool{ get; set; }
+	}
+
+	public interface IBindRmover{
+		void ClearNotifyAndBinding ();
 	}
 
 }

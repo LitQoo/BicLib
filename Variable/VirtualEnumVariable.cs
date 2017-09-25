@@ -6,22 +6,31 @@ namespace BicDB.Variable
 {
 	public class VirtualEnumVariable<T> : EnumVariable<T> where  T : struct
 	{
+		private T _data;
 		override protected T data {
 			get { 
-				return getter ();
+				_data = Getter ();
+				return _data;
 			}
 
 			set { 
-				setter (value);
+				_data = value;
+				Setter (_data);
 			}
 		}
 
-		private Func<T> getter;
-		private Action<T> setter;
+		public Func<T> Getter;
+		public Action<T> Setter;
 
 		public VirtualEnumVariable(Func<T> _getter, Action<T> _setter = null) : base(){
-			getter = _getter;
-			setter = _setter;
+			Getter = _getter;
+			Setter = _setter;
+		}
+
+		public new void ClearNotifyAndBinding(){
+			base.ClearNotifyAndBinding ();
+			Getter = null;
+			Setter = null;
 		}
 	}
 }
