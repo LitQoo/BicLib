@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BicDB;
 using BicDB.Variable;
 using System;
+using System.Linq;
 
 namespace BicUtil.StateMachine{
 	public class StateMachine<T> where T : struct{
@@ -52,13 +53,13 @@ namespace BicUtil.StateMachine{
 		public void Finish(string _trigger){
 			bool _isFind = false;
 
-			foreach (var _v in waitInfo){
-				foreach (var _item in _v.Value) {
-					var waitStat = _item.Value;
+			foreach (var _stateInfo in waitInfo){
+				foreach (var _flowInfo in _stateInfo.Value) {
+					var waitStat = _flowInfo.Value;
 					if (waitStat.ContainsKey (_trigger)) {
 						waitStat [_trigger] = true;
 						_isFind = true;
-						if (Load (_v.Key) == true) {
+						if (Load (_stateInfo.Key) == true) {
 							return;
 						}
 					}
@@ -96,6 +97,19 @@ namespace BicUtil.StateMachine{
 			waitInfo.Clear ();
 		}
 
+		public void RemoveAllFinishedTrigger(){
+			var _waitInfoKeys = waitInfo.Keys.ToArray();
+				foreach (T _state in _waitInfoKeys) {
+				var _flowNameKeys = waitInfo [_state].Keys.ToArray();
+				foreach (string _flowName in _flowNameKeys) {
+					var _triggerNameKeys = waitInfo [_state] [_flowName].Keys.ToArray();
+					foreach (string _triggerName in _triggerNameKeys) {
+						waitInfo [_state] [_flowName] [_triggerName] = false;
+					}
+				}
+			}
+		}
+
 		private string isComplete(T _state){
 
 			if (!waitInfo.ContainsKey (_state)) {
@@ -103,14 +117,14 @@ namespace BicUtil.StateMachine{
 			}
 
 			bool isComplete = true;
-			foreach (var _v in waitInfo[_state]) {
+			foreach (var _flowInfo in waitInfo[_state]) {
 				isComplete = true;
-				foreach (var _item in _v.Value) {
-					isComplete = isComplete && _item.Value;
+				foreach (var _triggerInfo in _flowInfo.Value) {
+					isComplete = isComplete && _triggerInfo.Value;
 				}
 
 				if (isComplete == true) {
-					return _v.Key;
+					return _flowInfo.Key;
 				}
 			}
 
