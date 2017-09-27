@@ -2,14 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BicUtil.SingletonBase;
+using System;
 
 namespace BicUtil.UIFlow
 {
 	public class UIFlow : MonoBehaviourHardBase<UIFlow> {
 		private Stack<UIInfo> uiStack = new Stack<UIInfo> ();
 		private UIInfo currentUiInfo { get{ return uiStack.Peek (); }}
+		private bool isWait = false;
 
 		public void Enter(string _objectName, OpenMode _openMode, object _parameter = null){
+			if (isWait == true) {
+				return;
+			}
+
 			var _object = GameObject.Find (_objectName);
 			if (_object == null) {
 				throw new System.Exception ("not found object " + _objectName);
@@ -20,24 +26,38 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
-			
-			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
-				currentUiInfo.UI.Disable ();
+			if (isWait == true) {
+				return;
 			}
 
-			open (_ui, _openMode, _parameter);
+			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
+				close (currentUiInfo.UI, CloseMode.Disable, () => {
+					open (_ui, _openMode, _parameter);
+				}, _parameter, false);
+			} else {
+				open (_ui, _openMode, _parameter);
+			}
 		}
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
-			var _openMode = currentUiInfo.OpenMode;
-			close (currentUiInfo.UI, _closeMode, _parameter);
-
-			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
-				currentUiInfo.UI.Enable ();
+			if (isWait == true) {
+				return;
 			}
+
+			var _openMode = currentUiInfo.OpenMode;
+			close (currentUiInfo.UI, _closeMode, ()=>{
+				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
+					currentUiInfo.UI.Enable ();
+					currentUiInfo.UI.OnOpenedUI(currentUiInfo.Parameter);
+				}
+			}, _parameter);
 		}
 
 		public void Replace(string _objectName, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
+			if (isWait == true) {
+				return;
+			}
+
 			var _ui = GameObject.Find (_objectName).GetComponent<IUIFlowObject>();
 			if (_ui == null) {
 				throw new System.Exception ("not found object " + _objectName);
@@ -47,26 +67,39 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
-			if (uiStack.Count > 0) {
-				close (currentUiInfo.UI, _closeMode, _closeParameter);
+			if (isWait == true) {
+				return;
 			}
 
-			open (_ui, _openMode, _openParameter);
+			if (uiStack.Count > 0) {
+				close (currentUiInfo.UI, _closeMode, () => {
+					open (_ui, _openMode, _openParameter);
+				}, _closeParameter);
+			} else {
+				open (_ui, _openMode, _openParameter);
+			}
 		}
 
-		private void close(IUIFlowObject _ui, CloseMode _closeMode, object _parameter){
-			_ui.OnClosedUI (_parameter);
+		private void close(IUIFlowObject _ui, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
+			isWait = true;
+			_ui.OnClosedUI (()=>{
+				switch (_closeMode) {
+				case CloseMode.Destroy:
+					_ui.Destroy ();
+					break;
+				case CloseMode.Disable:
+					_ui.Disable ();
+					break;
+				}
 
-			switch (_closeMode) {
-			case CloseMode.Destroy:
-				_ui.Destroy ();
-				break;
-			case CloseMode.Disable:
-				_ui.Disable ();
-				break;
-			}
+				if(_needPop == true){
+					uiStack.Pop ();
+				}
 
-			uiStack.Pop ();
+				_finishCallback();
+				isWait = false;
+			}, _parameter);
+
 		}
 
 		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
