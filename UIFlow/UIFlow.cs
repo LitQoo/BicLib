@@ -82,7 +82,7 @@ namespace BicUtil.UIFlow
 
 		private void close(IUIFlowObject _ui, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
 			isWait = true;
-			_ui.OnClosedUI (()=>{
+			Action _finishFunc = () => {
 				switch (_closeMode) {
 				case CloseMode.Destroy:
 					_ui.Destroy ();
@@ -92,14 +92,19 @@ namespace BicUtil.UIFlow
 					break;
 				}
 
-				if(_needPop == true){
+				if (_needPop == true) {
 					uiStack.Pop ();
 				}
 
-				_finishCallback();
+				_finishCallback ();
 				isWait = false;
-			}, _parameter);
+			};
 
+			var _result = _ui.OnClosedUI (_finishFunc, _parameter);
+
+			if (_result == OnCloseUIResult.DoNotWait) {
+				_finishFunc ();
+			}
 		}
 
 		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
