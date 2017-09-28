@@ -37,7 +37,9 @@ namespace BicUtil.UnscaledTimeTween
 				yield return new WaitForEndOfFrame ();
 			}
 
-			_param.Callback ();
+			if (_param.Callback != null) {
+				_param.Callback ();
+			}
 		}
 		#endregion
 	}

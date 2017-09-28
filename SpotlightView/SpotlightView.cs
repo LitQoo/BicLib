@@ -43,11 +43,12 @@ namespace BicUtil
 			}
 		}
 
-		public void Close(float _animationTime = 0.5f){
-			HideSpotAnimation (()=>{});
+		public void Close(float _animationTime = 0.5f, Action _callback = null){
+			HideSpotAnimation ();
 			SetButtonEnabled (false);
 			CoroutineTween.Instance.Alpha (backImage, backImage.color.a, 0f, _animationTime, () => {
 				gameObject.SetActive (false);
+				_callback();
 			});
 		}
 
@@ -67,7 +68,7 @@ namespace BicUtil
 			StartCoroutine("showSpotAnimation");
 		}
 
-		public void HideSpotAnimation(Action _callback){
+		public void HideSpotAnimation(Action _callback = null){
 			StopCoroutine ("showSpotAnimation");
 			StartCoroutine("hideSpotAnimation", _callback);
 		}
@@ -119,7 +120,9 @@ namespace BicUtil
 				yield return new WaitForEndOfFrame ();
 			}
 
-			_callback ();
+			if (_callback != null) {
+				_callback ();
+			}
 		}
 
 

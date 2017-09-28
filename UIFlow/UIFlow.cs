@@ -7,8 +7,8 @@ using System;
 namespace BicUtil.UIFlow
 {
 	public class UIFlow : MonoBehaviourHardBase<UIFlow> {
-		private Stack<UIInfo> uiStack = new Stack<UIInfo> ();
-		private UIInfo currentUiInfo { get{ return uiStack.Peek (); }}
+		private List<UIInfo> uiStack = new List<UIInfo> ();
+		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private bool isWait = false;
 
 		public void Enter(string _objectName, OpenMode _openMode, object _parameter = null){
@@ -31,7 +31,7 @@ namespace BicUtil.UIFlow
 			}
 
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
-				close (currentUiInfo.UI, CloseMode.Disable, () => {
+				close (currentUiInfo.UI, _ui, CloseMode.Disable, () => {
 					open (_ui, _openMode, _parameter);
 				}, _parameter, false);
 			} else {
@@ -45,10 +45,16 @@ namespace BicUtil.UIFlow
 			}
 
 			var _openMode = currentUiInfo.OpenMode;
-			close (currentUiInfo.UI, _closeMode, ()=>{
+			var _openFromUI = currentUiInfo.UI;
+			IUIFlowObject _closeFromUI = null;
+			if (uiStack.Count > 1) {
+				_closeFromUI = uiStack [uiStack.Count - 2].UI;	
+			}
+
+			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 					currentUiInfo.UI.Enable ();
-					currentUiInfo.UI.OnOpenedUI(currentUiInfo.Parameter);
+					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
 				}
 			}, _parameter);
 		}
@@ -72,7 +78,7 @@ namespace BicUtil.UIFlow
 			}
 
 			if (uiStack.Count > 0) {
-				close (currentUiInfo.UI, _closeMode, () => {
+				close (currentUiInfo.UI, _ui,_closeMode, () => {
 					open (_ui, _openMode, _openParameter);
 				}, _closeParameter);
 			} else {
@@ -80,7 +86,7 @@ namespace BicUtil.UIFlow
 			}
 		}
 
-		private void close(IUIFlowObject _ui, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
+		private void close(IUIFlowObject _ui, IUIFlowObject _fromUI, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
 			isWait = true;
 			Action _finishFunc = () => {
 				switch (_closeMode) {
@@ -93,14 +99,14 @@ namespace BicUtil.UIFlow
 				}
 
 				if (_needPop == true) {
-					uiStack.Pop ();
+					uiStack.RemoveAt(uiStack.Count - 1);
 				}
 
 				_finishCallback ();
 				isWait = false;
 			};
 
-			var _result = _ui.OnClosedUI (_finishFunc, _parameter);
+			var _result = _ui.OnClosedUI (_fromUI, _finishFunc, _parameter);
 
 			if (_result == OnCloseUIResult.DoNotWait) {
 				_finishFunc ();
@@ -108,9 +114,15 @@ namespace BicUtil.UIFlow
 		}
 
 		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
-			uiStack.Push (new UIInfo(_ui, _openMode, _parameter));
+
+			IUIFlowObject _fromUI = null; 
+			if (uiStack.Count > 0) {
+				_fromUI = currentUiInfo.UI;
+			}
+
+			uiStack.Add (new UIInfo(_ui, _openMode, _parameter));
 			currentUiInfo.UI.Enable ();
-			currentUiInfo.UI.OnOpenedUI (_parameter);
+			currentUiInfo.UI.OnOpenedUI (_fromUI, _parameter);
 		}
 
 		#region LifeCycle
