@@ -78,8 +78,9 @@ namespace BicUtil.UIFlow
 			}
 
 			if (uiStack.Count > 0) {
+				var _currentUI = currentUiInfo.UI;
 				close (currentUiInfo.UI, _ui,_closeMode, () => {
-					open (_ui, _openMode, _openParameter);
+					open (_ui, _openMode, _openParameter, _currentUI);
 				}, _closeParameter);
 			} else {
 				open (_ui, _openMode, _openParameter);
@@ -113,16 +114,16 @@ namespace BicUtil.UIFlow
 			}
 		}
 
-		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter){
+		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter, IUIFlowObject _fromUI = null){
 
-			IUIFlowObject _fromUI = null; 
-			if (uiStack.Count > 0) {
-				_fromUI = currentUiInfo.UI;
+			IUIFlowObject _fromUIResult = _fromUI; 
+			if (_fromUIResult == null && uiStack.Count > 0) {
+				_fromUIResult = currentUiInfo.UI;
 			}
 
 			uiStack.Add (new UIInfo(_ui, _openMode, _parameter));
 			currentUiInfo.UI.Enable ();
-			currentUiInfo.UI.OnOpenedUI (_fromUI, _parameter);
+			currentUiInfo.UI.OnOpenedUI (_fromUIResult, _parameter);
 		}
 
 		#region LifeCycle
