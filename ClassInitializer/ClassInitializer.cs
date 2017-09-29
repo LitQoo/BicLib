@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace BicUtil.ClassInitializer
 {
 	public class ClassInitializer : MonoBehaviour {
 		#region LinkingObject
 		[SerializeField]
-		private ClassInitializerObject[] initObjects;
+		private List<ClassInitializerObjectInfo> initObjects;
 		#endregion
 
 		#region LifeCycle
@@ -18,9 +19,12 @@ namespace BicUtil.ClassInitializer
 
 		#region logic
 		private void initialize(){
-			for (int i = 0; i < initObjects.Length; i++) {
-				if (initObjects [i] != null) {
-					initObjects [i].Initialize ();
+
+			var _orderedList = initObjects.OrderBy (_object => _object.Order);
+
+			foreach (var _item in _orderedList) {
+				if (_item.Target != null) {
+					_item.Target.Initialize ();
 				}
 			}
 		}
@@ -35,6 +39,12 @@ namespace BicUtil.ClassInitializer
 	public interface IClassInitializerObject
 	{
 		void Initialize ();
+	}
+
+	[System.Serializable]
+	public class ClassInitializerObjectInfo{
+		public ClassInitializerObject Target;
+		public int Order;
 	}
 }
 
