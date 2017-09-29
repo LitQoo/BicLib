@@ -89,28 +89,46 @@ namespace BicUtil.UIFlow
 
 		private void close(IUIFlowObject _ui, IUIFlowObject _fromUI, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
 			isWait = true;
-			Action _finishFunc = () => {
-				switch (_closeMode) {
-				case CloseMode.Destroy:
-					_ui.Destroy ();
-					break;
-				case CloseMode.Disable:
-					_ui.Disable ();
-					break;
-				}
 
+			Action _closeUI = () => closeUI(_ui, _closeMode);
+
+			Action _manageStack = () => {
 				if (_needPop == true) {
-					uiStack.RemoveAt(uiStack.Count - 1);
+					uiStack.RemoveAt (uiStack.Count - 1);
 				}
 
 				_finishCallback ();
 				isWait = false;
 			};
 
+			Action _finishFunc = () => {
+				if(_closeUI != null){
+					_closeUI();	
+				}
+
+				if(_manageStack != null){
+					_manageStack();
+				}
+			};
+
 			var _result = _ui.OnClosedUI (_fromUI, _finishFunc, _parameter);
 
 			if (_result == OnCloseUIResult.DoNotWait) {
 				_finishFunc ();
+			} else if (_result == OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext) {
+				_manageStack ();
+				_manageStack = null;
+			}
+		}
+
+		private void closeUI(IUIFlowObject _ui, CloseMode _closeMode){
+			switch (_closeMode) {
+			case CloseMode.Destroy:
+				_ui.Destroy ();
+				break;
+			case CloseMode.Disable:
+				_ui.Disable ();
+				break;
 			}
 		}
 

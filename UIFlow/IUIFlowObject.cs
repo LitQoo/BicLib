@@ -19,6 +19,7 @@ namespace BicUtil.UIFlow
 	public enum OnCloseUIResult
 	{
 		WaitForFinishCallback,
+		WaitForFinishCallbackAndFastDisplayNext,
 		DoNotWait
 	}
 
