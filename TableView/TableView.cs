@@ -101,6 +101,7 @@ namespace BicUtil.TableView
         public void ReloadData() {
             m_cellSizes = new float[m_dataSource.GetNumberOfRowsForTableView(this)];
             this.isEmpty = m_cellSizes.Length == 0;
+
             if (this.isEmpty) {
                 ClearAllRows();
                 return;
@@ -117,9 +118,9 @@ namespace BicUtil.TableView
 
 			if(m_isVertical) {
 				m_scrollRect.content.sizeDelta = new Vector2(m_scrollRect.content.sizeDelta.x, 
-					GetCumulativeRowHeight(m_cellSizes.Length - 1));
+					GetCumulativeRowHeight(m_cellSizes.Length - 1) + m_LayoutGroup.padding.top + m_LayoutGroup.padding.bottom);
 			} else {
-				m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_cellSizes.Length - 1), m_scrollRect.content.sizeDelta.y);
+				m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_cellSizes.Length - 1) + m_LayoutGroup.padding.left + m_LayoutGroup.padding.right, m_scrollRect.content.sizeDelta.y);
 			}
             RecalculateVisibleRowsFromScratch();
             m_requiresReload = false;
@@ -212,7 +213,7 @@ namespace BicUtil.TableView
 					if(m_isVertical) {
 						m_scrollRect.verticalNormalizedPosition = 1 - relativeScroll;
 					} else {
-						m_scrollRect.horizontalNormalizedPosition = 1 - relativeScroll;
+						m_scrollRect.horizontalNormalizedPosition = relativeScroll;
 					}
                 }
             }
@@ -242,7 +243,8 @@ namespace BicUtil.TableView
         private bool m_requiresReload;
 
 		private HorizontalOrVerticalLayoutGroup m_LayoutGroup;
-        private ScrollRect m_scrollRect;
+		private EventControlledScrollRect m_scrollRect;
+		private RectTransform m_rectTransform;
         private LayoutElement m_topPadding;
         private LayoutElement m_bottomPadding;
 
@@ -301,8 +303,9 @@ namespace BicUtil.TableView
         {
 			m_isVertical = true;
             isEmpty = true;
-            m_scrollRect = GetComponent<ScrollRect>();
+			m_scrollRect = GetComponent<EventControlledScrollRect>();
 			m_LayoutGroup = GetComponentInChildren<VerticalLayoutGroup>();
+			m_rectTransform = GetComponent<RectTransform> ();
 
 			if(m_LayoutGroup == null) {
 				m_LayoutGroup = GetComponentInChildren<HorizontalLayoutGroup>();
@@ -348,24 +351,83 @@ namespace BicUtil.TableView
             if (m_requiresRefresh) {
                 RefreshVisibleRows();
             }
+
+			if (centerPositionMagnet == true) {
+				checkEnableMagnet ();
+			}
         }
 
         void OnEnable() {
             m_scrollRect.onValueChanged.AddListener(ScrollViewValueChanged);
+			m_scrollRect.OnBeginDragActions.AddListener (isControlledTrue);
+			m_scrollRect.OnEndDragActions.AddListener (isControlledFalse);
         }
 
         void OnDisable() {
-            m_scrollRect.onValueChanged.RemoveListener(ScrollViewValueChanged);
+			m_scrollRect.onValueChanged.RemoveListener(ScrollViewValueChanged);
+			m_scrollRect.OnBeginDragActions.RemoveListener (isControlledTrue);
+			m_scrollRect.OnEndDragActions.RemoveListener (isControlledFalse);
         }
+
+		bool isControlled = false;
+		private void isControlledTrue(){
+			isControlled = true;
+			LeanTween.cancel (m_scrollRect.gameObject);
+		}
+
+		private void isControlledFalse(){
+			isControlled = false;
+		}
+
+
+		#region MangetControl
+		[SerializeField]
+		private bool centerPositionMagnet = false;
+		float lastScrollDistance = 0;
+
+		private void checkEnableMagnet(){
+			if (isControlled == false) {
+				if (scrollDistance >= 0 && scrollDistance <= scrollableDistance) {
+					float _gap = lastScrollDistance - scrollDistance;
+					if (Mathf.Abs (_gap) < 4f) {
+						magnetControl (_gap);
+						isControlled = true;
+					}
+				}
+			}
+
+			lastScrollDistance = scrollDistance;
+		}
+
+		private void magnetControl(float _gap){
+			var _centerPosition = m_scrollRect.transform.position;
+			foreach (var _cell in m_visibleCells) {
+				var _cellPosition = _cell.Value.transform.position;
+				var _cellHalfSize = m_cellSizes [_cell.Key] / 2f;
+				if (_cellPosition.x + _cellHalfSize > _centerPosition.x && _cellPosition.x - _cellHalfSize <= _centerPosition.x) {
+					var _targetPosition = scrollDistance - (_centerPosition.x - _cellPosition.x);
+					float _targetGap = _targetPosition - scrollDistance;
+					var _speed = Mathf.Abs(_targetGap) / 100f;
+					LeanTween.value (m_scrollRect.gameObject, _value => {
+						scrollDistance = _value;
+					}, scrollDistance, _targetPosition, _speed).setEaseOutBack();	
+					break;
+				}
+			}
+		}
+		#endregion
         
         private Range CalculateCurrentVisibleRowRange()
         {
-            float startY = m_scrollDistance;
-
-            float endY = m_scrollDistance + (this.transform as RectTransform).rect.height;
+            float startY = 0;
+			float endY = 0;
             
-			if(!m_isVertical) {
-				endY = m_scrollDistance + (this.transform as RectTransform).rect.width;
+			if (m_isVertical) {
+				startY = m_scrollDistance - m_LayoutGroup.padding.top;
+				endY = m_scrollDistance + (this.transform as RectTransform).rect.height + m_LayoutGroup.padding.bottom;
+			}else if(!m_isVertical) {
+				startY = m_scrollDistance - m_LayoutGroup.padding.left;
+				endY = m_scrollDistance + (this.transform as RectTransform).rect.width + m_LayoutGroup.padding.right;
 			}
 
 			int startIndex = FindIndexOfRowAtY(startY);
@@ -473,10 +535,10 @@ namespace BicUtil.TableView
             }
 
 			if(m_isVertical) {
-				m_topPadding.preferredHeight = hiddenElementsHeightSum;
+				m_topPadding.preferredHeight = hiddenElementsHeightSum - m_LayoutGroup.padding.top;
 				m_topPadding.gameObject.SetActive(m_topPadding.preferredHeight > 0);
 			} else {
-				m_topPadding.preferredWidth = hiddenElementsHeightSum;
+				m_topPadding.preferredWidth = hiddenElementsHeightSum - m_LayoutGroup.padding.left;
 				m_topPadding.gameObject.SetActive(m_topPadding.preferredWidth > 0);
 			}
 
@@ -487,11 +549,11 @@ namespace BicUtil.TableView
 
 			if(m_isVertical) {
 				float bottomPaddingHeight = m_scrollRect.content.rect.height - hiddenElementsHeightSum;
-				m_bottomPadding.preferredHeight = bottomPaddingHeight - m_LayoutGroup.spacing;
+				m_bottomPadding.preferredHeight = bottomPaddingHeight - m_LayoutGroup.spacing - m_LayoutGroup.padding.top - m_LayoutGroup.padding.bottom;
 				m_bottomPadding.gameObject.SetActive(m_bottomPadding.preferredHeight > 0);
 			} else {
 				float bottomPaddingHeight = m_scrollRect.content.rect.width - hiddenElementsHeightSum;
-				m_bottomPadding.preferredWidth = bottomPaddingHeight - m_LayoutGroup.spacing;
+				m_bottomPadding.preferredWidth = bottomPaddingHeight - m_LayoutGroup.spacing - m_LayoutGroup.padding.left- m_LayoutGroup.padding.right;
 				m_bottomPadding.gameObject.SetActive(m_bottomPadding.preferredWidth > 0);
 			}
         }
@@ -602,4 +664,5 @@ namespace BicUtil.TableView
             return num >= range.from && num < (range.from + range.count);
         }
     }
+
 }
