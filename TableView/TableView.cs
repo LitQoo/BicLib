@@ -453,7 +453,7 @@ namespace BicUtil.TableView
             TableCell newCell = m_dataSource.GetCellForRowInTableView(this, row);
 
 			if (GetCellDataFunc != null) {
-				newCell.CellData = GetCellDataFunc(row);
+				newCell.Model = GetCellDataFunc(row);
 			}
 
             newCell.transform.SetParent(m_scrollRect.content, false);

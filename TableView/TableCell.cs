@@ -21,19 +21,19 @@ namespace BicUtil.TableView
 		#endregion
 
 		#region Member
-		public IRecordContainer CellData{
+		public IRecordContainer Model{
 			set{ 
-				if (cellData != null) {
-					cellData.ClearOnChangedValueActions ();
+				if (model != null) {
+					model.ClearNotifyAndBinding ();
 				}
 
-				cellData = value;
-				cellData.OnChangedValueActions += SetDataFunction.Invoke;
-				cellData.NotifyChanged();
+				model = value;
+				model.OnChangedValueActions += SetDataFunction.Invoke;
+				model.NotifyChanged();
 			}
 
 			get{ 
-				return cellData;
+				return model;
 			}
 		}
 
@@ -44,6 +44,7 @@ namespace BicUtil.TableView
 			} 
 		}
 
+		[HideInInspector]
 		public int CellIndex = -1;
 		#endregion
 
@@ -61,19 +62,19 @@ namespace BicUtil.TableView
 		public Dictionary<string, Action<IRecordContainer>> OnClickedActions{ get; set;}
 
 		public void OnClicked(string _buttonName){
-			OnClickedActions [_buttonName] (cellData);
+			OnClickedActions [_buttonName] (model);
 		}
 		#endregion
 
 		#region Logic
-		private IRecordContainer cellData = null;
+		private IRecordContainer model = null;
 
 		private void removeBindCell(){
-			if (cellData != null) {
-				cellData.ClearOnChangedValueActions ();
+			if (model != null) {
+				model.ClearNotifyAndBinding ();
 			}
 
-			cellData = null;
+			model = null;
 		}
 		#endregion
     }
