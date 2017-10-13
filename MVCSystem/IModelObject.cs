@@ -6,8 +6,8 @@ using BicDB;
 namespace BicUtil.MVCSystem
 {
 
-	public interface IModelObject<T>
-	{
-		T Controller{get;set;}
-	}
+//	public interface IModelObject<T>
+//	{
+//		T Controller{get;set;}
+//	}
 }

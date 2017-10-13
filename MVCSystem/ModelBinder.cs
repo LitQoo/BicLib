@@ -8,7 +8,7 @@ using BicDB.Container;
 
 namespace BicUtil.MVCSystem
 {
-	public class MVCModelBase<T> : RecordContainer, IModelObject<T>
+	public class ModelBinder<T>
 	{
 		#region MVC
 		public T Controller{ get; set; }
@@ -45,6 +45,23 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
+		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>, string> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (_container);
+			_container.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_container, string.Empty);
+			}
+		}
+
+		public void BindModelToController (IRecordContainer _model, Action<IRecordContainer, string> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (_model);
+			_model.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_model, string.Empty);
+			}
+		}
 		#endregion
 
 		#region Controller -> Model Binding
