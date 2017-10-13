@@ -50,14 +50,13 @@ namespace BicDB.Container
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
 	}
 
-	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase{
+	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase, IBindRmover{
 		IRecordContainerParent Parent{ get; set; }
 		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
 
 		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string _key, IDataBase _value);
 		void CopyBy(IRecordContainer _model);
-		void ClearOnChangedValueActions();
 	}
 
 	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
