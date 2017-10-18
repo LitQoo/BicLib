@@ -44,6 +44,10 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
+			if (uiStack.Count == 1) {
+				return;
+			}
+
 			var _openMode = currentUiInfo.OpenMode;
 			var _openFromUI = currentUiInfo.UI;
 			IUIFlowObject _closeFromUI = null;
