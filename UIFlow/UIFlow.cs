@@ -44,10 +44,6 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
-			if (uiStack.Count == 1) {
-				return;
-			}
-
 			var _openMode = currentUiInfo.OpenMode;
 			var _openFromUI = currentUiInfo.UI;
 			IUIFlowObject _closeFromUI = null;
@@ -57,10 +53,19 @@ namespace BicUtil.UIFlow
 
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
+					backAction = null;
 					currentUiInfo.UI.Enable ();
+					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
+				}else{
+					backAction = null;
 					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
 				}
 			}, _parameter);
+		}
+
+		private Action backAction = null;
+		public void SetBackKeyAction(Action _action){
+			backAction = _action;
 		}
 
 		public void Replace(string _objectName, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
@@ -144,20 +149,26 @@ namespace BicUtil.UIFlow
 			}
 
 			uiStack.Add (new UIInfo(_ui, _openMode, _parameter));
+			backAction = null;
 			currentUiInfo.UI.Enable ();
 			currentUiInfo.UI.OnOpenedUI (_fromUIResult, _parameter);
 		}
 
 		#region LifeCycle
-		#if UNITY_ANDROID
+		#if UNITY_ANDROID || UNITY_EDITOR
 		private void Update(){
 			checkBackKey ();
 		}
 		#endif
 		private void checkBackKey(){
-			if(Input.GetKey(KeyCode.Escape))
+			if(Input.GetKeyUp(KeyCode.Escape))
 			{
-				if (uiStack.Count > 0) {
+				if (backAction != null) {
+					backAction ();
+					return;
+				}
+
+				if (uiStack.Count > 1) {
 					Back (CloseMode.Disable);
 				}
 			}
