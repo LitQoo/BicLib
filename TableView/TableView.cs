@@ -16,7 +16,7 @@ namespace BicUtil.TableView
     /// - Child GameObject + Vertical Layout Group
     /// This class should be after Unity's internal UI components in the Script Execution Order
     /// </summary>
-    [RequireComponent(typeof(ScrollRect))]
+	[RequireComponent(typeof(EventControlledScrollRect))]
     public class TableView : MonoBehaviour
     {
 
