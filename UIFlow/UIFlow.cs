@@ -11,6 +11,11 @@ namespace BicUtil.UIFlow
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private bool isWait = false;
 
+		public void LoadScene(string _sceneName){
+			backAction = null;
+			UnityEngine.SceneManagement.SceneManager.LoadScene (_sceneName);
+		}
+
 		public void Enter(string _objectName, OpenMode _openMode, object _parameter = null){
 			if (isWait == true) {
 				return;
