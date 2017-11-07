@@ -70,6 +70,42 @@ namespace BicUtil.UIFlow
 			}, _parameter);
 		}
 
+
+		private struct BackToParam
+		{
+			public IUIFlowObject UI;
+			public Action Callback;
+			public BackToParam(IUIFlowObject _ui, Action _callback){
+				UI = _ui;
+				Callback = _callback;
+			}
+		}
+		public void BackTo(IUIFlowObject _ui, Action _callback){
+			
+			StartCoroutine ("backToCourutine", new BackToParam(_ui, _callback));
+		}
+
+		private IEnumerator backToCourutine(BackToParam _param){
+
+			int _warnningCounter = 0;
+
+			while (currentUiInfo.UI != _param.UI) {
+				Back (CloseMode.Disable);
+				while (isWait == true) {
+					yield return new WaitForSeconds (0.1f);
+				}
+
+				_warnningCounter++;
+				if (_warnningCounter > 100) {
+					Debug.LogWarning ("waring UIFlow.BackTo");
+				}
+			}
+
+			if (_param.Callback != null) {
+				_param.Callback ();
+			}
+		}
+
 		private Action backAction = null;
 		public void SetBackKeyAction(Action _action){
 			backAction = _action;
@@ -131,6 +167,7 @@ namespace BicUtil.UIFlow
 
 			if (_result == OnCloseUIResult.DoNotWait) {
 				_finishFunc ();
+				isWait = false;
 			} else if (_result == OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext) {
 				_manageStack ();
 				_manageStack = null;
