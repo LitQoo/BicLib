@@ -57,8 +57,10 @@ namespace BicUtil.UIFlow
 					currentUiInfo.UI.Enable ();
 					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
 				}else{
-					backAction = null;
-					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
+					if(uiStack.Count > 0){
+						backAction = null;
+						currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
+					}
 				}
 			}, _parameter);
 		}
