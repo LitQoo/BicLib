@@ -157,5 +157,9 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
+		public void ClearAllChangedStateTo(){
+			stateCallbacks.Clear ();
+		}
+
 	}
 }
