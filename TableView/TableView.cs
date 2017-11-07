@@ -244,7 +244,6 @@ namespace BicUtil.TableView
 
 		private HorizontalOrVerticalLayoutGroup m_LayoutGroup;
 		private EventControlledScrollRect m_scrollRect;
-		private RectTransform m_rectTransform;
         private LayoutElement m_topPadding;
         private LayoutElement m_bottomPadding;
 
@@ -305,7 +304,6 @@ namespace BicUtil.TableView
             isEmpty = true;
 			m_scrollRect = GetComponent<EventControlledScrollRect>();
 			m_LayoutGroup = GetComponentInChildren<VerticalLayoutGroup>();
-			m_rectTransform = GetComponent<RectTransform> ();
 
 			if(m_LayoutGroup == null) {
 				m_LayoutGroup = GetComponentInChildren<HorizontalLayoutGroup>();
