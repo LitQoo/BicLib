@@ -45,6 +45,10 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
+		public void BindModelToController (IVariable _variable, Action _func, bool _needFirstCall = false){
+			BindModelToController (_variable, (IVariable __variable, string __msg) => _func (), _needFirstCall);
+		}
+
 		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>, string> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (_container);
 			_container.OnChangedValueActions += _func;
