@@ -45,7 +45,16 @@ namespace BicDB.Storage{
 		}
 
 		private void loadByResourceFile<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
-			string _data = Read(getFileName(_table.Name));
+
+			string _filePath = "BicDB/" + getFileName(_table.Name) + ".json";
+
+			if (_parameter != null) {
+				ResourceStorageParameter _param = _parameter as ResourceStorageParameter;
+				_filePath = _param.Path;
+
+			}
+
+			string _data = Read(_filePath);
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;
 
@@ -69,9 +78,10 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region ResourceControl
-		public string Read(string _fileName){
+		public string Read(string _filePath){
 			#if UNITY_EDITOR
-			string tPath = Application.dataPath + "/Resources/BicDB/" + _fileName + ".json";
+			string tPath = Application.dataPath + "/Resources/" + _filePath;
+
 			if (File.Exists(tPath))
 			{
 				FileStream tFile = new FileStream (tPath, FileMode.Open, FileAccess.Read);
@@ -86,14 +96,22 @@ namespace BicDB.Storage{
 			}
 			else
 			{
-				Debug.Log("not found json file Resources/BicDB/" + _fileName + ".json");
+				Debug.Log("not found json file Resources/" + _filePath);
 				return null;
 			}
 			#else
-			TextAsset tText = Resources.Load<TextAsset>("BicDB/"+_fileName);
+			TextAsset tText = Resources.Load<TextAsset>(_filePath);
 			return tText.text;
 			#endif 
 		}
 		#endregion
+	}
+
+	public class ResourceStorageParameter{
+		public string Path;
+
+		public ResourceStorageParameter(string _path){
+			Path = _path;
+		}
 	}
 }
