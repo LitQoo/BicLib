@@ -7,6 +7,27 @@ using System;
 namespace BicUtil.UIFlow
 {
 	public class UIFlow : MonoBehaviourHardBase<UIFlow> {
+		#region  Static
+		private Dictionary<Type, IUIFlowObject> uiObjects = new Dictionary<Type, IUIFlowObject>();
+
+		public void RegisterUI(IUIFlowObject _object){
+			Debug.Log(_object.GetType().ToString());
+			uiObjects.Add(_object.GetType(), _object);
+		}
+
+		public IUIFlowObject GetUI(Type _type){
+			return uiObjects[_type];
+		}
+
+		public IUIFlowObject GetUI<UIClass>(){
+			return GetUI(typeof(UIClass));
+		}
+
+		public void ClearRegisteredUI(){
+			uiObjects.Clear();
+		}
+		#endregion
+
 		private List<UIInfo> uiStack = new List<UIInfo> ();
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private bool isWait = false;
@@ -17,17 +38,24 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Enter(string _objectName, OpenMode _openMode, object _parameter = null){
-			if (isWait == true) {
-				return;
-			}
-
+			IUIFlowObject _ui = null;
 			var _object = GameObject.Find (_objectName);
 			if (_object == null) {
 				throw new System.Exception ("not found object " + _objectName);
 			}
 
-			var _ui = _object.GetComponent<IUIFlowObject>();
+			_ui = _object.GetComponent<IUIFlowObject>();
+
 			Enter (_ui, _openMode, _parameter);
+		}
+
+		public void Enter<UIClass>(OpenMode _openMode, object _parameter = null){
+			Type _objectType = typeof(UIClass);
+			
+			if(uiObjects.ContainsKey(_objectType) == false){
+				throw new System.Exception ("not found object " + _objectType.ToString());
+			}
+			Enter (uiObjects[_objectType], _openMode, _parameter);
 		}
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
@@ -80,6 +108,11 @@ namespace BicUtil.UIFlow
 				Callback = _callback;
 			}
 		}
+
+		public void BackTo<UIClass>(Action _callback){
+			BackTo(uiObjects[typeof(UIClass)], _callback);
+		}
+
 		public void BackTo(IUIFlowObject _ui, Action _callback){
 			
 			StartCoroutine ("backToCourutine", new BackToParam(_ui, _callback));
