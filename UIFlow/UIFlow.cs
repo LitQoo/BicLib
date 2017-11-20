@@ -11,7 +11,6 @@ namespace BicUtil.UIFlow
 		private Dictionary<Type, IUIFlowObject> uiObjects = new Dictionary<Type, IUIFlowObject>();
 
 		public void RegisterUI(IUIFlowObject _object){
-			Debug.Log(_object.GetType().ToString());
 			uiObjects.Add(_object.GetType(), _object);
 		}
 
