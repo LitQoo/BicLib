@@ -4,8 +4,32 @@ using BicDB;
 using BicDB.Variable;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Globalization;
 
 namespace BicUtil.StateMachine{
+	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class StateMachineAttribute : System.Attribute
+	{
+		readonly string stateName;
+		
+		public StateMachineAttribute(object _stateEnum)
+		{
+			this.stateName = _stateEnum.ToString();
+			this.InsertPosition = -1;
+		}
+		
+		public string StateName
+		{
+			get { return stateName; }
+		}
+
+		public int InsertPosition
+		{
+			get; set;
+		}
+	}
+
 	public class StateMachine<T> where T : struct{
 		private static readonly string FlowNameDefault = "__default__";
 		private static readonly string FlowNameNone = "__none__";
@@ -131,8 +155,12 @@ namespace BicUtil.StateMachine{
 			return FlowNameNone;
 		}
 
-
+		[Obsolete("use Subscribe or SubscribeByAttribute")]
 		public void SetOnChangedStateTo(T _state, Action _callback, int _insertPosition = -1){
+			Subscribe(_state, _callback, _insertPosition);
+		}
+
+		public void Subscribe(T _state, Action _callback, int _insertPosition = -1){
 			if(!stateCallbacks.ContainsKey(_state)){
 				stateCallbacks[_state] = new List<Action>();
 			}
@@ -144,7 +172,12 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
+		[Obsolete("use Dispoable")]
 		public void RemoveOnChangedStateTo(T _state, Action _callback){
+			Disposable(_state, _callback);
+		}
+
+		public void Disposable(T _state, Action _callback){
 			if(!stateCallbacks.ContainsKey(_state)){
 				UnityEngine.Debug.LogWarning (_state.ToString () + " State not found");
 				return;
@@ -157,8 +190,24 @@ namespace BicUtil.StateMachine{
 			}
 		}
 
+		[Obsolete("use DisposableAll")]
 		public void ClearAllChangedStateTo(){
-			stateCallbacks.Clear ();
+			DisposableAll();
+		}
+
+		public void DisposableAll(){
+			stateCallbacks.Clear();
+		}
+
+		public void SubscribeByAttribute(object _object){
+			var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			foreach(var _method in methods){
+				StateMachineAttribute _u = (StateMachineAttribute)_method.GetCustomAttributes(typeof(StateMachineAttribute), true).FirstOrDefault();
+				if(_u != null){
+					Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
+					this.Subscribe((T) Enum.Parse(typeof(T), _u.StateName), _action, _u.InsertPosition);
+				}
+			}
 		}
 
 	}
