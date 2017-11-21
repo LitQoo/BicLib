@@ -23,12 +23,10 @@ namespace BicUtil.TableView
 		#region Member
 		public IRecordContainer Model{
 			set{ 
-				if (model != null) {
-					model.ClearNotifyAndBinding ();
-				}
+				removeBindCell();
 
 				model = value;
-				model.OnChangedValueActions += SetDataFunction.Invoke;
+				model.OnChangedValueActions += callToSetDataFunction;
 				model.NotifyChanged();
 			}
 
@@ -37,8 +35,12 @@ namespace BicUtil.TableView
 			}
 		}
 
+        private void callToSetDataFunction(IRecordContainer _record, string _msg)
+        {
+            SetDataFunction.Invoke(_record, _msg);
+        }
 
-		public virtual string reuseIdentifier { 
+        public virtual string reuseIdentifier { 
 			get { 
 				return this.GetType().Name; 
 			} 
@@ -71,7 +73,7 @@ namespace BicUtil.TableView
 
 		private void removeBindCell(){
 			if (model != null) {
-				model.ClearNotifyAndBinding ();
+				model.OnChangedValueActions -= callToSetDataFunction;
 			}
 
 			model = null;
