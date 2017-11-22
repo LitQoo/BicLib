@@ -188,13 +188,13 @@ namespace BicUtil.Json
 		[Test]
 		public void JsonToModel1(){
 			TestClass _model = new TestClass();
-			string _json = "{\t\"key1\":123,\"key2\":\"aaa\",\"key4\":-23.2,\"key3\":{\"key1\":12}}";
+			string _json = "{\t\"key1\":123,\"key2\":\"aa\na\",\"key4\":-23.2,\"key3\":{\"key1\":12}}";
 			int _counter = 0;
 
 			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json, ref _counter);
 
 			Assert.AreEqual(_model.member1.AsInt, 123);
-			Assert.AreEqual(_model.member2.AsString, "aaa");
+			Assert.AreEqual(_model.member2.AsString, "aa\na");
 			Assert.AreEqual((_model["key4"] as IVariable).AsString, "-23.2");
 			Assert.AreEqual(_model.member3.member1.AsInt, 12);
 		}
@@ -234,14 +234,14 @@ namespace BicUtil.Json
 		[Test]
 		public void JsonToTable1(){
 			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
-			string _json = "{\"data\":[{\"key1\":123,\"key2\":\"string\",\"key3\":{\"key1\":119,\"key2\":\"test\"}},{\"key1\":2,\"key2\":\"string\",\"key3\":{\"key1\":222}}],\"name\":\"test\"}";
+			string _json = "{\"data\":[{\"key1\":123,\"key2\":\"string\",\"key3\":{\"key1\":119,\"key2\":\"test\"}},{\"key1\":2,\"key2\":\"string\",\"key3\":{\"key1\":222}}],\"name\":\"te\nst\"}";
 			int _counter = 0;
 
 			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 
 			Assert.AreEqual(_table[0].member1.AsInt, 123);
 			Assert.AreEqual(_table[1].member1.AsInt, 2);
-			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "te\nst");
 			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
 			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
 		}	
