@@ -8,12 +8,8 @@ using BicDB.Container;
 
 namespace BicUtil.MVCSystem
 {
-	public class ModelBinder<T>
+	public class ModelBinder
 	{
-		#region MVC
-		public T Controller{ get; set; }
-		#endregion
-
 		#region Binding
 		private List<IBindRmover> bindRemoverList = new List<IBindRmover>();
 
