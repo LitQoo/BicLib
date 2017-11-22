@@ -66,9 +66,11 @@ namespace BicUtil.StateMachine{
 			lastState = currentState;
 			currentState = _state;
 
-			var _list = stateCallbacks [_state].ToArray();
-			for (int i = 0; i < _list.Length; i++) {
-				_list [i] ();
+			if(stateCallbacks.ContainsKey(_state)){
+				var _list = stateCallbacks [_state].ToArray();
+				for (int i = 0; i < _list.Length; i++) {
+					_list [i] ();
+				}
 			}
 
 			return true;
