@@ -41,6 +41,14 @@ namespace BicDB.Variable
 		}
 
 		[Test]
+		public void AsStringOutTestWithSpecialCharacter()
+		{
+
+			StringVariable _var = new StringVariable ("abc\n\tbb");
+			Assert.AreEqual(_var.AsString, "abc\n\tbb");
+		}
+
+		[Test]
 		public void AsIntInTest()
 		{
 

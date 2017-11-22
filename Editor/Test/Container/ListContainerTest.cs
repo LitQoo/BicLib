@@ -17,11 +17,11 @@ namespace BicDB.Container
 
 			ListContainer<StringVariable> _var = new ListContainer<StringVariable> ();
 
-			string _json = "[\"test\", \"123\", \"456\"]";
+			string _json = "[\"te\nst\", \"123\", \"456\"]";
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
-			Assert.AreEqual(_var[0].AsString, "test");
+			Assert.AreEqual(_var[0].AsString, "te\nst");
 			Assert.AreEqual(_var[1].AsString, "123");
 			Assert.AreEqual(_var[2].AsString, "456");
 		}
