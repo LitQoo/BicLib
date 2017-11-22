@@ -654,6 +654,13 @@ namespace BicUtil.Json
 			while (_counter < _json.Length) {
 				if (_json[_counter] == '\\') {
 					_counter++;
+					if(_json[_counter] == 'n'){
+						_result += '\n';
+						_counter++;
+					}else if(_json[_counter] == 't'){
+						_result += "\t";
+						_counter++;
+					}
 				} else if (_json[_counter] == '"') {
 					_variable.AsString = _result;
 					_counter++;
