@@ -10,7 +10,12 @@ namespace BicUtil.SingletonBase
 		public static T Instance{
 			get{ 
 				if (instance == null) {
-					throw new System.Exception ("Need Config Script Execution Order for Singleton");
+					Debug.LogWarning("Need Config Script Execution Order for Singleton");
+
+					var _container = new GameObject();  
+					_container.name = "TemporarySingleton";  
+					instance = _container.AddComponent(typeof(T)) as T;  
+					DontDestroyOnLoad(_container);
 				}
 
 				return instance;
