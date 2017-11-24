@@ -36,9 +36,11 @@ namespace BicDB.Storage
 		#region EncryptKey
 		private string encryptKey = "";
 		public void SetEncryptKey(string _key){
+			#if !UNITY_EDITOR
 			if (_key != string.Empty) {
 				encryptKey = _key.PadRight(16, '_');
 			}
+			#endif
 		}
 		#endregion
 
