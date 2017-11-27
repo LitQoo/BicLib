@@ -25,7 +25,7 @@ namespace BicUtil.ButtonShortcutManager
 				Func<KeyCode, bool> _keyFunc = Input.GetKeyDown;
 
 				if(buttonShortcutInfo[i].isKeyUp == true){
-					_keyFunc = Input.GetKeyDown;
+					_keyFunc = Input.GetKeyUp;
 				}
 
 				if(_keyFunc(buttonShortcutInfo[i].KeyCode)){
