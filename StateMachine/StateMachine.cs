@@ -66,6 +66,10 @@ namespace BicUtil.StateMachine{
 			lastState = currentState;
 			currentState = _state;
 
+			#if UNITY_EDITOR
+			UnityEngine.Debug.Log("[StateMachine] Load State " + currentState.ToString());
+			#endif
+
 			if(stateCallbacks.ContainsKey(_state)){
 				var _list = stateCallbacks [_state].ToArray();
 				for (int i = 0; i < _list.Length; i++) {
@@ -93,7 +97,7 @@ namespace BicUtil.StateMachine{
 			}
 
 			if (_isFind == false) {
-				UnityEngine.Debug.LogWarning (_trigger + " trigger is not registered in " + currentState.ToString() + " state");
+				UnityEngine.Debug.LogWarning ("[StateMachine] "+_trigger + " trigger is not registered in " + currentState.ToString() + " state");
 			}
 		}
 
@@ -113,7 +117,7 @@ namespace BicUtil.StateMachine{
 			var _waitStat = waitInfo [_state][_flowName];
 
 			if (_waitStat.ContainsKey (_trigger)) {
-				throw new SystemException (_trigger + " is already added");
+				throw new SystemException ("[StateMachine] "+_trigger + " is already added");
 			} else {
 				_waitStat.Add (_trigger, false);
 			}
@@ -181,14 +185,14 @@ namespace BicUtil.StateMachine{
 
 		public void Disposable(T _state, Action _callback){
 			if(!stateCallbacks.ContainsKey(_state)){
-				UnityEngine.Debug.LogWarning (_state.ToString () + " State not found");
+				UnityEngine.Debug.LogWarning ("[StateMachine] "+_state.ToString () + " State not found");
 				return;
 			}
 
 			if (stateCallbacks [_state].Contains (_callback)) {
 				stateCallbacks [_state].Remove (_callback);
 			} else {
-				UnityEngine.Debug.LogWarning (_state.ToString () + " State Callback not found");
+				UnityEngine.Debug.LogWarning ("[StateMachine] "+_state.ToString () + " State Callback not found");
 			}
 		}
 
