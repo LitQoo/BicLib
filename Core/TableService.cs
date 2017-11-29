@@ -20,11 +20,6 @@ namespace BicDB.Core
         #endregion
 
         #region Event
-        static string lastVersion = "";
-        static string currentVersion = "";
-        static bool isSetup = false;
-        static bool isUpdate = false;
-        static private Action onSetup;
         static public event Action OnSetup{
             add{
                 if(isInit == true && isSetup == true){
@@ -39,7 +34,6 @@ namespace BicDB.Core
             }
         }
 
-        static private Action<string, string> onUpdate;
         static public event Action<string, string> OnUpdate{
             add{
                 if(isInit == true && isUpdate == true && isSetup == false){
@@ -53,6 +47,13 @@ namespace BicDB.Core
 
             }
         }
+
+        static private string lastVersion = "";
+        static private string currentVersion = "";
+        static private bool isSetup = false;
+        static private bool isUpdate = false;
+        static private Action onSetup;
+        static private Action<string, string> onUpdate;
         #endregion
 
         #region Logic
@@ -73,6 +74,7 @@ namespace BicDB.Core
 
                 if(!TableInfo.Property.ContainsKey("isSetup")){
                     TableInfo.Property.Add("isSetup", new BoolVariable(true));
+                    TableInfo.Property.Add("initCount", new IntVariable(1));
                     TableInfo.Property.Add("version", new StringVariable(currentVersion));
                     TableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
@@ -85,6 +87,7 @@ namespace BicDB.Core
                     });
                 }else if(currentVersion != lastVersion){
                     TableInfo.Property["version"].AsVariable.AsString = currentVersion;
+                    TableInfo.Property["initCount"].AsVariable.AsInt++;
                     TableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                              if(onUpdate != null){
@@ -95,6 +98,9 @@ namespace BicDB.Core
                         }
                     });
 
+                }else{
+                    TableInfo.Property["initCount"].AsVariable.AsInt++;
+                    TableInfo.Save();
                 }
 
             }, new FileStorageParameter("filesystem"));
