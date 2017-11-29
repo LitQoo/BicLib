@@ -42,7 +42,12 @@ namespace BicUtil.ListValueSelector
 
         public void SelectAt(int _index){
             index = _index;
-            Current.AsObject = list[index];
+            if(list.Count > index){
+                Current.AsObject = list[index];
+            }else{
+                UnityEngine.Debug.Log("overload");
+                Current.AsObject = null;
+            }
         }
 
         public void SelectFindFirst(Func<T, bool> _finder){
