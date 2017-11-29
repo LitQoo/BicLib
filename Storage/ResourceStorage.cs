@@ -28,6 +28,8 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region IStorage
+		public string StorageType{get{ return "ResourceStorage"; }}
+		
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));

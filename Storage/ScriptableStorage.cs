@@ -4,6 +4,7 @@ using UnityEngine;
 using BicDB;
 using BicUtil.SingletonBase;
 using BicDB.Container;
+using System;
 
 namespace BicDB.Storage {
 	public class ScriptableStorage : MonoBehaviourHardBase<ScriptableStorage> , ITableStorage {
@@ -16,6 +17,8 @@ namespace BicDB.Storage {
 		}
 
 		#region IStorage
+		public string StorageType{get{ return "ScriptableStorage"; }}
+		
 		public void Save<T> (ITableContainer<T> _table, System.Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			throw new System.NotImplementedException ();

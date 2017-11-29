@@ -48,6 +48,7 @@ namespace BicDB.Storage
 
 	public interface ITableStorage
 	{
+		string StorageType{get;}
 		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new();
@@ -55,6 +56,7 @@ namespace BicDB.Storage
 
 	public interface IDataStoreStorage
 	{
+		string StorageType{get;}
 		void Save<T>(IDataStoreContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Load<T>(IDataStoreContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Pull<T>(IDataStoreContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new();

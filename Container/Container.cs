@@ -64,6 +64,10 @@ namespace BicDB.Container
 		#region event
 		Action<T> OnAddedRowActions { get; set; }
 		Action<T> OnRemovedRowActions { get; set;}
+
+		event Action OnSetup;
+		event Action<string, string> OnMigration;
+		event Action OnHashCodeError;
 		#endregion
 	}
 }

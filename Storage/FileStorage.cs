@@ -10,7 +10,6 @@ using BicUtil.Json;
 
 namespace BicDB.Storage
 {
-
 	public class FileStorage : ITableStorage{
 		#region Constant
 		static public string FILE_NAME_PREFIX = "bdb_"; 
@@ -34,6 +33,8 @@ namespace BicDB.Storage
 		#endregion
 
 		#region EncryptKey
+		private Dictionary<string, string> encryptKeys = new Dictionary<string, string>();
+
 		private string encryptKey = "";
 		public void SetEncryptKey(string _key){
 			#if !UNITY_EDITOR
@@ -42,16 +43,42 @@ namespace BicDB.Storage
 			}
 			#endif
 		}
+
+		public void SetEncryptKey(string _tableName, string _key){
+			#if !UNITY_EDITOR
+			if (_key != string.Empty) {
+				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			}
+			#endif
+		}
+
+		public string GetEncryptKey(string _tableName){
+			#if !UNITY_EDITOR
+			if(encryptKeys.ContainsKey(_tableName)){
+				return encryptKeys[_tableName];
+			}
+			#endif
+
+			return string.Empty;
+			
+		}
 		#endregion
 
 		#region IStorage
+		public string StorageType{get{ return "FileStorage"; }}
+
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
-
-			FileStorage.Write(_json, getFileName(_table.Name), encryptKey);
+			int _hashCode = _json.GetHashCode();
+			var _encryptKey = encryptKey;
+			if(encryptKeys.ContainsKey(_table.Name)){
+				_encryptKey = encryptKeys[_table.Name];
+			}
+			
+			FileStorage.Write(_json, getFileName(_table.Name), _encryptKey);
 
 			if (_callback != null) {
-				_callback(new Result((int)ResultCode.Success));
+				_callback(new Result((int)ResultCode.Success, _hashCode));
 			}
 		}
 
@@ -67,11 +94,26 @@ namespace BicDB.Storage
 
 		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
+			var _encryptKey = encryptKey;
+			if(encryptKeys.ContainsKey(_table.Name)){
+				_encryptKey = encryptKeys[_table.Name];
+			}else if(_parameter != null){
+				var _filestorageParameter = _parameter as FileStorageParameter;
+				if(_filestorageParameter.EncryptKey != ""){
+					SetEncryptKey(_table.Name, _filestorageParameter.EncryptKey);
+					_encryptKey = GetEncryptKey(_table.Name);
+				}
+			}
+			
 			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
+			int _hashCode = 0;
 			int _counter = 0;
 
-			var _result = new Result ((int)ResultCode.Success);
+			if(_data != null){
+				_hashCode = _data.GetHashCode();
+			}
 
+			var _result = new Result ((int)ResultCode.Success, _hashCode);
 
 			if (!string.IsNullOrEmpty (_data)) {
 				try {
@@ -209,6 +251,14 @@ namespace BicDB.Storage
 			return Output;
 		}
 		#endregion
+	}
+
+	public class FileStorageParameter{
+		public string EncryptKey;
+
+		public FileStorageParameter(string _encryptKey = ""){
+			EncryptKey = _encryptKey;
+		}
 	}
 }
 

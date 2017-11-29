@@ -45,6 +45,8 @@ namespace BicDB.Storage
 		#endregion
 
 		#region IStorage
+		public string StorageType{get{ return "SyncStorage"; }}
+		
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 
 			string _json = string.Empty;

@@ -4,6 +4,7 @@ using System.Linq;
 using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Storage;
+using BicDB.Core;
 
 namespace BicDB.Container
 {
@@ -42,10 +43,15 @@ namespace BicDB.Container
 		#region ITableContainer
 		public virtual Action<T> OnAddedRowActions { get; set; }
 		public virtual Action<T> OnRemovedRowActions { get; set; }
+
+		public event Action OnSetup;
+		public event Action<string, string> OnMigration;
+		public event Action OnHashCodeError;
 		#endregion
 
 		#region LifeCycle
 		public TableContainer(string _name){
+			TableService.Init();
 			Name = _name;
 		}
 		#endregion
@@ -190,11 +196,69 @@ namespace BicDB.Container
 		}
 
 		public void Save(Action<Result> _callback = null, object _parameter = null){
-			storage.Save(this, _callback, _parameter);
+			storage.Save(this, _result=>{
+				if(_result.Code == 0){
+					if(Name != TableService.TABLENAME){
+						var _tableInfo = TableService.GetTableInfo(Name);
+						_tableInfo.StorageType.AsString = storage.StorageType;
+						_tableInfo.HashCode.AsInt = _result.HashCode;
+						_tableInfo.SaveCount.AsInt++;
+						TableService.TableInfo.Save();
+					}
+				}
+
+				if(_callback !=null){
+					_callback(_result);
+				}
+			}, _parameter);
+			
+			
 		}
 
 		public void Load(Action<Result> _callback = null, object _parameter = null){
-			storage.Load(this, _callback, _parameter);
+			storage.Load(this, _result=>{
+				if(_result.Code == 0){
+					if(Name != TableService.TABLENAME){
+						bool _saveTableInfomaiton = false;
+						var _tableInfo = TableService.GetTableInfo(Name);
+						if(_tableInfo.StorageType.AsString == string.Empty){
+							if(this.OnSetup != null){
+								this.OnSetup();
+							}
+
+							_tableInfo.StorageType.AsString = storage.StorageType;
+							_saveTableInfomaiton = true;
+						}else if(_tableInfo.StorageType.AsString != storage.StorageType){
+							//onmigration
+							if(this.OnMigration != null){
+								this.OnMigration(_tableInfo.StorageType.AsString, storage.StorageType);
+							}
+
+							_tableInfo.StorageType.AsString = storage.StorageType;
+							_saveTableInfomaiton = true;
+						}
+
+						if(_tableInfo.HashCode.AsInt != _result.HashCode){
+							if(this.OnHashCodeError != null){
+								this.OnHashCodeError();
+							}
+							
+							_tableInfo.ErrorCount.AsInt++;
+							_tableInfo.HashCode.AsInt = _result.HashCode;
+							_saveTableInfomaiton = true;
+						}
+
+						if(_saveTableInfomaiton == true){
+							_tableInfo.SaveCount.AsInt++;
+							TableService.TableInfo.Save();
+						}
+					}
+				}
+
+				if(_callback !=null){
+					_callback(_result);
+				}
+			}, _parameter);
 		}
 
 		public void Pull(Action<Result> _callback = null, object _parameter = null){
