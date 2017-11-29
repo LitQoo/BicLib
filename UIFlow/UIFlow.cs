@@ -28,6 +28,7 @@ namespace BicUtil.UIFlow
 		#endregion
 
 		private List<UIInfo> uiStack = new List<UIInfo> ();
+		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private bool isWait = false;
 
@@ -52,15 +53,29 @@ namespace BicUtil.UIFlow
 			Type _objectType = typeof(UIClass);
 			
 			if(uiObjects.ContainsKey(_objectType) == false){
-				throw new System.Exception ("not found object " + _objectType.ToString());
+				throw new System.Exception ("[UIFLOW] not found object " + _objectType.ToString());
 			}
+
 			Enter (uiObjects[_objectType], _openMode, _parameter);
 		}
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
 			if (isWait == true) {
+				#if UNITY_EDITOR
+				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation");
+				#endif
+
+				if(reservationUI != null){
+					throw new System.Exception("[UIFLOW] did not reservation UI " + _ui.ToString());
+				}
+
+				reservationUI = new UIInfo(_ui, _openMode, _parameter);
 				return;
 			}
+
+			#if UNITY_EDITOR
+			Debug.Log("[UIFLOW] OPEN " + _ui.ToString());
+			#endif
 
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 				close (currentUiInfo.UI, _ui, CloseMode.Disable, () => {
@@ -95,6 +110,15 @@ namespace BicUtil.UIFlow
 					}
 				}
 			}, _parameter);
+		}
+
+		private void finishWait(){
+			isWait = false;
+			if(reservationUI != null){
+				var _reservationUI = reservationUI;
+				reservationUI = null;
+				Enter(_reservationUI.UI, _reservationUI.OpenMode, _reservationUI.Parameter);
+			}
 		}
 
 
@@ -182,7 +206,7 @@ namespace BicUtil.UIFlow
 				}
 
 				_finishCallback ();
-				isWait = false;
+				finishWait();
 			};
 
 			Action _finishFunc = () => {
@@ -199,7 +223,7 @@ namespace BicUtil.UIFlow
 
 			if (_result == OnCloseUIResult.DoNotWait) {
 				_finishFunc ();
-				isWait = false;
+				finishWait();
 			} else if (_result == OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext) {
 				_manageStack ();
 				_manageStack = null;
