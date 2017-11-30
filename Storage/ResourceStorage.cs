@@ -81,6 +81,7 @@ namespace BicDB.Storage{
 
 		#region ResourceControl
 		public string Read(string _filePath){
+			
 			#if UNITY_EDITOR
 			string tPath = Application.dataPath + "/Resources/" + _filePath;
 
@@ -102,6 +103,10 @@ namespace BicDB.Storage{
 				return null;
 			}
 			#else
+			if(_filePath.Contains(".")){
+				_filePath = _filePath.Split('.')[0];
+			}
+			
 			TextAsset tText = Resources.Load<TextAsset>(_filePath);
 			return tText.text;
 			#endif 

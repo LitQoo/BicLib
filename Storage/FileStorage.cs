@@ -105,7 +105,7 @@ namespace BicDB.Storage
 				}
 			}
 			
-			string _data = FileStorage.Read(getFileName(_table.Name), encryptKey);
+			string _data = FileStorage.Read(getFileName(_table.Name), _encryptKey);
 			int _hashCode = 0;
 			int _counter = 0;
 
@@ -163,7 +163,7 @@ namespace BicDB.Storage
 		static public string Read(string _fileName, string _key){
 			#if !WEB_BUILD
 			string _path = Application.persistentDataPath + "/" + _fileName;
-
+			
 			if (System.IO.File.Exists(_path))
 			{
 				System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read);
@@ -174,13 +174,15 @@ namespace BicDB.Storage
 				_file.Close();
 
 				if(_key != string.Empty){
-					return AESDecrypt256(_data, _key);
+					var _result = AESDecrypt256(_data, _key);
+					return _result;
 				}else{
 					return _data;
 				}
 			}
 			else
 			{
+				Debug.LogWarning("file not exists " + _path);
 				return null;
 			}
 			#else
