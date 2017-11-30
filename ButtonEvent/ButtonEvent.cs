@@ -48,6 +48,8 @@ namespace BicUtil.ButtonEvent{
 
 			if(actionsCache[_object].ContainsKey(_eventName) == false){
 				actionsCache[_object].Add(_eventName, _action);
+			}else{
+				actionsCache[_object][_eventName] += _action;
 			}
 		}
 
