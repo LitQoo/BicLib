@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using BicUtil.UnscaledTimeTween;
+using BicUtil.Tween;
 
 namespace BicUtil
 {

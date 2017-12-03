@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace BicUtil.UnscaledTimeTween
+namespace BicUtil.Tween
 {
 	public class CoroutineTween : SingletonBase.MonoBehaviourHardBase<CoroutineTween> {
 		#region Alpha
