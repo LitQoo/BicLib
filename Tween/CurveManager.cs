@@ -47,4 +47,5 @@ namespace BicUtil.Tween
 			return 3f * negt * negt * (p1 - p0) + 6f * negt * t * (p2 - p1) + 3f * t * t * (p3 - p2);
 		}
 	}	
+
 }

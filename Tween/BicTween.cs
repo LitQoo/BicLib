@@ -37,15 +37,23 @@ namespace BicUtil.Tween
 			}
 		}
 
+		public static LTDescr moveLocal(GameObject gameObject, Vector3 to, float time){
+			if(Application.isPlaying){
+				return LeanTween.moveLocal(gameObject, to, time);
+			}else{
+				return LeanTweenOnEditor.moveLocal(gameObject, to, time);
+			}
+		}
+
 		public static void PlayMecanimAnimation(Animator _animator, string _stateHashName){
-			_animator.Play(_stateHashName);
-			
-			if(!Application.isPlaying){
+			if(Application.isPlaying){
+				_animator.Play(_stateHashName);
+			}else{
+				_animator.Play(_stateHashName, -1, 0f);
 				LeanTweenOnEditor.AddUpdateCallback((_id, _dt)=>{
 					_animator.Update(_dt);
 
-					
-					if( _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1 || _animator.isActiveAndEnabled == false){
+					if(_animator.isActiveAndEnabled == false || _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
 						LeanTweenOnEditor.RemoveUpdateCallback(_id);
 					}
 			 	});

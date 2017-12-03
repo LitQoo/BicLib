@@ -24,7 +24,6 @@ namespace BicUtil.Tween{
 		bool curvetweenFoldout = true;
 		bool visibleHandle = true;
 		bool curveListFoldout = true;
-		bool tweenPreviewFoldout = true;
 		bool isPreviewing = false;
 
 		Vector2 pointsScrollPosition = new Vector2(0, 0);
@@ -64,19 +63,6 @@ namespace BicUtil.Tween{
 				endPointSize = EditorGUILayout.Slider("End Point Size", endPointSize, 1, 30);
 				visibleHandle = EditorGUILayout.Toggle("Visible Handle", visibleHandle);
 				EditorUtility.SetDirty(curveManager);
-			}
-			
-			tweenPreviewFoldout = EditorGUILayout.Foldout(tweenPreviewFoldout, "Tween Preview");
-
-			if(tweenPreviewFoldout == true){
-				this.serializedObject.Update();
-				EditorGUILayout.PropertyField(this.serializedObject.FindProperty("PreviewAction"), true);
-				this.serializedObject.ApplyModifiedProperties();
-				if (GUILayout.Button("Preivew")) {
-					Undo.IncrementCurrentGroup();
-					Undo.SetCurrentGroupName("Preview");
-					curveManager.PreviewAction.Invoke();
-				}
 			}
 
 			curveListFoldout = EditorGUILayout.Foldout(curveListFoldout, "Curve List");
