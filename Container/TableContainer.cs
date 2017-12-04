@@ -199,7 +199,7 @@ namespace BicDB.Container
 			storage.Save(this, _result=>{
 				if(_result.Code == 0){
 					if(Name != TableService.TABLENAME){
-						var _tableInfo = TableService.GetTableInfo(Name);
+						var _tableInfo = TableService.GetTableInfo(Name, true);
 						_tableInfo.StorageType.AsString = storage.StorageType;
 						_tableInfo.HashCode.AsInt = _result.HashCode;
 						_tableInfo.SaveCount.AsInt++;
@@ -221,13 +221,10 @@ namespace BicDB.Container
 					if(Name != TableService.TABLENAME){
 						bool _saveTableInfomaiton = false;
 						var _tableInfo = TableService.GetTableInfo(Name);
-						if(_tableInfo.StorageType.AsString == string.Empty){
+						if(_tableInfo == null){
 							if(this.OnSetup != null){
 								this.OnSetup();
 							}
-
-							_tableInfo.StorageType.AsString = storage.StorageType;
-							_saveTableInfomaiton = true;
 						}else if(_tableInfo.StorageType.AsString != storage.StorageType){
 							//onmigration
 							if(this.OnMigration != null){
@@ -238,7 +235,7 @@ namespace BicDB.Container
 							_saveTableInfomaiton = true;
 						}
 
-						if(_tableInfo.HashCode.AsInt != _result.HashCode){
+						if(_tableInfo != null && _tableInfo.HashCode.AsInt != _result.HashCode){
 							if(this.OnHashCodeError != null){
 								this.OnHashCodeError();
 							}

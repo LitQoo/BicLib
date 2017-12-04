@@ -107,9 +107,9 @@ namespace BicDB.Core
 
         }
 
-        static public TableModel GetTableInfo(string _tableName){
+        static public TableModel GetTableInfo(string _tableName, bool _createIfNotExsit = false){
             var _tableInfo = TableInfo.FirstOrDefault(_row=>_row.Name.AsString == _tableName);
-            if(_tableInfo == null){
+            if(_tableInfo == null && _createIfNotExsit == true){
                 _tableInfo = new TableModel();
                 _tableInfo.Name.AsString = _tableName;
                 TableInfo.Add(_tableInfo);
