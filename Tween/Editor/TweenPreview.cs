@@ -12,18 +12,27 @@ public class TweenPreview : EditorWindow {
 	public static void ShowWindow(){
 		GetWindow<TweenPreview>("Tween Preview");
 	}
-	void OnEnable()
+
+	private void OnEnable()
 	{
+		EditorApplication.playModeStateChanged += HandleOnPlayModeChanged;
 		EditorApplication.update += EditorUpdate;
 	}
 
-	void OnDisable()
+	private void OnDisable()
 	{
+		EditorApplication.playModeStateChanged -= HandleOnPlayModeChanged;
 		EditorApplication.update -= EditorUpdate;
 		LeanTweenOnEditor.ClearUpdateCallback();
 	}
 
-	void EditorUpdate(){
+    private void HandleOnPlayModeChanged(PlayModeStateChange _mode)
+    {
+		selectedPreview = null;
+        PreviewList.Clear();
+    }
+
+    void EditorUpdate(){
 		LeanTweenOnEditor.update();
 	}
 	
@@ -57,6 +66,7 @@ public class TweenPreview : EditorWindow {
 				GUI.FocusControl(null);
 			}
 		}
+
 		EditorGUILayout.EndScrollView();
 		EditorGUILayout.EndVertical();
 
