@@ -6,46 +6,67 @@ namespace BicUtil.Tween
 {	
 	public static class BicTween {
 		public static LTDescr scale(GameObject gameObject, Vector3 to, float time){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				return LeanTween.scale(gameObject, to, time);
 			}else{
 				return LeanTweenOnEditor.scale(gameObject, to, time);
 			}
+			#else
+			return LeanTween.scale(gameObject, to, time);
+			#endif
 		}
 
 		public static LTDescr rotateZ(GameObject gameObject, float to, float time){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				return LeanTween.rotateZ(gameObject, to, time);
 			}else{
 				return LeanTweenOnEditor.rotateZ(gameObject, to, time);
 			}
+			#else
+			return LeanTween.rotateZ(gameObject, to, time);
+			#endif
 		}
 
 		public static LTDescr delayedCall( float delayTime, Action callback){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				return LeanTween.delayedCall(delayTime, callback);
 			}else{
 				return LeanTweenOnEditor.delayedCall(delayTime, callback);
 			}
+			#else
+			return LeanTween.delayedCall(delayTime, callback);
+			#endif
 		}
 
 		public static LTDescr moveLocal(GameObject gameObject, Vector3[] to, float time){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				return LeanTween.moveLocal(gameObject, to, time);
 			}else{
 				return LeanTweenOnEditor.moveLocal(gameObject, to, time);
 			}
+			#else
+			return LeanTween.moveLocal(gameObject, to, time);
+			#endif
 		}
 
 		public static LTDescr moveLocal(GameObject gameObject, Vector3 to, float time){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				return LeanTween.moveLocal(gameObject, to, time);
 			}else{
 				return LeanTweenOnEditor.moveLocal(gameObject, to, time);
 			}
+			#else
+			return LeanTween.moveLocal(gameObject, to, time);
+			#endif
 		}
 
 		public static void PlayMecanimAnimation(Animator _animator, string _stateHashName){
+			#if UNITY_EDITOR
 			if(Application.isPlaying){
 				_animator.Play(_stateHashName);
 			}else{
@@ -58,6 +79,9 @@ namespace BicUtil.Tween
 					}
 			 	});
 			}
+			#else
+			_animator.Play(_stateHashName);
+			#endif
 		}
 	}
 }
