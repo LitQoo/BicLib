@@ -9,11 +9,11 @@ using System.Globalization;
 
 namespace BicUtil.StateMachine{
 	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class StateMachineAttribute : System.Attribute
+	sealed class SubscribeStateAttribute : System.Attribute
 	{
 		readonly string stateName;
 		
-		public StateMachineAttribute(object _stateEnum)
+		public SubscribeStateAttribute(object _stateEnum)
 		{
 			this.stateName = _stateEnum.ToString();
 			this.InsertPosition = -1;
@@ -208,7 +208,7 @@ namespace BicUtil.StateMachine{
 		public void SubscribeByAttribute(object _object){
 			var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			foreach(var _method in methods){
-				StateMachineAttribute _u = (StateMachineAttribute)_method.GetCustomAttributes(typeof(StateMachineAttribute), true).FirstOrDefault();
+				SubscribeStateAttribute _u = (SubscribeStateAttribute)_method.GetCustomAttributes(typeof(SubscribeStateAttribute), true).FirstOrDefault();
 				if(_u != null){
 					Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
 					this.Subscribe((T) Enum.Parse(typeof(T), _u.StateName), _action, _u.InsertPosition);

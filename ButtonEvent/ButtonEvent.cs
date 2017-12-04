@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace BicUtil.ButtonEvent{
 	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class ButtonEventAttribute : System.Attribute
+	sealed class SubscribeButtonAttribute : System.Attribute
 	{
 		readonly string eventName;
 		
-		public ButtonEventAttribute(string _eventName)
+		public SubscribeButtonAttribute(string _eventName)
 		{
 			this.eventName = _eventName;
 		}
@@ -26,10 +26,10 @@ namespace BicUtil.ButtonEvent{
 	public class ButtonEvent{
 		static private Dictionary<object, Dictionary<string, Action>> actionsCache = new Dictionary<object, Dictionary<string, Action>>();
 
-		static public bool CallEvent(object[] _objects, string _eventName, bool _allowMultipleCall = false){
+		static public bool Notify(object[] _objects, string _eventName, bool _allowMultipleCall = false){
 			bool _result = false;
 			for(int i = 0; i <_objects.Length; i++){
-				if(CallEvent(_objects[i], _eventName) == true){
+				if(Notify(_objects[i], _eventName) == true){
 					_result = true;
 
 					if(_allowMultipleCall == false){
@@ -41,7 +41,7 @@ namespace BicUtil.ButtonEvent{
 			return _result;
 		}
 
-		static public void AddActionInCache(object _object, string _eventName, Action _action){
+		static private void addActionInCache(object _object, string _eventName, Action _action){
 			if(actionsCache.ContainsKey(_object) == false){
 				actionsCache.Add(_object, new Dictionary<string, Action>());
 			}
@@ -53,18 +53,18 @@ namespace BicUtil.ButtonEvent{
 			}
 		}
 
-		static public void AddActionsInCache(object _objectHavingButton, object _objectHavingEvent){
+		static public void SubscribeByAttribute(object _objectHavingButton, object _objectHavingEvent){
 			var methods = _objectHavingEvent.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			foreach(var _method in methods){
-				ButtonEventAttribute _u = (ButtonEventAttribute)_method.GetCustomAttributes(typeof(ButtonEventAttribute), true).FirstOrDefault();
+				SubscribeButtonAttribute _u = (SubscribeButtonAttribute)_method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true).FirstOrDefault();
 				if(_u != null){
 					Action _action = ()=>_method.Invoke(_objectHavingEvent, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
-					AddActionInCache(_objectHavingButton, _u.EventName, _action);
+					addActionInCache(_objectHavingButton, _u.EventName, _action);
 				}
 			}
 		}
 
-		static public bool CallEvent(object _object, string _eventName){
+		static public bool Notify(object _object, string _eventName){
 			if(actionsCache.ContainsKey(_object) && actionsCache[_object].ContainsKey(_eventName)){
 				actionsCache[_object][_eventName]();
 				return true;
@@ -72,10 +72,10 @@ namespace BicUtil.ButtonEvent{
 
 			var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			foreach(var _method in methods){
-				ButtonEventAttribute _u = (ButtonEventAttribute)_method.GetCustomAttributes(typeof(ButtonEventAttribute), true).FirstOrDefault();
+				SubscribeButtonAttribute _u = (SubscribeButtonAttribute)_method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true).FirstOrDefault();
 				if(_u != null && _u.EventName == _eventName){
 					Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
-					AddActionInCache(_object, _eventName, _action);
+					addActionInCache(_object, _eventName, _action);
 					_action();
 					return true;
 				}
@@ -84,7 +84,7 @@ namespace BicUtil.ButtonEvent{
 			return false;
 		}
 
-		static public void ClearChache(object _object){
+		static public void ClearSubscription(object _object){
 			actionsCache.Remove(_object);
 		}
 	}
