@@ -6,13 +6,13 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BicUtil.ButtonEvent{
+namespace BicUtil.EventNotifyer{
 	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class SubscribeButtonAttribute : System.Attribute
+	sealed class SubscribeEventAttribute : System.Attribute
 	{
 		readonly string eventName;
 		
-		public SubscribeButtonAttribute(string _eventName)
+		public SubscribeEventAttribute(string _eventName)
 		{
 			this.eventName = _eventName;
 		}
@@ -35,7 +35,7 @@ namespace BicUtil.ButtonEvent{
 
 	}
 
-	public class ButtonEvent{
+	public class EventNotifyer{
 		static private Dictionary<object, Dictionary<string, Action>> actionsCache = new Dictionary<object, Dictionary<string, Action>>();
 		static private List<object> cachedSelfObjects = new List<object>();
 		static public bool Notify(object[] _objects, string _eventName, bool _allowMultipleCall = false){
@@ -55,7 +55,7 @@ namespace BicUtil.ButtonEvent{
 
 		static private void addActionInCache(object _object, string _eventName, Action _action){
 			if(_object == null){
-				throw new SystemException("[ButtonEvent] target object is null, check to set object on editor");
+				throw new SystemException("[EventNotifyer] target object is null, check to set object on editor");
 			}
 			
 			if(actionsCache.ContainsKey(_object) == false){
@@ -73,9 +73,9 @@ namespace BicUtil.ButtonEvent{
 			var methods = _objectHavingEvent.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			bool _isAdded = false;
 			foreach(var _method in methods){
-				var _attributes = _method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true);
+				var _attributes = _method.GetCustomAttributes(typeof(SubscribeEventAttribute), true);
 				
-				foreach(SubscribeButtonAttribute _attribute in _attributes){
+				foreach(SubscribeEventAttribute _attribute in _attributes){
 					if(_attribute != null && _attribute.TargetType == _objectHavingButton.GetType()){
 						Action _action = ()=>_method.Invoke(_objectHavingEvent, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
 						addActionInCache(_objectHavingButton, _attribute.EventName, _action);
@@ -85,7 +85,7 @@ namespace BicUtil.ButtonEvent{
 			}
 
 			if(_isAdded == false){
-				throw new SystemException("[ButtonEvent] Do not added Event, check TargetType parameter");
+				throw new SystemException("[EventNotifyer] Do not added Event, check TargetType parameter");
 			}
 		}
 
@@ -107,8 +107,8 @@ namespace BicUtil.ButtonEvent{
 				var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			
 				foreach(var _method in methods){
-					var _attributes = _method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true);
-					foreach(SubscribeButtonAttribute _buttonAttribute in _attributes){
+					var _attributes = _method.GetCustomAttributes(typeof(SubscribeEventAttribute), true);
+					foreach(SubscribeEventAttribute _buttonAttribute in _attributes){
 						if(_buttonAttribute != null && _buttonAttribute.TargetType == null){
 							Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
 							addActionInCache(_object, _buttonAttribute.EventName, _action);
