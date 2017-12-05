@@ -21,11 +21,23 @@ namespace BicUtil.ButtonEvent{
 		{
 			get { return eventName; }
 		}
+
+		private Type targetType = null;
+		public Type TargetType{
+			get{
+				return targetType;
+			}
+
+			set{
+				targetType = value;
+			}
+		}
+
 	}
 
 	public class ButtonEvent{
 		static private Dictionary<object, Dictionary<string, Action>> actionsCache = new Dictionary<object, Dictionary<string, Action>>();
-
+		static private List<object> cachedSelfObjects = new List<object>();
 		static public bool Notify(object[] _objects, string _eventName, bool _allowMultipleCall = false){
 			bool _result = false;
 			for(int i = 0; i <_objects.Length; i++){
@@ -42,6 +54,10 @@ namespace BicUtil.ButtonEvent{
 		}
 
 		static private void addActionInCache(object _object, string _eventName, Action _action){
+			if(_object == null){
+				throw new SystemException("[ButtonEvent] target object is null, check to set object on editor");
+			}
+			
 			if(actionsCache.ContainsKey(_object) == false){
 				actionsCache.Add(_object, new Dictionary<string, Action>());
 			}
@@ -55,33 +71,53 @@ namespace BicUtil.ButtonEvent{
 
 		static public void SubscribeByAttribute(object _objectHavingButton, object _objectHavingEvent){
 			var methods = _objectHavingEvent.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			bool _isAdded = false;
 			foreach(var _method in methods){
-				SubscribeButtonAttribute _u = (SubscribeButtonAttribute)_method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true).FirstOrDefault();
-				if(_u != null){
-					Action _action = ()=>_method.Invoke(_objectHavingEvent, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
-					addActionInCache(_objectHavingButton, _u.EventName, _action);
+				var _attributes = _method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true);
+				
+				foreach(SubscribeButtonAttribute _attribute in _attributes){
+					if(_attribute != null && _attribute.TargetType == _objectHavingButton.GetType()){
+						Action _action = ()=>_method.Invoke(_objectHavingEvent, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
+						addActionInCache(_objectHavingButton, _attribute.EventName, _action);
+						_isAdded = true;
+					}
 				}
+			}
+
+			if(_isAdded == false){
+				throw new SystemException("[ButtonEvent] Do not added Event, check TargetType parameter");
 			}
 		}
 
 		static public bool Notify(object _object, string _eventName){
+			
+			bool _result = false;
+			SubscribeBySelf(_object);
+
 			if(actionsCache.ContainsKey(_object) && actionsCache[_object].ContainsKey(_eventName)){
-				actionsCache[_object][_eventName]();
-				return true;
+				actionsCache[_object][_eventName].Invoke();
+				_result = true;
 			}
 
-			var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			foreach(var _method in methods){
-				SubscribeButtonAttribute _u = (SubscribeButtonAttribute)_method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true).FirstOrDefault();
-				if(_u != null && _u.EventName == _eventName){
-					Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
-					addActionInCache(_object, _eventName, _action);
-					_action();
-					return true;
+			return _result;
+		}
+
+		static public void SubscribeBySelf(object _object){
+			if(cachedSelfObjects.Contains(_object) == false){
+				var methods = _object.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			
+				foreach(var _method in methods){
+					var _attributes = _method.GetCustomAttributes(typeof(SubscribeButtonAttribute), true);
+					foreach(SubscribeButtonAttribute _buttonAttribute in _attributes){
+						if(_buttonAttribute != null && _buttonAttribute.TargetType == null){
+							Action _action = ()=>_method.Invoke(_object, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
+							addActionInCache(_object, _buttonAttribute.EventName, _action);
+						}
+					}
 				}
-			}
 
-			return false;
+				cachedSelfObjects.Add(_object);
+			}
 		}
 
 		static public void ClearSubscription(object _object){
