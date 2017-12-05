@@ -103,7 +103,7 @@ namespace BicUtil.Tween
 		}
 
 		static public LTDescr levelUp(UnityEngine.UI.Slider _slider, float _toValue, float _time, float _nextMax, float _levelUpDelay){
-			if(_toValue > _slider.maxValue){
+			if(_toValue > _slider.maxValue && _nextMax > 0){
 				//levelup
 				return BicTween.moveSlider(_slider, _slider.maxValue, _time).setOnComplete(()=>{
 					BicTween.delayedCall(_levelUpDelay, ()=>{
