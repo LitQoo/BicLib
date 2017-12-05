@@ -20,6 +20,10 @@ namespace BicUtil.ListValueSelector
             SelectAt(index + 1);
         }
 
+        public void SelectCurrent(){
+            SelectAt(index);
+        }
+
         public bool HasNext(){
             return list.Count > index;
         }
