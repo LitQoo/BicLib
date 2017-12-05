@@ -83,5 +83,41 @@ namespace BicUtil.Tween
 			_animator.Play(_stateHashName);
 			#endif
 		}
+
+		static public LTDescr moveSlider(UnityEngine.UI.Slider _slider, float _toValue, float _time){
+			#if UNITY_EDITOR
+			if(Application.isPlaying){
+				return LeanTween.value(_slider.gameObject, _slider.value, _toValue, _time).setOnUpdate((float _result)=>{
+					_slider.value = _result;
+				});
+			}else{
+				return LeanTweenOnEditor.value(_slider.gameObject, _slider.value, _toValue, _time).setOnUpdate((float _result)=>{
+					_slider.value = _result;
+				});
+			}
+			#else
+			return LeanTween.value(_slider.gameObject, _slider.value, _toValue, _time).setOnUpdate((float _result)=>{
+					_slider.value = _result;
+				});
+			#endif
+		}
+
+		static public LTDescr levelUp(UnityEngine.UI.Slider _slider, float _toValue, float _time, float _nextMax, float _levelUpDelay){
+			if(_toValue > _slider.maxValue){
+				//levelup
+				return BicTween.moveSlider(_slider, _slider.maxValue, _time).setOnComplete(()=>{
+					BicTween.delayedCall(_levelUpDelay, ()=>{
+						_slider.minValue = _slider.maxValue;
+						_slider.maxValue = _nextMax;
+						BicTween.moveSlider(_slider, _toValue, 0.5f);
+					});
+				});
+
+
+			}else{
+				return BicTween.moveSlider(_slider, _toValue, _time);
+			}
+		}
 	}
+
 }

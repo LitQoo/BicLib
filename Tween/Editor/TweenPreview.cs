@@ -17,6 +17,7 @@ public class TweenPreview : EditorWindow {
 	{
 		EditorApplication.playModeStateChanged += HandleOnPlayModeChanged;
 		EditorApplication.update += EditorUpdate;
+		
 	}
 
 	private void OnDisable()
@@ -24,6 +25,7 @@ public class TweenPreview : EditorWindow {
 		EditorApplication.playModeStateChanged -= HandleOnPlayModeChanged;
 		EditorApplication.update -= EditorUpdate;
 		LeanTweenOnEditor.ClearUpdateCallback();
+		LeanTweenOnEditor.tweenEmpty = null;
 	}
 
     private void HandleOnPlayModeChanged(PlayModeStateChange _mode)
@@ -106,6 +108,8 @@ public class TweenPreview : EditorWindow {
 		PreviewList.Clear();
 
 			object[] _allObject = GameObject.FindSceneObjectsOfType(typeof (GameObject));
+			LeanTweenOnEditor.tweenEmpty = _allObject[0] as GameObject;
+
 			foreach (object _object in _allObject)
 			{
 				GameObject _targetObject = (GameObject) _object;
