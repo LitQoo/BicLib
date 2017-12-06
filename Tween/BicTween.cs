@@ -41,6 +41,18 @@ namespace BicUtil.Tween
 			#endif
 		}
 
+		public static LTDescr delayedCall(GameObject gameObject, float delayTime, Action callback){
+			#if UNITY_EDITOR
+			if(Application.isPlaying){
+				return LeanTween.delayedCall(gameObject, delayTime, callback);
+			}else{
+				return LeanTweenOnEditor.delayedCall(gameObject, delayTime, callback);
+			}
+			#else
+			return LeanTween.delayedCall(gameObject, delayTime, callback);
+			#endif
+		}
+
 		public static LTDescr moveLocal(GameObject gameObject, Vector3[] to, float time){
 			#if UNITY_EDITOR
 			if(Application.isPlaying){
@@ -103,16 +115,21 @@ namespace BicUtil.Tween
 		}
 
 		static public LTDescr levelUp(UnityEngine.UI.Slider _slider, float _toValue, float _time, float _nextMax, float _levelUpDelay){
-			if(_toValue > _slider.maxValue && _nextMax > 0){
+			if(_toValue >= _slider.maxValue && _nextMax > 0){
 				//levelup
-				return BicTween.moveSlider(_slider, _slider.maxValue, _time).setOnComplete(()=>{
-					BicTween.delayedCall(_levelUpDelay, ()=>{
-						_slider.minValue = _slider.maxValue;
-						_slider.maxValue = _nextMax;
-						BicTween.moveSlider(_slider, _toValue, 0.5f);
-					});
+				
+				float _delay = _time;
+				BicTween.moveSlider(_slider, _slider.maxValue, _delay);
+
+				_delay += 1f/60f + _levelUpDelay;
+				BicTween.delayedCall(_delay, ()=>{
+					_slider.minValue = _slider.maxValue;
+					_slider.maxValue = _nextMax;
+					BicTween.moveSlider(_slider, _toValue, _time);
 				});
 
+				_delay += 1f/60f + _time;
+				return BicTween.delayedCall(_delay, null);
 
 			}else{
 				return BicTween.moveSlider(_slider, _toValue, _time);

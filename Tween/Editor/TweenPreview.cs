@@ -107,23 +107,23 @@ public class TweenPreview : EditorWindow {
 	private void findPreview(){
 		PreviewList.Clear();
 
-			object[] _allObject = GameObject.FindSceneObjectsOfType(typeof (GameObject));
-			LeanTweenOnEditor.tweenEmpty = _allObject[0] as GameObject;
+		object[] _allObject = GameObject.FindSceneObjectsOfType(typeof (GameObject));
+		LeanTweenOnEditor.tweenEmpty = _allObject[0] as GameObject;
 
-			foreach (object _object in _allObject)
-			{
-				GameObject _targetObject = (GameObject) _object;
-				var _components = _targetObject.GetComponents(typeof(MonoBehaviour));
-				foreach(var _component in _components){
-					var _methods = _component.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-					foreach(var _method in _methods){
-						TweenPreviewAttribute _attribute = (TweenPreviewAttribute)_method.GetCustomAttributes(typeof(TweenPreviewAttribute), true).FirstOrDefault();
-						
-						if(_attribute != null){
-							PreviewList.Add(new PreviewInfo(_method, _attribute, _component));
-						}
+		foreach (object _object in _allObject)
+		{
+			GameObject _targetObject = (GameObject) _object;
+			var _components = _targetObject.GetComponents(typeof(MonoBehaviour));
+			foreach(var _component in _components){
+				var _methods = _component.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				foreach(var _method in _methods){
+					TweenPreviewAttribute _attribute = (TweenPreviewAttribute)_method.GetCustomAttributes(typeof(TweenPreviewAttribute), true).FirstOrDefault();
+					
+					if(_attribute != null){
+						PreviewList.Add(new PreviewInfo(_method, _attribute, _component));
 					}
 				}
 			}
+		}
 	}
 }
