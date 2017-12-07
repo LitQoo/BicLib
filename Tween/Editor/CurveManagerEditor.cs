@@ -136,12 +136,14 @@ namespace BicUtil.Tween{
 				if (GUILayout.Button(isPreviewing == false ? "Preview" : "Playing")) {
 					if(isPreviewing == false && selectedCurve.targetObject != null){
 						isPreviewing = true;
+						AnimationMode.StartAnimationMode();
 						var _positionBackup = selectedCurve.targetObject.transform.localPosition;
 						var _be = new LTBezierPath(selectedCurve.GetPathForLeantween(Vector3.zero).ToArray());
 						LeanTweenOnEditor.moveLocal(selectedCurve.targetObject, _be, selectedCurve.animationTime).setEase(selectedCurve.easeType).setOnComplete(()=>{
 							LeanTweenOnEditor.delayedCall(selectedCurve.targetObject, 0.3f, ()=>{
 								selectedCurve.targetObject.transform.localPosition = _positionBackup;
 								isPreviewing = false;
+								AnimationMode.StopAnimationMode();
 							});
 						});
 					}

@@ -35,7 +35,12 @@ public class TweenPreview : EditorWindow {
     }
 
     void EditorUpdate(){
-		LeanTweenOnEditor.update();
+		if(AnimationMode.InAnimationMode()){
+			LeanTweenOnEditor.update();
+			if(!LeanTweenOnEditor.isTweening()){
+				AnimationMode.StopAnimationMode();
+			}
+		}
 	}
 	
 	private class PreviewInfo{
@@ -91,6 +96,8 @@ public class TweenPreview : EditorWindow {
 
 			if(GUILayout.Button("Play")){
 				GUI.FocusControl(null);
+				AnimationMode.StartAnimationMode();
+				Debug.Log("start animationmode");
 				selectedPreview.methodInfo.Invoke(selectedPreview.targetObject, selectedPreview.attribute.Params);
 			}
 

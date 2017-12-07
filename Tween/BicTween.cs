@@ -83,10 +83,15 @@ namespace BicUtil.Tween
 				_animator.Play(_stateHashName);
 			}else{
 				_animator.Play(_stateHashName, -1, 0f);
+				Debug.Log("play mecanim");
 				LeanTweenOnEditor.AddUpdateCallback((_id, _dt)=>{
-					_animator.Update(_dt);
+					if(_animator.isActiveAndEnabled == true){
+						Debug.Log(_id + "/" + _dt);
+						_animator.Update(_dt);
+					}
 
 					if(_animator.isActiveAndEnabled == false || _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
+						Debug.Log("remove");
 						LeanTweenOnEditor.RemoveUpdateCallback(_id);
 					}
 			 	});
