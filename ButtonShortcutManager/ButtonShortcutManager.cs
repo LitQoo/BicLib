@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace BicUtil.ButtonShortcutManager
 {
@@ -23,13 +25,22 @@ namespace BicUtil.ButtonShortcutManager
 		private void checkShortcut(){
 			for(int i = 0; i < buttonShortcutInfo.Length; i++){
 				Func<KeyCode, bool> _keyFunc = Input.GetKeyDown;
-
-				if(buttonShortcutInfo[i].isKeyUp == true){
+				var _info = buttonShortcutInfo[i];
+				if(_info.isKeyUp == true){
 					_keyFunc = Input.GetKeyUp;
 				}
 
-				if(_keyFunc(buttonShortcutInfo[i].KeyCode)){
-					buttonShortcutInfo[i].Button.onClick.Invoke();
+				if(_keyFunc(_info.KeyCode)){
+					if(_info.Button.IsInteractable()){
+						List<RaycastResult> _results = new List<RaycastResult>();
+						PointerEventData _eventData = new PointerEventData(EventSystem.current);
+						_eventData.position = Camera.main.WorldToScreenPoint(_info.Button.transform.position);
+            			EventSystem.current.RaycastAll(_eventData, _results);
+						
+						if (_results.Count !=0 && ((_results[0].gameObject == _info.Button.gameObject) || (_results[0].gameObject.transform.parent == _info.Button.gameObject.transform))){ 
+							_info.Button.onClick.Invoke();
+						}
+					}
 				}
 			}
 		}
