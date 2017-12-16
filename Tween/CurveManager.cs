@@ -13,7 +13,7 @@ namespace BicUtil.Tween
 		[SerializeField]
 		public List<BezierCurve> Paths;
 
-		public LTDescr GetTween(string _name){
+		public TweenModel GetTween(string _name){
 			for(int i = 0; i < Paths.Count; i++){
 				if(Paths[i].name == _name){
 					return Paths[i].Tween;

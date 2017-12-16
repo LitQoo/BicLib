@@ -138,9 +138,11 @@ namespace BicUtil.Tween{
 						isPreviewing = true;
 						AnimationMode.StartAnimationMode();
 						var _positionBackup = selectedCurve.targetObject.transform.localPosition;
-						var _be = new LTBezierPath(selectedCurve.GetPathForLeantween(Vector3.zero).ToArray());
-						LeanTweenOnEditor.moveLocal(selectedCurve.targetObject, _be, selectedCurve.animationTime).setEase(selectedCurve.easeType).setOnComplete(()=>{
-							LeanTweenOnEditor.delayedCall(selectedCurve.targetObject, 0.3f, ()=>{
+						var _be = selectedCurve.GetPathForLeantween(Vector3.zero).ToArray();
+						
+						//selectedCurve.easeType
+						BicTween.MoveByBezier(selectedCurve.targetObject, _be, selectedCurve.animationTime).SetEase(EaseFuncs.Linear).SubscribeComplete(()=>{
+							BicTween.Delay(0.3f).SubscribeComplete(()=>{
 								selectedCurve.targetObject.transform.localPosition = _positionBackup;
 								isPreviewing = false;
 								AnimationMode.StopAnimationMode();
@@ -304,8 +306,6 @@ namespace BicUtil.Tween{
 					selectedCurve.SetControlPoint(index, handleTransform.InverseTransformPoint(point));
 				}
 			}
-			
-			//return point;
 		}
 	}
 }

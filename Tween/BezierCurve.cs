@@ -178,11 +178,13 @@ namespace BicUtil.Tween
 			return _path;
 		}
 
-		public LTDescr Tween{
+		public TweenModel Tween{
 			get{
                 var _array = GetPathForLeantween(Vector3.zero).ToArray();
                 targetObject.transform.localPosition = _array[0];
-				return BicUtil.Tween.BicTween.moveLocal(targetObject, _array, animationTime).setEase(easeType);
+				//easeType
+				Debug.LogWarning("fix here");
+				return BicUtil.Tween.BicTween.MoveByBezier(targetObject, _array, animationTime).SetEase(EaseFuncs.Linear);
 			}
 		}
 	}

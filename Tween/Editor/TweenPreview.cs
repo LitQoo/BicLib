@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Linq;
 using System;
 using System.Globalization;
+using BicUtil.Tween;
 
 public class TweenPreview : EditorWindow {
 	[MenuItem("Window/Tween Preview")]
@@ -35,10 +36,12 @@ public class TweenPreview : EditorWindow {
     }
 
     void EditorUpdate(){
-		if(AnimationMode.InAnimationMode()){
-			LeanTweenOnEditor.update();
-			if(!LeanTweenOnEditor.isTweening()){
-				AnimationMode.StopAnimationMode();
+		if(!Application.isPlaying){
+			if(AnimationMode.InAnimationMode()){
+				LeanTweenOnEditor.update();
+				if(!LeanTweenOnEditor.isTweening()){
+					AnimationMode.StopAnimationMode();
+				}
 			}
 		}
 	}
