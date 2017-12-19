@@ -25,5 +25,28 @@ namespace BicUtil.Tween
             GUI.Label(rect1, _text, style);
             GUI.backgroundColor = _lastColor;
         }
+
+        private bool onClickedNodeSingle(TweenModel _tween, Event _event){
+            if(_tween.editor_rect.Contains(_event.mousePosition)){
+                switch(_event.type){
+                    case EventType.mouseDown:
+
+                    break;
+                    case EventType.mouseUp:
+                    if(_event.button == 0){
+                        selectTween(_tween);
+                    }else if(_event.button == 1){
+                        popupMenu(_tween);
+                    }
+                    break;
+                    case EventType.mouseDrag:
+                    break;
+                }
+
+                return true;
+            }else{
+                return false;
+            }
+        }
 	}
 }

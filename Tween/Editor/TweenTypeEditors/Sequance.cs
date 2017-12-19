@@ -7,13 +7,13 @@ using UnityEngine;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-
 		//[TweenEditorDrawNode(TweenType.Sequance)]
 		private Rect drawSequanceNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
 			var _position = _startPosition + new Vector2(0, 20);
 			var _rect = new Rect();
 			float _heightMax = 20;
 			var _backgroundColor = selectedTween == _tween ? Color.yellow : Color.blue;
+			
 			var _childList = _tween.GetChildList();
 			for(int i = 0; i < _childList.Count; i++){
 				_rect = DrawNode(_childList[i], _position, _timeline);
@@ -37,27 +37,18 @@ namespace BicUtil.Tween
 		}
 
 		//[TweenEditorOnClickedNode(TweenType.Sequance)]
-		private void onClickedNodeGroup(TweenModel _tween, Event _event){
-			if(_tween.editor_rect.Contains(_event.mousePosition)){
-				switch(_event.type){
-					case EventType.mouseDown:
-
-					break;
-					case EventType.mouseUp:
-						if(_event.button == 0){
-							selectTween(_tween);
-						}else if(_event.button == 1){
-							popupMenu(_tween);
-						}
-					break;
-					case EventType.mouseDrag:
-					break;
-				}
-			}else{
+		private bool onClickedNodeGroup(TweenModel _tween, Event _event){
+			if(onClickedNodeSingle(_tween, _event) == false){
 				var _childList = _tween.GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
-					OnClicked(_childList[i], _event);
+					if(OnClicked(_childList[i], _event) == true){
+						return true;
+					}
 				}
+
+				return false;
+			}else{
+				return true;
 			}
 		}
 

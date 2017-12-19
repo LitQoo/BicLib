@@ -17,6 +17,7 @@ namespace BicUtil.Tween
         public float Rate{ get;set;}
         public int PlayingIndex{get;set;}
         public bool IsPlaying{get;set;}
+		public Action Update{get;set;}
         public bool IsDestroyed{get{ return destoryCount >= 1; }}
         public TweenType Type{get{return type;}set{type = value; SetUpdate();}}
         public Action<IUpdateData> UpdateFunc{
@@ -88,6 +89,7 @@ namespace BicUtil.Tween
         private Action<IUpdateData> updateFunc;
 		private Action<IEaseData> easeFunc;
 		public Func<float> DeltaTime;
+
 		#endregion 
 
 		#region  Events
@@ -145,7 +147,6 @@ namespace BicUtil.Tween
 			Type = TweenType.None;
 		}
 
-		public Action Update{get;set;}
 		public void SetUpdate(){
 			if(type == TweenType.Sequance){
 				Update = updateForSequance;

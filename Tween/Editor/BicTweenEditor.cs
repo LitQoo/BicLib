@@ -141,7 +141,9 @@ namespace BicUtil.Tween
 		}
 
 		private void DoEvents(){
-			OnClicked(selectedGroup, Event.current);
+			if(OnClicked(selectedGroup, Event.current) == true){
+				Repaint();
+			}
 		}
 
 		private void selectTween(TweenModel _tween){
@@ -247,31 +249,14 @@ namespace BicUtil.Tween
             }
         }
 
-        public void OnClicked(TweenModel _tween, Event _event){
+        public bool OnClicked(TweenModel _tween, Event _event){
             
             switch(_tween.Type){
             case TweenType.Spawn:
             case TweenType.Sequance:
-                onClickedNodeGroup(_tween, _event);
-            break;
+                return onClickedNodeGroup(_tween, _event);
             default:
-                if(_tween.editor_rect.Contains(_event.mousePosition)){
-					switch(_event.type){
-						case EventType.mouseDown:
-
-						break;
-						case EventType.mouseUp:
-						if(_event.button == 0){
-							selectTween(_tween);
-						}else if(_event.button == 1){
-							popupMenu(_tween);
-						}
-						break;
-						case EventType.mouseDrag:
-						break;
-					}
-                }
-                break;
+                return onClickedNodeSingle(_tween, _event);
             }
         }
 
