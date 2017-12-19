@@ -7,7 +7,13 @@ using UnityEngine;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-		//[TweenEditorDrawNode(TweenType.Sequance)]
+
+		[TweenEditorDrawHandleControl(TweenType.Sequance)]
+		private void drawSequanceHandleControl(TweenModel _tween){
+			drawGroupHandleControl(_tween);
+		}
+
+		[TweenEditorDrawNode(TweenType.Sequance)]
 		private Rect drawSequanceNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
 			var _position = _startPosition + new Vector2(0, 20);
 			var _rect = new Rect();
@@ -34,30 +40,6 @@ namespace BicUtil.Tween
 			}
 			GUILayout.EndArea();
 			return _resultRect;
-		}
-
-		//[TweenEditorOnClickedNode(TweenType.Sequance)]
-		private bool onClickedNodeGroup(TweenModel _tween, Event _event){
-			if(onClickedNodeSingle(_tween, _event) == false){
-				var _childList = _tween.GetChildList();
-				for(int i = 0; i < _childList.Count; i++){
-					if(OnClicked(_childList[i], _event) == true){
-						return true;
-					}
-				}
-
-				return false;
-			}else{
-				return true;
-			}
-		}
-
-		//[TweenEditorHandleController(TweenType.Sequance)]
-		private void drawGroupHandleControl(TweenModel _tween){
-			var _childs = _tween.GetChildList();
-			for(int i = 0; i < _childs.Count; i++){
-				DrawHandleControl(_childs[i]);
-			}
 		}
 
 		//[TweenEditorSettingNode(TweenType.Sequance)]

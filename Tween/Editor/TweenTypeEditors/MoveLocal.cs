@@ -8,23 +8,22 @@ using UnityEngine;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-
-		//[TweenEditorDrawNode(TweenType.?)]
-		//private Rect draw?Node(TweenModel _tween, Vector2 _startPosition, Timeline _timeline)
-
-
 		//[TweenEditorOnClickedNode(TweenType.?)]
 		//private void onClicked?Node(TweenModel _tween, Event _event)
 
 
-		//[TweenEditorSettingNode(TweenType.?)]
+        [TweenEditorDrawNode(TweenType.Bezier)]
+        private Rect drawMoveNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+            return drawSingleNode(_tween, _startPosition, _timeline);
+        }
+		
+		[TweenEditorDrawSetting(TweenType.Move)]
 		private void drawMoveSetting(TweenModel _tween){
 			_tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
 			_tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
 		}
 
-
-		//[TweenEditorHandleController(TweenType.?)]
+        [TweenEditorDrawHandleControl(TweenType.Move)]
 		private void drawMoveHandleControl(TweenModel _tween){
 			if(_tween.TargetObject == null){
 				return;

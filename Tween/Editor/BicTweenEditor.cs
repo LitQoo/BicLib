@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using BicUtil.CustomTimeLine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -232,24 +233,33 @@ namespace BicUtil.Tween
 		}
 
 		#region Setting
-        
+        private Dictionary<TweenType, MethodInfo> drawNodeCache = new Dictionary<TweenType, MethodInfo>();
         public Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             if(_tween == null){
                 Debug.LogWarning("tween is null");
                 return new Rect(0, 0, 0, 0);
             }
-            switch(_tween.Type){
-                case TweenType.Sequance:
-                   return drawSequanceNode(_tween, _startPosition, _timeline);
-                case TweenType.Spawn:
-                    return drawSpawnNode(_tween, _startPosition, _timeline);
-                default:
-                    return drawSingleNode(_tween, _startPosition, _timeline);
 
-            }
+			if(drawNodeCache.ContainsKey(_tween.Type)){
+				return (Rect)drawNodeCache[_tween.Type].Invoke(this, new object[]{_tween, _startPosition, _timeline});
+			}
+
+			var _methods = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			foreach(var _method in _methods){
+				var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawNode), true);
+				foreach(TweenEditorDrawNode _attribute in _attributes){
+					if(_attribute != null && _attribute.Type == _tween.Type){
+						drawNodeCache[_tween.Type] = _method;
+						return (Rect)_method.Invoke(this, new object[]{_tween, _startPosition, _timeline});
+					}
+				}
+			}
+
+			Debug.LogWarning("did not find draw node for type " + _tween.Type.ToString());
+			return new Rect(0, 0, 0, 0);
         }
 
-        public bool OnClicked(TweenModel _tween, Event _event){
+		public bool OnClicked(TweenModel _tween, Event _event){
             
             switch(_tween.Type){
             case TweenType.Spawn:
@@ -260,43 +270,51 @@ namespace BicUtil.Tween
             }
         }
 
+        private Dictionary<TweenType, MethodInfo> drawSettingCache = new Dictionary<TweenType, MethodInfo>();
         public void DrawSetting(TweenModel _tween){
-            drawDefaultSetting(_tween);
+			 drawDefaultSetting(_tween);
 
             if(_tween.TargetObject == null){
                 return;
             }
 
-            switch(_tween.Type){
-                case TweenType.Move:
-                drawMoveSetting(_tween);
-                break;
-                case TweenType.Bezier:
-                drawBezierSetting(_tween);
-				break;
-				case TweenType.Rotate:
-				drawRotateSetting(_tween);
-                break; 
-            }
+			if(drawSettingCache.ContainsKey(_tween.Type)){
+				drawSettingCache[_tween.Type].Invoke(this, new object[]{_tween});
+				return;
+			}
+
+			var _methods = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			foreach(var _method in _methods){
+				var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawSetting), true);
+				foreach(TweenEditorDrawSetting _attribute in _attributes){
+					if(_attribute != null && _attribute.Type == _tween.Type){
+						drawSettingCache[_tween.Type] = _method;
+						_method.Invoke(this, new object[]{_tween});
+						return;
+					}
+				}
+			}
         }
 
-        public void DrawHandleControl(TweenModel _tween){
-
-            switch(_tween.Type){
-                case TweenType.Move:
-                drawMoveHandleControl(_tween);
-                break;
-                case TweenType.Bezier:
-                drawBezierHandleControl(_tween);
-				break;
-				case TweenType.Rotate:
-				drawRotateHandleControl(_tween);
-                break;
-				case TweenType.Sequance:
-				case TweenType.Spawn:
-				drawGroupHandleControl(_tween);
-				break;
-            }
+        private Dictionary<TweenType, MethodInfo> drawHandleControlCache = new Dictionary<TweenType, MethodInfo>();
+		public void DrawHandleControl(TweenModel _tween){
+			
+			if(drawHandleControlCache.ContainsKey(_tween.Type)){
+				drawHandleControlCache[_tween.Type].Invoke(this, new object[]{_tween});
+				return;
+			}
+			
+			var _methods = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			foreach(var _method in _methods){
+				var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawHandleControl), true);
+				foreach(TweenEditorDrawHandleControl _attribute in _attributes){
+					if(_attribute != null && _attribute.Type == _tween.Type){
+						drawHandleControlCache[_tween.Type] = _method;
+						_method.Invoke(this, new object[]{_tween});
+						return;
+					}
+				}
+			}
         }
 
         private void drawDefaultSetting(TweenModel _tween){
@@ -314,5 +332,35 @@ namespace BicUtil.Tween
 		#endregion
 	}
 
+	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class TweenEditorDrawSetting : Attribute{
+		public TweenType Type{get;}
+		public TweenEditorDrawSetting(TweenType _type){
+			Type = _type;
+		}
+	}
 
+	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class TweenEditorDrawHandleControl : Attribute{
+		public TweenType Type{get;}
+		public TweenEditorDrawHandleControl(TweenType _type){
+			Type = _type;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class TweenEditorDrawNode : Attribute{
+		public TweenType Type{get;}
+		public TweenEditorDrawNode(TweenType _type){
+			Type = _type;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+	sealed class TweenEditorClickedNode : Attribute{
+		public TweenType Type{get;}
+		public TweenEditorClickedNode(TweenType _type){
+			Type = _type;
+		}
+	}
 }
