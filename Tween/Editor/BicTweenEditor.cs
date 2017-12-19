@@ -39,7 +39,6 @@ namespace BicUtil.Tween
 
 		private void OnEnable()
 		{
-			Debug.Log("onenable bictween");
 			if (timeline == null) {
 				timeline = new Timeline ();
 			}
@@ -236,7 +235,7 @@ namespace BicUtil.Tween
         private Dictionary<TweenType, MethodInfo> drawNodeCache = new Dictionary<TweenType, MethodInfo>();
         public Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             if(_tween == null){
-                Debug.LogWarning("tween is null");
+                Debug.LogWarning("[BicTween] tween is null");
                 return new Rect(0, 0, 0, 0);
             }
 
@@ -255,7 +254,7 @@ namespace BicUtil.Tween
 				}
 			}
 
-			Debug.LogWarning("did not find draw node for type " + _tween.Type.ToString());
+			Debug.LogWarning("[BicTween] did not find draw node for type " + _tween.Type.ToString());
 			return new Rect(0, 0, 0, 0);
         }
 
@@ -311,6 +310,7 @@ namespace BicUtil.Tween
 					if(_attribute != null && _attribute.Type == _tween.Type){
 						drawHandleControlCache[_tween.Type] = _method;
 						_method.Invoke(this, new object[]{_tween});
+						EditorUtility.SetDirty(selectedTweenPool);
 						return;
 					}
 				}
