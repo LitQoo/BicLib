@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-
+		
 		//[TweenEditorDrawNode(TweenType.?)]
 		//private Rect draw?Node(TweenModel _tween, Vector2 _startPosition, Timeline _timeline)
 

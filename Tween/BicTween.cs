@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 namespace BicUtil.Tween
 {
-	
+
     public static class BicTween {
 		private static int id = 0;
 		public static int GetNewId(){
@@ -318,11 +318,13 @@ namespace BicUtil.Tween
 		Sequance,
 		Spawn,
 		Move,
+		Active,
 		Scale,
 		Rotate,
 		Delay,
 		Value,
-		Bezier
+		Bezier,
+		Virtual
 	}
 
 	public interface IEaseData{
@@ -338,6 +340,7 @@ namespace BicUtil.Tween
 		object Data{get;set;}
 		float Rate {get;}
 		List<int> ChildDataList{get;}
+		Vector4 DiffValue{get;}
 	}
 
 	public class TimeType{
@@ -358,92 +361,5 @@ namespace BicUtil.Tween
 		}
 	}
 
-	public enum EaseType{
-		Linear,
-		InQuad,
-		OutBounce,
-		InBack,
-		OutBack
-	}
-	public class EaseFuncs{
-		public static Action<IEaseData> GetFunc(EaseType _type){
-			switch(_type){
-				case EaseType.Linear: return Linear;
-				case EaseType.InQuad: return InQuad;
-				case EaseType.OutBounce: return OutBounce;
-				case EaseType.InBack: return InBack;
-				case EaseType.OutBack: return OutBack;
-			}
-
-			return null;
-		}
-
-		public static void Linear(IEaseData _data){
-			_data.CurrentValue = _data.OriginValue + _data.DiffValue * _data.Rate;
-		}
-
-		public static void InQuad(IEaseData _data){
-			_data.CurrentValue = _data.OriginValue + _data.DiffValue * _data.Rate * _data.Rate;
-		}
-
-		public static void OutBounce(IEaseData _data){
-			var _value = _data.Rate;
-
-			if (_value < (1 / 2.75f)){
-				_data.CurrentValue = _data.DiffValue * (7.5625f * _value * _value) + _data.OriginValue;
-			}else if (_value < (2 / 2.75f)){
-				_value -= (1.5f / 2.75f);
-				_data.CurrentValue = _data.DiffValue * (7.5625f * (_value) * _value + .75f) + _data.OriginValue;
-			}else if (_value < (2.5 / 2.75)){
-				_value -= (2.25f / 2.75f);
-				_data.CurrentValue = _data.DiffValue * (7.5625f * (_value) * _value + .9375f) + _data.OriginValue;
-			}else{
-				_value -= (2.625f / 2.75f);
-				_data.CurrentValue = _data.DiffValue * (7.5625f * (_value) * _value + .984375f) + _data.OriginValue;
-			}
-		}
-
-		public static void InBack(IEaseData _data){
-			Linear(_data);
-		}
-
-		public static void OutBack(IEaseData _data){
-			Linear(_data);
-		}
-	}
-	public static class UpdateFuncs{
-
-		public static Action<IUpdateData> GetFunc(TweenType _type){
-			switch(_type){
-				case TweenType.Move: return Move;
-				case TweenType.Scale: return Scale;
-				case TweenType.Rotate: return Rotate;
-				case TweenType.Bezier: return Bezier;
-			}
-
-			return null;
-		}
-
-		public static void Move(IUpdateData _data){
-			_data.TargetObject.transform.localPosition = _data.CurrentValue;
-		}
-
-		public static void Scale(IUpdateData _data){
-			_data.TargetObject.transform.localScale = _data.CurrentValue;
-		}
-
-		public static void Rotate(IUpdateData _data){
-			_data.TargetObject.transform.eulerAngles = _data.CurrentValue;
-		}
-
-		public static void Bezier(IUpdateData _data){
-			if(_data.Data == null){
-				_data.Data = new BezierPath(BicTween.ChildDataToBezier(_data.ChildDataList).ToArray());
-			}
-
-			var _curveData = (_data.Data as BezierPath);
-			_data.TargetObject.transform.localPosition = _curveData.point(_data.CurrentValue.x);
-		}
-	}
 
 }

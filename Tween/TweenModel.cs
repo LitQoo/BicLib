@@ -41,7 +41,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public Action<IEaseData> EaseFunc{
+		public Func<IEaseData, Vector4> EaseFunc{
 			get{
 				if(easeFunc == null){
 					easeFunc = EaseFuncs.GetFunc(EaseType);
@@ -87,7 +87,7 @@ namespace BicUtil.Tween
         
 		#region Func
         private Action<IUpdateData> updateFunc;
-		private Action<IEaseData> easeFunc;
+		private Func<IEaseData, Vector4> easeFunc;
 		public Func<float> DeltaTime;
 
 		#endregion 
@@ -148,7 +148,7 @@ namespace BicUtil.Tween
 		}
 
 		public void SetUpdate(){
-			if(type == TweenType.Sequance){
+			if(type == TweenType.Sequance || type == TweenType.Virtual){
 				Update = updateForSequance;
 			}else if(type == TweenType.Spawn){
 				Update = updateForSpawn;
@@ -222,7 +222,7 @@ namespace BicUtil.Tween
 			#endif
 			
 			Rate = Mathf.Min(1f, Rate +  _deltaTime / Time);
-			EaseFunc(this);
+			CurrentValue = EaseFunc(this);
 
 			if(UpdateFunc != null){
 				UpdateFunc(this);
@@ -292,7 +292,7 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel SetEase(Action<IEaseData> _easeFunc){
+		public TweenModel SetEase(Func<IEaseData, Vector4> _easeFunc){
 			EaseFunc = _easeFunc;
 			return this;
 		}

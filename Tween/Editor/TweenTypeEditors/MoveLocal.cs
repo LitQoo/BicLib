@@ -12,7 +12,7 @@ namespace BicUtil.Tween
 		//private void onClicked?Node(TweenModel _tween, Event _event)
 
 
-        [TweenEditorDrawNode(TweenType.Bezier)]
+        [TweenEditorDrawNode(TweenType.Move)]
         private Rect drawMoveNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
