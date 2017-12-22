@@ -17,7 +17,7 @@ namespace BicUtil.Tween
 		private Rect drawSpawnNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
 			float _xPos = _startPosition.x;
 			float _height = 20;
-			var _backgroundColor = selectedTween == _tween ? Color.yellow : Color.red;
+			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.red;
 
 			var _childList = _tween.GetChildList();
 			for(int i = 0; i < _childList.Count; i++){
@@ -26,7 +26,9 @@ namespace BicUtil.Tween
 				_height += _pos.height;
 			}
 
-			_tween.editor_rect = new Rect(_startPosition.x, _startPosition.y, _xPos - _startPosition.x, 20);
+			var _width = _xPos - _startPosition.x;
+			_tween.editor_rect = new Rect(_startPosition.x, _startPosition.y, _width, 20);
+			_tween.Time = _timeline.GUIToSeconds(_width);
 			drawNode(_tween, _tween.Name, _backgroundColor);
 
 			var _resultRect2 = new Rect(_startPosition.x, _startPosition.y, _xPos - _startPosition.x ,_height);

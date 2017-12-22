@@ -9,9 +9,16 @@ namespace BicUtil.Tween
 		private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time),20);
             string _title = (_tween.TargetObject != null ? _tween.TargetObject.name : "null") + "." + _tween.Type.ToString();
-			var _backgroundColor = selectedTween == _tween ? Color.yellow : Color.white;
+			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.white;
 			
 			drawNode(_tween, _title, _backgroundColor);
+            return _tween.editor_rect;
+        }
+
+        private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline, Color _backColor, string _title){
+            _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time),20);
+            var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : _backColor;
+            drawNode(_tween, _title, _backgroundColor);
             return _tween.editor_rect;
         }
 
@@ -34,7 +41,15 @@ namespace BicUtil.Tween
                     break;
                     case EventType.mouseUp:
                     if(_event.button == 0){
-                        selectTween(_tween);
+                        if((Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command)){
+                            if(selectedTweens.Contains(_tween)){
+                                unselectTween(_tween);
+                            }else{
+                                addToSelectTween(_tween);
+                            }
+                        }else{
+                            selectTween(_tween);
+                        }
                     }else if(_event.button == 1){
                         popupMenu(_tween);
                     }

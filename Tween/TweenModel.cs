@@ -53,6 +53,12 @@ namespace BicUtil.Tween
 				easeFunc = value;
 			}
 		}
+
+		public bool IsGrouped{
+			get{
+				return Type == TweenType.Sequance || Type == TweenType.Spawn;
+			}
+		}
 		#endregion
        
 		#region Serialized Members
@@ -147,6 +153,57 @@ namespace BicUtil.Tween
 			Type = TweenType.None;
 		}
 
+		public TweenModel Copy(TweenPool _pool = null){
+			if(_pool == null){
+				_pool = this.pool;
+			}
+
+			if(_pool == null){
+				throw new SystemException("[BicTween] TweenPool is null");
+			}
+
+			var _tween = BicTween.CreateModel(_pool);
+			_tween.Rate = 0;
+			_tween.Name = this.Name + "_copy";
+			_tween.OnCompleteCallback = this.OnCompleteCallback;
+			_tween.OnUpdateCallback = this.OnUpdateCallback;
+			_tween.EaseFunc = this.EaseFunc;
+			_tween.EaseType = this.EaseType;
+			_tween.UpdateFunc = this.UpdateFunc;
+			_tween.DeltaTime = this.DeltaTime;
+			_tween.IsPlaying = false;
+			_tween.destoryCount = 0;
+			_tween.RepeatCount = 0;
+			_tween.Data = null;
+			_tween.CurrentRepeatCount = 0;
+			_tween.Type = this.Type;
+			_tween.TargetObject = this.TargetObject;
+			_tween.OriginValue = this.OriginValue;
+			_tween.DiffValue = this.DiffValue;
+			_tween.Time = this.Time;
+			
+			if(this.IsGrouped == true){
+
+				if(_tween.childDataList == null){
+					_tween.childDataList = new List<int>();
+				}
+
+				var _childs = this.GetChildList();
+				for(int i = 0; i < _childs.Count; i++){
+					var _copy = _childs[i].Copy(_pool);
+					if(_copy == null){
+						throw new SystemException("[BicTween] Failed Copy");
+					}
+
+					_tween.AddChild(_copy);
+				}
+			}else if(type == TweenType.Bezier){
+				_tween.childDataList = new List<int>(this.childDataList.ToArray());
+			}
+			
+			return _tween;
+		}
+
 		public void SetUpdate(){
 			if(type == TweenType.Sequance || type == TweenType.Virtual){
 				Update = updateForSequance;
@@ -168,7 +225,7 @@ namespace BicUtil.Tween
 
 			var _list = Data as List<TweenModel>;
 			
-			if(_list.Count - 1 <= sequanceIndex){
+			if(_list.Count <= sequanceIndex){
 				complete();
                 Data = null;
 				
@@ -178,7 +235,9 @@ namespace BicUtil.Tween
 			if(_list[sequanceIndex].IsDestroyed){
 				if(_list.Count > sequanceIndex){
 					sequanceIndex++;
-					_list[sequanceIndex].Play();
+					if(sequanceIndex < _list.Count){
+						_list[sequanceIndex].Play();
+					}
 				}
 			}
 		}
@@ -258,7 +317,8 @@ namespace BicUtil.Tween
 			List<TweenModel> _result = new List<TweenModel>();
 			if(childDataList != null){
 				for(int i = 0; i < childDataList.Count; i++){
-					_result.Add(pool.TweenList[childDataList[i]]);
+					
+					_result.Add(pool.GetTween(childDataList[i]));
 				}
 			}
             return _result;
@@ -320,9 +380,37 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel AddTween(TweenModel _tween){
+		public TweenModel AddChild(TweenModel _tween){
 			_tween.Pause();
+
 			childDataList.Add(_tween.Id);
+			return this;
+		}
+
+		public void RemoveChild(TweenModel _tween){
+			if(this.IsGrouped){
+				var _childs = this.GetChildList();
+				for(int i = 0; i < _childs.Count; i++){
+					_childs[i].RemoveChild(_tween);
+				}
+
+				childDataList.Remove(_tween.Id);
+			}
+		}
+
+		public void Remove(){
+			pool.RemoveTween(this);
+
+			if(this.IsGrouped == true){
+				var _childs = this.GetChildList();
+				for(int i = 0; i < _childs.Count; i++){
+					_childs[i].Remove();
+				}
+			}
+		}
+
+		public TweenModel SetTargetObject(GameObject _target){
+			TargetObject = _target;
 			return this;
 		}
 

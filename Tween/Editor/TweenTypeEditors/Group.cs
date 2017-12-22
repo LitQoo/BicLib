@@ -9,9 +9,7 @@ namespace BicUtil.Tween
 	public partial class BicTweenEditor {
 		private void drawGroupHandleControl(TweenModel _tween){
 			var _childs = _tween.GetChildList();
-			for(int i = 0; i < _childs.Count; i++){
-				DrawHandleControl(_childs[i]);
-			}
+			DrawHandleControl(_childs);
 		}
 
 		private bool onClickedNodeGroup(TweenModel _tween, Event _event){

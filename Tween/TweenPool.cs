@@ -20,7 +20,7 @@ namespace BicUtil.Tween{
 		// 	pool.Update();
 		// }
 		public TweenModel GetGroup(int _groupIndex){
-			return TweenList[GroupIdList[_groupIndex]];
+			return GetTween(GroupIdList[_groupIndex]);
 		}
 
 		public TweenModel GetTween(int _id){
@@ -33,12 +33,36 @@ namespace BicUtil.Tween{
 			throw new SystemException("not found tween. id = " + _id.ToString());
 		}
 
+		public int GetTweenIndex(int _id){
+			for(int i = 0; i < TweenList.Count; i++){
+				if(TweenList[i].Id == _id){
+					return i;
+				}
+			}
+
+			throw new SystemException("not found tween. id = " + _id.ToString());
+		}
+
 		public void AddTween(TweenModel _group, TweenModel _tween){
-			_group.AddTween(_tween);
+			_group.AddChild(_tween);
+		}
+
+		public void RemoveTween(TweenModel _group, TweenModel _tween){
+			_group.RemoveChild(_tween);
+			_tween.Remove();
+		}
+
+		public void RemoveTween(TweenModel _tween){
+			TweenList.Remove(_tween);
+		}
+
+		public void RemoveGroup(TweenModel _group){
+			GroupIdList.Remove(_group.Id);
+			_group.Remove();
 		}
 
 		public void AddChildTween(TweenModel _parent, TweenModel _child){
-			_parent.AddTween(_child);
+			_parent.AddChild(_child);
 		}
 
 		public void AddGroup(){
@@ -59,26 +83,33 @@ namespace BicUtil.Tween{
 			if(TweenList == null){
 				TweenList = new List<TweenModel>(100);
 			}
+
 			var _count = TweenList.Count;
+			int _maxId = 0;
 			for(int i = 0; i < _count; i++){
 				if(TweenList[i] != null){
 					var __model = TweenList[i];
-					if(__model.destoryCount == 1){
-						__model.Clear();
-						__model.IsPlaying = true;
-						__model.destoryCount = 0;
-						UpdateMaxPlayingIndex(i);
-						return __model;
-					}else if(__model.destoryCount > 1){
-						__model.destoryCount--;
+
+					if(IsLocked == false){
+						if(__model.destoryCount == 1){
+							__model.Clear();
+							__model.IsPlaying = true;
+							__model.destoryCount = 0;
+							UpdateMaxPlayingIndex(i);
+							return __model;
+						}else if(__model.destoryCount > 1){
+							__model.destoryCount--;
+						}
 					}
+
+					_maxId = Math.Max(_maxId, TweenList[i].Id);
 				}
 			}
 
 			var _result = new TweenModel();
 			_result.pool = this;
 			_result.Clear();
-			_result.Id = _count;
+			_result.Id = _maxId + 1;
 			_result.Name = _result.Id.ToString();
 			_result.IsPlaying = true;
 			UpdateMaxPlayingIndex(_count);

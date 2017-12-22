@@ -16,6 +16,11 @@ namespace BicUtil.Tween
 
             float endPointSize = 10;
             var _vectors = BicTween.ChildDataToBezier(_tween.ChildDataList).ToArray();
+            
+            if(_vectors.Length <= 0){
+                return;
+            }
+
             Vector3 p0 = _vectors[0];
             drawMoveHandle(p0, 0, Color.red, endPointSize, _tween, setBezierChild);
 
@@ -74,6 +79,17 @@ namespace BicUtil.Tween
 
             EditorGUILayout.BeginHorizontal ();
             if (GUILayout.Button("Add Last")) {
+                if(_vectors.Length <= 0){
+                    if(_tween.childDataList == null){
+                        _tween.childDataList = new List<int>();
+                    }
+                    
+                    _tween.childDataList.Add((int)0);
+                    _tween.childDataList.Add((int)0);
+                    _tween.childDataList.Add((int)0);
+                    _vectors = BicTween.ChildDataToBezier(_tween.ChildDataList).ToArray();
+                }
+
                 Vector3 point = _vectors[_vectors.Length - 1];
                 _tween.childDataList.Add((int)((point.x + 50) * 1000));
                 _tween.childDataList.Add((int)(point.y * 1000));
@@ -93,6 +109,9 @@ namespace BicUtil.Tween
                 _tween.childDataList.RemoveRange(_tween.childDataList.Count - 10, 9);
                	EditorUtility.SetDirty(selectedTweenPool);
             }
+
+            _tween.OriginValue = Vector4.zero;
+            _tween.DiffValue = Vector4.one;
 
             // if (GUILayout.Button("Loop :" + selectedCurve.Loop.ToString())) {
             //     //Undo.RecordObject(curveManager, "Loop");

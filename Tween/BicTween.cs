@@ -275,10 +275,15 @@ namespace BicUtil.Tween
 		#endregion
 
 
-		public static List<Vector3> ChildDataToBezier(List<int> chidDataList){
+		public static List<Vector3> ChildDataToBezier(List<int> _childDataList){
 			List<Vector3> _list = new List<Vector3>();
-			for(int i = 0; i < chidDataList.Count; i+=3){
-				_list.Add(new Vector3(chidDataList[i] / 1000f, chidDataList[i+1] / 1000f, chidDataList[i+2] / 1000f));
+			
+			if(_childDataList == null){
+				return _list;
+			}
+
+			for(int i = 0; i < _childDataList.Count; i+=3){
+				_list.Add(new Vector3(_childDataList[i] / 1000f, _childDataList[i+1] / 1000f, _childDataList[i+2] / 1000f));
 			}
 
 			return _list;

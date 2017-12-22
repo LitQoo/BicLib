@@ -15,7 +15,7 @@ namespace BicUtil.Tween
 		private GameObject selectedGameObject;
 		private TweenPool selectedTweenPool;
 		private int selectedGroupIndex;
-		private TweenModel selectedTween;
+		private List<TweenModel> selectedTweens = new List<TweenModel>();
 		private Vector2 pointsScrollPosition;
 		private TweenModel selectedGroup{
 			get{
@@ -50,7 +50,7 @@ namespace BicUtil.Tween
 			timeline.onPlay = preview;
             SceneView.onSceneGUIDelegate += this.OnSceneGUI;
 			
-            selectedTween = null;
+            selectedTweens.Clear();
             selectedGroupIndex = -1;
 			if(selectedGameObject == null){
 				OnSelectionChange ();
@@ -65,6 +65,10 @@ namespace BicUtil.Tween
 		}
 
 		private void OnGUI(){
+
+
+			handleCopyPaste();
+
 			bool enabled = GUI.enabled;
 			GUI.enabled = selectedGameObject != null && !Application.isPlaying;
 			if(selectedTweenPool == null && selectedGameObject != null){
@@ -77,14 +81,16 @@ namespace BicUtil.Tween
         
         void OnSceneGUI( SceneView sceneView )
         {
+
             if( SceneView.lastActiveSceneView == null)
             {
                 return;
             }
 
-            if(selectedTween != null){
-                DrawHandleControl(selectedTween);
+            if(selectedTweens != null){
+                DrawHandleControl(selectedTweens);
             }
+
         }
 		
 		private void drawNewAnimation(){
@@ -106,6 +112,8 @@ namespace BicUtil.Tween
 						int _index = i;
 						toolsMenu.AddItem (new GUIContent (selectedTweenPool.GetGroup(_index).Name), false, delegate() {
 							selectedGroupIndex = _index;
+							selectTween(selectedTweenPool.GetGroup(_index));
+							isGroupRemove = false;
 						});
 					}
 				}
@@ -118,11 +126,11 @@ namespace BicUtil.Tween
 			}
 			GUILayout.EndHorizontal ();
 
-            if(selectedTween != null){
+            if(selectedTweens != null){
 				EditorGUILayout.BeginVertical();
 				pointsScrollPosition = EditorGUILayout.BeginScrollView(pointsScrollPosition, false, false); 
 
-                DrawSetting(selectedTween);
+                DrawSetting(selectedTweens);
                 
                 EditorUtility.SetDirty(selectedTweenPool);
 				EditorGUILayout.EndScrollView();
@@ -132,7 +140,7 @@ namespace BicUtil.Tween
 
 		private void drawNods(Rect position){
 			if (selectedGroup == null) {
-				selectedTween = null;
+				selectedTweens.Clear();
 				return;
 			}
 
@@ -144,36 +152,76 @@ namespace BicUtil.Tween
 			if(OnClicked(selectedGroup, Event.current) == true){
 				Repaint();
 			}
+
 		}
 
+		private List<TweenModel> copiedTweens = new List<TweenModel>();
+		private void handleCopyPaste()
+		{
+			if (Event.current.type == EventType.keyDown && (Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command))
+			{
+				if (Event.current.keyCode == KeyCode.C)
+				{
+					Event.current.Use();
+					copiedTweens = new List<TweenModel>(selectedTweens.ToArray());
+				}
+				else if (Event.current.keyCode == KeyCode.V)
+				{
+					if(copiedTweens.Count == 0 || selectedTweens.Count != 1){
+						return;
+					}
+					
+					if(selectedTweens[0].IsGrouped == true){
+						Event.current.Use();
+
+						for(int i = 0; i < copiedTweens.Count; i++){
+							selectedTweens[0].AddChild(copiedTweens[i].Copy());
+						}
+					}
+
+				}
+			}
+		}
 		private void selectTween(TweenModel _tween){
-			selectedTween = _tween;
+			selectedTweens.Clear();
+			selectedTweens.Add(_tween);
+		}
+
+		private void unselectTween(TweenModel _tween){
+			selectedTweens.Remove(_tween);
+		}
+
+		private void addToSelectTween(TweenModel _tween){
+			selectedTweens.Add(_tween);
 		}
 
 		private void popupMenu(TweenModel _tween){
 			GenericMenu genericMenu = new GenericMenu ();
 			genericMenu.AddItem (new GUIContent ("Remove"), false,delegate() {
-
+				selectedTweenPool.RemoveTween(selectedGroup, _tween);
+				selectedTweens.Clear();
+				Repaint();
 			});
+
 			genericMenu.ShowAsContext ();
 		}
 
         private void openToAddTweenMenu(TweenModel _tween){
             GenericMenu genericMenu = new GenericMenu ();
             genericMenu.AddItem (new GUIContent ("Single"), false,delegate() {
-				var _newTween = BicTween.MoveByBezier(null, new Vector3[]{new Vector3(0, 0, 0), new Vector3(0, 100, 0), new Vector3(100, 100, 0), new Vector3(200, 200, 0)}, 3f, selectedTweenPool);
+				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, new Vector3(100, 100, 0), 3f, selectedTweenPool);
 			   
 			    selectedTweenPool.AddTween(_tween, _newTween);
 				EditorUtility.SetDirty(selectedTweenPool);
 				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             });
             genericMenu.AddItem (new GUIContent ("Sequance"), false,delegate() {
-                selectedTweenPool.AddTween(_tween, BicTween.Sequance(selectedTweenPool));
+                selectedTweenPool.AddTween(_tween, BicTween.Sequance(selectedTweenPool).SetTargetObject(_tween.TargetObject));
 				EditorUtility.SetDirty(selectedTweenPool);
 				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             });
             genericMenu.AddItem (new GUIContent ("Spawn"), false,delegate() {
-                selectedTweenPool.AddTween(_tween, BicTween.Spawn(selectedTweenPool));
+                selectedTweenPool.AddTween(_tween, BicTween.Spawn(selectedTweenPool).SetTargetObject(_tween.TargetObject));
 				EditorUtility.SetDirty(selectedTweenPool);
 				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             });
@@ -187,14 +235,14 @@ namespace BicUtil.Tween
 				var _selectedPool = selectedGameObject.GetComponent<TweenPool> ();
 				if(_selectedPool != null && selectedTweenPool != _selectedPool){
 					selectedTweenPool = _selectedPool;
-					selectedTween = null;
+					selectedTweens.Clear();
+					isGroupRemove = false;
 
 					if(selectedTweenPool != null){
 						selectedGroupIndex = selectedTweenPool.GroupIdList.Count - 1;
 					}else{
 						selectedGroupIndex = -1;
 					}
-
 
 					Repaint ();
 				}
@@ -205,6 +253,7 @@ namespace BicUtil.Tween
 			if (_gameObject.GetComponent<TweenPool> () == null) {
 				selectedTweenPool = _gameObject.AddComponent<TweenPool>();
 				selectedTweenPool.GroupIdList = new List<int>();
+				selectedTweenPool.IsLocked = true;
 				EditorUtility.SetDirty(_gameObject);
                 EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 			}
@@ -218,8 +267,8 @@ namespace BicUtil.Tween
         }
 
 		private void preview(bool _isPlaying){
-			if(selectedTween != null && _isPlaying == true){
-				selectedTween.Play();
+			if(selectedTweens.Count == 1 && _isPlaying == true){
+				selectedTweens[0].Play();
 			}
 		}
 
@@ -270,15 +319,35 @@ namespace BicUtil.Tween
         }
 
         private Dictionary<TweenType, MethodInfo> drawSettingCache = new Dictionary<TweenType, MethodInfo>();
-        public void DrawSetting(TweenModel _tween){
-			 drawDefaultSetting(_tween);
+		private bool isGroupRemove = false;
+		public void DrawSetting(List<TweenModel> _tweens){
 
-            if(_tween.TargetObject == null){
-                return;
-            }
+			drawDefaultSetting(_tweens);
 
-			if(drawSettingCache.ContainsKey(_tween.Type)){
-				drawSettingCache[_tween.Type].Invoke(this, new object[]{_tween});
+			if(_tweens.Count != 1){
+				return;
+			}
+
+			if(selectedGroup == _tweens[0]){
+				if(isGroupRemove == true){
+				if(GUILayout.Button("Remove")){
+						selectedTweenPool.RemoveGroup(selectedGroup);
+						selectedGroupIndex = -1;
+						Repaint();
+					}
+
+					if(GUILayout.Button("Cancel Remove")){
+						isGroupRemove = false;
+					}
+				}else{
+					 if(GUILayout.Button("Remove Group")){
+						 isGroupRemove = true;
+					 }
+				}
+			}
+
+			if(drawSettingCache.ContainsKey(_tweens[0].Type)){
+				drawSettingCache[_tweens[0].Type].Invoke(this, new object[]{_tweens[0]});
 				return;
 			}
 
@@ -286,9 +355,9 @@ namespace BicUtil.Tween
 			foreach(var _method in _methods){
 				var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawSetting), true);
 				foreach(TweenEditorDrawSetting _attribute in _attributes){
-					if(_attribute != null && _attribute.Type == _tween.Type){
-						drawSettingCache[_tween.Type] = _method;
-						_method.Invoke(this, new object[]{_tween});
+					if(_attribute != null && _attribute.Type == _tweens[0].Type){
+						drawSettingCache[_tweens[0].Type] = _method;
+						_method.Invoke(this, new object[]{_tweens[0]});
 						return;
 					}
 				}
@@ -296,37 +365,71 @@ namespace BicUtil.Tween
         }
 
         private Dictionary<TweenType, MethodInfo> drawHandleControlCache = new Dictionary<TweenType, MethodInfo>();
-		public void DrawHandleControl(TweenModel _tween){
+		public void DrawHandleControl(List<TweenModel> _tweens){
 			
-			if(drawHandleControlCache.ContainsKey(_tween.Type)){
-				drawHandleControlCache[_tween.Type].Invoke(this, new object[]{_tween});
-				return;
-			}
-			
-			var _methods = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			foreach(var _method in _methods){
-				var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawHandleControl), true);
-				foreach(TweenEditorDrawHandleControl _attribute in _attributes){
-					if(_attribute != null && _attribute.Type == _tween.Type){
-						drawHandleControlCache[_tween.Type] = _method;
-						_method.Invoke(this, new object[]{_tween});
-						EditorUtility.SetDirty(selectedTweenPool);
-						return;
+			for(int i = 0; i < _tweens.Count; i++){
+				var _tween = _tweens[i];
+				if(drawHandleControlCache.ContainsKey(_tween.Type)){
+					drawHandleControlCache[_tween.Type].Invoke(this, new object[]{_tween});
+					continue;
+				}
+				
+				bool isContinue = false;
+				var _methods = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+				foreach(var _method in _methods){
+					var _attributes = _method.GetCustomAttributes(typeof(TweenEditorDrawHandleControl), true);
+					foreach(TweenEditorDrawHandleControl _attribute in _attributes){
+						if(_attribute != null && _attribute.Type == _tween.Type){
+							drawHandleControlCache[_tween.Type] = _method;
+							_method.Invoke(this, new object[]{_tween});
+							EditorUtility.SetDirty(selectedTweenPool);
+							isContinue = true;
+							break;
+						}
+					}
+
+					if(isContinue == true){
+						break;
 					}
 				}
+
 			}
         }
 
-        private void drawDefaultSetting(TweenModel _tween){
-            _tween.Name = EditorGUILayout.TextField("Name", _tween.Name);
-            _tween.TargetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _tween.TargetObject, typeof(GameObject), true);
-            _tween.Time = EditorGUILayout.FloatField("Time", _tween.Time);
-            _tween.RepeatCount = EditorGUILayout.IntField("Repeat Count", _tween.RepeatCount);
-			_tween.EaseType = (EaseType)EditorGUILayout.EnumPopup("Ease Type", _tween.EaseType);
-			_tween.SetEase(EaseFuncs.GetFunc(_tween.EaseType));
-			EditorGUILayout.Space();
-            _tween.Type = (TweenType)EditorGUILayout.EnumPopup("Tween Type", _tween.Type);
-            _tween.UpdateFunc = UpdateFuncs.GetFunc(_tween.Type);
+        private void drawDefaultSetting(List<TweenModel> _tweens){
+			if(_tweens.Count == 1){
+				var _tween = _tweens[0];
+				EditorGUILayout.LabelField("ID", _tween.Id.ToString());
+				_tween.Name = EditorGUILayout.TextField("Name", _tween.Name);
+				_tween.TargetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _tween.TargetObject, typeof(GameObject), true);
+				_tween.Time = EditorGUILayout.FloatField("Time", _tween.Time);
+				_tween.RepeatCount = EditorGUILayout.IntField("Repeat Count", _tween.RepeatCount);
+				_tween.EaseType = (EaseType)EditorGUILayout.EnumPopup("Ease Type", _tween.EaseType);
+				_tween.SetEase(EaseFuncs.GetFunc(_tween.EaseType));
+				EditorGUILayout.Space();
+				_tween.Type = (TweenType)EditorGUILayout.EnumPopup("Tween Type", _tween.Type);
+				_tween.UpdateFunc = UpdateFuncs.GetFunc(_tween.Type);
+			}else if(_tweens.Count > 1){
+				GameObject _targetObject = _tweens[0].TargetObject;
+				bool _isTargetObjectSame = true;
+				for(int i = 1; i < _tweens.Count; i++){
+					if(_targetObject != _tweens[i].TargetObject){
+						_isTargetObjectSame = false;
+					}
+				}
+
+				if(_isTargetObjectSame == false){
+					_targetObject = null;
+				}
+
+				_targetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _targetObject, typeof(GameObject), true);
+
+				if(_targetObject != null){
+					for(int i = 0; i < _tweens.Count; i++){
+						_tweens[i].TargetObject = _targetObject;
+					}
+				}
+			}
         }
 
 		#endregion
