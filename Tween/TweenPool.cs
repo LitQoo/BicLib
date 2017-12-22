@@ -15,12 +15,19 @@ namespace BicUtil.Tween{
 		private void Awake(){
 			//setPool(TweenList);
 		}
-		
-		// private void Update(){
-		// 	pool.Update();
-		// }
+
 		public TweenModel GetGroup(int _groupIndex){
 			return GetTween(GroupIdList[_groupIndex]);
+		}
+
+		public TweenModel GetTween(string _name){
+			for(int i = 0; i < TweenList.Count; i++){
+				if(TweenList[i].Name == _name){
+					return TweenList[i];
+				}
+			}
+
+			throw new SystemException("not found tween. id = " + _name.ToString());
 		}
 
 		public TweenModel GetTween(int _id){
