@@ -151,6 +151,12 @@ namespace BicUtil.Tween
 		private void DoEvents(){
 			if(OnClicked(selectedGroup, Event.current) == true){
 				Repaint();
+			}else{
+				movingPoint = Rect.zero;
+			}
+
+			if(movingPoint != Rect.zero){
+				Handles.DrawSolidRectangleWithOutline(movingPoint, Color.magenta, Color.magenta);
 			}
 
 		}
@@ -250,7 +256,8 @@ namespace BicUtil.Tween
 		}
 
 		private void addTweenPool(GameObject _gameObject){
-			if (_gameObject.GetComponent<TweenPool> () == null) {
+			selectedTweenPool = _gameObject.GetComponent<TweenPool> ();
+			if(selectedTweenPool  == null) {
 				selectedTweenPool = _gameObject.AddComponent<TweenPool>();
 				selectedTweenPool.GroupIdList = new List<int>();
 				selectedTweenPool.IsLocked = true;
@@ -282,7 +289,10 @@ namespace BicUtil.Tween
 
 		#region Setting
         private Dictionary<TweenType, MethodInfo> drawNodeCache = new Dictionary<TweenType, MethodInfo>();
-        public Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect movingPoint;
+		private TweenModel movingTarget;
+		private bool isPreMoving = false;
+		public Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             if(_tween == null){
                 Debug.LogWarning("[BicTween] tween is null");
                 return new Rect(0, 0, 0, 0);
@@ -405,7 +415,7 @@ namespace BicUtil.Tween
 				_tween.Time = EditorGUILayout.FloatField("Time", _tween.Time);
 				_tween.RepeatCount = EditorGUILayout.IntField("Repeat Count", _tween.RepeatCount);
 				_tween.EaseType = (EaseType)EditorGUILayout.EnumPopup("Ease Type", _tween.EaseType);
-				_tween.SetEase(EaseFuncs.GetFunc(_tween.EaseType));
+				_tween.TimeType = (TimeType)EditorGUILayout.EnumPopup("Time Type", _tween.TimeType);
 				EditorGUILayout.Space();
 				_tween.Type = (TweenType)EditorGUILayout.EnumPopup("Tween Type", _tween.Type);
 				_tween.UpdateFunc = UpdateFuncs.GetFunc(_tween.Type);

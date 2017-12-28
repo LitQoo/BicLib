@@ -37,11 +37,19 @@ namespace BicUtil.Tween
 		}
 
 		public static void Active(IUpdateData _data){
-			if(_data.DiffValue.x >= 1f){
-				_data.TargetObject.SetActive(true);
-			}else{
-				_data.TargetObject.SetActive(false);
-			}
+            if(_data.Rate < 1f){
+                if(_data.DiffValue.x >= 1f){
+                    _data.TargetObject.SetActive(true);
+                }else{
+                    _data.TargetObject.SetActive(false);
+                }
+            }else if(_data.Rate >= 1f){
+                if(_data.DiffValue.y >= 1f){
+                    _data.TargetObject.SetActive(true);
+                }else{
+                    _data.TargetObject.SetActive(false);
+                }
+            }
 		}
 	}
 

@@ -54,6 +54,27 @@ namespace BicUtil.Tween
 			}
 		}
 
+		public TimeType TimeType{
+			get{return timeType;}
+			set{
+				timeType = value;
+				timeFunc = TimeFuncs.GetFunc(timeType);
+			}
+		}
+
+		public Func<float> TimeFunc{
+			get{
+				if(timeFunc == null){
+					timeFunc = TimeFuncs.GetFunc(timeType);
+				}
+				return timeFunc;
+			}
+
+			set{
+				timeFunc = value;
+			}
+		}
+
 		public bool IsGrouped{
 			get{
 				return Type == TweenType.Sequance || Type == TweenType.Spawn;
@@ -74,6 +95,8 @@ namespace BicUtil.Tween
 		[SerializeField]
 		private EaseType easeType;
 		[SerializeField]
+		private TimeType timeType;
+		[SerializeField]
 		private GameObject targetObject;
 		[SerializeField]
 		private Vector4 originValue;
@@ -92,9 +115,9 @@ namespace BicUtil.Tween
 		#endregion
         
 		#region Func
+		private Func<float> timeFunc;
         private Action<IUpdateData> updateFunc;
 		private Func<IEaseData, Vector4> easeFunc;
-		public Func<float> DeltaTime;
 
 		#endregion 
 
@@ -143,7 +166,8 @@ namespace BicUtil.Tween
 			EaseFunc = EaseFuncs.Linear;
 			EaseType = EaseType.Linear;
 			UpdateFunc = null;
-			DeltaTime = TimeType.ScaledTime;
+			TimeFunc = TimeFuncs.ScaledTime;
+			timeType = TimeType.Scaled;
 			IsPlaying = false;
 			destoryCount = 0;
 			RepeatCount = 0;
@@ -170,7 +194,8 @@ namespace BicUtil.Tween
 			_tween.EaseFunc = this.EaseFunc;
 			_tween.EaseType = this.EaseType;
 			_tween.UpdateFunc = this.UpdateFunc;
-			_tween.DeltaTime = this.DeltaTime;
+			_tween.TimeFunc = this.TimeFunc;
+			_tween.TimeType = this.TimeType;
 			_tween.IsPlaying = false;
 			_tween.destoryCount = 0;
 			_tween.RepeatCount = 0;
@@ -272,7 +297,7 @@ namespace BicUtil.Tween
 			#if UNITY_EDITOR
 			float _deltaTime = 0;
 			if(Application.isPlaying){
-				_deltaTime = DeltaTime();
+				_deltaTime = TimeFunc();
 			}else{
 				_deltaTime = BicTween.realDeltaTime;
 			}
@@ -293,7 +318,7 @@ namespace BicUtil.Tween
 				}else{
 					CurrentRepeatCount++;
 					Rate = 0;
-					if(OnRepeatCallback !=null){
+					if(OnRepeatCallback != null){
 						OnRepeatCallback(CurrentRepeatCount);
 					}
 				}
@@ -317,7 +342,6 @@ namespace BicUtil.Tween
 			List<TweenModel> _result = new List<TweenModel>();
 			if(childDataList != null){
 				for(int i = 0; i < childDataList.Count; i++){
-					
 					_result.Add(pool.GetTween(childDataList[i]));
 				}
 			}
@@ -357,18 +381,18 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel SetTimeType(Func<float> _timeType){
-			#if UNITY_EDITOR
-			if(Application.isPlaying){
-				DeltaTime = _timeType;
-			}else{
-				DeltaTime = TimeType.RealTime;
-			}
-			#else
-			DeltaTime = _timeType;
-			#endif
-			return this;
-		}
+		// public TweenModel SetTimeType(Func<float> _timeType){
+		// 	#if UNITY_EDITOR
+		// 	if(Application.isPlaying){
+		// 		TimeFunc = _timeType;
+		// 	}else{
+		// 		TimeFunc = TimeFuncs.RealTime;
+		// 	}
+		// 	#else
+		// 	DeltaTime = _timeType;
+		// 	#endif
+		// 	return this;
+		// }
 
 		public TweenModel SetRepeat(int _repeat){
 			RepeatCount = _repeat;
@@ -384,6 +408,13 @@ namespace BicUtil.Tween
 			_tween.Pause();
 
 			childDataList.Add(_tween.Id);
+			return this;
+		}
+
+		public TweenModel InsertChild(TweenModel _tween, int _index){
+			_tween.Pause();
+
+			childDataList.Insert(_index, _tween.Id);
 			return this;
 		}
 
@@ -417,6 +448,8 @@ namespace BicUtil.Tween
         #if UNITY_EDITOR
         [NonSerialized]
         public Rect editor_rect;
+		[NonSerialized]
+		public TweenModel editor_parent;
         #endif
 	}
 

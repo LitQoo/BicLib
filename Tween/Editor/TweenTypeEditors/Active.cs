@@ -15,8 +15,9 @@ namespace BicUtil.Tween
 
 		[TweenEditorDrawSetting(TweenType.Active)]
 		private void drawActiveSetting(TweenModel _tween){
-			var _value = EditorGUILayout.Toggle("IsActive" ,_tween.DiffValue.x >= 1f);
-            _tween.DiffValue = new Vector2(_value ? 1f : 0f, 0);
+			var _value1 = EditorGUILayout.Toggle("IsActive On Start" ,_tween.DiffValue.x >= 1f);
+			var _value2 = EditorGUILayout.Toggle("IsActive On End" ,_tween.DiffValue.y >= 1f);
+            _tween.DiffValue = new Vector2(_value1 ? 1f : 0f, _value2 ? 1f : 0f);
         }
 	}
 }

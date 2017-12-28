@@ -23,6 +23,7 @@ namespace BicUtil.Tween
 			var _childList = _tween.GetChildList();
 			for(int i = 0; i < _childList.Count; i++){
 				_rect = DrawNode(_childList[i], _position, _timeline);
+				_childList[i].editor_parent = _tween;
 				_position = new Vector2(_rect.x + _rect.width, _rect.y);
 				_heightMax = Mathf.Max(_heightMax, _rect.height);
 				_time += _childList[i].Time;

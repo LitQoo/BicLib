@@ -19,15 +19,16 @@ namespace BicUtil.Tween
 				_animator.Play(_stateHashName);
 			}else{
 				_animator.Play(_stateHashName, -1, 0f);
-				LeanTweenOnEditor.AddUpdateCallback((_id, _dt)=>{
-					if(_animator.isActiveAndEnabled == true){
-						_animator.Update(_dt);
-					}
+				throw new SystemException("write PlayMecanimAnimation");
+				// LeanTweenOnEditor.AddUpdateCallback((_id, _dt)=>{
+				// 	if(_animator.isActiveAndEnabled == true){
+				// 		_animator.Update(_dt);
+				// 	}
 
-					if(_animator.isActiveAndEnabled == false || _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
-						LeanTweenOnEditor.RemoveUpdateCallback(_id);
-					}
-			 	});
+				// 	if(_animator.isActiveAndEnabled == false || _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
+				// 		LeanTweenOnEditor.RemoveUpdateCallback(_id);
+				// 	}
+			 	// });
 			}
 			#else
 			_animator.Play(_stateHashName);
@@ -348,7 +349,24 @@ namespace BicUtil.Tween
 		Vector4 DiffValue{get;}
 	}
 
-	public class TimeType{
+	public enum TimeType{
+		Scaled,
+		Unscaled,
+		Fixed,
+		Real
+	}
+
+	public class TimeFuncs{
+		public static Func<float> GetFunc(TimeType _type){
+			switch(_type){
+				case TimeType.Fixed: return FixedTime;
+				case TimeType.Scaled: return ScaledTime;
+				case TimeType.Unscaled: return UnscaledTime;
+				case TimeType.Real: return RealTime;
+			}
+
+			return null;
+		}
 		public static float ScaledTime(){
 			return UnityEngine.Time.deltaTime;
 		}
