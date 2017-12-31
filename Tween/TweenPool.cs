@@ -81,7 +81,7 @@ namespace BicUtil.Tween{
 		//[NonSerialized]
 		//public TweenModel[] Pool = new TweenModel[100];
 		[SerializeField]
-		private int maxPlayingIndex = 0;
+		public int MaxPlayingIndex = 0;
 		private float previousRealTime;
 		private float realDeltaTime = 0;
 		public bool IsLocked = false;
@@ -119,7 +119,7 @@ namespace BicUtil.Tween{
 			_result.Id = _maxId + 1;
 			_result.Name = _result.Id.ToString();
 			_result.IsPlaying = true;
-			UpdateMaxPlayingIndex(_count);
+			UpdateMaxPlayingIndex(_count - 1);
 			TweenList.Add(_result);
 			return _result;
 
@@ -128,8 +128,8 @@ namespace BicUtil.Tween{
 		}
 
 		public void UpdateMaxPlayingIndex(int _index){
-			if(maxPlayingIndex < _index){
-				maxPlayingIndex = _index;
+			if(MaxPlayingIndex < _index){
+				MaxPlayingIndex = Math.Min(_index, TweenList.Count - 1);
 			}
 		}
 
@@ -140,25 +140,27 @@ namespace BicUtil.Tween{
 			}
 
 			updateDeltaTime();
-			int _lastPlayingIndex = 0;
-			var _count = TweenList.Count;
-			for(int i = 0; i < _count; i++){
-				if(TweenList[i] != null && TweenList[i].IsPlaying == true){
-					if(TweenList[i].Update == null){
-						TweenList[i].SetUpdate();
-					}
-					
-					if(TweenList[i].Update != null){
-						TweenList[i].Update();
-					}
+			int _lastPlayingIndex = -1;
+			if(MaxPlayingIndex >= 0){
+				var _count = TweenList.Count;
+				for(int i = 0; i < _count; i++){
+					if(TweenList[i] != null && TweenList[i].IsPlaying == true){
+						if(TweenList[i].Update == null){
+							TweenList[i].SetUpdate();
+						}
+						
+						if(TweenList[i].Update != null){
+							TweenList[i].Update();
+						}
 
-					if(TweenList[i].IsDestroyed == false){
-						_lastPlayingIndex = i;
+						if(TweenList[i].IsDestroyed == false){
+							_lastPlayingIndex = i;
+						}
 					}
 				}
 			}
 
-			maxPlayingIndex = _lastPlayingIndex;
+			MaxPlayingIndex = _lastPlayingIndex;
 			
 		}
 

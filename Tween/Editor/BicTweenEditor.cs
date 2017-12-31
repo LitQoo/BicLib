@@ -144,7 +144,8 @@ namespace BicUtil.Tween
 				return;
 			}
 
-			DrawNode(selectedGroup, Vector2.zero, timeline);
+			var _rect = DrawNode(selectedGroup, Vector2.zero, timeline);
+			timeline.expandView = new Vector2(_rect.width, _rect.height);
 			DoEvents ();
 		}
 
@@ -244,7 +245,7 @@ namespace BicUtil.Tween
 					selectedTweens.Clear();
 					isGroupRemove = false;
 
-					if(selectedTweenPool != null){
+					if(selectedTweenPool != null && selectedTweenPool.GroupIdList != null && selectedTweenPool.GroupIdList.Count > 0){
 						selectedGroupIndex = selectedTweenPool.GroupIdList.Count - 1;
 					}else{
 						selectedGroupIndex = -1;
@@ -285,6 +286,11 @@ namespace BicUtil.Tween
 			}
 
 			selectedTweenPool.Update();
+
+			if(selectedTweenPool.MaxPlayingIndex < 0){
+				timeline.isPlaying = false;
+				Repaint();
+			}
 		}
 
 		#region Setting

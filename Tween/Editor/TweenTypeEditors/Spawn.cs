@@ -17,7 +17,7 @@ namespace BicUtil.Tween
 		private Rect drawSpawnNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
 			float _xPos = _startPosition.x;
 			float _height = 20;
-			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.red;
+			var _backgroundColor = selectedTweens.Contains(_tween) ? new Color(1f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
 
 			var _childList = _tween.GetChildList();
 			for(int i = 0; i < _childList.Count; i++){

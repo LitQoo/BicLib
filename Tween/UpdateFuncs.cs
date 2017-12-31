@@ -1,6 +1,27 @@
 using System;
+using UnityEngine;
+
 namespace BicUtil.Tween
 {
+    [Serializable]
+    public enum TweenType
+    {
+        None,
+        Sequance,
+        Spawn,
+        Move,
+        Active,
+        Scale,
+        Rotate,
+        Delay,
+        Value,
+        Bezier,
+        Virtual,
+        Alpha,
+        Size,
+        Shake
+    }
+
     public static class UpdateFuncs{
 
 		public static Action<IUpdateData> GetFunc(TweenType _type){
@@ -10,6 +31,9 @@ namespace BicUtil.Tween
 				case TweenType.Rotate: return Rotate;
 				case TweenType.Bezier: return Bezier;
 				case TweenType.Active: return Active;
+                case TweenType.Alpha: return Alpha;
+                case TweenType.Size: return Size;
+                case TweenType.Shake: return Shake;
 			}
 
 			return null;
@@ -51,6 +75,37 @@ namespace BicUtil.Tween
                 }
             }
 		}
+
+        public static void Alpha(IUpdateData _data){
+            if(_data.Data == null){
+                _data.Data = _data.TargetObject.GetComponent<UnityEngine.UI.Image>();
+            }
+            
+            UnityEngine.UI.Image _image = (UnityEngine.UI.Image)_data.Data;
+            _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, _data.CurrentValue.w);
+        }
+
+        public static void Size(IUpdateData _data){
+            if(_data.Data == null){
+                _data.Data = _data.TargetObject.GetComponent<RectTransform>();
+            }
+
+            RectTransform _rectTransform = (RectTransform)_data.Data;
+            _rectTransform.sizeDelta = _data.CurrentValue;
+        }
+
+        public static void Shake(IUpdateData _data){
+            if(_data.Data == null){
+                _data.Data = _data.TargetObject.transform.localPosition;
+            }
+
+            Vector3 _shakeValue = new Vector3(UnityEngine.Random.Range(-_data.DiffValue.x, _data.DiffValue.x), UnityEngine.Random.Range(-_data.DiffValue.y, _data.DiffValue.y), UnityEngine.Random.Range(-_data.DiffValue.z, _data.DiffValue.z));
+            _data.TargetObject.transform.localPosition = ((Vector3)_data.Data) + _shakeValue;
+
+            if(_data.Rate >= 1f){
+                _data.TargetObject.transform.localPosition = (Vector3)_data.Data;
+            }
+        }
 	}
 
 }

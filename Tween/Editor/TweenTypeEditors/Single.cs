@@ -8,7 +8,7 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
-            _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time),20);
+            _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time * (_tween.RepeatCount + 1)),20);
             string _title = (_tween.TargetObject != null ? _tween.TargetObject.name : "null") + "." + _tween.Type.ToString();
 			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.white;
 			
@@ -17,7 +17,7 @@ namespace BicUtil.Tween
         }
 
         private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline, Color _backColor, string _title){
-            _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time),20);
+            _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time * (_tween.RepeatCount + 1)),20);
             var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : _backColor;
             drawNode(_tween, _title, _backgroundColor);
             return _tween.editor_rect;
@@ -30,7 +30,11 @@ namespace BicUtil.Tween
             GUIStyle style = new GUIStyle("Label");
             Vector3 size=style.CalcSize(new GUIContent(_text));
             Rect rect1=new Rect(_tween.editor_rect.x+_tween.editor_rect.width*0.5f-size.x*0.5f,_tween.editor_rect.y+_tween.editor_rect.height*0.5f-size.y*0.5f,size.x,size.y);
-            GUI.Label(rect1, _text, style);
+            
+            if(rect1.width < _tween.editor_rect.width){
+                GUI.Label(rect1, _text, style);
+            }
+            
             GUI.backgroundColor = _lastColor;
         }
 

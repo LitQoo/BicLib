@@ -44,7 +44,7 @@ namespace BicUtil.CustomTimeLine{
 		private float timeZoomFactor=1;
 		public Vector2 scroll;
 		private float zoom=20;
-		private Vector2 expandView;
+		public Vector2 expandView;
 		private bool isRecording;
 
 		public bool isPlaying;

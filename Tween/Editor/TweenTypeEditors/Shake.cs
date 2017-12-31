@@ -1,0 +1,52 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using BicUtil.CustomTimeLine;
+using UnityEditor;
+using UnityEngine;
+
+namespace BicUtil.Tween
+{
+	public partial class BicTweenEditor {
+		//[TweenEditorOnClickedNode(TweenType.?)]
+		//private void onClicked?Node(TweenModel _tween, Event _event)
+
+        [TweenEditorDrawNode(TweenType.Shake)]
+        private Rect drawShakeNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+            return drawSingleNode(_tween, _startPosition, _timeline);
+        }
+
+		[TweenEditorDrawSetting(TweenType.Shake)]
+		private void drawShakeSetting(TweenModel _tween){
+			_tween.DiffValue = EditorGUILayout.Vector3Field("Shake Range", _tween.DiffValue);
+		}
+
+		// [TweenEditorDrawHandleControl(TweenType.Shake)]
+		// private void drawShakeHandleControl(TweenModel _tween){
+		// 	if(_tween.TargetObject == null){
+		// 		return;
+		// 	}
+
+		// 	var _transform = _tween.TargetObject.GetComponent<RectTransform>();
+		// 	var _originRect = new Rect(_transform.position.x - _tween.OriginValue.x / 2f, _transform.position.y - _tween.OriginValue.y / 2f, _tween.OriginValue.x, _tween.OriginValue.y);
+		// 	Handles.DrawSolidRectangleWithOutline(_originRect, Color.clear, Color.magenta);
+		// 	drawMoveHandle(new Vector2(_originRect.x + _originRect.width, _originRect.y + _originRect.height), 0, Color.magenta, 10, _tween, setShakePosition);
+		// }
+
+		// private void setShakePosition(TweenModel _tween, int _index, Vector3 _position)
+        // {
+		// 	var _transform = _tween.TargetObject.GetComponent<RectTransform>();
+        //    	if(_index == 1){
+		// 		var _diffX = (_position.x -  _transform.position.x) * 2f - _tween.OriginValue.x;
+		// 		var _diffY = (_position.y -  _transform.position.y) * 2f - _tween.OriginValue.y;
+		// 		_tween.DiffValue = new Vector2(_diffX, _diffY);
+		// 	}else{
+		// 		var _originX = (_position.x - _transform.position.x) * 2f;
+		// 		var _originY = (_position.y - _transform.position.y) * 2f;
+		// 		var _targetValue = _tween.OriginValue + _tween.DiffValue;
+		// 		_tween.OriginValue = new Vector2(_originX, _originY);
+		// 		_tween.DiffValue = new Vector2(_targetValue.x - _originX, _targetValue.y - _originY);
+		// 	}
+        // }
+    }
+}

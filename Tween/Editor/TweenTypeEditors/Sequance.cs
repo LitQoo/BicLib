@@ -18,7 +18,7 @@ namespace BicUtil.Tween
 			var _position = _startPosition + new Vector2(0, 20);
 			var _rect = new Rect();
 			float _heightMax = 20;
-			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.blue;
+			var _backgroundColor = selectedTweens.Contains(_tween) ? new Color(1f, 1f, 0f, 0.5f) : new Color(0, 0, 1f, 0.5f);
 			float _time = 0;
 			var _childList = _tween.GetChildList();
 			for(int i = 0; i < _childList.Count; i++){

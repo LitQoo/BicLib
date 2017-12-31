@@ -176,7 +176,6 @@ namespace BicUtil.Tween
 			return Scale(_object, _object.transform.localScale, _to, _time);
 		}
 
-
 		public static TweenModel Scale(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
@@ -185,6 +184,30 @@ namespace BicUtil.Tween
 			_tween.Time = _time;
 			_tween.Type = TweenType.Scale;
 			_tween.UpdateFunc = UpdateFuncs.Scale;
+
+			return _tween;
+		}
+
+		public static TweenModel Size(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.OriginValue = _from;
+			_tween.DiffValue = _to - _from;
+			_tween.Time = _time;
+			_tween.Type = TweenType.Size;
+			_tween.UpdateFunc = UpdateFuncs.Size;
+
+			return _tween;
+		}
+
+
+		public static TweenModel Shake(GameObject _object, Vector3 _range, float _time, TweenPool _pool = null){
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.DiffValue = _range;
+			_tween.Time = _time;
+			_tween.Type = TweenType.Size;
+			_tween.UpdateFunc = UpdateFuncs.Size;
 
 			return _tween;
 		}
@@ -317,22 +340,6 @@ namespace BicUtil.Tween
 		// }
 	}
 
-	[Serializable]
-	public enum TweenType
-	{
-		None,
-		Sequance,
-		Spawn,
-		Move,
-		Active,
-		Scale,
-		Rotate,
-		Delay,
-		Value,
-		Bezier,
-		Virtual
-	}
-
 	public interface IEaseData{
 		Vector4 OriginValue {get;}
 		Vector4 DiffValue {get;}
@@ -341,6 +348,7 @@ namespace BicUtil.Tween
 	}
 
 	public interface IUpdateData{
+		Vector4 OriginValue{get;}
 		Vector4 CurrentValue{get;}
 		GameObject TargetObject{get;}
 		object Data{get;set;}

@@ -57,7 +57,7 @@ namespace BicUtil.Tween
 		private void setMovePosition(TweenModel _tween, int _index, Vector3 _position){
 			var _parentPos = _tween.TargetObject.transform.parent.position;
 			if(_index == 0){
-				_tween.DiffValue = (Vector3)_tween.OriginValue - ((new Vector3(_position.x, _position.y)) -  (Vector3)_tween.DiffValue);
+				//_tween.DiffValue = (Vector3)_tween.OriginValue - ((new Vector3(_position.x, _position.y)) -  (Vector3)_tween.DiffValue);
 				_tween.OriginValue = _position - _parentPos;
 			}else if(_index == 1){
 				_tween.DiffValue = _position - _parentPos - (Vector3)_tween.OriginValue;
