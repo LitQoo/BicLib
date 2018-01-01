@@ -251,9 +251,18 @@ namespace BicUtil.Tween
 			var _list = Data as List<TweenModel>;
 			
 			if(_list.Count <= sequanceIndex){
-				complete();
-                Data = null;
-				
+				if(RepeatCount == CurrentRepeatCount){	
+					complete();
+					Data = null;
+				}else{
+					CurrentRepeatCount++;
+					Rate = 0;
+					Data = null;
+					if(OnRepeatCallback != null){
+						OnRepeatCallback(CurrentRepeatCount);
+					}
+				}
+
 				return;
 			}
 
@@ -280,8 +289,18 @@ namespace BicUtil.Tween
 			var _list = Data as List<TweenModel>;
 			
 			if(_list.Count == 0){
-				complete();
-                Data = null;
+				if(RepeatCount == CurrentRepeatCount){	
+					complete();
+					Data = null;
+				}else{
+					CurrentRepeatCount++;
+					Rate = 0;
+					Data = null;
+					if(OnRepeatCallback != null){
+						OnRepeatCallback(CurrentRepeatCount);
+					}
+				}
+				
 				return;
 			}
 			
@@ -352,6 +371,7 @@ namespace BicUtil.Tween
 			this.Rate = 0;
 			this.IsPlaying = true;
 			this.destoryCount = 0;
+			this.CurrentRepeatCount = 0;
 			pool.UpdateMaxPlayingIndex(this.Id);
 			return this;
 		}

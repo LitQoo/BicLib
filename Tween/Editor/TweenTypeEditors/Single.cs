@@ -38,6 +38,21 @@ namespace BicUtil.Tween
             GUI.backgroundColor = _lastColor;
         }
 
+        private void drawNode(string _text, Color _color, Rect _rect){
+            var _lastColor = GUI.backgroundColor;
+            GUI.backgroundColor = _color;
+            GUI.Box (_rect,"","TL LogicBar 0");
+            GUIStyle style = new GUIStyle("Label");
+            Vector3 size=style.CalcSize(new GUIContent(_text));
+            Rect rect1=new Rect(_rect.x+_rect.width*0.5f-size.x*0.5f,_rect.y+_rect.height*0.5f-size.y*0.5f,size.x,size.y);
+
+            if(rect1.width < _rect.width){
+                GUI.Label(rect1, _text, style);
+            }
+
+            GUI.backgroundColor = _lastColor;
+        }
+
         private bool isAncestor(TweenModel _child, TweenModel _parent){
             TweenModel _ancestor = _child;
             while(true){

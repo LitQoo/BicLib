@@ -30,14 +30,20 @@ namespace BicUtil.Tween
 			}
 
 			_tween.Time = _time;
-			_tween.editor_rect = new Rect(_startPosition.x, _startPosition.y, _position.x-_startPosition.x, 20);
+			_tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time * (_tween.RepeatCount + 1)),20);
+			
+			if(_tween.RepeatCount > 0){
+				drawNode("Repeat " + _tween.RepeatCount.ToString(), Color.green, new Rect(_position.x, _position.y, _tween.editor_rect.width - _position.x + _tween.editor_rect.x, 20));
+			}
+
+			//_tween.editor_rect = new Rect(_startPosition.x, _startPosition.y, _position.x-_startPosition.x, 20);
 			drawNode(_tween, _tween.Name, selectedTweens.Contains(_tween) ? Color.yellow : Color.blue);
 
-			var _resultRect = new Rect(_startPosition.x, _startPosition.y, _position.x-_startPosition.x, _heightMax + 20);
+			var _resultRect = new Rect(_startPosition.x, _startPosition.y, _tween.editor_rect.width, _heightMax + 20);
 			Handles.DrawSolidRectangleWithOutline(_resultRect, Color.clear, _backgroundColor);
 
 
-			GUILayout.BeginArea (new Rect(Mathf.Max(_position.x - 20, _startPosition.x), _startPosition.y, 20, 20));
+			GUILayout.BeginArea (new Rect(Mathf.Max(_tween.editor_rect.x + _tween.editor_rect.width - 20, _startPosition.x), _startPosition.y, 20, 20));
 			if(GUILayout.Button("+")){
 				openToAddTweenMenu(_tween);
 			}

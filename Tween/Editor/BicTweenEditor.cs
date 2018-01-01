@@ -48,13 +48,14 @@ namespace BicUtil.Tween
 			timeline.onSettingsGUI = onSettings;
 			timeline.onTimelineGUI = drawNods;
 			timeline.onPlay = preview;
+			timeline.onRecord = record;
             SceneView.onSceneGUIDelegate += this.OnSceneGUI;
-			
             selectedTweens.Clear();
             selectedGroupIndex = -1;
 			if(selectedGameObject == null){
 				OnSelectionChange ();
 			}
+
 		}
 
 		private void OnDisable()
@@ -107,7 +108,7 @@ namespace BicUtil.Tween
 			GUILayout.BeginHorizontal ();
 			if (GUILayout.Button (selectedGroup != null ? selectedGroup.Name : "[None Selected]", EditorStyles.toolbarDropDown, GUILayout.Width (width))) {
 				GenericMenu toolsMenu = new GenericMenu ();
-				if(selectedTweenPool != null){
+				if(selectedTweenPool != null && selectedTweenPool.GroupIdList != null){
 					for(int i = 0; i < selectedTweenPool.GroupIdList.Count; i++){
 						int _index = i;
 						toolsMenu.AddItem (new GUIContent (selectedTweenPool.GetGroup(_index).Name), false, delegate() {
@@ -277,6 +278,17 @@ namespace BicUtil.Tween
 		private void preview(bool _isPlaying){
 			if(selectedTweens.Count == 1 && _isPlaying == true){
 				selectedTweens[0].Play();
+				UnityEditor.AnimationMode.StartAnimationMode();
+			}else if(_isPlaying == false){
+				UnityEditor.AnimationMode.StopAnimationMode();
+			}
+		}
+
+		private void record(bool _isRecord){
+			if(_isRecord == true){
+				UnityEditor.AnimationMode.StartAnimationMode();
+			}else{
+				UnityEditor.AnimationMode.StopAnimationMode();
 			}
 		}
 
