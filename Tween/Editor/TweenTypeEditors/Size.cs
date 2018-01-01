@@ -29,7 +29,6 @@ namespace BicUtil.Tween
 			}
 
 			var _transform = _tween.TargetObject.GetComponent<RectTransform>();
-			var _parentTransform = _transform.parent.GetComponent<RectTransform>();
 			var _originOffset = new Vector2(_tween.OriginValue.x * (_transform.pivot.x - 0.5f), _tween.OriginValue.y * (_transform.pivot.y - 0.5f));
 			var _originRect = new Rect(_transform.position.x - _tween.OriginValue.x / 2f - _originOffset.x, _transform.position.y - _tween.OriginValue.y / 2f - _originOffset.y, _tween.OriginValue.x, _tween.OriginValue.y);
 			Handles.DrawSolidRectangleWithOutline(_originRect, Color.clear, Color.magenta);
