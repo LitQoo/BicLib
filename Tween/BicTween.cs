@@ -49,22 +49,20 @@ namespace BicUtil.Tween
 			if(_toValue >= _slider.maxValue && _nextMax > 0){
 				//levelup
 				
-				float _delay = _time;
-				BicTween.MoveSlider(_slider, _slider.maxValue, _delay);
-
-				_delay += 1f/60f + _levelUpDelay;
-				BicTween.Delay(_delay).SubscribeComplete(()=>{
+				var _seq = BicTween.Sequance();
+				var _slider1 = BicTween.MoveSlider(_slider, _slider.maxValue, _time).SubscribeComplete(()=>{
 					_slider.minValue = _slider.maxValue;
 					_slider.maxValue = _nextMax;
-					BicTween.MoveSlider(_slider, _toValue, _time);
 				});
 
-				_delay += 1f/60f + _time;
-				return BicTween.Delay(_delay);
+				var _slider2 = BicTween.MoveSlider(_slider, _toValue, _time);
+				_seq.AddChild(_slider1);
+				_seq.AddChild(_slider2);
+
+				return _seq.Play();
 
 			}else{
-				BicTween.MoveSlider(_slider, _toValue, _time);
-				return BicTween.Delay(_time);
+				return BicTween.MoveSlider(_slider, _toValue, _time);
 			}
 		}
 

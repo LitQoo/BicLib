@@ -100,9 +100,8 @@ namespace BicUtil.Tween{
 					if(IsLocked == false){
 						if(__model.destoryCount == 1){
 							__model.Clear();
-							__model.IsPlaying = true;
-							__model.destoryCount = 0;
-							UpdateMaxPlayingIndex(i);
+							__model.Play();
+							Debug.Log("reuse tween!" + i.ToString());
 							return __model;
 						}else if(__model.destoryCount > 1){
 							__model.destoryCount--;
@@ -118,19 +117,33 @@ namespace BicUtil.Tween{
 			_result.Clear();
 			_result.Id = _maxId + 1;
 			_result.Name = _result.Id.ToString();
-			_result.IsPlaying = true;
-			UpdateMaxPlayingIndex(_count - 1);
 			TweenList.Add(_result);
+			_result.Play();
+			Debug.Log("new tween create! " + _result.Id.ToString());
 			return _result;
 
 
 			throw new SystemException("[BicTween] Pool is full");
 		}
 
+		private bool isUpdatedPlayingMax = false;
+
 		public void UpdateMaxPlayingIndex(int _index){
 			if(MaxPlayingIndex < _index){
 				MaxPlayingIndex = Math.Min(_index, TweenList.Count - 1);
 			}
+
+			isUpdatedPlayingMax = true;
+		}
+
+		public int GetIndex(TweenModel _tween){
+			for(int i = 0; i < TweenList.Count; i++){
+				if(TweenList[i] == _tween){
+					return i;
+				}
+			}
+
+			throw new SystemException("[BicTween] Does not find tween " + _tween.Name + "(" + _tween.Id.ToString() + ")");
 		}
 
 		public void Update(){
@@ -142,26 +155,32 @@ namespace BicUtil.Tween{
 			updateDeltaTime();
 			int _lastPlayingIndex = -1;
 			if(MaxPlayingIndex >= 0){
-				var _count = TweenList.Count;
-				for(int i = 0; i < _count; i++){
-					if(TweenList[i] != null && TweenList[i].IsPlaying == true){
-						if(TweenList[i].Update == null){
-							TweenList[i].SetUpdate();
-						}
-						
-						if(TweenList[i].Update != null){
-							TweenList[i].Update();
+				//var _count = TweenList.Count;
+				for(int i = 0; i <= MaxPlayingIndex; i++){
+					var _tween = TweenList[i];
+					if(_tween != null && _tween.IsPlaying == true){
+						if(_tween.IsDestroyed == false){
+							_lastPlayingIndex = i;
+						}else{
+							continue;
 						}
 
-						if(TweenList[i].IsDestroyed == false){
-							_lastPlayingIndex = i;
+						if(_tween.Update == null){
+							_tween.SetUpdate();
+						}
+						
+						if(_tween.Update != null){
+							_tween.Update();
 						}
 					}
 				}
 			}
 
-			MaxPlayingIndex = _lastPlayingIndex;
-			
+			if(isUpdatedPlayingMax == false){
+				MaxPlayingIndex = _lastPlayingIndex;
+			}
+
+			isUpdatedPlayingMax = false;
 		}
 
 		private void updateDeltaTime(){

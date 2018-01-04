@@ -20,6 +20,7 @@ namespace BicUtil.Tween
 		public Action Update{get;set;}
         public bool IsDestroyed{get{ return destoryCount >= 1; }}
         public TweenType Type{get{return type;}set{type = value; SetUpdate();}}
+		public int PoolIndex{get{ return pool.GetIndex(this);}}
         public Action<IUpdateData> UpdateFunc{
             get{
                 if(updateFunc == null){
@@ -109,7 +110,7 @@ namespace BicUtil.Tween
 		#region  NoneSerialized Members (just use in playmode)
 		//public TweenModel Parent;
         [NonSerialized]
-		public int destoryCount;
+		public int destoryCount = 0;
         [NonSerialized]
 		public int CurrentRepeatCount;
 		#endregion
@@ -163,6 +164,7 @@ namespace BicUtil.Tween
 			Rate = 0;
 			OnCompleteCallback = null;
 			OnUpdateCallback = null;
+			OnRepeatCallback = null;
 			EaseFunc = EaseFuncs.Linear;
 			EaseType = EaseType.Linear;
 			UpdateFunc = null;
@@ -300,7 +302,7 @@ namespace BicUtil.Tween
 						OnRepeatCallback(CurrentRepeatCount);
 					}
 				}
-				
+
 				return;
 			}
 			
@@ -354,7 +356,7 @@ namespace BicUtil.Tween
 			}
 
             this.IsPlaying = false;
-			this.destoryCount = 5;
+			this.destoryCount = 1;
 		}
 
 		public List<TweenModel> GetChildList(){
@@ -372,7 +374,8 @@ namespace BicUtil.Tween
 			this.IsPlaying = true;
 			this.destoryCount = 0;
 			this.CurrentRepeatCount = 0;
-			pool.UpdateMaxPlayingIndex(this.Id);
+
+			pool.UpdateMaxPlayingIndex(this.PoolIndex);
 			return this;
 		}
 
@@ -381,7 +384,11 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel SubscribeComplete(Action _callback){
+		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){
+			if(_clearSubscribe == true){
+				OnCompleteCallback = null;
+			}
+
 			OnCompleteCallback += _callback;
 			return this;
 		}

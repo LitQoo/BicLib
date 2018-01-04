@@ -127,7 +127,7 @@ namespace BicUtil.Tween
 			}
 			GUILayout.EndHorizontal ();
 
-            if(selectedTweens != null){
+            if(selectedTweens != null && selectedTweenPool != null){
 				EditorGUILayout.BeginVertical();
 				pointsScrollPosition = EditorGUILayout.BeginScrollView(pointsScrollPosition, false, false); 
 
@@ -152,6 +152,7 @@ namespace BicUtil.Tween
 
 		private void DoEvents(){
 			if(OnClicked(selectedGroup, Event.current) == true){
+				GUI.FocusControl("");
 				Repaint();
 			}else{
 				movingPoint = Rect.zero;
@@ -217,7 +218,7 @@ namespace BicUtil.Tween
         private void openToAddTweenMenu(TweenModel _tween){
             GenericMenu genericMenu = new GenericMenu ();
             genericMenu.AddItem (new GUIContent ("Single"), false,delegate() {
-				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, new Vector3(100, 100, 0), 3f, selectedTweenPool);
+				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, Vector3.zero, 1f, selectedTweenPool);
 			   
 			    selectedTweenPool.AddTween(_tween, _newTween);
 				EditorUtility.SetDirty(selectedTweenPool);
@@ -271,8 +272,10 @@ namespace BicUtil.Tween
         private void addGroup(){
             selectedTweenPool.AddGroup();
             selectedGroupIndex = selectedTweenPool.GroupIdList.Count - 1;
+			selectTween(selectedTweenPool.GetGroup(selectedGroupIndex));
             EditorUtility.SetDirty(selectedTweenPool);
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+												Repaint();
         }
 
 		private void preview(bool _isPlaying){
