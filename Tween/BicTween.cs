@@ -66,6 +66,16 @@ namespace BicUtil.Tween
 			}
 		}
 
+		static public TweenModel TypeWriter(UnityEngine.UI.Text _text, string _string, float _time, TweenPool _pool){
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _text.gameObject;
+			_tween.StringData = _string;
+			_tween.Time = _time;
+			_tween.Type = TweenType.TypeWriting;
+
+			return _tween;
+		}
+
 
 
 		////////////////////////////////////////////////
@@ -352,7 +362,8 @@ namespace BicUtil.Tween
 		object Data{get;set;}
 		float Rate {get;}
 		List<int> ChildDataList{get;}
-		Vector4 DiffValue{get;}
+		string StringData{get;}
+		Vector4 DiffValue{get;set;}
 	}
 
 	public enum TimeType{

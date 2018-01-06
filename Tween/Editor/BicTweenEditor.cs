@@ -184,13 +184,14 @@ namespace BicUtil.Tween
 						Event.current.Use();
 
 						for(int i = 0; i < copiedTweens.Count; i++){
-							selectedTweens[0].AddChild(copiedTweens[i].Copy());
+							selectedTweens[0].AddChild(copiedTweens[i].Copy(selectedTweenPool));
 						}
 					}
 
 				}
 			}
 		}
+		
 		private void selectTween(TweenModel _tween){
 			selectedTweens.Clear();
 			selectedTweens.Add(_tween);
@@ -214,28 +215,6 @@ namespace BicUtil.Tween
 
 			genericMenu.ShowAsContext ();
 		}
-
-        private void openToAddTweenMenu(TweenModel _tween){
-            GenericMenu genericMenu = new GenericMenu ();
-            genericMenu.AddItem (new GUIContent ("Single"), false,delegate() {
-				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, Vector3.zero, 1f, selectedTweenPool);
-			   
-			    selectedTweenPool.AddTween(_tween, _newTween);
-				EditorUtility.SetDirty(selectedTweenPool);
-				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-            });
-            genericMenu.AddItem (new GUIContent ("Sequance"), false,delegate() {
-                selectedTweenPool.AddTween(_tween, BicTween.Sequance(selectedTweenPool).SetTargetObject(_tween.TargetObject));
-				EditorUtility.SetDirty(selectedTweenPool);
-				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-            });
-            genericMenu.AddItem (new GUIContent ("Spawn"), false,delegate() {
-                selectedTweenPool.AddTween(_tween, BicTween.Spawn(selectedTweenPool).SetTargetObject(_tween.TargetObject));
-				EditorUtility.SetDirty(selectedTweenPool);
-				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-            });
-            genericMenu.ShowAsContext ();
-        }
 
 		private void OnSelectionChange(){
 			timeline.Stop();
@@ -360,21 +339,7 @@ namespace BicUtil.Tween
 			}
 
 			if(selectedGroup == _tweens[0]){
-				if(isGroupRemove == true){
-				if(GUILayout.Button("Remove")){
-						selectedTweenPool.RemoveGroup(selectedGroup);
-						selectedGroupIndex = -1;
-						Repaint();
-					}
-
-					if(GUILayout.Button("Cancel Remove")){
-						isGroupRemove = false;
-					}
-				}else{
-					 if(GUILayout.Button("Remove Group")){
-						 isGroupRemove = true;
-					 }
-				}
+				drawGroupSetting();
 			}
 
 			if(drawSettingCache.ContainsKey(_tweens[0].Type)){
@@ -427,19 +392,67 @@ namespace BicUtil.Tween
 			}
         }
 
+		private void drawGroupSetting(){
+			if(isGroupRemove == true){
+
+				var _color = GUI.backgroundColor;
+				GUI.backgroundColor = Color.red;
+				if(GUILayout.Button("Remove")){
+					selectedTweenPool.RemoveGroup(selectedGroup);
+					selectedGroupIndex = -1;
+					Repaint();
+				}
+
+				GUI.backgroundColor = _color;
+			
+				if(GUILayout.Button("Cancel Remove")){
+					isGroupRemove = false;
+				}
+			}else{
+
+				if(GUILayout.Button("Refind All Targets")){
+					selectedTweenPool.RefindTargetObject(selectedGroup);
+				}
+
+				var _color = GUI.backgroundColor;
+				GUI.backgroundColor = Color.red;
+				if(GUILayout.Button("Remove Group")){
+					isGroupRemove = true;
+				}
+
+				GUI.backgroundColor = _color;
+			}
+		}
+
         private void drawDefaultSetting(List<TweenModel> _tweens){
 			if(_tweens.Count == 1){
 				var _tween = _tweens[0];
 				EditorGUILayout.LabelField("ID", _tween.Id.ToString());
 				_tween.Name = EditorGUILayout.TextField("Name", _tween.Name);
 				_tween.TargetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _tween.TargetObject, typeof(GameObject), true);
+				if(_tween.TargetObject != null){
+					if(string.IsNullOrEmpty(_tween.editor_targetPath)){
+						_tween.editor_targetPath = selectedTweenPool.GetTargetPath(_tween.TargetObject);
+					}
+					
+					EditorGUILayout.BeginHorizontal();
+					EditorGUILayout.LabelField("Target Path", _tween.editor_targetPath);
+					if(GUILayout.Button("Find")){
+						var _findTarget = selectedTweenPool.GetTargetObject(_tween.editor_targetPath);
+						if(_findTarget != null){
+							_tween.TargetObject = _findTarget;
+						}
+					}
+					EditorGUILayout.EndHorizontal();
+				}
+				
 				_tween.Time = EditorGUILayout.FloatField("Time", _tween.Time);
 				_tween.RepeatCount = EditorGUILayout.IntField("Repeat Count", _tween.RepeatCount);
 				_tween.EaseType = (EaseType)EditorGUILayout.EnumPopup("Ease Type", _tween.EaseType);
 				_tween.TimeType = (TimeType)EditorGUILayout.EnumPopup("Time Type", _tween.TimeType);
 				EditorGUILayout.Space();
 				_tween.Type = (TweenType)EditorGUILayout.EnumPopup("Tween Type", _tween.Type);
-				_tween.UpdateFunc = UpdateFuncs.GetFunc(_tween.Type);
+				UpdateFuncs.SetUpdateFunc(_tween);
 			}else if(_tweens.Count > 1){
 				GameObject _targetObject = _tweens[0].TargetObject;
 				bool _isTargetObjectSame = true;

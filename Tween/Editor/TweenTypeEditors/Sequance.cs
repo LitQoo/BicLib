@@ -26,7 +26,7 @@ namespace BicUtil.Tween
 				_childList[i].editor_parent = _tween;
 				_position = new Vector2(_rect.x + _rect.width, _rect.y);
 				_heightMax = Mathf.Max(_heightMax, _rect.height);
-				_time += _childList[i].Time;
+				_time += _childList[i].Time * (_childList[i].RepeatCount + 1);
 			}
 
 			_tween.Time = _time;

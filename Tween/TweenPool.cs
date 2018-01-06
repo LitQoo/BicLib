@@ -21,13 +21,15 @@ namespace BicUtil.Tween{
 		}
 
 		public TweenModel GetTween(string _name){
+			string _names = "";
 			for(int i = 0; i < TweenList.Count; i++){
+				_names += TweenList[i].Name + ",";
 				if(TweenList[i].Name == _name){
 					return TweenList[i];
 				}
 			}
 
-			throw new SystemException("not found tween. id = " + _name.ToString());
+			throw new SystemException("not found tween. Name = " + _name.ToString() + "/" + this.name + "/" + _names);
 		}
 
 		public TweenModel GetTween(int _id){
@@ -78,9 +80,79 @@ namespace BicUtil.Tween{
 			GroupIdList.Add(_newTween.Id);
 		}
 
+		public string GetTargetPath(GameObject _target){
+			return findTargetPath(gameObject, _target);
+		}
+
+		private string findTargetPath(GameObject _parent, GameObject _target){
+			if(_target == null){
+				return string.Empty;
+			}
+
+			if(_target == _parent){
+				return _parent.name;
+			}
+
+			for(int i = 0; i < _parent.transform.childCount; i++){
+				Transform _child = _parent.transform.GetChild(i);
+				if(_child.gameObject == _target){
+					return _parent.name + "/" + _child.name;
+				}else{
+					var _find = findTargetPath(_child.gameObject, _target);
+					if(_find != string.Empty){
+						return _parent.name + "/" + _find;
+					}
+				}
+			}
+
+			return string.Empty;
+		}
+
+		public GameObject GetTargetObject(string _path){
+			var _paths = _path.Split('/');
+			
+			var _parent = gameObject.transform;
+			for(int i = 1; i < _paths.Length; i++){
+				if(_parent == null){
+					return null;
+				}
+
+				_parent = _parent.Find(_paths[i]);
+			}
+
+			return _parent.gameObject;
+		}
+
+		public void RefindAllTargetObject(){
+			for(int i = 0; i < TweenList.Count; i++){
+				if(string.IsNullOrEmpty(TweenList[i].editor_targetPath) == false){
+					var _findTarget = GetTargetObject(TweenList[i].editor_targetPath);
+					if(_findTarget != null){
+						TweenList[i].TargetObject = _findTarget;
+					}
+				}
+			}
+		}
+
+		public void RefindTargetObject(TweenModel _group){
+			var _childList = _group.GetChildList();
+
+			for(int i = 0; i < _childList.Count; i++){
+				var _child = _childList[i];
+				if(_child.IsGrouped){
+					RefindTargetObject(_child);
+				}else if(string.IsNullOrEmpty(_child.editor_targetPath) == false){
+					var _findTarget = GetTargetObject(_child.editor_targetPath);
+					if(_findTarget != null){
+						_child.TargetObject = _findTarget;
+					}
+				}
+			}
+		}
+
 		//[NonSerialized]
 		//public TweenModel[] Pool = new TweenModel[100];
-		[SerializeField]
+		[NonSerialized]
 		public int MaxPlayingIndex = 0;
 		private float previousRealTime;
 		private float realDeltaTime = 0;
@@ -101,7 +173,6 @@ namespace BicUtil.Tween{
 						if(__model.destoryCount == 1){
 							__model.Clear();
 							__model.Play();
-							Debug.Log("reuse tween!" + i.ToString());
 							return __model;
 						}else if(__model.destoryCount > 1){
 							__model.destoryCount--;
@@ -119,7 +190,6 @@ namespace BicUtil.Tween{
 			_result.Name = _result.Id.ToString();
 			TweenList.Add(_result);
 			_result.Play();
-			Debug.Log("new tween create! " + _result.Id.ToString());
 			return _result;
 
 

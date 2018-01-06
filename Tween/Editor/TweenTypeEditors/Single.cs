@@ -28,13 +28,10 @@ namespace BicUtil.Tween
             GUI.backgroundColor = _color;
             GUI.Box (_tween.editor_rect,"","TL LogicBar 0");
             GUIStyle style = new GUIStyle("Label");
+            style.fontSize = 9;
+            style.alignment = TextAnchor.MiddleCenter;
             Vector3 size=style.CalcSize(new GUIContent(_text));
-            Rect rect1=new Rect(_tween.editor_rect.x+_tween.editor_rect.width*0.5f-size.x*0.5f,_tween.editor_rect.y+_tween.editor_rect.height*0.5f-size.y*0.5f,size.x,size.y);
-            
-            if(rect1.width < _tween.editor_rect.width){
-                GUI.Label(rect1, _text, style);
-            }
-            
+            GUI.Label(_tween.editor_rect, _text, style);  
             GUI.backgroundColor = _lastColor;
         }
 

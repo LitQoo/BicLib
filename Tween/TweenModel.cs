@@ -18,14 +18,16 @@ namespace BicUtil.Tween
         public int PlayingIndex{get;set;}
         public bool IsPlaying{get;set;}
 		public Action Update{get;set;}
+		public string StringData{get{ return stringData;} set{stringData = value;}}
         public bool IsDestroyed{get{ return destoryCount >= 1; }}
         public TweenType Type{get{return type;}set{type = value; SetUpdate();}}
 		public int PoolIndex{get{ return pool.GetIndex(this);}}
         public Action<IUpdateData> UpdateFunc{
             get{
                 if(updateFunc == null){
-                    updateFunc = UpdateFuncs.GetFunc(Type);
+                    UpdateFuncs.SetUpdateFunc(this);
                 }
+				
                 return updateFunc;
             }
 
@@ -92,6 +94,8 @@ namespace BicUtil.Tween
 		[SerializeField]
 		public List<int> childDataList;
 		[SerializeField]
+		private string stringData;
+		[SerializeField]
 		private TweenType type;
 		[SerializeField]
 		private EaseType easeType;
@@ -125,7 +129,7 @@ namespace BicUtil.Tween
 		#region  Events
         public Action OnCompleteCallback;
         public Action<Vector4> OnUpdateCallback;
-        public Action<int> OnRepeatCallback;
+        public Action<TweenModel, int> OnRepeatCallback;
 		#endregion
 
 		public override string ToString(){
@@ -208,6 +212,11 @@ namespace BicUtil.Tween
 			_tween.OriginValue = this.OriginValue;
 			_tween.DiffValue = this.DiffValue;
 			_tween.Time = this.Time;
+			_tween.stringData = this.stringData;
+			
+			#if UNITY_EDITOR
+			_tween.editor_targetPath = this.pool.GetTargetPath(_tween.targetObject);
+			#endif
 			
 			if(this.IsGrouped == true){
 
@@ -261,7 +270,7 @@ namespace BicUtil.Tween
 					Rate = 0;
 					Data = null;
 					if(OnRepeatCallback != null){
-						OnRepeatCallback(CurrentRepeatCount);
+						OnRepeatCallback(this, CurrentRepeatCount);
 					}
 				}
 
@@ -299,7 +308,7 @@ namespace BicUtil.Tween
 					Rate = 0;
 					Data = null;
 					if(OnRepeatCallback != null){
-						OnRepeatCallback(CurrentRepeatCount);
+						OnRepeatCallback(this, CurrentRepeatCount);
 					}
 				}
 
@@ -336,11 +345,12 @@ namespace BicUtil.Tween
 			if(Rate == 1f){
 				if(RepeatCount == CurrentRepeatCount){	
 					complete();
+					Data = null;
 				}else{
 					CurrentRepeatCount++;
 					Rate = 0;
 					if(OnRepeatCallback != null){
-						OnRepeatCallback(CurrentRepeatCount);
+						OnRepeatCallback(this, CurrentRepeatCount);
 					}
 				}
 			}else{
@@ -398,7 +408,7 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel SubscribeRepeat(Action<int> _callback){
+		public TweenModel SubscribeRepeat(Action<TweenModel, int> _callback){
 			OnRepeatCallback += _callback;
 			return this;
 		}
@@ -477,6 +487,8 @@ namespace BicUtil.Tween
         public Rect editor_rect;
 		[NonSerialized]
 		public TweenModel editor_parent;
+		[NonSerialized]
+		public string editor_targetPath;
         #endif
 	}
 

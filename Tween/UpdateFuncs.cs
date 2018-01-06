@@ -19,25 +19,45 @@ namespace BicUtil.Tween
         Virtual,
         Alpha,
         Size,
-        Shake
+        Shake,
+        TypeWriting,
+        Counter
     }
 
     public static class UpdateFuncs{
+        public static void SetUpdateFunc(TweenModel _tween){
+            _tween.UpdateFunc = None;
 
-		public static Action<IUpdateData> GetFunc(TweenType _type){
-			switch(_type){
-				case TweenType.Move: return Move;
-				case TweenType.Scale: return Scale;
-				case TweenType.Rotate: return Rotate;
-				case TweenType.Bezier: return Bezier;
-				case TweenType.Active: return Active;
-                case TweenType.Alpha: return Alpha;
-                case TweenType.Size: return Size;
-                case TweenType.Shake: return Shake;
-			}
+            switch(_tween.Type){
+                case TweenType.Move: _tween.UpdateFunc = Move; break;
+                case TweenType.Scale: _tween.UpdateFunc = Scale; break;
+                case TweenType.Rotate: _tween.UpdateFunc = Rotate; break;
+                case TweenType.Bezier: _tween.UpdateFunc = Bezier; break;
+                case TweenType.Active: _tween.UpdateFunc = Active; break;
+                case TweenType.Alpha: _tween.UpdateFunc = Alpha; break;
+                case TweenType.Size: _tween.UpdateFunc = Size; break;
+                case TweenType.Shake: _tween.UpdateFunc = Shake; break;
+                case TweenType.TypeWriting: _tween.OnRepeatCallback = TypeWriting; break;
+            }
+        }
 
-			return null;
-		}
+		// public static Action<IUpdateData> GetFunc(TweenType _type){
+		// 	switch(_type){
+		// 		case TweenType.Move: return Move;
+		// 		case TweenType.Scale: return Scale;
+		// 		case TweenType.Rotate: return Rotate;
+		// 		case TweenType.Bezier: return Bezier;
+		// 		case TweenType.Active: return Active;
+        //         case TweenType.Alpha: return Alpha;
+        //         case TweenType.Size: return Size;
+        //         case TweenType.Shake: return Shake;
+		// 	}
+
+		// 	return null;
+		// }
+        public static void None(IUpdateData _data){
+
+        }
 
 		public static void Move(IUpdateData _data){
 			_data.TargetObject.transform.localPosition = _data.CurrentValue;
@@ -105,6 +125,15 @@ namespace BicUtil.Tween
             if(_data.Rate >= 1f){
                 _data.TargetObject.transform.localPosition = (Vector3)_data.Data;
             }
+        }
+
+        public static void TypeWriting(TweenModel _tween , int _number){
+            if(_tween.Data == null){
+                _tween.Data = _tween.TargetObject.GetComponent<UnityEngine.UI.Text>();
+            }
+
+            var _text = _tween.Data as UnityEngine.UI.Text;
+            _text.text = _tween.StringData.Substring(0, _number);
         }
 	}
 
