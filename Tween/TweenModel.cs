@@ -384,6 +384,7 @@ namespace BicUtil.Tween
 			this.IsPlaying = true;
 			this.destoryCount = 0;
 			this.CurrentRepeatCount = 0;
+			this.Data = null;
 
 			pool.UpdateMaxPlayingIndex(this.PoolIndex);
 			return this;
