@@ -6,6 +6,7 @@ using UnityEngine.SocialPlatforms;
 using BicDB.Container;
 using BicDB;
 using System;
+using BicUtil.Tween;
 
 namespace BicUtil.TableView
 {
@@ -370,7 +371,10 @@ namespace BicUtil.TableView
 		bool isControlled = false;
 		private void isControlledTrue(){
 			isControlled = true;
-			LeanTween.cancel (m_scrollRect.gameObject);
+            if(scrollTween != null){
+                scrollTween.Cancel();
+                scrollTween = null;
+            }
 		}
 
 		private void isControlledFalse(){
@@ -397,6 +401,7 @@ namespace BicUtil.TableView
 			lastScrollDistance = scrollDistance;
 		}
 
+        private TweenModel scrollTween = null;
 		private void magnetControl(float _gap){
 			var _centerPosition = m_scrollRect.transform.position;
 			foreach (var _cell in m_visibleCells) {
@@ -406,9 +411,9 @@ namespace BicUtil.TableView
 					var _targetPosition = scrollDistance - (_centerPosition.x - _cellPosition.x);
 					float _targetGap = _targetPosition - scrollDistance;
 					var _speed = Mathf.Abs(_targetGap) / 100f;
-					LeanTween.value (m_scrollRect.gameObject, _value => {
-						scrollDistance = _value;
-					}, scrollDistance, _targetPosition, _speed).setEaseOutBack();	
+					scrollTween = BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
+						scrollDistance = _value.x;
+					});
 					break;
 				}
 			}

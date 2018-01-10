@@ -24,7 +24,7 @@ namespace BicUtil.Tween
 				}else{
 					try{
 						return selectedTweenPool.GetGroup(selectedGroupIndex);
-					}catch(System.Exception e){
+					}catch(System.Exception){
 						return null; 
 					}
 				}
@@ -66,8 +66,6 @@ namespace BicUtil.Tween
 		}
 
 		private void OnGUI(){
-
-
 			handleCopyPaste();
 
 			bool enabled = GUI.enabled;

@@ -30,7 +30,6 @@ namespace BicUtil.Tween
             GUIStyle style = new GUIStyle("Label");
             style.fontSize = 9;
             style.alignment = TextAnchor.MiddleCenter;
-            Vector3 size=style.CalcSize(new GUIContent(_text));
             GUI.Label(_tween.editor_rect, _text, style);  
             GUI.backgroundColor = _lastColor;
         }

@@ -395,6 +395,11 @@ namespace BicUtil.Tween
 			return this;
 		}
 
+		public void Cancel(){
+			this.IsPlaying = false;
+			this.destoryCount = 1;
+		}
+
 		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){
 			if(_clearSubscribe == true){
 				OnCompleteCallback = null;
@@ -414,8 +419,8 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel SetEase(Func<IEaseData, Vector4> _easeFunc){
-			EaseFunc = _easeFunc;
+		public TweenModel SetEase(EaseType _easeType){
+			EaseType = _easeType;
 			return this;
 		}
 

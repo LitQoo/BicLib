@@ -44,7 +44,6 @@ namespace BicUtil.Tween
 
 		private void drawMoveHandle (Vector3 point, int index, Color _pointColor, float _size, TweenModel _tween, Action<TweenModel, int, Vector3> _callback) {
             Handles.color = _pointColor;
-            var _handleRotate = Tools.pivotRotation == PivotRotation.Local ? _tween.TargetObject.transform.rotation : Quaternion.identity;
             
 			EditorGUI.BeginChangeCheck();
 			point = Handles.FreeMoveHandle(point, Quaternion.identity, _size,new Vector3(10f,10f,10f),Handles.DotHandleCap);

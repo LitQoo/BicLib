@@ -154,8 +154,8 @@ namespace BicUtil.Tween{
 		//public TweenModel[] Pool = new TweenModel[100];
 		[NonSerialized]
 		public int MaxPlayingIndex = 0;
-		private float previousRealTime;
-		private float realDeltaTime = 0;
+		//private float previousRealTime;
+		//private float realDeltaTime = 0;
 		public bool IsLocked = false;
 
 		public TweenModel CreateModel(){
@@ -191,9 +191,6 @@ namespace BicUtil.Tween{
 			TweenList.Add(_result);
 			_result.Play();
 			return _result;
-
-
-			throw new SystemException("[BicTween] Pool is full");
 		}
 
 		private bool isUpdatedPlayingMax = false;
@@ -255,12 +252,13 @@ namespace BicUtil.Tween{
 
 		private void updateDeltaTime(){
 			#if UNITY_EDITOR
-			if(Application.isPlaying){
-				realDeltaTime = Time.deltaTime;
-			}else{
-				realDeltaTime = Time.realtimeSinceStartup - previousRealTime;
-				previousRealTime = Time.realtimeSinceStartup;
+			if(Application.isPlaying == false){
+				//previousRealTime = Time.realtimeSinceStartup;
+				//realDeltaTime = Time.realtimeSinceStartup - previousRealTime;
 			}
+			// else{
+			// 	//realDeltaTime = Time.deltaTime;
+			// }
 			#else
 				deltaTime = time.deltaTime;
 			#endif

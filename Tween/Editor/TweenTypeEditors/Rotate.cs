@@ -76,10 +76,6 @@ namespace BicUtil.Tween
 
 
 		private float getAngle(Vector3 _origin, Vector3 _diff, float _offsetAngle = 0){
-			//Vector2 _Dir = (Vector2)_handle - (Vector2)_center;
-			var _angle = Vector2.Angle(_diff, _origin) + _offsetAngle;
-			//var _angle1 = Vector2.Angle(Vector2.left, _diff);
-			//var _angle2 = Vector2.Angle(Vector2.left, _origin);
 			return Mathf.DeltaAngle(Mathf.Atan2(_origin.y, _origin.x) * Mathf.Rad2Deg, Mathf.Atan2(_diff.y, _diff.x) * Mathf.Rad2Deg);
 
 		}
