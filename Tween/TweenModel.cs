@@ -398,6 +398,13 @@ namespace BicUtil.Tween
 		public void Cancel(){
 			this.IsPlaying = false;
 			this.destoryCount = 1;
+
+			if(IsGrouped == true){
+				var _childList = GetChildList();
+				for(int i = 0; i < _childList.Count; i++){
+					_childList[i].Cancel();
+				}
+			}
 		}
 
 		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){
