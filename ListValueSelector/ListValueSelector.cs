@@ -1,16 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BicDB;
 using BicDB.Container;
 
 namespace BicUtil.ListValueSelector
 {
-    public class ListValueSelector<T> where T : class
+    public class ListValueSelector<T> : BicDB.IBindRmover where T : class
     {
         private int index = 0;
         private IList<T> list;
+        private T current = null;
+        public T Current{
+            get{
+                return current;
+            }
 
-        public ObjectContainer<T> Current = new ObjectContainer<T>();
+            set{
+                current = value;
+                OnChangedValueActions(current);
+            }
+        }
+
+
+
+        public event Action<T> OnChangedValueActions;
 
         public ListValueSelector(IList<T> _list){
             list = _list;
@@ -47,10 +61,10 @@ namespace BicUtil.ListValueSelector
         public void SelectAt(int _index){
             index = _index;
             if(list.Count > index){
-                Current.AsObject = list[index];
+                Current = list[index];
             }else{
                 UnityEngine.Debug.Log("overload");
-                Current.AsObject = null;
+                Current = null;
             }
         }
 
@@ -62,7 +76,7 @@ namespace BicUtil.ListValueSelector
                 }
             }
 
-            Current.AsObject = null;
+            Current = null;
         }
 
         public void SelectFindLast(Func<T, bool> _finder){
@@ -73,7 +87,12 @@ namespace BicUtil.ListValueSelector
                 }
             }
 
-            Current.AsObject = null;
+            Current = null;
+        }
+
+        public void ClearNotifyAndBinding()
+        {
+            OnChangedValueActions = delegate{};
         }
     }
 }

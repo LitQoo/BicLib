@@ -5,6 +5,7 @@ using BicDB.Variable;
 using System;
 using BicDB;
 using BicDB.Container;
+using BicUtil.ListValueSelector;
 
 namespace BicUtil.MVCSystem
 {
@@ -62,6 +63,15 @@ namespace BicUtil.MVCSystem
 
 			if (_needFirstCall == true) {
 				_func (_container, string.Empty);
+			}
+		}
+
+		public void BindModelToController<U> (ListValueSelector<U> _listValueSelector, Action<U> _func, bool _needFirstCall = false)  where U : class{
+			bindRemoverList.Add (_listValueSelector);
+			_listValueSelector.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_listValueSelector.Current);
 			}
 		}
 
