@@ -15,6 +15,8 @@ namespace BicUtil.PublishingUtil{
 		}
 
 		static public void OpenReview(string _appID){
+			SaveWriteReview();
+			
 			#if UNITY_ANDROID
 			Application.OpenURL("market://details?id="+_appID+"&referrer=utm_source%3Dbigjam%26utm_campaign%3Dreview");
 			#elif UNITY_IOS
