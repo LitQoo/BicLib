@@ -41,20 +41,6 @@ namespace BicUtil.Tween
             }
         }
 
-		// public static Action<IUpdateData> GetFunc(TweenType _type){
-		// 	switch(_type){
-		// 		case TweenType.Move: return Move;
-		// 		case TweenType.Scale: return Scale;
-		// 		case TweenType.Rotate: return Rotate;
-		// 		case TweenType.Bezier: return Bezier;
-		// 		case TweenType.Active: return Active;
-        //         case TweenType.Alpha: return Alpha;
-        //         case TweenType.Size: return Size;
-        //         case TweenType.Shake: return Shake;
-		// 	}
-
-		// 	return null;
-		// }
         public static void None(IUpdateData _data){
 
         }
