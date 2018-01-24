@@ -101,7 +101,7 @@ namespace BicUtil.UIFlow
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 					backAction = null;
-					currentUiInfo.UI.Enable ();
+					currentUiInfo.UI.gameObject.SetActive(true);
 					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
 				}else{
 					if(uiStack.Count > 0){
@@ -233,10 +233,10 @@ namespace BicUtil.UIFlow
 		private void closeUI(IUIFlowObject _ui, CloseMode _closeMode){
 			switch (_closeMode) {
 			case CloseMode.Destroy:
-				_ui.Destroy ();
+				MonoBehaviour.Destroy(_ui.gameObject);
 				break;
 			case CloseMode.Disable:
-				_ui.Disable ();
+				_ui.gameObject.SetActive(false);
 				break;
 			}
 		}
@@ -250,7 +250,7 @@ namespace BicUtil.UIFlow
 
 			uiStack.Add (new UIInfo(_ui, _openMode, _parameter));
 			backAction = null;
-			currentUiInfo.UI.Enable ();
+			currentUiInfo.UI.gameObject.SetActive(true);
 			currentUiInfo.UI.OnOpenedUI (_fromUIResult, _parameter);
 		}
 

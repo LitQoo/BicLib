@@ -11,9 +11,8 @@ namespace BicUtil.UIFlow
 	{
 		void OnOpenedUI(IUIFlowObject _fromUI, object _paramter);
 		OnCloseUIResult OnClosedUI (IUIFlowObject _fromUI, Action _finishCallback, object parameter);
-		void Destroy();
-		void Disable();
-		void Enable();
+		
+		GameObject gameObject { get; }
 	}
 
 	public enum OnCloseUIResult
