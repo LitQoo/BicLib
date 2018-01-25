@@ -74,7 +74,7 @@ namespace BicUtil.UIFlow
 			}
 
 			#if UNITY_EDITOR
-			Debug.Log("[UIFLOW] OPEN " + _ui.ToString());
+			Debug.Log("[UIFLOW] OPEN " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
 			#endif
 
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
@@ -179,7 +179,17 @@ namespace BicUtil.UIFlow
 
 			Replace (_ui, _openMode, _closeMode, _openParameter, _closeParameter);
 		}
+		
+		public void Replace<UIClass>(OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
+			Type _objectType = typeof(UIClass);
 
+			if(uiObjects.ContainsKey(_objectType) == false){
+				throw new System.Exception ("[UIFLOW] not found object " + _objectType.ToString());
+			}
+
+			Replace (uiObjects[_objectType], _openMode, _closeMode, _openParameter, _closeParameter);
+		}
+		
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
 			if (isWait == true) {
 				return;
