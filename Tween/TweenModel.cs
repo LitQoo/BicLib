@@ -332,7 +332,7 @@ namespace BicUtil.Tween
 				_deltaTime = BicTween.realDeltaTime;
 			}
 			#else
-			float _deltaTime = DeltaTime();
+			float _deltaTime = TimeFunc();
 			#endif
 			
 			Rate = Mathf.Min(1f, Rate +  _deltaTime / Time);

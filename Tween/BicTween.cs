@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 namespace BicUtil.Tween
 {
@@ -94,15 +93,15 @@ namespace BicUtil.Tween
 		}
 		
 		#region Logic
-		private static void init(){
-			#if UNITY_EDITOR
-			if(Application.isPlaying){
-				var _manager = DefaultPool;
-			}
-			#else
-				var _manager = BicTweenManager.Instance;
-			#endif
-		}
+		// private static void init(){
+		// 	#if UNITY_EDITOR
+		// 	if(Application.isPlaying){
+		// 		var _manager = DefaultPool;
+		// 	}
+		// 	#else
+		// 		var _manager = BicTweenManager.Instance;
+		// 	#endif
+		// }
 
 		private static TweenPool createPool(){
 			var _container = new GameObject();  

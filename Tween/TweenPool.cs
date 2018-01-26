@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace BicUtil.Tween{
 	public class TweenPool : MonoBehaviour {
-		//public TweenPool pool = new TweenPool();
 		[SerializeField]
 		public List<int> GroupIdList;
 		[SerializeField]
 		public List<TweenModel> TweenList;
 		
-		private void Awake(){
-			//setPool(TweenList);
-		}
-
 		public TweenModel GetGroup(int _groupIndex){
 			return GetTween(GroupIdList[_groupIndex]);
 		}
@@ -124,6 +118,7 @@ namespace BicUtil.Tween{
 		}
 
 		public void RefindAllTargetObject(){
+			#if UNITY_EDITOR
 			for(int i = 0; i < TweenList.Count; i++){
 				if(string.IsNullOrEmpty(TweenList[i].editor_targetPath) == false){
 					var _findTarget = GetTargetObject(TweenList[i].editor_targetPath);
@@ -132,9 +127,13 @@ namespace BicUtil.Tween{
 					}
 				}
 			}
+			#else
+			throw new SystemException("[BicTween] for Editor method");
+			#endif
 		}
 
 		public void RefindTargetObject(TweenModel _group){
+			#if UNITY_EDITOR
 			var _childList = _group.GetChildList();
 
 			for(int i = 0; i < _childList.Count; i++){
@@ -148,14 +147,13 @@ namespace BicUtil.Tween{
 					}
 				}
 			}
+			#else
+			throw new SystemException("[BicTween] for Editor method");
+			#endif
 		}
 
-		//[NonSerialized]
-		//public TweenModel[] Pool = new TweenModel[100];
 		[NonSerialized]
 		public int MaxPlayingIndex = 0;
-		//private float previousRealTime;
-		//private float realDeltaTime = 0;
 		public bool IsLocked = false;
 
 		public TweenModel CreateModel(){
@@ -219,10 +217,8 @@ namespace BicUtil.Tween{
 				TweenList = new List<TweenModel>(100);
 			}
 
-			updateDeltaTime();
 			int _lastPlayingIndex = -1;
 			if(MaxPlayingIndex >= 0){
-				//var _count = TweenList.Count;
 				for(int i = 0; i <= MaxPlayingIndex; i++){
 					var _tween = TweenList[i];
 					if(_tween != null && _tween.IsPlaying == true){
@@ -250,37 +246,6 @@ namespace BicUtil.Tween{
 			isUpdatedPlayingMax = false;
 		}
 
-		private void updateDeltaTime(){
-			#if UNITY_EDITOR
-			if(Application.isPlaying == false){
-				//previousRealTime = Time.realtimeSinceStartup;
-				//realDeltaTime = Time.realtimeSinceStartup - previousRealTime;
-			}
-			// else{
-			// 	//realDeltaTime = Time.deltaTime;
-			// }
-			#else
-				deltaTime = time.deltaTime;
-			#endif
-
-		}
-
-		// public void setPool(List<TweenModel> _list){
-		// 	if(_list == null){
-		// 		return;
-		// 	}
-
-		// 	TweenList = new TweenModel[Math.Max(_list.Count, 100)];
-		// 	for(int i = 0; i < _list.Count; i++){
-		// 		if(_list[i].Id != i){
-		// 			TweenList[i] = _list[i];
-		// 			Debug.LogWarning("[BicTween] somthing wrong");
-		// 		}else{
-		// 			TweenList[i] = _list[i];
-		// 		}
-		// 	}
-		// }
-
 		public void DontDestroy(){
 			#if UNITY_EDITOR
 			if(Application.isPlaying == true){
@@ -290,9 +255,5 @@ namespace BicUtil.Tween{
 				DontDestroyOnLoad(this);
 			#endif
 		}
-
-		// public void reflashPool(){
-		// 	setPool(TweenList);
-		// }
     }
 }
