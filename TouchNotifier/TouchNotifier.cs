@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Events;
+using BicUtil.EventNotifyer;
 
 namespace BicUtil.TouchNotifier
 {
 	public class TouchNotifier : MonoBehaviour {
 		#region Event
+		public const string BUTTON_ESC = "esc";
+
 		[System.Serializable]
 		public class TouchEvent : UnityEvent<Vector2> {}
 
@@ -15,7 +18,7 @@ namespace BicUtil.TouchNotifier
 		public TouchEvent OnTouchMove;
 		public TouchEvent OnTouchUp;
 		public TouchEvent OnTouchBackKey;
-
+		
 		private bool isTouchIn = false;
 
 		private void Update () {
@@ -47,14 +50,17 @@ namespace BicUtil.TouchNotifier
 					}
 				}
 			}
-
-			if(Application.platform == RuntimePlatform.Android){
-				if(Input.GetKey(KeyCode.Escape))
-				{
-					OnTouchBackKey.Invoke(Vector2.zero);
-				}
-			}
 			#endif
+
+			if(Input.GetKeyUp(KeyCode.Escape))
+			{
+				OnTouchBackKey.Invoke(Vector2.zero);
+				EventNotifyer.EventNotifyer.Notify(this, BUTTON_ESC);
+			}
+		}
+
+		private void OnDestroy() {
+			EventNotifyer.EventNotifyer.ClearSubscription(this);
 		}
 		#endregion
 	}
