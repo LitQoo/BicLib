@@ -264,6 +264,10 @@ namespace BicUtil.UIFlow
 			currentUiInfo.UI.OnOpenedUI (_fromUIResult, _parameter);
 		}
 
+		public void SetBase(IUIFlowObject _ui, OpenMode _openMode, object _param = null){
+			open(_ui, _openMode, _param);
+		}
+
 		#region LifeCycle
 		#if UNITY_ANDROID || UNITY_EDITOR
 		private void Update(){
