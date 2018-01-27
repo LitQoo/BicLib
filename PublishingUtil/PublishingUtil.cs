@@ -14,14 +14,17 @@ namespace BicUtil.PublishingUtil{
 			#endif			
 		}
 
-		static public void OpenReview(string _appID){
+		static public void OpenReview(string _androidAppId, string _iosAppId){
 			SaveWriteReview();
-			
+			OpenStore(_androidAppId, _iosAppId);
+		}
+
+		static public void OpenStore(string _androidAppId, string _iosAppId){
 			#if UNITY_ANDROID
-			Application.OpenURL("market://details?id="+_appID+"&referrer=utm_source%3Dbigjam%26utm_campaign%3Dreview");
+			Application.OpenURL("market://details?id="+_androidAppId+"&referrer=utm_source%3Dbigjam%26utm_campaign%3Dreview");
 			#elif UNITY_IOS
-			Application.OpenURL("itms-apps://itunes.apple.com/app/id" + _appID);
-			#endif
+			Application.OpenURL("itms-apps://itunes.apple.com/app/id" + _iosAppId);
+			#endif	
 		}
 
 		static public void OpenFacebookPage(){
