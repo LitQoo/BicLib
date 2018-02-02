@@ -116,6 +116,7 @@ namespace BicUtil.Tween
         public static void TypeWriting(TweenModel _tween , int _number){
             if(_tween.Data == null){
                 _tween.Data = _tween.TargetObject.GetComponent<UnityEngine.UI.Text>();
+                _tween.RepeatCount = _tween.StringData.Length;
             }
 
             var _text = _tween.Data as UnityEngine.UI.Text;
