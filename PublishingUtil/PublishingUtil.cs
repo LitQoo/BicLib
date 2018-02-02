@@ -16,12 +16,12 @@ namespace BicUtil.PublishingUtil{
 
 		static public void OpenReview(string _androidAppId, string _iosAppId){
 			SaveWriteReview();
-			OpenStore(_androidAppId, _iosAppId);
+			OpenStore(_androidAppId, _iosAppId, "review");
 		}
 
-		static public void OpenStore(string _androidAppId, string _iosAppId){
+		static public void OpenStore(string _androidAppId, string _iosAppId, string _utm){
 			#if UNITY_ANDROID
-			Application.OpenURL("market://details?id="+_androidAppId+"&referrer=utm_source%3Dbigjam%26utm_campaign%3Dreview");
+			Application.OpenURL("market://details?id="+_androidAppId+"&referrer=utm_source%3Dbigjam%26utm_campaign%3D" + _utm);
 			#elif UNITY_IOS
 			Application.OpenURL("itms-apps://itunes.apple.com/app/id" + _iosAppId);
 			#endif	
