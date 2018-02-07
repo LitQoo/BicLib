@@ -25,6 +25,10 @@ namespace BicUtil.UIFlow
 		public void ClearRegisteredUI(){
 			uiObjects.Clear();
 		}
+
+		public void UnregisterUI(IUIFlowObject _object){
+			uiObjects.Remove(_object.GetType());
+		}
 		#endregion
 
 		private List<UIInfo> uiStack = new List<UIInfo> ();
