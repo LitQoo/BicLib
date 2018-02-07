@@ -15,6 +15,10 @@ namespace BicUtil.ClassInitializer
 		private void Awake(){
 			initialize ();
 		}
+
+		private void OnDestroy() {
+			deinitialize ();
+		}
 		#endregion
 
 		#region logic
@@ -30,12 +34,26 @@ namespace BicUtil.ClassInitializer
 				}
 			}
 		}
+
+		private void deinitialize(){
+			var _orderedList = initObjects.OrderBy (_object => _object.Order);
+
+			foreach (var _item in _orderedList) {
+				if (_item.Target != null) {
+					IClassInitializerObject[] _initObjects = _item.Target.GetComponents<IClassInitializerObject> ();
+					for (int i = 0; i < _initObjects.Length; i++){
+						_initObjects[i].Deinitialize ();
+					}
+				}
+			}
+		}
 		#endregion
 	}
 
 	public interface IClassInitializerObject
 	{
 		void Initialize ();
+		void Deinitialize();
 	}
 
 	[System.Serializable]
