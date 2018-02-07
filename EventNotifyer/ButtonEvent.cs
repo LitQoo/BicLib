@@ -122,6 +122,7 @@ namespace BicUtil.EventNotifyer{
 
 		static public void ClearSubscription(object _object){
 			actionsCache.Remove(_object);
+			cachedSelfObjects.Remove(_object);
 		}
 	}
 }
