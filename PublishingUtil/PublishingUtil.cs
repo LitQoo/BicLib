@@ -10,7 +10,7 @@ namespace BicUtil.PublishingUtil{
 			#if UNITY_ANDROID
 			Application.OpenURL("market://search?q=pub:BIGJAM");
 			#elif UNITY_IOS
-			Application.OpenURL("http://phobos.apple.com/WebObjects/MZSearch.woa/wa/search?submit=sellAllLockup&media=software&entity=software&term=litqoo");
+			Application.OpenURL("itms-apps://appstore.com/litqooinc");
 			#endif			
 		}
 
