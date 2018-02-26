@@ -65,7 +65,7 @@ namespace BicUtil.Tween
         private bool onClickedNodeSingle(TweenModel _tween, Event _event){
             if(_tween.editor_rect.Contains(_event.mousePosition)){
                 switch(_event.type){
-                    case EventType.mouseUp:
+                    case EventType.MouseUp:
                         if(selectedTweens.Count == 1 && movingPoint != Rect.zero){
                             var _movingTween = selectedTweens[0];
                             _movingTween.editor_parent.RemoveChild(selectedTweens[0]);
@@ -78,7 +78,7 @@ namespace BicUtil.Tween
                             Repaint();
                         }
                     break;
-                    case EventType.mouseDown:
+                    case EventType.MouseDown:
                     if(_event.button == 0){
                         if((Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command)){
                             if(selectedTweens.Contains(_tween)){
@@ -93,7 +93,7 @@ namespace BicUtil.Tween
                         popupMenu(_tween);
                     }
                     break;
-                    case EventType.mouseDrag:
+                    case EventType.MouseDrag:
                         if(_event.button == 0 && _tween.editor_parent != null && selectedTweens.Contains(_tween) == false && !isAncestor(_tween, selectedTweens[0])){
                             if(_tween.editor_parent.Type == TweenType.Sequance){
                                 movingTarget = _tween;

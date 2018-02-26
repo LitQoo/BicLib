@@ -165,7 +165,7 @@ namespace BicUtil.Tween
 		private List<TweenModel> copiedTweens = new List<TweenModel>();
 		private void handleCopyPaste()
 		{
-			if (Event.current.type == EventType.keyDown && (Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command))
+			if (Event.current.type == EventType.KeyDown && (Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command))
 			{
 				if (Event.current.keyCode == KeyCode.C)
 				{

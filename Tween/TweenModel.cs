@@ -409,10 +409,15 @@ namespace BicUtil.Tween
 
 		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){
 			if(_clearSubscribe == true){
-				OnCompleteCallback = null;
+				ClearSubscribeComplete();
 			}
 
 			OnCompleteCallback += _callback;
+			return this;
+		}
+
+		public TweenModel ClearSubscribeComplete(){
+			OnCompleteCallback = null;
 			return this;
 		}
 
