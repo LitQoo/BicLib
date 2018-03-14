@@ -84,10 +84,10 @@ namespace BicUtil.Tween
 
         public static void Alpha(IUpdateData _data){
             if(_data.Data == null){
-                _data.Data = _data.TargetObject.GetComponent<UnityEngine.UI.Image>();
+                _data.Data = _data.TargetObject.GetComponent<UnityEngine.UI.Graphic>();
             }
             
-            UnityEngine.UI.Image _image = (UnityEngine.UI.Image)_data.Data;
+            UnityEngine.UI.Graphic _image = (UnityEngine.UI.Graphic)_data.Data;
             _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, _data.CurrentValue.w);
         }
 

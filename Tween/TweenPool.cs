@@ -9,6 +9,8 @@ namespace BicUtil.Tween{
 		public List<int> GroupIdList;
 		[SerializeField]
 		public List<TweenModel> TweenList;
+		[SerializeField]
+		public List<InitialInformations> InitialList;
 		
 		public TweenModel GetGroup(int _groupIndex){
 			return GetTween(GroupIdList[_groupIndex]);
@@ -24,6 +26,31 @@ namespace BicUtil.Tween{
 			}
 
 			throw new SystemException("not found tween. Name = " + _name.ToString() + "/" + this.name + "/" + _names);
+		}
+
+		public void ApplyInitialInformation(int _groupId){
+
+			var _informations = GetInitialInformations(_groupId);
+
+			if(_informations != null){
+				_informations.Apply();
+			}else{
+				#if UNITY_EDITOR
+				Debug.Log("[BicTween] Not found IntialInformations");
+				#endif
+			}
+		}
+
+		public InitialInformations GetInitialInformations(int _groupId){
+			if(InitialList != null){
+				for(int i = 0; i < InitialList.Count; i++){
+					if(InitialList[i].TargetTweenId == _groupId){
+						return InitialList[i];
+					}
+				}
+			}
+
+			return null;
 		}
 
 		public TweenModel GetTween(int _id){
@@ -61,6 +88,7 @@ namespace BicUtil.Tween{
 
 		public void RemoveGroup(TweenModel _group){
 			GroupIdList.Remove(_group.Id);
+			InitialList.RemoveAll(_initial=>_initial.TargetTweenId == _group.Id);
 			_group.Remove();
 		}
 

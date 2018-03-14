@@ -256,7 +256,7 @@ namespace BicUtil.Tween
 				var _childList = GetChildList();
 				Data = _childList;
 				sequanceIndex = 0;
-                _childList[sequanceIndex].Play();
+                _childList[sequanceIndex].Play(false);
 			}
 
 			var _list = Data as List<TweenModel>;
@@ -281,7 +281,7 @@ namespace BicUtil.Tween
 				if(_list.Count > sequanceIndex){
 					sequanceIndex++;
 					if(sequanceIndex < _list.Count){
-						_list[sequanceIndex].Play();
+						_list[sequanceIndex].Play(false);
 					}
 				}
 			}
@@ -291,7 +291,7 @@ namespace BicUtil.Tween
 			if(Data == null){
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
-					_childList[i].Play();
+					_childList[i].Play(false);
 				}
 				
 				Data = _childList;
@@ -379,12 +379,16 @@ namespace BicUtil.Tween
             return _result;
 		}
 
-		public TweenModel Play(){
+		public TweenModel Play(bool _needApplyInitialInformations = true){
 			this.Rate = 0;
 			this.IsPlaying = true;
 			this.destoryCount = 0;
 			this.CurrentRepeatCount = 0;
 			this.Data = null;
+
+			if(_needApplyInitialInformations == true){
+				pool.ApplyInitialInformation(this.Id);
+			}
 
 			pool.UpdateMaxPlayingIndex(this.PoolIndex);
 			return this;
@@ -412,7 +416,10 @@ namespace BicUtil.Tween
 				ClearSubscribeComplete();
 			}
 
-			OnCompleteCallback += _callback;
+			if(_callback != null){
+				OnCompleteCallback += _callback;
+			}
+
 			return this;
 		}
 

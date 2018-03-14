@@ -194,8 +194,9 @@ namespace BicUtil.CustomTimeLine{
 				if(x >= timelineOffset ){
 					if(count%5==0){ 
 						Handles.DrawLine(new Vector3(x,7,0),new Vector3(x,17,0));
-						int displayMinutes = Mathf.FloorToInt((count/5.0f)*timeFactor[timeIndexFactor]/ 60.0f);
-						int	displaySeconds = Mathf.FloorToInt((count/5.0f)*timeFactor[timeIndexFactor] % 60.0f);
+						float _sec = (count/5.0f)*timeFactor[timeIndexFactor];
+						int displayMinutes = Mathf.FloorToInt(_sec / 60.0f);
+						int	displaySeconds = Mathf.FloorToInt(_sec % 60.0f);
 						GUIContent content=new GUIContent(string.Format("{0:0}:{1:00}", displayMinutes, displaySeconds));
 						Vector2 size=((GUIStyle)"Label").CalcSize(content);
 						size.x=Mathf.Clamp(size.x,0.0f,timeRect.width-x);

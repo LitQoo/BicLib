@@ -65,12 +65,13 @@ namespace BicUtil.Tween
 			}
 		}
 
-		static public TweenModel TypeWriter(UnityEngine.UI.Text _text, string _string, float _time, TweenPool _pool){
+		static public TweenModel TypeWriter(UnityEngine.UI.Text _text, string _string, float _time, TweenPool _pool = null){
 			TweenModel _tween = CreateModel(_pool);
 			_tween.TargetObject = _text.gameObject;
 			_tween.StringData = _string;
 			_tween.Time = _time;
 			_tween.Type = TweenType.TypeWriting;
+			_tween.RepeatCount = _tween.StringData.Length;
 
 			return _tween;
 		}

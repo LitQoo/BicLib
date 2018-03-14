@@ -33,7 +33,7 @@ namespace BicUtil.Tween
             GenericMenu genericMenu = new GenericMenu ();
             genericMenu.AddItem (new GUIContent ("Single"), false,delegate() {
 				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, Vector3.zero, 1f, selectedTweenPool);
-			   
+
 			    selectedTweenPool.AddTween(_tween, _newTween);
 				EditorUtility.SetDirty(selectedTweenPool);
 				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());

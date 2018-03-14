@@ -257,7 +257,8 @@ namespace BicUtil.Tween
 
 		private void preview(bool _isPlaying){
 			if(selectedTweens.Count == 1 && _isPlaying == true){
-				selectedTweens[0].Play();
+				bool _applyInitialInformations = selectedTweens[0] == selectedGroup;
+				selectedTweens[0].Play(_applyInitialInformations);
 				UnityEditor.AnimationMode.StartAnimationMode();
 			}else if(_isPlaying == false){
 				UnityEditor.AnimationMode.StopAnimationMode();
@@ -316,7 +317,6 @@ namespace BicUtil.Tween
         }
 
 		public bool OnClicked(TweenModel _tween, Event _event){
-            
             switch(_tween.Type){
             case TweenType.Spawn:
             case TweenType.Sequance:
@@ -328,16 +328,27 @@ namespace BicUtil.Tween
 
         private Dictionary<TweenType, MethodInfo> drawSettingCache = new Dictionary<TweenType, MethodInfo>();
 		private bool isGroupRemove = false;
+		private int selectedGroupSettingTab;
 		public void DrawSetting(List<TweenModel> _tweens){
-
-			drawDefaultSetting(_tweens);
-
-			if(_tweens.Count != 1){
-				return;
+			bool _isGroupSetting = false;
+			if(_tweens.Count == 1 && selectedGroup == _tweens[0]){
+				selectedGroupSettingTab = GUILayout.Toolbar (selectedGroupSettingTab, new string[] {"Setting", "Initial"});
+				_isGroupSetting = true;
 			}
 
-			if(selectedGroup == _tweens[0]){
-				drawGroupSetting();
+			if(_isGroupSetting == true){
+				if(selectedGroupSettingTab == 0){
+					drawDefaultSetting(_tweens);
+					drawGroupSetting();
+				}else{
+					drawInitial();
+				}
+			}else{
+				drawDefaultSetting(_tweens);
+
+				if(_tweens.Count != 1){
+					return;
+				}
 			}
 
 			if(drawSettingCache.ContainsKey(_tweens[0].Type)){
@@ -407,7 +418,6 @@ namespace BicUtil.Tween
 					isGroupRemove = false;
 				}
 			}else{
-
 				if(GUILayout.Button("Refind All Targets")){
 					selectedTweenPool.RefindTargetObject(selectedGroup);
 				}
@@ -427,7 +437,14 @@ namespace BicUtil.Tween
 				var _tween = _tweens[0];
 				EditorGUILayout.LabelField("ID", _tween.Id.ToString());
 				_tween.Name = EditorGUILayout.TextField("Name", _tween.Name);
+
+				EditorGUILayout.BeginHorizontal();
 				_tween.TargetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _tween.TargetObject, typeof(GameObject), true);
+				if(GUILayout.Button("S", GUILayout.Width(20))){
+					_tween.TargetObject = Selection.activeGameObject;
+				}
+				EditorGUILayout.EndHorizontal();
+
 				if(_tween.TargetObject != null){
 					if(string.IsNullOrEmpty(_tween.editor_targetPath)){
 						_tween.editor_targetPath = selectedTweenPool.GetTargetPath(_tween.TargetObject);
@@ -473,6 +490,38 @@ namespace BicUtil.Tween
 				}
 			}
         }
+
+		private void drawInitial(){
+			if(selectedTweenPool.InitialList.Exists(_initial=>_initial.TargetTweenId == selectedGroup.Id)){
+				if(GUILayout.Button("Apply Initial Infomations")){
+					selectedTweenPool.ApplyInitialInformation(selectedGroup.Id);
+				}
+
+				var _initialInformations = selectedTweenPool.GetInitialInformations(selectedGroup.Id); 
+				for(int i = 0; i < _initialInformations.List.Count; i++){
+					EditorGUILayout.BeginHorizontal();
+					var _initialInfo = _initialInformations.List[i];
+					_initialInfo.TargetObject = (GameObject)EditorGUILayout.ObjectField(_initialInfo.TargetObject, typeof(GameObject), true);
+					if(GUILayout.Button("S", GUILayout.Width(20))){
+						_initialInfo.TargetObject = Selection.activeGameObject;
+					}
+
+					_initialInfo.Type = (InitialType)EditorGUILayout.EnumPopup(_initialInfo.Type);
+					_initialInfo.Value = EditorGUILayout.Vector4Field("", _initialInfo.Value);
+					EditorGUILayout.EndHorizontal();
+				}
+
+				if(GUILayout.Button("Add Initial Information")){
+					_initialInformations.Add();
+				}
+			}else{
+				if(GUILayout.Button("Create Initial Informations")){
+					selectedTweenPool.InitialList.Add(new InitialInformations(selectedGroup.Id));
+					EditorUtility.SetDirty(selectedTweenPool);
+				}
+			}
+			
+		}
 
 		#endregion
 	}
