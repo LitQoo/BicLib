@@ -6,4 +6,11 @@
 
 디바이스 해상도 가로 세로 비율과 설정된 표시영역 가로 세로 비율이 다를경우 상하 혹은 좌우에 검은색 레터박스가 생길 수 있습니다. 
 
-카메라 오브젝트에 이 컴포넌트를 추가하고 카메라를 등록하고 레퍼런스 트랜스폼 혹은 표시영역의 사이즈를 설정하면 됩니다.
+
+### How to setup ###
+
+* 카메라 오브젝트에 CameraScaler를 추가.
+* MainCamera에 카메라 등록
+* ReferenceTransform에 해상도레퍼런스 RectTranceform등록 혹은 ReferenceResolution에 해상도 설정.
+* Vertical Align , Horizontal Align 에 화면 정렬 설정.
+
