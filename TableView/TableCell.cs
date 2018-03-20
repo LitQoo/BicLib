@@ -64,6 +64,7 @@ namespace BicUtil.TableView
 		public Dictionary<string, Action<IRecordContainer>> OnClickedActions{ get; set;}
 
 		public void OnClicked(string _buttonName){
+			Debug.Log("click! " + _buttonName);
 			OnClickedActions [_buttonName] (model);
 		}
 		#endregion

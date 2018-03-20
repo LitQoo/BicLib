@@ -29,14 +29,13 @@ namespace BicUtil.Tween{
 		}
 
 		public void ApplyInitialInformation(int _groupId){
-
 			var _informations = GetInitialInformations(_groupId);
 
 			if(_informations != null){
 				_informations.Apply();
 			}else{
 				#if UNITY_EDITOR
-				Debug.Log("[BicTween] Not found IntialInformations");
+				//Debug.Log("[BicTween] Not found IntialInformations");
 				#endif
 			}
 		}

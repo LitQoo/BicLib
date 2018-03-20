@@ -27,8 +27,12 @@ namespace BicUtil.TableView
         /// </summary>
 
 		public void SetDBSource<T>(IList<T> _table) where T : IRecordContainer, new(){
-			GetCellDataFunc = (int _row) => {
-				return _table[_row];	
+			GetCellDataFunc = (int _cellIndex) => {
+                if(_table.Count <= _cellIndex){
+                    return null;
+                }
+
+				return _table[_cellIndex];	
 			};
 
 			GetTableSizeFunc = () => {
@@ -39,46 +43,50 @@ namespace BicUtil.TableView
 		}
 
         [System.Serializable]
-        public class CellVisibilityChangeEvent : UnityEvent<int, bool> { }
+        public class RowVisibilityChangeEvent : UnityEvent<int, bool> { }
         /// <summary>
         /// This event will be called when a cell's visibility changes
         /// First param (int) is the row index, second param (bool) is whether or not it is visible
         /// </summary>
-        public CellVisibilityChangeEvent onCellVisibilityChanged;
+        public RowVisibilityChangeEvent onRowVisibilityChanged;
 
         /// <summary>
         /// Get a cell that is no longer in use for reusing
         /// </summary>
         /// <param name="reuseIdentifier">The identifier for the cell type</param>
         /// <returns>A prepared cell if available, null if none</returns>
-        public TableCell GetReusableCell(string reuseIdentifier) {
+        public TableRow GetReusableRow(string reuseIdentifier) {
 			
-            LinkedList<TableCell> cells;
-            if (!m_reusableCells.TryGetValue(reuseIdentifier, out cells)) {
+            LinkedList<TableRow> _rows;
+            if (!m_reusableRows.TryGetValue(reuseIdentifier, out _rows)) {
                 return null;
             }
-            if (cells.Count == 0) {
+
+            if (_rows.Count == 0) {
                 return null;
             }
-            TableCell cell = cells.First.Value;
-            cells.RemoveFirst();
-            return cell;
+
+            TableRow _row = _rows.First.Value;
+            _rows.RemoveFirst();
+            return _row;
+        }
+        
+        private Dictionary<string, Action<IRecordContainer>> onClickedCellActions = new Dictionary<string, Action<IRecordContainer>>();
+        public void AddClickCellEvent(string _buttonName, Action<IRecordContainer> _action){
+            onClickedCellActions[_buttonName] = _action;
         }
 
-		public Dictionary<string, Action<IRecordContainer>> OnClickedActions = new Dictionary<string, Action<IRecordContainer>>();
-		public TableCell CreateTableCell(){
-			TableCell cell = GetReusableCell(tableCell.reuseIdentifier);
+		public TableRow CreateTableRow(){
+			TableRow _row = GetReusableRow(tableRow.reuseIdentifier);
 
-			if (cell == null) {
-				cell = (TableCell)GameObject.Instantiate(tableCell);
-				cell.name = "CellInstance";
-				cell.gameObject.SetActive(true);
-				cell.OnClickedActions = OnClickedActions;
+			if (_row == null) {
+				_row = (TableRow)GameObject.Instantiate(tableRow);
+                _row.BindOnClickedEvent(onClickedCellActions);
+				_row.name = "RowInstance";
+				_row.gameObject.SetActive(true);
 			}
 
-
-
-			return cell;
+			return _row;
 		}
 
 		public int GetTableSize(){
@@ -89,7 +97,7 @@ namespace BicUtil.TableView
 			return GetTableSizeFunc();
 		}
 
-		public float GetCellHeight(){
+		public float GetRowHeight(){
 			return m_rowHeight;
 		}
 
@@ -100,75 +108,79 @@ namespace BicUtil.TableView
         /// (number of rows changed, etc)
         /// </summary>
         public void ReloadData() {
-            m_cellSizes = new float[m_dataSource.GetNumberOfRowsForTableView(this)];
-            this.isEmpty = m_cellSizes.Length == 0;
+            m_rowSizes = new float[(int)Math.Ceiling((float)m_dataSource.GetNumberOfCellsForTableView(this) / (float)cellCountInARow)];
+            this.isEmpty = m_rowSizes.Length == 0;
 
             if (this.isEmpty) {
                 ClearAllRows();
                 return;
             }
-            m_cumulativeCellSizes = new float[m_cellSizes.Length];
+            m_cumulativeRowSizes = new float[m_rowSizes.Length];
             m_cleanCumulativeIndex = -1;
 
-            for (int i = 0; i < m_cellSizes.Length; i++) {
-                m_cellSizes[i] = m_dataSource.GetHeightForRowInTableView(this, i);
+            for (int i = 0; i < m_rowSizes.Length; i++) {
+                m_rowSizes[i] = m_dataSource.GetHeightForRowInTableView(this, i * cellCountInARow);
                 if (i > 0) {
-                    m_cellSizes[i] += m_LayoutGroup.spacing;
+                    m_rowSizes[i] += m_LayoutGroup.spacing;
                 }
             }
 
+
 			if(m_isVertical) {
 				m_scrollRect.content.sizeDelta = new Vector2(m_scrollRect.content.sizeDelta.x, 
-					GetCumulativeRowHeight(m_cellSizes.Length - 1) + m_LayoutGroup.padding.top + m_LayoutGroup.padding.bottom);
+					GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.top + m_LayoutGroup.padding.bottom);
 			} else {
-				m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_cellSizes.Length - 1) + m_LayoutGroup.padding.left + m_LayoutGroup.padding.right, m_scrollRect.content.sizeDelta.y);
+				m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.left + m_LayoutGroup.padding.right, m_scrollRect.content.sizeDelta.y);
 			}
+
             RecalculateVisibleRowsFromScratch();
             m_requiresReload = false;
+            // scrollDistance = 1;
+            // scrollDistance = 0; 
+
         }
 
         /// <summary>
-        /// Get cell at a specific row (if active). Returns null if not.
+        /// Get row at a specific row (if active). Returns null if not.
         /// </summary>
-        public TableCell GetCellAtRow(int row)
+        public TableRow GetRow(int _rowIndex)
         {
-            TableCell retVal = null;
-            m_visibleCells.TryGetValue(row, out retVal);
-            return retVal;
+            TableRow _result = null;
+            m_visibleRows.TryGetValue(_rowIndex, out _result);
+            return _result;
         }
 
         /// <summary>
         /// Get the range of the currently visible rows
         /// </summary>
         public Range visibleRowRange {
-            get { return m_visibleCellRange; }
+            get { return m_visibleRowRange; }
         }
 
         /// <summary>
         /// Notify the table view that one of its rows changed size
         /// </summary>
-        public void NotifyCellDimensionsChanged(int row) {
-            float oldHeight = m_cellSizes[row];
-            m_cellSizes[row] = m_dataSource.GetHeightForRowInTableView(this, row);
-            m_cleanCumulativeIndex = Mathf.Min(m_cleanCumulativeIndex, row - 1);
-            if (m_visibleCellRange.Contains(row)) {
-                TableCell cell = GetCellAtRow(row);
+        public void NotifyRowDimensionsChanged(int _rowIndex) {
+            float oldHeight = m_rowSizes[_rowIndex];
+            m_rowSizes[_rowIndex] = m_dataSource.GetHeightForRowInTableView(this, _rowIndex);
+            m_cleanCumulativeIndex = Mathf.Min(m_cleanCumulativeIndex, _rowIndex - 1);
+            if (m_visibleRowRange.Contains(_rowIndex)) {
+                TableRow _row = GetRow(_rowIndex);
 
 				if(m_isVertical) {
-					cell.GetComponent<LayoutElement>().preferredHeight = m_cellSizes[row];
-					if(row > 0) {
-						cell.GetComponent<LayoutElement>().preferredHeight -= m_LayoutGroup.spacing;
+					_row.GetComponent<LayoutElement>().preferredHeight = m_rowSizes[_rowIndex];
+					if(_rowIndex > 0) {
+						_row.GetComponent<LayoutElement>().preferredHeight -= m_LayoutGroup.spacing;
 					}
 				} else {
-					cell.GetComponent<LayoutElement>().preferredWidth = m_cellSizes[row];
-					if(row > 0) {
-						cell.GetComponent<LayoutElement>().preferredWidth -= m_LayoutGroup.spacing;
+					_row.GetComponent<LayoutElement>().preferredWidth = m_rowSizes[_rowIndex];
+					if(_rowIndex > 0) {
+						_row.GetComponent<LayoutElement>().preferredWidth -= m_LayoutGroup.spacing;
 					}
 				}
             }
 
-
-            float heightDelta = m_cellSizes[row] - oldHeight;
+            float heightDelta = m_rowSizes[_rowIndex] - oldHeight;
             
 			if(m_isVertical) {
 				m_scrollRect.content.sizeDelta = new Vector2(m_scrollRect.content.sizeDelta.x,
@@ -204,7 +216,7 @@ namespace BicUtil.TableView
                 if (this.isEmpty) {
                     return;
                 }
-                value = Mathf.Clamp(value, 0, GetScrollYForRow(m_cellSizes.Length - 1, true));
+                value = Mathf.Clamp(value, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
                 if (m_scrollDistance != value) {
                     m_scrollDistance = value;
                     m_requiresRefresh = true;
@@ -223,13 +235,13 @@ namespace BicUtil.TableView
         /// <summary>
         /// Get the y that the table would need to scroll to to have a certain row at the top
         /// </summary>
-        /// <param name="row">The desired row</param>
-        /// <param name="above">Should the top of the table be above the row or below the row?</param>
+        /// <param name="_rowIndex">The desired row</param>
+        /// <param name="_above">Should the top of the table be above the row or below the row?</param>
         /// <returns>The y position to scroll to, can be used with scrollY property</returns>
-        public float GetScrollYForRow(int row, bool above) {
-            float retVal = GetCumulativeRowHeight(row);
-            if (above) {
-                retVal -= m_cellSizes[row];
+        public float GetScrollYForRow(int _rowIndex, bool _above) {
+            float retVal = GetCumulativeRowHeight(_rowIndex);
+            if (_above) {
+                retVal -= m_rowSizes[_rowIndex];
             }
             return retVal;
         }
@@ -239,7 +251,9 @@ namespace BicUtil.TableView
         #region Private implementation
 
 		[SerializeField]
-		private TableCell tableCell;
+		private TableRow tableRow;
+        private int cellCountInARow = 0;
+
         private ITableViewDataSource m_dataSource;
         private bool m_requiresReload;
 
@@ -248,19 +262,18 @@ namespace BicUtil.TableView
         private LayoutElement m_topPadding;
         private LayoutElement m_bottomPadding;
 
-		private float[] m_cellSizes;
+		private float[] m_rowSizes;
         //cumulative[i] = sum(rowHeights[j] for 0 <= j <= i)
-		private float[] m_cumulativeCellSizes;
+		private float[] m_cumulativeRowSizes;
         private int m_cleanCumulativeIndex;
 
-        private Dictionary<int, TableCell> m_visibleCells;
-		private Range m_visibleCellRange;
+        private Dictionary<int, TableRow> m_visibleRows;
+		private Range m_visibleRowRange;
 
-        private RectTransform m_reusableCellContainer;
-        private Dictionary<string, LinkedList<TableCell>> m_reusableCells;
+        private RectTransform m_reusableRowContainer;
+        private Dictionary<string, LinkedList<TableRow>> m_reusableRows;
 
         private float m_scrollDistance;
-
         private bool m_requiresRefresh;
 
 		private bool m_isVertical;
@@ -293,10 +306,10 @@ namespace BicUtil.TableView
         }
 
         private void ClearAllRows() {
-            while (m_visibleCells.Count > 0) {
+            while (m_visibleRows.Count > 0) {
                 HideRow(false);
             }
-            m_visibleCellRange = new Range(0, 0);
+            m_visibleRowRange = new Range(0, 0);
         }
 
         void Awake()
@@ -304,10 +317,10 @@ namespace BicUtil.TableView
 			m_isVertical = true;
             isEmpty = true;
 			m_scrollRect = GetComponent<EventControlledScrollRect>();
-			m_LayoutGroup = GetComponentInChildren<VerticalLayoutGroup>();
+			m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<VerticalLayoutGroup>();
 
 			if(m_LayoutGroup == null) {
-				m_LayoutGroup = GetComponentInChildren<HorizontalLayoutGroup>();
+				m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<HorizontalLayoutGroup>();
 				m_isVertical = false;
 			}
 
@@ -316,27 +329,29 @@ namespace BicUtil.TableView
 			}
 
 			m_rowHeight = 100;
-
-			if (tableCell != null) {
-				tableCell.gameObject.SetActive(false);
+			
+            if (tableRow != null) {
+				tableRow.gameObject.SetActive(false);
 
 				if (m_isVertical) {
-					m_rowHeight = tableCell.GetComponent<RectTransform>().sizeDelta.y;
+					m_rowHeight = tableRow.GetComponent<RectTransform>().sizeDelta.y;
 				} else {
-					m_rowHeight = tableCell.GetComponent<RectTransform>().sizeDelta.x;
+					m_rowHeight = tableRow.GetComponent<RectTransform>().sizeDelta.x;
 				}
 			}
+            
+            cellCountInARow = tableRow.Cells.Count;
 
             m_topPadding = CreateEmptyPaddingElement("TopPadding");
             m_topPadding.transform.SetParent(m_scrollRect.content, false);
             m_bottomPadding = CreateEmptyPaddingElement("Bottom");
             m_bottomPadding.transform.SetParent(m_scrollRect.content, false);
-            m_visibleCells = new Dictionary<int, TableCell>();
+            m_visibleRows = new Dictionary<int, TableRow>();
 
-            m_reusableCellContainer = new GameObject("ReusableCells", typeof(RectTransform)).GetComponent<RectTransform>();
-            m_reusableCellContainer.SetParent(this.transform, false);
-            m_reusableCellContainer.gameObject.SetActive(false);
-            m_reusableCells = new Dictionary<string, LinkedList<TableCell>>();
+            m_reusableRowContainer = new GameObject("ReusableRows", typeof(RectTransform)).GetComponent<RectTransform>();
+            m_reusableRowContainer.SetParent(this.transform, false);
+            m_reusableRowContainer.gameObject.SetActive(false);
+            m_reusableRows = new Dictionary<string, LinkedList<TableRow>>();
         }
         
         void Update()
@@ -404,11 +419,11 @@ namespace BicUtil.TableView
         private TweenModel scrollTween = null;
 		private void magnetControl(float _gap){
 			var _centerPosition = m_scrollRect.transform.position;
-			foreach (var _cell in m_visibleCells) {
-				var _cellPosition = _cell.Value.transform.position;
-				var _cellHalfSize = m_cellSizes [_cell.Key] / 2f;
-				if (_cellPosition.x + _cellHalfSize > _centerPosition.x && _cellPosition.x - _cellHalfSize <= _centerPosition.x) {
-					var _targetPosition = scrollDistance - (_centerPosition.x - _cellPosition.x);
+			foreach (var _row in m_visibleRows) {
+				var _rowPosition = _row.Value.transform.position;
+				var _rowHalfSize = m_rowSizes [_row.Key] / 2f;
+				if (_rowPosition.x + _rowHalfSize > _centerPosition.x && _rowPosition.x - _rowHalfSize <= _centerPosition.x) {
+					var _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
 					float _targetGap = _targetPosition - scrollDistance;
 					var _speed = Mathf.Abs(_targetGap) / 100f;
 					scrollTween = BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
@@ -435,58 +450,50 @@ namespace BicUtil.TableView
 
 			int startIndex = FindIndexOfRowAtY(startY);
             int endIndex = FindIndexOfRowAtY(endY);
-
-
-			return new Range(startIndex, endIndex - startIndex + 1);
+            return new Range(startIndex, endIndex - startIndex + 1);
         }
 
         private void SetInitialVisibleRows()
         {
             Range visibleRows = CalculateCurrentVisibleRowRange();
+
             for (int i = 0; i < visibleRows.count; i++)
-            {
-                AddRow(visibleRows.from + i, true);
+            {   
+                AddRow(visibleRows.from + i, true, m_scrollRect.content);
             }
-            m_visibleCellRange = visibleRows;
+            m_visibleRowRange = visibleRows;
             UpdatePaddingElements();
         }
 
-        private void AddRow(int row, bool atEnd)
+        private void AddRow(int _rowIndex, bool _isEnd, RectTransform _parent)
         {
-            TableCell newCell = m_dataSource.GetCellForRowInTableView(this, row);
+            TableRow newRow = m_dataSource.GetCellForRowInTableView(this, _rowIndex);
 
-			if (GetCellDataFunc != null) {
-				newCell.Model = GetCellDataFunc(row);
-			}
+            newRow.SetData(_rowIndex * cellCountInARow, GetCellDataFunc);
 
-            newCell.transform.SetParent(m_scrollRect.content, false);
-
-            LayoutElement layoutElement = newCell.GetComponent<LayoutElement>();
-            if (layoutElement == null) {
-                layoutElement = newCell.gameObject.AddComponent<LayoutElement>();
-            }
+            newRow.transform.SetParent(_parent, false);
 
 			if(m_isVertical) {
-				layoutElement.preferredHeight = m_cellSizes[row];
-				if(row > 0) {
-					layoutElement.preferredHeight -= m_LayoutGroup.spacing;
+				newRow.GetComponent<LayoutElement>().preferredHeight = m_rowSizes[_rowIndex];
+				if(_rowIndex > 0) {
+					newRow.GetComponent<LayoutElement>().preferredHeight -= m_LayoutGroup.spacing;
 				}
 			} else {
-				layoutElement.preferredWidth = m_cellSizes[row];
-				if(row > 0) {
-					layoutElement.preferredWidth -= m_LayoutGroup.spacing;
+				newRow.GetComponent<LayoutElement>().preferredWidth = m_rowSizes[_rowIndex];
+				if(_rowIndex > 0) {
+					newRow.GetComponent<LayoutElement>().preferredWidth -= m_LayoutGroup.spacing;
 				}
 			}
             
-            m_visibleCells[row] = newCell;
+            m_visibleRows[_rowIndex] = newRow;
 
-            if (atEnd) {
-                newCell.transform.SetSiblingIndex(m_scrollRect.content.childCount - 2); //One before bottom padding
+            if (_isEnd) {
+                newRow.transform.SetSiblingIndex(m_scrollRect.content.childCount - 2); //One before bottom padding
             } else {
-                newCell.transform.SetSiblingIndex(1); //One after the top padding
+                newRow.transform.SetSiblingIndex(1); //One after the top padding
             }
 
-			this.onCellVisibilityChanged.Invoke(row, true);
+			this.onRowVisibilityChanged.Invoke(_rowIndex, true);
 
         }
 
@@ -500,17 +507,17 @@ namespace BicUtil.TableView
 
             Range newVisibleRows = CalculateCurrentVisibleRowRange();
 
-			int oldTo = m_visibleCellRange.Last();
+			int oldTo = m_visibleRowRange.Last();
             int newTo = newVisibleRows.Last();
 
-            if (newVisibleRows.from > oldTo || newTo < m_visibleCellRange.from) {
+            if (newVisibleRows.from > oldTo || newTo < m_visibleRowRange.from) {
                 //We jumped to a completely different segment this frame, destroy all and recreate
 				RecalculateVisibleRowsFromScratch();
                 return;
             }
 
             //Remove rows that disappeared to the top
-            for (int i = m_visibleCellRange.from; i < newVisibleRows.from; i++)
+            for (int i = m_visibleRowRange.from; i < newVisibleRows.from; i++)
             {
                 HideRow(false);
             }
@@ -520,21 +527,21 @@ namespace BicUtil.TableView
                 HideRow(true);
             }
             //Add rows that appeared on top
-            for (int i = m_visibleCellRange.from - 1; i >= newVisibleRows.from; i--) {
-                AddRow(i, false);
+            for (int i = m_visibleRowRange.from - 1; i >= newVisibleRows.from; i--) {
+                AddRow(i, false, m_scrollRect.content);
             }
             //Add rows that appeared on bottom
             for (int i = oldTo + 1; i <= newTo; i++) {
-                AddRow(i, true);
+                AddRow(i, true, m_scrollRect.content);
             }
-            m_visibleCellRange = newVisibleRows;
+            m_visibleRowRange = newVisibleRows;
             UpdatePaddingElements();
         }
 
         private void UpdatePaddingElements() {
             float hiddenElementsHeightSum = 0;
-            for (int i = 0; i < m_visibleCellRange.from; i++) {
-                hiddenElementsHeightSum += m_cellSizes[i];
+            for (int i = 0; i < m_visibleRowRange.from; i++) {
+                hiddenElementsHeightSum += m_rowSizes[i];
             }
 
 			if(m_isVertical) {
@@ -546,8 +553,8 @@ namespace BicUtil.TableView
 			}
 
 
-			for (int i = m_visibleCellRange.from; i <= m_visibleCellRange.Last(); i++) {
-                hiddenElementsHeightSum += m_cellSizes[i];
+			for (int i = m_visibleRowRange.from; i <= m_visibleRowRange.Last(); i++) {
+                hiddenElementsHeightSum += m_rowSizes[i];
             }
 
 			if(m_isVertical) {
@@ -561,30 +568,30 @@ namespace BicUtil.TableView
 			}
         }
 
-        private void HideRow(bool last)
+        private void HideRow(bool _last)
         {
-            int row = last ? m_visibleCellRange.Last() : m_visibleCellRange.from;
-            TableCell removedCell = m_visibleCells[row];
-			removedCell.OnRemove();
-            StoreCellForReuse(removedCell);
-            m_visibleCells.Remove(row);
-            m_visibleCellRange.count -= 1;
-            if (!last) {
-                m_visibleCellRange.from += 1;
+            int _rowIndex = _last ? m_visibleRowRange.Last() : m_visibleRowRange.from;
+            TableRow removedRow = m_visibleRows[_rowIndex];
+			removedRow.OnRemove();
+            StoreRowForReuse(removedRow);
+            m_visibleRows.Remove(_rowIndex);
+            m_visibleRowRange.count -= 1;
+            if (!_last) {
+                m_visibleRowRange.from += 1;
             } 
-            this.onCellVisibilityChanged.Invoke(row, false);
+            this.onRowVisibilityChanged.Invoke(_rowIndex, false);
         }
 
-        private LayoutElement CreateEmptyPaddingElement(string name)
+        private LayoutElement CreateEmptyPaddingElement(string _name)
         {
-            GameObject go = new GameObject(name, typeof(RectTransform), typeof(LayoutElement));
+            GameObject go = new GameObject(_name, typeof(RectTransform), typeof(LayoutElement));
             LayoutElement le = go.GetComponent<LayoutElement>();
             return le;
         }
 
         private int FindIndexOfRowAtY(float y) {
             //TODO : Binary search if inside clean cumulative row height area, else walk until found.
-            return FindIndexOfRowAtY(y, 0, m_cumulativeCellSizes.Length - 1);
+            return FindIndexOfRowAtY(y, 0, m_cumulativeRowSizes.Length - 1);
         }
 
         private int FindIndexOfRowAtY(float y, int startIndex, int endIndex) {
@@ -600,31 +607,31 @@ namespace BicUtil.TableView
             }
         }
 
-        private float GetCumulativeRowHeight(int row) {
-            while (m_cleanCumulativeIndex < row) {
+        private float GetCumulativeRowHeight(int _rowIndex) {
+            while (m_cleanCumulativeIndex < _rowIndex) {
                 m_cleanCumulativeIndex++;
-				m_cumulativeCellSizes[m_cleanCumulativeIndex] = m_cellSizes[m_cleanCumulativeIndex];
+				m_cumulativeRowSizes[m_cleanCumulativeIndex] = m_rowSizes[m_cleanCumulativeIndex];
 				 if (m_cleanCumulativeIndex > 0) {
-                    m_cumulativeCellSizes[m_cleanCumulativeIndex] += m_cumulativeCellSizes[m_cleanCumulativeIndex - 1];
+                    m_cumulativeRowSizes[m_cleanCumulativeIndex] += m_cumulativeRowSizes[m_cleanCumulativeIndex - 1];
                 } 
             }
-            return m_cumulativeCellSizes[row];
+            return m_cumulativeRowSizes[_rowIndex];
         }
 
-        private void StoreCellForReuse(TableCell cell) {
-            string reuseIdentifier = cell.reuseIdentifier;
+        private void StoreRowForReuse(TableRow _row) {
+            string reuseIdentifier = _row.reuseIdentifier;
             
             if (string.IsNullOrEmpty(reuseIdentifier)) {
-                GameObject.Destroy(cell.gameObject);
+                GameObject.Destroy(_row.gameObject);
                 return;
             }
 
-            if (!m_reusableCells.ContainsKey(reuseIdentifier)) {
-                m_reusableCells.Add(reuseIdentifier, new LinkedList<TableCell>());
+            if (!m_reusableRows.ContainsKey(reuseIdentifier)) {
+                m_reusableRows.Add(reuseIdentifier, new LinkedList<TableRow>());
             }
 
-            m_reusableCells[reuseIdentifier].AddLast(cell);
-            cell.transform.SetParent(m_reusableCellContainer, false);
+            m_reusableRows[reuseIdentifier].AddLast(_row);
+            _row.transform.SetParent(m_reusableRowContainer, false);
         }
 
         #endregion
@@ -634,21 +641,21 @@ namespace BicUtil.TableView
     }
 
 	internal class TableDataSourceAuto : ITableViewDataSource{
-		public int GetNumberOfRowsForTableView(TableView _tableView)
+		public int GetNumberOfCellsForTableView(TableView _tableView)
 		{
 			return _tableView.GetTableSize();
 		}
 
-		public float GetHeightForRowInTableView(TableView _tableView, int _row)
+		public float GetHeightForRowInTableView(TableView _tableView, int _rowIndex)
 		{
-			return _tableView.GetCellHeight();
+			return _tableView.GetRowHeight();
 		}
 
-		public TableCell GetCellForRowInTableView(TableView _tableView, int _row)
+		public TableRow GetCellForRowInTableView(TableView _tableView, int _rowIndex)
 		{
-			var _tableCell = _tableView.CreateTableCell(); // 셀 리턴
-			_tableCell.CellIndex = _row;
-			return _tableCell;
+			var _tableRow = _tableView.CreateTableRow(); // 셀 리턴
+			_tableRow.RowIndex = _rowIndex;
+			return _tableRow;
 		}
 	}
 

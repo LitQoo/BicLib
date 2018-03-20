@@ -11,7 +11,7 @@ namespace BicUtil.TableView
         /// <summary>
         /// Get the number of rows that a certain table should display
         /// </summary>
-        int GetNumberOfRowsForTableView(TableView _tableView);
+        int GetNumberOfCellsForTableView(TableView _tableView);
         
         /// <summary>
         /// Get the height of a row of a certain cell in the table view
@@ -22,7 +22,7 @@ namespace BicUtil.TableView
         /// Create a cell for a certain row in a table view.
         /// Callers should use tableView.GetReusableCell to cache objects
         /// </summary>
-        TableCell GetCellForRowInTableView(TableView _tableView, int _row);
+        TableRow GetCellForRowInTableView(TableView _tableView, int _row);
     }
 }
 
