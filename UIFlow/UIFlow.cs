@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using BicUtil.SingletonBase;
 using System;
+using BicUtil.ClassInitializer;
 
 namespace BicUtil.UIFlow
 {
@@ -30,15 +31,30 @@ namespace BicUtil.UIFlow
 			uiObjects.Remove(_object.GetType());
 		}
 		#endregion
-
 		private List<UIInfo> uiStack = new List<UIInfo> ();
 		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private bool isWait = false;
 
 		public void LoadScene(string _sceneName){
-			backAction = null;
+			cleaningValriables();
 			UnityEngine.SceneManagement.SceneManager.LoadScene (_sceneName);
+		}
+
+		public void QuitApp(){
+			cleaningValriables();
+			Application.Quit();
+		}
+
+		private void cleaningValriables(){
+			UIFlow.Instance.ClearRegisteredUI();
+			backAction = null;
+			uiStack.Clear();
+			reservationUI = null;
+
+			if(ClassInitializer.ClassInitializer.Instance != null){
+				ClassInitializer.ClassInitializer.Instance.Deinitialize();
+			}
 		}
 
 		public void Enter(string _objectName, OpenMode _openMode, object _parameter = null){

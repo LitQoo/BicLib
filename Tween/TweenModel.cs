@@ -181,6 +181,7 @@ namespace BicUtil.Tween
 			CurrentRepeatCount = 0;
             childDataList = null;
 			Type = TweenType.None;
+			TargetObject = null;
 		}
 
 		public TweenModel Copy(TweenPool _pool = null){
@@ -365,8 +366,13 @@ namespace BicUtil.Tween
 				OnCompleteCallback();
 			}
 
+			if(this.pool.IsLocked == false){
+				Clear();
+			}
+			
             this.IsPlaying = false;
 			this.destoryCount = 1;
+			
 		}
 
 		public List<TweenModel> GetChildList(){

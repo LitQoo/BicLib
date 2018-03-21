@@ -6,9 +6,14 @@ using System.Linq;
 namespace BicUtil.ClassInitializer
 {
 	public class ClassInitializer : MonoBehaviour {
+		#region  Static
+		static public ClassInitializer Instance = null;
+		#endregion
+
 		#region LinkingObject
 		[SerializeField]
 		private List<ClassInitializerObjectInfo> initObjects;
+		private bool isDeinitialize = false;
 		#endregion
 
 		#region LifeCycle
@@ -17,34 +22,46 @@ namespace BicUtil.ClassInitializer
 		}
 
 		private void OnDestroy() {
-			deinitialize ();
+			if(isDeinitialize == false){
+				throw new System.Exception("did not Deinitialize");
+			}
+		}
+
+		private void OnApplicationQuit() {
+			Deinitialize();
 		}
 		#endregion
 
 		#region logic
 		private void initialize(){
+			ClassInitializer.Instance = this;
 			var _orderedList = initObjects.OrderBy (_object => _object.Order);
 
 			foreach (var _item in _orderedList) {
-				if (_item.Target != null) {
+				//if (_item.Target != null) {
 					IClassInitializerObject[] _initObjects = _item.Target.GetComponents<IClassInitializerObject> ();
 					for (int i = 0; i < _initObjects.Length; i++){
 						_initObjects[i].Initialize ();
 					}
-				}
+				//}
 			}
 		}
 
-		private void deinitialize(){
-			var _orderedList = initObjects.OrderBy (_object => _object.Order);
+		public void Deinitialize(){
+			ClassInitializer.Instance = null;
+			if( isDeinitialize == false){
+				var _orderedList = initObjects.OrderBy (_object => _object.Order);
 
-			foreach (var _item in _orderedList) {
-				if (_item.Target != null) {
-					IClassInitializerObject[] _initObjects = _item.Target.GetComponents<IClassInitializerObject> ();
-					for (int i = 0; i < _initObjects.Length; i++){
-						_initObjects[i].Deinitialize ();
-					}
+				foreach (var _item in _orderedList) {
+					//if (_item.Target != null) {
+						IClassInitializerObject[] _initObjects = _item.Target.GetComponents<IClassInitializerObject> ();
+						for (int i = 0; i < _initObjects.Length; i++){
+							_initObjects[i].Deinitialize ();
+						}
+					//}
 				}
+
+				isDeinitialize = true;
 			}
 		}
 		#endregion

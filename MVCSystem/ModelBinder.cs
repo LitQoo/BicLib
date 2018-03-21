@@ -43,7 +43,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){
-			bindRemoverList.Add(_variable);
+			bindRemoverList.Add (_variable);
 			_variable.OnChangedValueActions += (__variable, _msg)=>{
 				_text.text = __variable.AsString;
 			};
