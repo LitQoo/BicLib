@@ -11,6 +11,7 @@ namespace BicUtil.ListValueSelector
         private int index = 0;
         private IList<T> list;
         private T current = null;
+        
         public T Current{
             get{
                 return current;
@@ -18,9 +19,13 @@ namespace BicUtil.ListValueSelector
 
             set{
                 current = value;
-                OnChangedValueActions(current);
+                if(OnChangedValueActions != null){
+                    OnChangedValueActions(current);
+                }
             }
         }
+
+        public int Index {get{ return index;}}
 
 
 
@@ -39,7 +44,7 @@ namespace BicUtil.ListValueSelector
         }
 
         public bool HasNext(){
-            return list.Count > index;
+            return list.Count - 1 > index;
         }
 
         public void SelectPrev(){
@@ -60,12 +65,16 @@ namespace BicUtil.ListValueSelector
 
         public void SelectAt(int _index){
             index = _index;
-            if(list.Count > index){
+            if(list.Count > index && index >= 0){
                 Current = list[index];
             }else{
                 UnityEngine.Debug.Log("overload");
                 Current = null;
             }
+        }
+
+        public void SetIndex(int _index){
+            index = _index;
         }
 
         public void SelectFindFirst(Func<T, bool> _finder){
