@@ -69,23 +69,25 @@ namespace BicUtil.EventNotifyer{
 			}
 		}
 
-		static public void SubscribeByAttribute(object _objectHavingButton, object _objectHavingEvent){
-			var methods = _objectHavingEvent.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+		static public void SubscribeByAttribute(object _objectHavingNotifyer, object _objectHavingMethod){
+			var methods = _objectHavingMethod.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 			bool _isAdded = false;
 			foreach(var _method in methods){
 				var _attributes = _method.GetCustomAttributes(typeof(SubscribeEventAttribute), true);
 				
 				foreach(SubscribeEventAttribute _attribute in _attributes){
-					if(_attribute != null && _attribute.TargetType == _objectHavingButton.GetType()){
-						Action _action = ()=>_method.Invoke(_objectHavingEvent, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
-						addActionInCache(_objectHavingButton, _attribute.EventName, _action);
-						_isAdded = true;
+					if(_attribute != null && _attribute.TargetType != null){
+						if((_attribute.TargetType == _objectHavingNotifyer.GetType() || _objectHavingNotifyer.GetType().IsSubclassOf(_attribute.TargetType))){
+							Action _action = ()=>_method.Invoke(_objectHavingMethod, BindingFlags.InvokeMethod, null, null, CultureInfo.CurrentCulture);
+							addActionInCache(_objectHavingNotifyer, _attribute.EventName, _action);
+							_isAdded = true;
+						}
 					}
 				}
 			}
 
 			if(_isAdded == false){
-				throw new SystemException("[EventNotifyer] Do not added Event, check TargetType parameter");
+				throw new SystemException("[EventNotifyer] Do not added Event, check TargetType parameter\n Notifyer : " + _objectHavingNotifyer.GetType().ToString() + "\nHaving Method :" +_objectHavingMethod.GetType().ToString());
 			}
 		}
 
