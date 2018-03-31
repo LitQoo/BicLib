@@ -98,6 +98,11 @@ namespace BicUtil.Tween{
 		public void AddGroup(){
 			var _newTween = BicTween.Sequance(this);
 			_newTween.Name = "Group" + _newTween.Id;
+			
+			if(GroupIdList == null){
+				GroupIdList = new List<int>();
+			}
+			
 			GroupIdList.Add(_newTween.Id);
 		}
 

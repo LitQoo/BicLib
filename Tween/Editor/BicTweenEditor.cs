@@ -341,6 +341,10 @@ namespace BicUtil.Tween
 					drawDefaultSetting(_tweens);
 					drawGroupSetting();
 				}else{
+					if(selectedTweenPool.InitialList == null){
+						selectedTweenPool.InitialList = new List<InitialInformations>();
+					}
+					
 					drawInitial();
 				}
 			}else{
