@@ -52,6 +52,10 @@ namespace BicUtil.StateMachine{
 			
 			var _flowName = isComplete (_state);
 			if (_flowName == FlowNameNone) {
+				
+				#if UNITY_EDITOR
+				UnityEngine.Debug.Log("[StateMachine] Load State " + _state.ToString() + " failed.");
+				#endif
 				return false;
 			}
 
