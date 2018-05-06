@@ -12,11 +12,11 @@ namespace BicUtil.MVCSystem
 	public class ModelBinder
 	{
 		#region Binding
-		private List<IBindRmover> bindRemoverList = new List<IBindRmover>();
+		private List<Action> bindRemoverList = new List<Action>();
 
 		public void ClearBinding(){
 			for (int i = 0; i < bindRemoverList.Count; i++) {
-				bindRemoverList [i].ClearNotifyAndBinding ();
+				bindRemoverList [i] ();
 			}
 
 			bindRemoverList.Clear ();
@@ -25,7 +25,10 @@ namespace BicUtil.MVCSystem
 
 		#region Model -> Controller Binding
 		public void BindModelToController (VectorVariable _variable, Action<VectorVariable, string> _func, bool _needFirstCall = false){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
 			_variable.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
@@ -34,7 +37,10 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (IVariable _variable, Action<IVariable, string> _func, bool _needFirstCall = false){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
 			_variable.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
@@ -43,10 +49,15 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){
-			bindRemoverList.Add (_variable);
-			_variable.OnChangedValueActions += (__variable, _msg)=>{
+			Action<IVariable, string> _func = (__variable, _msg)=>{
 				_text.text = __variable.AsString;
 			};
+			
+			bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
+			_variable.OnChangedValueActions += _func;
 
 			if(_needFirstCall == true){
 				_text.text = _variable.AsString;
@@ -58,7 +69,11 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>, string> _func, bool _needFirstCall = false){
-			bindRemoverList.Add (_container);
+			
+			bindRemoverList.Add (()=>{
+				_container.OnChangedValueActions -= _func;
+			});
+
 			_container.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
@@ -67,7 +82,10 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController<U> (ListValueSelector<U> _listValueSelector, Action<U> _func, bool _needFirstCall = false)  where U : class{
-			bindRemoverList.Add (_listValueSelector);
+			bindRemoverList.Add (()=>{
+				_listValueSelector.OnChangedValueActions -= _func;
+			});
+			
 			_listValueSelector.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
@@ -76,7 +94,10 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (IRecordContainer _model, Action<IRecordContainer, string> _func, bool _needFirstCall = false){
-			bindRemoverList.Add (_model);
+			bindRemoverList.Add (()=>{
+				_model.OnChangedValueActions -= _func;
+			});
+			
 			_model.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
@@ -87,64 +108,103 @@ namespace BicUtil.MVCSystem
 
 		#region Controller -> Model Binding
 		public void BindControllerToModel (VirtualStringVariable _variable, Func<string> _func){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+			});
+			
 			_variable.Getter = _func;
 		}
 
 		public void BindControllerToModel (VirtualIntVariable _variable, Func<int> _func){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+			});
+			
 			_variable.Getter = _func;
 		}
 
 		public void BindControllerToModel (VirtualBoolVariable _variable, Func<bool> _func){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+			});
+			
 			_variable.Getter = _func;
 		}
 
 		public void BindControllerToModel (VirtualFloatVariable _variable, Func<float> _func){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+			});
+			
 			_variable.Getter = _func;
 		}
 
 		public void BindControllerToModel<U>(VirtualObjectContainer<U> _variable, Func<U> _func){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+			});
+			
 			_variable.Getter = _func;
 		}
 		#endregion
 
 		#region Controller <=> Model Binding
 		public void BindTwoway(VirtualStringVariable _variable, Func<string> _func, Action<string> _action){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
 
 		public void BindTwoway(VirtualIntVariable _variable, Func<int> _func, Action<int> _action){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
 
 		public void BindTwoway(VirtualBoolVariable _variable, Func<bool> _func, Action<bool> _action){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
 
 		public void BindTwoway(VirtualFloatVariable _variable, Func<float> _func, Action<float> _action){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
 
 		public void BindTwoway<U>(VirtualObjectContainer<U> _variable, Func<U> _func, Action<U> _action){
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
 
 		public void BindTwoway<U>(VirtualEnumVariable<U> _variable, Func<U> _func, Action<U> _action) where U : struct{
-			bindRemoverList.Add (_variable);
+			bindRemoverList.Add (()=>{
+				_variable.Getter = null;
+				_variable.Setter = null;
+			});
+			
 			_variable.Getter = _func;
 			_variable.Setter = _action;
 		}
