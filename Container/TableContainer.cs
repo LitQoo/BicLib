@@ -37,6 +37,16 @@ namespace BicDB.Container
 		public IVariable GetRecordKey(IRecordContainer _record){
 			return new IntVariable(IndexOf(_record as T));
 		}
+
+		public T GetRowByPrimaryKey(string _key){
+			for(int i = 0; i < this.Count; i++){
+				if(this[i][this.PrimaryKey].AsVariable.AsString == _key){
+					return this[i];
+				}
+			}
+
+			return null;
+		}
 		#endregion
 
 
@@ -87,6 +97,24 @@ namespace BicDB.Container
 			rows.Add(_item);
 			if (OnAddedRowActions != null) {
 				OnAddedRowActions(_item);
+			}
+		}
+
+		public void AddWithoutDuplication(T _item)
+		{
+			if(String.IsNullOrEmpty(this.PrimaryKey)){
+				throw new Exception("[BicDB] Not Set PrimaryKey");
+			}
+
+			bool isFound = false;
+			foreach(T _row in rows){
+				if(_row[PrimaryKey].AsVariable.AsString == _item[PrimaryKey].AsVariable.AsString){
+					isFound = true;
+				}
+			}
+
+			if(isFound == false){
+				this.Add(_item);
 			}
 		}
 

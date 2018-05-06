@@ -57,6 +57,52 @@ namespace BicDB.Container
 		}
 
 		[Test]
+		public void AddRowWithoutDuplicationTest(){
+			var _table = new TableContainer<TestWebModel>("tablename");
+			_table.PrimaryKey = "title";
+			
+			var _model1 = new TestWebModel();
+			_model1.Title.AsString = "key";
+			_table.AddWithoutDuplication(_model1);
+
+			var _checkRow = _table[0];
+			Assert.AreEqual(_model1, _checkRow);
+
+
+			var _model2 = new TestWebModel();
+			_model2.Title.AsString = "key";
+			_table.AddWithoutDuplication(_model2);
+
+			Assert.AreEqual(_table.Count, 1);
+
+
+			var _model3 = new TestWebModel();
+			_model3.Title.AsString = "key2";
+			_table.AddWithoutDuplication(_model3);
+
+			Assert.AreEqual(_table.Count, 2);
+		}
+
+		[Test]
+		public void AddRowWithoutDuplicationTest2(){
+			var _table = new TableContainer<TestWebModel>("tablename");
+			
+			Assert.Throws<Exception>(()=>{
+				var _model1 = new TestWebModel();
+				_model1.Title.AsString = "key";
+				_table.AddWithoutDuplication(_model1);
+			});
+
+			_table.PrimaryKey = "title";
+
+			Assert.DoesNotThrow(()=>{
+				var _model1 = new TestWebModel();
+				_model1.Title.AsString = "key";
+				_table.AddWithoutDuplication(_model1);
+			});
+		}
+
+		[Test]
 		public void InsertRow1(){
 			var _table = new TableContainer<RecordContainer>("tablename");
 			var _model1 = new RecordContainer();
@@ -275,7 +321,7 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<RecordContainer>(_table, _callback);
+			_storage.ReceivedWithAnyArgs().Save<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 
@@ -290,7 +336,7 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Save(_callback);
 
-			_storage.Received().Save<RecordContainer>(_table, _callback);
+			_storage.ReceivedWithAnyArgs().Save<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 
@@ -305,7 +351,7 @@ namespace BicDB.Container
 			_table.SetStorage(_storage);
 			_table.Load(_callback);
 
-			_storage.Received().Load<RecordContainer>(_table, _callback);
+			_storage.ReceivedWithAnyArgs().Load<RecordContainer>(_table, _callback);
 			Assert.Pass();
 		}
 	}
