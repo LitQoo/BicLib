@@ -85,14 +85,12 @@ namespace BicUtil.Purchasing{
 					// If the look up found a product for this device's store and that product is ready to be sold ... 
 					if (product != null && product.availableToPurchase)
 					{
-						Debug.Log (string.Format("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
 						m_StoreController.InitiatePurchase(product);
 					}
 					// Otherwise ...
 					else
 					{
 						// ... report the product look-up failure situation  
-						Debug.Log ("BuyProductID: FAIL. Not purchasing product, either is not found or is not available for purchase");
 						_product.Callback(PurchasingResult.NotAvailable);
 					}
 				}
@@ -100,7 +98,6 @@ namespace BicUtil.Purchasing{
 				else
 				{
 					// ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or retrying initiailization.
-					Debug.Log("BuyProductID FAIL. Not initialized.");
 					_product.Callback(PurchasingResult.NotInitialized);
 				}
 			}
@@ -108,7 +105,6 @@ namespace BicUtil.Purchasing{
 			catch (Exception e)
 			{
 				// ... by reporting any unexpected exception for later diagnosis.
-				Debug.Log ("BuyProductID: FAIL. Exception during purchase. " + e);
 				_product.Callback(PurchasingResult.Unknown);
 			}
 		}
@@ -154,36 +150,6 @@ namespace BicUtil.Purchasing{
 		private IStoreController m_StoreController;             // Reference to the Purchasing system.
 		private IExtensionProvider m_StoreExtensionProvider;    // Reference to store-specific Purchasing subsystems.
 		
-		// 구입가능한 모든 상품의 식별자: 결제를 편하게 하기위한 식별자 그리고 그들의 store-specific 식별자 대응? 
-		// 유니티의 외부 결제를 위한(?) 정의 store-specific identifiers also on each platform's publisher dashboard (iTunes Connect, Google Play Developer Console, etc.)
-
-	// 	private static string kProductIDConsumable =    "consumable";      // General handle for the consumable product.
-	// 	private static string kProductIDNonConsumable = "nonconsumable";   // General handle for the non-consumable product.
-	// 	private static string kProductIDSubscription =  "subscription";    // General handle for the subscription product.
-		
-
-	// // 애플 식별자 코드
-	// 	private static string kProductNameAppleConsumable =    "com.unity3d.test.services.purchasing.consumable";             // Apple App Store identifier for the consumable product.
-	// 	private static string kProductNameAppleNonConsumable = "com.unity3d.test.services.purchasing.nonconsumable";      // Apple App Store identifier for the non-consumable product.
-	// 	private static string kProductNameAppleSubscription =  "com.unity3d.test.services.purchasing.subscription";       // Apple App Store identifier for the subscription product.
-		
-	// // 구글 스토어 식별자 코드
-	// 	private static string kProductNameGooglePlayConsumable =    "com.unity3d.test.services.purchasing.consumable";        // Google Play Store identifier for the consumable product.
-	// 	private static string kProductNameGooglePlayNonConsumable = "com.unity3d.test.services.purchasing.nonconsumable";     // Google Play Store identifier for the non-consumable product.
-	// 	private static string kProductNameGooglePlaySubscription =  "com.unity3d.test.services.purchasing.subscription";  // Google Play Store identifier for the subscription product.
-		
-		// void Start()
-		// {
-
-		// 	// If we haven't set up the Unity Purchasing reference
-		// 	if (m_StoreController == null)
-		// 	{
-		// 		// Begin to configure our connection to Purchasing
-		// 		InitializePurchasing();
-		// 	}
-		// }
-		
-		
 		private bool IsInitialized()
 		{
 			// Only say we are initialized if both the Purchasing references are set.
@@ -225,13 +191,6 @@ namespace BicUtil.Purchasing{
 				}catch(Exception e){
 					Debug.Log("not support product " + _product.definition.id);
 				}
-
-
-				// if(_product.hasReceipt){
-				// 	_productInfo.Callback(PurchasingResult.Complete);
-				// }else{
-				// 	_productInfo.Callback(PurchasingResult.Unknown);
-				// }
 			}
 
 			Debug.Log("OnInitialized: Finished");
@@ -253,28 +212,6 @@ namespace BicUtil.Purchasing{
 			_productInfo.Callback(checkRecipt(args.purchasedProduct.definition.id, args.purchasedProduct.receipt));
 
 			return PurchaseProcessingResult.Complete;
-
-
-		// 	// 소모품 구매처리.
-		// 	// A consumable product has been purchased by this user.
-		// 	if (String.Equals(args.purchasedProduct.definition.id, kProductIDConsumable, StringComparison.Ordinal))
-		// 	{
-		// 		Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));//If the consumable item has been successfully purchased, add 100 coins to the player's in-game score.
-		// 		// 상품이 구매되면 처리되는 부분. 이부분을 자신의 게임에 맞게 수정.
-		// 	}
-			
-		// // 비 소모품 구매처리.
-		// 	// Or ... a non-consumable product has been purchased by this user.
-		// 	else if (String.Equals(args.purchasedProduct.definition.id, kProductIDNonConsumable, StringComparison.Ordinal))
-		// 	{
-		// 		Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));}// Or ... a subscription product has been purchased by this user.
-		// 	else if (String.Equals(args.purchasedProduct.definition.id, kProductIDSubscription, StringComparison.Ordinal))
-		// 	{
-		// 		Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));}// Or ... an unknown product has been purchased by this user. Fill in additional products here.
-		// 	else 
-		// 	{
-		// 		Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));}// Return a flag indicating wither this product has completely been received, or if the application needs to be reminded of this purchase at next app launch. Is useful when saving purchased products to the cloud, and when that save is delayed.
-		//	return PurchaseProcessingResult.Complete;
 		}
 
 
