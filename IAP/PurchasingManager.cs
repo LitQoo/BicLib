@@ -183,11 +183,13 @@ namespace BicUtil.Purchasing{
 			m_StoreExtensionProvider = extensions;
 
 			foreach(var _product in m_StoreController.products.all){
-				Debug.Log("is availeble : " + _product.availableToPurchase.ToString());
+				Debug.Log("is availeble : " + _product.availableToPurchase.ToString() + "/" + _product.hasReceipt.ToString());
 
 				try{
-					ProductInfo _productInfo = getProductInfo(_product.definition.id);
-					_productInfo.Callback(checkRecipt(_product.definition.id, _product.receipt));
+					if(_product.hasReceipt){
+						ProductInfo _productInfo = getProductInfo(_product.definition.id);
+						_productInfo.Callback(checkRecipt(_product.definition.id, _product.receipt));
+					}
 				}catch(Exception e){
 					Debug.Log("not support product " + _product.definition.id);
 				}
@@ -217,43 +219,70 @@ namespace BicUtil.Purchasing{
 
 		public PurchasingResult checkRecipt(string _productId, string _recipt) {
 
+			// #if UNITY_IOS || UNITY_STANDALONE_OSX
+			// return PurchasingResult.Complete;
+			// #endif
+			bool _isValidPurchase = true; // Presume valid for platforms with no R.V.
+
+
 			#if UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX  
 			var validator = new CrossPlatformValidator(GooglePlayTangle.Data(), AppleTangle.Data(), Application.identifier);  
 			
-			try  
-			{  
-				var result = validator.Validate(_recipt);  
-				foreach (IPurchaseReceipt productReceipt in result)  
-				{  
+			 try {
+				// On Google Play, result has a single product ID.
+				// On Apple stores, receipts contain multiple products.
+				var result = validator.Validate(_recipt);
+				// For informational purposes, we list the receipt(s)
+				Debug.Log("Receipt is valid. Contents:");
+				foreach (IPurchaseReceipt productReceipt in result) {
+					Debug.Log(productReceipt.productID);
+					Debug.Log(productReceipt.purchaseDate);
+					Debug.Log(productReceipt.transactionID);
+				}
+			} catch (IAPSecurityException) {
+				Debug.Log("Invalid receipt, not unlocking content");
+				_isValidPurchase = false;
+			}
+			// try  
+			// {  
+			// 	var result = validator.Validate(_recipt);  
+			// 	foreach (IPurchaseReceipt productReceipt in result)  
+			// 	{  
+			// 		if (String.Equals(productReceipt.productID, _productId, StringComparison.Ordinal))  
+			// 		{  
+			// 			AppleReceipt apple = productReceipt as AppleReceipt;
+			// 			apple.
+			// 			GooglePlayReceipt google = productReceipt as GooglePlayReceipt;  
+			// 			if (google != null)  
+			// 			{  
+			// 				Debug.Log(google.purchaseState.ToString());
+			// 				switch (google.purchaseState)  
+			// 				{  
+			// 					case GooglePurchaseState.Purchased:  
+			// 						return PurchasingResult.Complete;
+			// 					case GooglePurchaseState.Cancelled:  
+			// 					case GooglePurchaseState.Refunded:  
+			// 						return PurchasingResult.Refunded;
+			// 				}  
+			// 			}else{
+			// 				return PurchasingResult.Unknown;
+			// 			}
+			// 		}  
+			// 	}  
 
-					Debug.Log(_productId + "/" + _recipt + "/");
-					if (String.Equals(productReceipt.productID, _productId, StringComparison.Ordinal))  
-					{  
-						GooglePlayReceipt google = productReceipt as GooglePlayReceipt;  
-						if (google != null)  
-						{  
-							Debug.Log(google.purchaseState.ToString());
-							switch (google.purchaseState)  
-							{  
-								case GooglePurchaseState.Purchased:  
-									return PurchasingResult.Complete;
-								case GooglePurchaseState.Cancelled:  
-								case GooglePurchaseState.Refunded:  
-									return PurchasingResult.Refunded;
-							}  
-						}else{
-							return PurchasingResult.Unknown;
-						}
-					}  
-				}  
-
-				return PurchasingResult.Unknown;
-			}  
-			catch (IAPSecurityException)  
-			{  
-				return PurchasingResult.Unknown;
-			}  
+			// 	return PurchasingResult.Unknown;
+			// }  
+			// catch (IAPSecurityException)  
+			// {  
+			// 	return PurchasingResult.Unknown;
+			// }  
 			#endif  
+
+			if(_isValidPurchase == true){
+				return PurchasingResult.Complete;
+			}else{
+				return PurchasingResult.Unknown;
+			}
 		}
 
 		
