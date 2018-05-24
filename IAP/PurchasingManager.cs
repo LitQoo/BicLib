@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if BICUTIL_IAP
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -297,3 +298,4 @@ namespace BicUtil.Purchasing{
 		}
 	}
 }
+#endif
