@@ -287,5 +287,15 @@ namespace BicUtil.Tween{
 				DontDestroyOnLoad(this);
 			#endif
 		}
+
+		public void Cancel(GameObject _object){
+			var _count = TweenList.Count;
+			for(int i = 0; i < TweenList.Count; i++){
+				var _tween = TweenList[i];
+				if(_tween.TargetObject == _object && _tween.IsPlaying == true){
+					_tween.Cancel();
+				}
+			}
+		}
     }
 }

@@ -338,6 +338,14 @@ namespace BicUtil.Tween
 			_tween.childDataList = new List<int>();
 			return _tween;
 		}
+
+		public static void Cancel(GameObject _targetObject, TweenPool _pool = null){
+			if(_pool != null){
+				_pool.Cancel(_targetObject);
+			}else{
+				defaultPool.Cancel(_targetObject);
+			}
+		}
 		#endregion
 
 
@@ -365,6 +373,7 @@ namespace BicUtil.Tween
 
 			return _result;
 		}
+
 
 		// public static List<Vector3> GetPathFortween(List<int> chidDataList){
 
