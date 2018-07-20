@@ -184,7 +184,7 @@ namespace BicUtil.Tween{
 			#endif
 		}
 
-		[NonSerialized]
+		//[NonSerialized]
 		public int MaxPlayingIndex = 0;
 		public bool IsLocked = false;
 
@@ -246,7 +246,7 @@ namespace BicUtil.Tween{
 		public void Update(){
 
 			if(TweenList == null){
-				TweenList = new List<TweenModel>(100);
+				TweenList = new List<TweenModel>();
 			}
 
 			int _lastPlayingIndex = -1;

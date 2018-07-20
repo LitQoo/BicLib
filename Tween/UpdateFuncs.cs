@@ -34,7 +34,20 @@ namespace BicUtil.Tween
                 case TweenType.Rotate: _tween.UpdateFunc = Rotate; break;
                 case TweenType.Bezier: _tween.UpdateFunc = Bezier; break;
                 case TweenType.Active: _tween.UpdateFunc = Active; break;
-                case TweenType.Alpha: _tween.UpdateFunc = Alpha; break;
+                case TweenType.Alpha:
+                 
+                    var _uiGraphinc = _tween.TargetObject.GetComponent<UnityEngine.UI.Graphic>();
+                    if(_uiGraphinc != null){
+                        _tween.UpdateFunc = AlphaUIGraphic; 
+                        return;
+                    }
+
+                    var _sprite = _tween.TargetObject.GetComponent<SpriteRenderer>();
+                    if(_sprite != null){
+                        _tween.UpdateFunc = AlphaSprite;
+                        return;
+                    }
+                break;
                 case TweenType.Size: _tween.UpdateFunc = Size; break;
                 case TweenType.Shake: _tween.UpdateFunc = Shake; break;
                 case TweenType.TypeWriting: _tween.OnRepeatCallback = TypeWriting; break;
@@ -82,13 +95,22 @@ namespace BicUtil.Tween
             }
 		}
 
-        public static void Alpha(IUpdateData _data){
+        public static void AlphaUIGraphic(IUpdateData _data){
             if(_data.Data == null){
                 _data.Data = _data.TargetObject.GetComponent<UnityEngine.UI.Graphic>();
             }
             
             UnityEngine.UI.Graphic _image = (UnityEngine.UI.Graphic)_data.Data;
             _image.color = new Color(_image.color.r, _image.color.g, _image.color.b, _data.CurrentValue.w);
+        }
+
+        public static void AlphaSprite(IUpdateData _data){
+            if(_data.Data == null){
+                _data.Data = _data.TargetObject.GetComponent<SpriteRenderer>();
+            }
+
+            SpriteRenderer _sprite = (SpriteRenderer)_data.Data;
+            _sprite.color = new Color(_sprite.color.r, _sprite.color.g, _sprite.color.b, _data.CurrentValue.w);
         }
 
         public static void Size(IUpdateData _data){

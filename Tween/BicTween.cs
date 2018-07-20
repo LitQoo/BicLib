@@ -230,6 +230,33 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+
+		public static TweenModel Alpha(GameObject _object, float _to, float _time){
+			float _from = 0;
+			var _uigraphic = _object.GetComponent<UnityEngine.UI.Graphic>();
+			if(_uigraphic != null){
+				_from = _uigraphic.color.a;
+			}else{
+				var _sprite = _object.GetComponent<SpriteRenderer>();
+				if(_sprite != null){
+					_from = _sprite.color.a;
+				}
+			}
+
+			return Alpha(_object, _from, _to, _time);
+		}
+
+		public static TweenModel Alpha(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null){
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.OriginValue = new Vector4(0, 0, 0, _from);
+			_tween.DiffValue = new Vector4(0, 0, 0, _to) - _tween.OriginValue;
+			_tween.Time = _time;
+			_tween.Type = TweenType.Alpha;
+			UpdateFuncs.SetUpdateFunc(_tween);
+			return _tween;
+		}
+
 		public static TweenModel Size(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
