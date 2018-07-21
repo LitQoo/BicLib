@@ -184,7 +184,7 @@ namespace BicUtil.Tween{
 			#endif
 		}
 
-		//[NonSerialized]
+		[NonSerialized]
 		public int MaxPlayingIndex = 0;
 		public bool IsLocked = false;
 
