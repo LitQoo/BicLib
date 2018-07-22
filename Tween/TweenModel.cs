@@ -343,6 +343,10 @@ namespace BicUtil.Tween
 				UpdateFunc(this);
 			}
 
+			if(OnUpdateCallback != null){
+				OnUpdateCallback(CurrentValue);
+			}
+
 			if(Rate == 1f){
 				if(RepeatCount == CurrentRepeatCount){	
 					complete();
@@ -353,10 +357,6 @@ namespace BicUtil.Tween
 					if(OnRepeatCallback != null){
 						OnRepeatCallback(this, CurrentRepeatCount);
 					}
-				}
-			}else{
-				if(OnUpdateCallback != null){
-					OnUpdateCallback(CurrentValue);
 				}
 			}
 		}
