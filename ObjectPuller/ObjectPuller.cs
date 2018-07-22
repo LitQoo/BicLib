@@ -5,7 +5,7 @@ using System;
 
 namespace BicUtil.ObjectPuller
 {
-	public class ObjectPuller : MonoBehaviour 
+    public class ObjectPuller : MonoBehaviour 
 	{
 		#region LinkingObject
 		[SerializeField]
