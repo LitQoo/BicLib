@@ -48,6 +48,18 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
+		public void BindModelToController<U> (IEnumVariable<U> _variable, Action<IEnumVariable<U>> _func, bool _needFirstCall = false) where U : struct{
+            bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
+			_variable.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_variable);
+			}
+		}
+
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){
 			Action<IVariable, string> _func = (__variable, _msg)=>{
 				_text.text = __variable.AsString;
