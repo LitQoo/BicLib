@@ -257,7 +257,12 @@ namespace BicUtil.Tween
 				var _childList = GetChildList();
 				Data = _childList;
 				sequanceIndex = 0;
-                _childList[sequanceIndex].Play(false);
+				if(_childList.Count > 0){
+                	_childList[sequanceIndex].Play(false);
+				}else{
+					complete();
+				}
+				return;
 			}
 
 			var _list = Data as List<TweenModel>;
@@ -383,6 +388,10 @@ namespace BicUtil.Tween
 				}
 			}
             return _result;
+		}
+
+		public int GetChildCount(){
+			return childDataList.Count;
 		}
 
 		public TweenModel Play(bool _needApplyInitialInformations = true){
