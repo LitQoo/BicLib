@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Spine.Unity;
+using TMPro;
 using UnityEngine;
 namespace BicUtil.Tween
 {
@@ -75,6 +76,30 @@ namespace BicUtil.Tween
 			_tween.RepeatCount = _tween.StringData.Length;
 
 			return _tween;
+		}
+
+		static public TweenModel Interval(float _intervalTime, int _count, TweenPool _pool = null){
+			TweenModel _tween = CreateModel(_pool);
+			_tween.Time = _intervalTime;
+			_tween.RepeatCount = _count;
+			_tween.Type = TweenType.None;
+			return _tween;
+		}
+
+		static public TweenModel Counting(TextMeshPro _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null){
+			int _repeatCount = (int)(_time / _intervalTime);
+			float _dt = (_to - _from)/(float)_repeatCount;
+
+			_text.text = _from.ToString();
+			var _result = Interval(_intervalTime, _repeatCount, _pool).SubscribeRepeat((_tween, _count)=>{
+				_text.text = ((int)(_from + _dt * _count)).ToString();
+			}).SubscribeComplete(()=>{
+				_text.text = _to.ToString();
+			});
+
+
+			return _result;
+
 		}
 
 
