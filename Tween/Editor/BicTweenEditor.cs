@@ -532,7 +532,7 @@ namespace BicUtil.Tween
 
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 	sealed class TweenEditorDrawSetting : Attribute{
-		public TweenType Type{get;}
+		public TweenType Type{get; private set;}
 		public TweenEditorDrawSetting(TweenType _type){
 			Type = _type;
 		}
@@ -540,7 +540,7 @@ namespace BicUtil.Tween
 
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 	sealed class TweenEditorDrawHandleControl : Attribute{
-		public TweenType Type{get;}
+		public TweenType Type{get; private set;}
 		public TweenEditorDrawHandleControl(TweenType _type){
 			Type = _type;
 		}
@@ -548,7 +548,7 @@ namespace BicUtil.Tween
 
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 	sealed class TweenEditorDrawNode : Attribute{
-		public TweenType Type{get;}
+		public TweenType Type{get; private set;}
 		public TweenEditorDrawNode(TweenType _type){
 			Type = _type;
 		}
@@ -556,7 +556,7 @@ namespace BicUtil.Tween
 
 	[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
 	sealed class TweenEditorClickedNode : Attribute{
-		public TweenType Type{get;}
+		public TweenType Type{get; private set;}
 		public TweenEditorClickedNode(TweenType _type){
 			Type = _type;
 		}
