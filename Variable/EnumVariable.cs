@@ -35,7 +35,7 @@ namespace BicDB.Variable
 
 		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}
 
-		public void NotifyChanged(){
+		public new void NotifyChanged(){
 			OnSetValueActions[data]();
 			OnChangedValueActions (this as IEnumVariable<T>);
 		}

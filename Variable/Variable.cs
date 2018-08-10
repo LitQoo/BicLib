@@ -7,10 +7,10 @@ namespace BicDB.Variable
 {
 
 	public interface IVariable : IDataBase, IBindRmover{
-		event Action<IVariable, string> OnChangedValueActions;
+		event Action<IVariable> OnChangedValueActions;
 
-		void NotifyChanged(string _message = "");
-		void NotifyChanged(IVariable _value, string _message = "");
+		void NotifyChanged();
+		void NotifyChanged(IVariable _value);
 
 		bool IsEqual(IVariable _variable);
 
@@ -29,14 +29,14 @@ namespace BicDB.Variable
 	}
 
 	public class VariableBase{
-		public event Action<IVariable, string> OnChangedValueActions = delegate{};
+		public event Action<IVariable> OnChangedValueActions = delegate{};
 
-		public void NotifyChanged(string _message = ""){
-			OnChangedValueActions (this as IVariable, _message);
+		public void NotifyChanged(){
+			OnChangedValueActions (this as IVariable);
 		}
 
-		public void NotifyChanged(IVariable _value, string _message = ""){
-			OnChangedValueActions (this as IVariable, _message);
+		public void NotifyChanged(IVariable _value){
+			OnChangedValueActions (this as IVariable);
 		}
 
 		public bool IsEqual(IVariable _variable){
@@ -94,7 +94,7 @@ namespace BicDB.Variable
 			}
 		}
 
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable, string>[] _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable>[] _callback){
 			if (_member != null) {
 				for (int i = 0; i < _callback.Length; i++) {
 					_member.OnChangedValueActions -= _callback[i];
@@ -108,7 +108,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable, string> _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable> _callback){
 			if (_member != null) {
 				_member.OnChangedValueActions -= _callback;
 			}
