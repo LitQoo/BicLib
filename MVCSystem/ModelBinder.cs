@@ -36,7 +36,7 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
-		public void BindModelToController (IVariable _variable, Action<IVariable, string> _func, bool _needFirstCall = false){
+		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.OnChangedValueActions -= _func;
 			});
@@ -44,7 +44,7 @@ namespace BicUtil.MVCSystem
 			_variable.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
-				_func (_variable, string.Empty);
+				_func (_variable);
 			}
 		}
 
@@ -61,7 +61,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){
-			Action<IVariable, string> _func = (__variable, _msg)=>{
+			Action<IVariable> _func = (__variable)=>{
 				_text.text = __variable.AsString;
 			};
 			
@@ -77,7 +77,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (IVariable _variable, Action _func, bool _needFirstCall = false){
-			BindModelToController (_variable, (IVariable __variable, string __msg) => _func (), _needFirstCall);
+			BindModelToController (_variable, (IVariable __variable) => _func (), _needFirstCall);
 		}
 
 		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>, string> _func, bool _needFirstCall = false){
