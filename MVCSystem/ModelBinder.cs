@@ -24,7 +24,7 @@ namespace BicUtil.MVCSystem
 		#endregion
 
 		#region Model -> Controller Binding
-		public void BindModelToController (VectorVariable _variable, Action<VectorVariable, string> _func, bool _needFirstCall = false){
+		public void BindModelToController (VectorVariable _variable, Action<VectorVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.OnChangedValueActions -= _func;
 			});
@@ -32,7 +32,7 @@ namespace BicUtil.MVCSystem
 			_variable.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
-				_func (_variable, string.Empty);
+				_func (_variable);
 			}
 		}
 
@@ -80,7 +80,7 @@ namespace BicUtil.MVCSystem
 			BindModelToController (_variable, (IVariable __variable) => _func (), _needFirstCall);
 		}
 
-		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>, string> _func, bool _needFirstCall = false){
+		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>> _func, bool _needFirstCall = false){
 			
 			bindRemoverList.Add (()=>{
 				_container.OnChangedValueActions -= _func;
@@ -89,7 +89,7 @@ namespace BicUtil.MVCSystem
 			_container.OnChangedValueActions += _func;
 
 			if (_needFirstCall == true) {
-				_func (_container, string.Empty);
+				_func (_container);
 			}
 		}
 
