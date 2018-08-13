@@ -23,20 +23,20 @@ namespace BicDB.Container
 		#endregion
 
 		#region IObjectContainer
-		public event Action<IObjectContainer<T>, string> OnChangedValueActions = delegate{};
+		public event Action<IObjectContainer<T>> OnChangedValueActions = delegate{};
 
 		public T AsObject{
 			get{ return data; }
 			set{ data = value; NotifyChanged (); }
 		}
 
-		public void NotifyChanged(string _message = ""){
-			OnChangedValueActions (this, _message);
+		public void NotifyChanged(){
+			OnChangedValueActions (this);
 		}
 
 
-		public void NotifyChanged(ObjectContainer<T> _objectContainer ,string _message = ""){
-			OnChangedValueActions (this, _message);
+		public void NotifyChanged(ObjectContainer<T> _objectContainer){
+			OnChangedValueActions (this);
 		}
 
 		public void ClearNotifyAndBinding(){
@@ -72,11 +72,11 @@ namespace BicDB.Container
 
 	public interface IObjectContainer<T> : IDataBase, IBindRmover
 	{
-		event Action<IObjectContainer<T>, string> OnChangedValueActions;
+		event Action<IObjectContainer<T>> OnChangedValueActions;
 
 		T AsObject{ get; set; }
 
-		void NotifyChanged (string _message = "");
+		void NotifyChanged ();
 	}
 
 }
