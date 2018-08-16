@@ -527,5 +527,35 @@ namespace BicUtil.Tween
 		}
 	}
 
+	public class TweenCancelObject{
+		public TweenModel Tween = null;
+		public int Id = -1;
+
+		public TweenCancelObject(TweenModel _tween = null){
+			SetTween(_tween);
+		}
+
+		public void SetTween(TweenModel _tween){
+			Tween = _tween;
+
+			if(_tween != null){
+				Id = _tween.Id;
+			}
+		}
+
+		public void Cancel(){
+			if(Tween == null){
+				return;
+			}
+
+			if(Tween.IsPlaying == true){
+				Tween.Cancel(Id);
+			}
+
+			Tween = null;
+			Id = -1;
+		}
+	}
+
 
 }

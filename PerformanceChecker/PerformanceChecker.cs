@@ -29,5 +29,19 @@ namespace BicUtil.PerformanceChecker{
 			var _time = SpeedTest(_testFunc, _loop);
 			Debug.LogWarning("[PerformanceChecker] Time:" + _time.ToString() + " / " + _testName);
 		}
+
+		public string GetCurrnetTimeString(){
+			return DateTime.Now.ToLongTimeString();
+		}
+
+		public void StartTimeCheck(){
+			stopwatch.Reset();
+			stopwatch.Start();
+		}
+
+		public long StopTimeCheck(){
+			stopwatch.Stop();
+			return stopwatch.ElapsedMilliseconds;
+		}
 	}
 }

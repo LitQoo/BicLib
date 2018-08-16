@@ -386,10 +386,7 @@ namespace BicUtil.TableView
 		bool isControlled = false;
 		private void isControlledTrue(){
 			isControlled = true;
-            if(scrollTween != null){
-                scrollTween.Cancel();
-                scrollTween = null;
-            }
+            scrollTweenCancelObject.Cancel();
 		}
 
 		private void isControlledFalse(){
@@ -416,7 +413,7 @@ namespace BicUtil.TableView
 			lastScrollDistance = scrollDistance;
 		}
 
-        private TweenModel scrollTween = null;
+        private TweenCancelObject scrollTweenCancelObject = new TweenCancelObject();
 		private void magnetControl(float _gap){
 			var _centerPosition = m_scrollRect.transform.position;
 			foreach (var _row in m_visibleRows) {
@@ -426,9 +423,9 @@ namespace BicUtil.TableView
 					var _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
 					float _targetGap = _targetPosition - scrollDistance;
 					var _speed = Mathf.Abs(_targetGap) / 100f;
-					scrollTween = BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
+					BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
 						scrollDistance = _value.x;
-					});
+					}).SetCancelObject(scrollTweenCancelObject);
 					break;
 				}
 			}

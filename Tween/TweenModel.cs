@@ -182,6 +182,10 @@ namespace BicUtil.Tween
             childDataList = null;
 			Type = TweenType.None;
 			TargetObject = null;
+
+			if(this.childDataList != null){
+				this.childDataList.Clear();
+			}
 		}
 
 		public TweenModel Copy(TweenPool _pool = null){
@@ -374,9 +378,10 @@ namespace BicUtil.Tween
 			if(this.pool.IsLocked == false){
 				Clear();
 			}
+
 			
             this.IsPlaying = false;
-			this.destoryCount = 1;
+			this.destoryCount = 3;
 			
 		}
 
@@ -414,16 +419,30 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public void Cancel(){
+		public void Cancel(int _id){
+			if(_id != this.Id || this.IsPlaying == false){
+				return;
+			}
+
 			this.IsPlaying = false;
 			this.destoryCount = 1;
 
 			if(IsGrouped == true){
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
-					_childList[i].Cancel();
+					_childList[i].Cancel(_childList[i].Id);
 				}
 			}
+		}
+
+		public TweenCancelObject CancelObject{
+			get{return new TweenCancelObject(this);}
+		}
+
+		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
+			_cancelObject.SetTween(this);
+
+			return this;
 		}
 
 		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){

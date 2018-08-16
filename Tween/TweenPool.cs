@@ -187,6 +187,8 @@ namespace BicUtil.Tween{
 		[NonSerialized]
 		public int MaxPlayingIndex = 0;
 		public bool IsLocked = false;
+		private int nextId = 0;
+		public int NextId{ get{ return nextId++;} }
 
 		public TweenModel CreateModel(){
 			if(TweenList == null){
@@ -194,7 +196,6 @@ namespace BicUtil.Tween{
 			}
 
 			var _count = TweenList.Count;
-			int _maxId = 0;
 			for(int i = 0; i < _count; i++){
 				if(TweenList[i] != null){
 					var __model = TweenList[i];
@@ -202,21 +203,18 @@ namespace BicUtil.Tween{
 					if(IsLocked == false){
 						if(__model.destoryCount == 1){
 							__model.Clear();
+							__model.Id = NextId;
 							__model.Play();
 							return __model;
-						}else if(__model.destoryCount > 1){
-							__model.destoryCount--;
 						}
 					}
-
-					_maxId = Math.Max(_maxId, TweenList[i].Id);
 				}
 			}
 
 			var _result = new TweenModel();
 			_result.pool = this;
 			_result.Clear();
-			_result.Id = _maxId + 1;
+			_result.Id = NextId;
 			_result.Name = _result.Id.ToString();
 			TweenList.Add(_result);
 			_result.Play();
@@ -267,6 +265,8 @@ namespace BicUtil.Tween{
 						if(_tween.Update != null){
 							_tween.Update();
 						}
+					}else if(_tween.destoryCount > 1){
+						_tween.destoryCount--;
 					}
 				}
 			}
@@ -293,7 +293,7 @@ namespace BicUtil.Tween{
 			for(int i = 0; i < TweenList.Count; i++){
 				var _tween = TweenList[i];
 				if(_tween.TargetObject == _object && _tween.IsPlaying == true){
-					_tween.Cancel();
+					_tween.Cancel(_tween.Id);
 				}
 			}
 		}
