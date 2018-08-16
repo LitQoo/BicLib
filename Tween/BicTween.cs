@@ -531,6 +531,20 @@ namespace BicUtil.Tween
 		public TweenModel Tween = null;
 		public int Id = -1;
 
+		public bool IsComplete{
+			get{
+				if(Tween.IsDestroyed == true){
+					return true;
+				}
+
+				if(Tween.Id != this.Id){
+					return true;
+				}
+
+				return false;
+			}
+		}
+
 		public TweenCancelObject(TweenModel _tween = null){
 			SetTween(_tween);
 		}
