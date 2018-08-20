@@ -10,7 +10,7 @@ namespace BicUtil.UIFlow
 	public interface IUIFlowObject
 	{
 		void OnOpenedUI(IUIFlowObject _fromUI, object _paramter);
-		OnCloseUIResult OnClosedUI (IUIFlowObject _fromUI, Action _finishCallback, object parameter);
+		OnCloseUIResult OnClosedUI (IUIFlowObject _fromUI, Action _finishCallback, object _parameter);
 		
 		GameObject gameObject { get; }
 	}
