@@ -18,6 +18,9 @@ namespace BicUtil.TableView
 		#region LinkingObject
 		[SerializeField]
 		public CellDataChanged SetDataFunction;
+		[SerializeField]
+		public CellDataChanged OnRemoveFunction;
+
 		#endregion
 
 		#region Member
@@ -51,11 +54,22 @@ namespace BicUtil.TableView
 		#endregion
 
 		#region LifeCycle
+		public void Awake(){
+			if(SetDataFunction.GetPersistentEventCount() <= 0){
+				var _cell = GetComponent<ITableCellWithBinder>();
+				if(_cell != null){
+					SetDataFunction.AddListener(_cell.Bind);
+					OnRemoveFunction.AddListener(_cell.Unbind);
+				}
+			}
+		}
+
 		public void OnDestory(){
 			removeBindCell();
 		}
 
 		public void OnRemove(){
+			OnRemoveFunction.Invoke(model, "");
 			removeBindCell();
 		}
 		#endregion
@@ -80,4 +94,9 @@ namespace BicUtil.TableView
 		}
 		#endregion
     }
+
+	public interface ITableCellWithBinder{
+		void Bind(IRecordContainer _data, string _msg);
+		void Unbind(IRecordContainer _data, string _msg);
+	}
 }
