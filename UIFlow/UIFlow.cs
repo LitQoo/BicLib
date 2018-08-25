@@ -34,6 +34,7 @@ namespace BicUtil.UIFlow
 		private List<UIInfo> uiStack = new List<UIInfo> ();
 		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
+		private IUIFlowObject baseUi = null;
 		private bool isWait = false;
 
 		public void LoadScene(string _sceneName){
@@ -215,7 +216,7 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
-			if (uiStack.Count > 0) {
+			if (uiStack.Count > 0 && uiStack[uiStack.Count - 1].UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;
 				close (currentUiInfo.UI, _ui,_closeMode, () => {
 					open (_ui, _openMode, _openParameter, _currentUI);
@@ -285,6 +286,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void SetBase(IUIFlowObject _ui, OpenMode _openMode, object _param = null){
+			baseUi = _ui;
 			open(_ui, _openMode, _param);
 		}
 
