@@ -340,7 +340,7 @@ namespace BicUtil.TableView
 				}
 			}
             
-            cellCountInARow = tableRow.Cells.Count;
+            cellCountInARow = tableRow.GetCellCount();
 
             m_topPadding = CreateEmptyPaddingElement("TopPadding");
             m_topPadding.transform.SetParent(m_scrollRect.content, false);
@@ -415,19 +415,23 @@ namespace BicUtil.TableView
 
         private TweenCancelObject scrollTweenCancelObject = new TweenCancelObject();
 		private void magnetControl(float _gap){
+             if(m_isVertical == true){
+                    throw new System.NotImplementedException("not support magnet control for vertical table");
+             }
+
 			var _centerPosition = m_scrollRect.transform.position;
 			foreach (var _row in m_visibleRows) {
 				var _rowPosition = _row.Value.transform.position;
 				var _rowHalfSize = m_rowSizes [_row.Key] / 2f;
-				if (_rowPosition.x + _rowHalfSize > _centerPosition.x && _rowPosition.x - _rowHalfSize <= _centerPosition.x) {
-					var _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
-					float _targetGap = _targetPosition - scrollDistance;
-					var _speed = Mathf.Abs(_targetGap) / 100f;
-					BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
-						scrollDistance = _value.x;
-					}).SetCancelObject(scrollTweenCancelObject);
-					break;
-				}
+                if (_rowPosition.x + _rowHalfSize > _centerPosition.x && _rowPosition.x - _rowHalfSize <= _centerPosition.x) {
+                    var _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
+                    float _targetGap = _targetPosition - scrollDistance;
+                    var _speed = Mathf.Abs(_targetGap) / 100f;
+                    BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
+                        scrollDistance = _value.x;
+                    }).SetCancelObject(scrollTweenCancelObject);
+                    break;
+                }
 			}
 		}
 		#endregion

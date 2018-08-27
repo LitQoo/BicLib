@@ -12,6 +12,10 @@ namespace BicUtil.TableView
     public class TableRow : MonoBehaviour
     {
 		#region Member
+		[SerializeField]
+		private int CellCount = 1;
+
+		[HideInInspector]
 		public List<TableCell> Cells = new List<TableCell>();
 
         public virtual string reuseIdentifier { 
@@ -26,12 +30,42 @@ namespace BicUtil.TableView
 
 		#region LifeCycle
 		private void Awake(){
+			
 		}
 
 		public void OnRemove(){
 			for(int i = 0; i < Cells.Count; i++){
 				Cells[i].OnRemove();
 			}
+		}
+
+		#endregion
+
+		#region Logic
+		public int GetCellCount(){
+			if(CellCount > 0){
+				var _tableCell = transform.GetChild(0).GetComponent<TableCell>();
+				var _cellCount = transform.childCount;
+				for(int i = _cellCount; i < CellCount; i++){
+					var _cell = Instantiate(_tableCell.gameObject);
+					_cell.transform.SetParent(this.gameObject.transform);
+				}
+
+				Cells.Clear();
+			}
+			
+			if(Cells.Count <= 0){
+				for(int i = 0; i < transform.childCount; i++){
+					var _tableCell = transform.GetChild(i).GetComponent<TableCell>();
+					if(_tableCell != null){
+						Cells.Add(_tableCell);
+					}
+				}
+			}
+
+			CellCount = Cells.Count;
+
+			return CellCount;
 		}
 
 		public void SetData(int _startCellIndex, Func<int, IRecordContainer> _cellDataFunc){
@@ -51,10 +85,6 @@ namespace BicUtil.TableView
 				Cells[i].OnClickedActions = _onClickedEvent;
 			}
 		}
-		#endregion
-
-		#region Logic
-
 		#endregion
     }
 }
