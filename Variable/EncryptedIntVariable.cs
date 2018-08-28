@@ -7,7 +7,7 @@ namespace BicDB.Variable
 
 	public class EncryptedIntVariable :  VariableBase, IVariable{
 		#region static
-		private static System.Random random = new System.Random();
+		public static System.Random Random = new System.Random();
 		#endregion
 
 		#region AsValue
@@ -25,11 +25,11 @@ namespace BicDB.Variable
 
 		#region LifeCycle
 		public EncryptedIntVariable() : base(){
-			seed = random.Next(int.MaxValue);
+			seed = Random.Next(int.MaxValue);
 		}
 
 		public EncryptedIntVariable(int _value) : base(){
-			seed = random.Next(int.MaxValue);
+			seed = Random.Next(int.MaxValue);
 			AsInt = _value;
 		}
 		#endregion
