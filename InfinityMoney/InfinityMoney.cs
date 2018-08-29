@@ -91,27 +91,27 @@ namespace BicUtil.InfinityMoney
         }
 
 
-        public static bool operator ==(InfinityMoney c1, InfinityMoney c2)
-        {
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+        // public static bool operator ==(InfinityMoney c1, InfinityMoney c2)
+        // {
+        //     var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
-            if(c1.Quantity == _quantity){
-                return true;
-            }else{
-                return false;
-            }
-        }
+        //     if(c1.Quantity == _quantity){
+        //         return true;
+        //     }else{
+        //         return false;
+        //     }
+        // }
 
-        public static bool operator !=(InfinityMoney c1, InfinityMoney c2)
-        {
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+        // public static bool operator !=(InfinityMoney c1, InfinityMoney c2)
+        // {
+        //     var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
-            if(c1.Quantity != _quantity){
-                return true;
-            }else{
-                return false;
-            }
-        }
+        //     if(c1.Quantity != _quantity){
+        //         return true;
+        //     }else{
+        //         return false;
+        //     }
+        // }
 
         public static bool operator >=(InfinityMoney c1, InfinityMoney c2)
         {
@@ -133,6 +133,25 @@ namespace BicUtil.InfinityMoney
             }else{
                 return false;
             }
+        }
+
+        public static float operator / (InfinityMoney c1, InfinityMoney c2)
+        {
+            float _quantity = (float)c1.Quantity / (float)c2.Quantity;
+            int _unitDiff = c1.Unit - c2.Unit;
+            //Debug.Log("q = " + _quantity.ToString() + "/ u = " + _unitDiff);
+            if(_unitDiff > 0){
+                for(int i = 0; i < _unitDiff; i++){
+                    _quantity *= 1000f;
+                }
+            }else if(_unitDiff < 0){
+                _unitDiff *= -1;
+                for(int i = 0; i < _unitDiff; i++){
+                    _quantity /= 1000f;
+                }
+            }
+
+            return _quantity;
         }
         #endregion
         

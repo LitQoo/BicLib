@@ -462,9 +462,6 @@ namespace BicUtil.InfinityMoney
 			{
 				var _c1 = new InfinityMoney(1000, 1);
 				var _c2 = new InfinityMoney(2000, 1);
-
-				Assert.AreEqual(_c2 == _c1, false);
-				Assert.AreEqual(_c2 != _c1, true);
 				Assert.AreEqual(_c1 >= _c2, false);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
@@ -472,9 +469,6 @@ namespace BicUtil.InfinityMoney
 			{
 				var _c1 = new InfinityMoney(1000, 1);
 				var _c2 = new InfinityMoney(1000, 1);
-
-				Assert.AreEqual(_c2 == _c1, true);
-				Assert.AreEqual(_c2 != _c1, false);
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
@@ -482,9 +476,6 @@ namespace BicUtil.InfinityMoney
 			{
 				var _c1 = new InfinityMoney(1000, 1);
 				var _c2 = new InfinityMoney(100, 2);
-
-				Assert.AreEqual(_c2 == _c1, false);
-				Assert.AreEqual(_c2 != _c1, true);
 				Assert.AreEqual(_c1 >= _c2, false);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
@@ -492,9 +483,6 @@ namespace BicUtil.InfinityMoney
 			{
 				var _c1 = new InfinityMoney("1001 M");
 				var _c2 = new InfinityMoney("1 B");
-
-				Assert.AreEqual(_c2 == _c1, false);
-				Assert.AreEqual(_c2 != _c1, true);
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, false);
 			}
@@ -502,11 +490,34 @@ namespace BicUtil.InfinityMoney
 			{
 				var _c1 = new InfinityMoney("1000 M");
 				var _c2 = new InfinityMoney("1 B");
-
-				Assert.AreEqual(_c2 == _c1, true);
-				Assert.AreEqual(_c1 != _c2, false);
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, true);
+			}
+		}
+
+		[Test]
+		public void divisionTest(){
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2000, 1);
+
+				Assert.AreEqual(_c2/_c1, 2f);
+				Assert.AreEqual(_c1/_c2, 0.5f);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2000, 0);
+
+				Assert.AreEqual(_c2/_c1, 0.002f);
+				Assert.AreEqual(_c1/_c2, 500f);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2500, 3);
+
+				Assert.AreEqual(_c2/_c1, 2500000f);
 			}
 		}
 
