@@ -6,7 +6,7 @@ namespace BicUtil.PerformanceChecker{
 	public class PerformanceChecker : BicUtil.SingletonBase.SingletonBase<PerformanceChecker> {
 		private System.Diagnostics.Stopwatch stopwatch;
 
-		public PerformanceChecker(){
+		public override void Initialize(){
 			#if UNITY_EDITOR
 			Debug.LogWarning("[PerformanceChecker] INIT");
 			#endif

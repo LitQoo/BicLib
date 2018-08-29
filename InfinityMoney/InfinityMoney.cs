@@ -239,6 +239,10 @@ namespace BicUtil.InfinityMoney
             var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
             this.Add(_data.Quantity, _data.Unit);
         }
+        
+        public void Add(InfinityMoney _subMoney){
+            this.Add(_subMoney.Quantity, _subMoney.Unit);
+        }
 
         public void Sub(int _quantity, int _unit){
             Add(_quantity * -1, _unit);
@@ -247,6 +251,10 @@ namespace BicUtil.InfinityMoney
         public void Sub(string _moneyString, char _splitChar = ' '){
             var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
             this.Sub(_data.Quantity, _data.Unit);
+        }
+
+        public void Sub(InfinityMoney _subMoney){
+            this.Sub(_subMoney.Quantity, _subMoney.Unit);
         }
 
 
