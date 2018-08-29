@@ -8,7 +8,7 @@ namespace BicUtil.AutoLink{
 	{
 		readonly string objectName;
 
-		public AutoLinkAttribute(string _objectName)
+		public AutoLinkAttribute(string _objectName = "")
 		{
 			this.objectName = _objectName;
 		}
