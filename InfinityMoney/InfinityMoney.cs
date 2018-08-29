@@ -5,19 +5,159 @@ using UnityEngine;
 
 namespace BicUtil.InfinityMoney
 {
+    public struct InfinityMoneyData{
+        public int Quantity;
+        public int Unit;
 
+        public InfinityMoneyData(int _quantity, int _unit){
+            this.Quantity = _quantity;
+            this.Unit = _unit;
+        }
+    }
     public class InfinityMoney{
+        #region Static
+        static public string[] UnitStrings = {"", "K", "M", "B", "aa", "bb", "cc", "dd", "ee", "ff","hh","ii","jj","kk","ll","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz", "AA","BB","CC","DD","EE","FF","GG","HH","II","JJ","KK","LL","MM","NN","OO","PP","QQ","RR","SS","TT","UU","VV","WW","XX","YY","ZZ"};
+        static public string GetUnitString(int _unit){
+            return UnitStrings[_unit];
+        }
 
+        static public InfinityMoneyData StringToInfinityMoneyData(string _moneyString, char _splitChar = ' '){
+            if(_moneyString.Contains(_splitChar.ToString()) == true){
+                var _moneyStrings = _moneyString.Split(_splitChar);
+                int _unit = 0;
+                for(int i = 0; i < UnitStrings.Length; i++){
+                    if(UnitStrings[i] == _moneyStrings[1]){
+                        _unit = i;
+                        break;
+                    }
+                }
+
+                if(_moneyStrings[0].Contains(".") == true){
+                    var _moneyStrings2 = _moneyStrings[0].Split('.');
+                    var _quantity = Int32.Parse(_moneyStrings2[0]) * 1000;
+                    if(_quantity > 0){
+                        _quantity += Int32.Parse(_moneyStrings2[1]);
+                    }else{
+                        _quantity -= Int32.Parse(_moneyStrings2[1]);
+                    }
+                    return new InfinityMoneyData(_quantity, _unit - 1);
+                }else{
+                    return new InfinityMoneyData(Int32.Parse(_moneyStrings[0]), _unit);
+                }
+            }else{
+                return new InfinityMoneyData(Int32.Parse(_moneyString), 0);
+            }
+        }
+
+        public static int GetQuantityAtUnit(InfinityMoney _money, int _unit){
+            var _unitDiff = _money.Unit - _unit;
+            var _quantity = _money.Quantity;
+
+            if(_unitDiff == 0){
+                return _quantity;
+            }else if(_unitDiff > 0){
+                for(int i = 0; i < _unitDiff; i++){
+                    _quantity /= 1000;
+                }
+            }else{
+                for(int i = 0; i < _unitDiff; i++){
+                    _quantity *= 1000;
+                }
+            }
+
+            return _quantity;
+        }
+
+        public static bool operator >(InfinityMoney c1, InfinityMoney c2)
+        {   
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity > _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public static bool operator <(InfinityMoney c1, InfinityMoney c2)
+        {
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity < _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+
+        public static bool operator ==(InfinityMoney c1, InfinityMoney c2)
+        {
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity == _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public static bool operator !=(InfinityMoney c1, InfinityMoney c2)
+        {
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity != _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public static bool operator >=(InfinityMoney c1, InfinityMoney c2)
+        {
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity >= _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public static bool operator <=(InfinityMoney c1, InfinityMoney c2)
+        {
+            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
+
+            if(c1.Quantity <= _quantity){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        #endregion
+        
+        #region Data
         private int seed = 0;
         private int unit = 0;
 
         public int Unit {get{ return unit ^ seed; } private set{ unit = value ^ seed;}}
         public int Quantity {get; private set;}
 
+        #endregion
+
+        #region LifeCycle
+        public InfinityMoney(string _moneyString){
+            seed = EncryptedIntVariable.Random.Next(int.MaxValue);
+            SetByString(_moneyString);
+        }
+
         public InfinityMoney(int _quantity, int _unit){
             seed = EncryptedIntVariable.Random.Next(int.MaxValue);
             Set(_quantity, _unit);
         }
+        #endregion
+
+        #region Logic
 
         public void Set(int _quantity, int _unit){
             Unit = _unit;
@@ -66,32 +206,10 @@ namespace BicUtil.InfinityMoney
 
         }
 
-        public static string[] UnitStrings = {"", "K", "M", "B", "aa", "bb", "cc", "dd", "ee", "ff","hh","ii","jj","kk","ll","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz", "AA","BB","CC","DD","EE","FF","GG","HH","II","JJ","KK","LL","MM","NN","OO","PP","QQ","RR","SS","TT","UU","VV","WW","XX","YY","ZZ"};
-        public static string GetUnitString(int _unit){
-            return UnitStrings[_unit];
-        }
         
         public void SetByString(string _moneyString, char _splitChar = ' '){
-            if(_moneyString.Contains(_splitChar.ToString()) == true){
-                var _moneyStrings = _moneyString.Split(_splitChar);
-                int _unit = 0;
-                for(int i = 0; i < UnitStrings.Length; i++){
-                    if(UnitStrings[i] == _moneyStrings[1]){
-                        _unit = i;
-                        break;
-                    }
-                }
-
-                if(_moneyStrings[0].Contains(".") == true){
-                    var _moneyStrings2 = _moneyStrings[0].Split('.');
-                    var _quantity = Int32.Parse(_moneyStrings2[0]) * 1000 + Int32.Parse(_moneyStrings2[1]);   
-                    this.Set(_quantity, _unit - 1);
-                }else{
-                    this.Set(Int32.Parse(_moneyStrings[0]), _unit);
-                }
-            }else{
-                this.Set(Int32.Parse(_moneyString), 0);
-            }
+            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            this.Set(_data.Quantity, _data.Unit);
         }
 
         public void Add(int _quantity, int _unit){
@@ -116,6 +234,21 @@ namespace BicUtil.InfinityMoney
 
             adjustmentUnit();
         }
+
+        public void Add(string _moneyString, char _splitChar = ' '){
+            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            this.Add(_data.Quantity, _data.Unit);
+        }
+
+        public void Sub(int _quantity, int _unit){
+            Add(_quantity * -1, _unit);
+        }
+
+        public void Sub(string _moneyString, char _splitChar = ' '){
+            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            this.Sub(_data.Quantity, _data.Unit);
+        }
+
 
         public void Multiply(int _quantity, int _unit){
             Quantity *= _quantity;
@@ -160,8 +293,7 @@ namespace BicUtil.InfinityMoney
             }
         }
 
-        public void Sub(int _quantity, int _unit){
-            Add(_quantity * -1, _unit);
-        }
+
+        #endregion
     }
 }

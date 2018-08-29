@@ -77,6 +77,44 @@ namespace BicUtil.InfinityMoney
 			}
 		}
 
+
+		[Test]
+		public void AddTest2(){
+			int testNo = 1;
+			{
+				var _gold = new InfinityMoney(1000, 0);
+
+				_gold.Add("1000");
+
+				Assert.AreEqual(_gold.Quantity, 2000, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "2K");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityMoney(1000, 1);
+
+				_gold.Add("1000");
+
+				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "1.001M");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityMoney(1000, 1);
+
+				_gold.Add("1000 M");
+
+				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "1.001B");
+				testNo++;
+			}
+		}
+
 		[Test]
 		public void SubTest(){
 			int testNo = 1;
@@ -117,6 +155,42 @@ namespace BicUtil.InfinityMoney
 				var _gold = new InfinityMoney(-2001, 1);
 
 				Assert.AreEqual(_gold.ToString(), "-2.001M");
+				testNo++;
+			}
+		}
+		[Test]
+		public void SubTest2(){
+			int testNo = 1;
+			{
+				var _gold = new InfinityMoney(1000, 0);
+
+				_gold.Sub("1000");
+
+				Assert.AreEqual(_gold.Quantity, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "0");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityMoney(1000, 1);
+
+				_gold.Sub("1000");
+
+				Assert.AreEqual(_gold.Quantity, 999000, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "999K");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityMoney(2001, 1);
+
+				_gold.Sub("1001 M");
+
+				Assert.AreEqual(_gold.Quantity, -999000, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "-999M");
 				testNo++;
 			}
 		}
@@ -274,6 +348,165 @@ namespace BicUtil.InfinityMoney
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.ToString(), "100.100B");
 				testNo++;
+			}
+
+			{
+				var _gold = new InfinityMoney(0, 0);
+
+				_gold.SetByString("-100.100 B");
+
+				Assert.AreEqual(_gold.Quantity, -100100, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "-100.100B");
+				testNo++;
+			}
+		}
+
+
+		[Test]
+		public void IsGreaterTest(){
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2000, 1);
+				
+				Assert.AreEqual(_c2 > _c1, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(1000, 1);
+
+				Assert.AreEqual(_c2 > _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(100, 2);
+
+				Assert.AreEqual(_c2 > _c1, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney(10, 2);
+				var _c2 = new InfinityMoney(1000, 1);
+
+				Assert.AreEqual(_c2 > _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1000 M");
+				var _c2 = new InfinityMoney("2 B");
+
+				Assert.AreEqual(_c2 > _c1, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1000 M");
+				var _c2 = new InfinityMoney("1 B");
+
+				Assert.AreEqual(_c2 > _c1, false);
+				Assert.AreEqual(_c1 > _c2, false);
+			}
+			
+		}
+
+		[Test]
+		public void IsLowerTest(){
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2000, 1);
+
+				Assert.AreEqual(_c2 < _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(1000, 1);
+
+				Assert.AreEqual(_c2 < _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(100, 2);
+
+				Assert.AreEqual(_c2 < _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney(10, 2);
+				var _c2 = new InfinityMoney(1000, 1);
+
+				Assert.AreEqual(_c2 < _c1, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1000 M");
+				var _c2 = new InfinityMoney("2 B");
+
+				Assert.AreEqual(_c2 < _c1, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1000 M");
+				var _c2 = new InfinityMoney("1 B");
+
+				Assert.AreEqual(_c2 < _c1, false);
+				Assert.AreEqual(_c1 < _c2, false);
+			}
+		}
+
+
+		[Test]
+		public void IsSameTest(){
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(2000, 1);
+
+				Assert.AreEqual(_c2 == _c1, false);
+				Assert.AreEqual(_c2 != _c1, true);
+				Assert.AreEqual(_c1 >= _c2, false);
+				Assert.AreEqual(_c1 <= _c2, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(1000, 1);
+
+				Assert.AreEqual(_c2 == _c1, true);
+				Assert.AreEqual(_c2 != _c1, false);
+				Assert.AreEqual(_c1 >= _c2, true);
+				Assert.AreEqual(_c1 <= _c2, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney(1000, 1);
+				var _c2 = new InfinityMoney(100, 2);
+
+				Assert.AreEqual(_c2 == _c1, false);
+				Assert.AreEqual(_c2 != _c1, true);
+				Assert.AreEqual(_c1 >= _c2, false);
+				Assert.AreEqual(_c1 <= _c2, true);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1001 M");
+				var _c2 = new InfinityMoney("1 B");
+
+				Assert.AreEqual(_c2 == _c1, false);
+				Assert.AreEqual(_c2 != _c1, true);
+				Assert.AreEqual(_c1 >= _c2, true);
+				Assert.AreEqual(_c1 <= _c2, false);
+			}
+
+			{
+				var _c1 = new InfinityMoney("1000 M");
+				var _c2 = new InfinityMoney("1 B");
+
+				Assert.AreEqual(_c2 == _c1, true);
+				Assert.AreEqual(_c1 != _c2, false);
+				Assert.AreEqual(_c1 >= _c2, true);
+				Assert.AreEqual(_c1 <= _c2, true);
 			}
 		}
 
