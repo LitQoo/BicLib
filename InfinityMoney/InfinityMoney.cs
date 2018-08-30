@@ -153,6 +153,22 @@ namespace BicUtil.InfinityMoney
 
             return _quantity;
         }
+
+        public static InfinityMoney operator - (InfinityMoney c1, InfinityMoney c2)
+        {
+            InfinityMoney _result = new InfinityMoney(c1.Quantity, c1.Unit);
+            _result.Sub(c2.Quantity, c2.Unit);
+
+            return _result;
+        }
+
+        public static InfinityMoney operator + (InfinityMoney c1, InfinityMoney c2)
+        {
+            InfinityMoney _result = new InfinityMoney(c1.Quantity, c1.Unit);
+            _result.Add(c2.Quantity, c2.Unit);
+
+            return _result;
+        }
         #endregion
         
         #region Data
