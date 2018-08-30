@@ -5,7 +5,7 @@ using BicDB.Storage;
 namespace BicDB.Variable
 {
 
-	public class EncryptedIntVariable :  VariableBase, IVariable{
+	public class EncryptedIntVariable : VariableBase, IVariable{
 		#region static
 		public static System.Random Random = new System.Random();
 		#endregion
