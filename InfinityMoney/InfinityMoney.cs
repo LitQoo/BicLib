@@ -301,6 +301,12 @@ namespace BicUtil.InfinityMoney
 
         public void Multiply(float _rate){
             int _unit = 0;
+
+            if(_rate == 0){
+                Quantity = 0;
+                adjustmentUnit();
+                return;
+            }
             
             while(true){
                 if(_rate > 1000f){
