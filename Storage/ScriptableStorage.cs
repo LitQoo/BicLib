@@ -19,9 +19,14 @@ namespace BicDB.Storage {
 		#region IStorage
 		public string StorageType{get{ return "ScriptableStorage"; }}
 		
-		public void Save<T> (ITableContainer<T> _table, System.Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
+		public void Save<T> (ITableContainer<T> _table, System.Action<Result> _callback, object _parameter = null) where T : IRecordContainer, new ()
 		{
 			throw new System.NotImplementedException ();
+		}
+
+		public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+		{
+			Save(_table, _callback);
 		}
 
 		public void Load<T> (ITableContainer<T> _table, System.Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()

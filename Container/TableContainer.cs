@@ -289,8 +289,23 @@ namespace BicDB.Container
 		public void Pull(Action<Result> _callback = null, object _parameter = null){
 			storage.Pull(this, _callback, _parameter);
 		}
+
+		private IList<T> commitRows = new List<T>();
+		public IList<T> CommitRow{get{return commitRows;}}
+		
+		public void Commit(IRecordContainer _record){
+			if(commitRows.Contains(_record as T) == false){
+				commitRows.Add(_record as T);
+			}
+		}
+
+		public void Push(Action<Result> _callback = null){
+			if(commitRows.Count > 0){
+				storage.Push(this, _callback);
+				commitRows.Clear();
+			}
+		}
 		#endregion
 	}
 
 }
-

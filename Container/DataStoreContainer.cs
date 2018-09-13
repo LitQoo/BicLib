@@ -215,8 +215,13 @@ namespace BicDB.Container
 		public void Pull(Action<Result> _callback = null, object _parameter = null){
 			storage.Pull(this, _callback, _parameter);
 		}
-		#endregion
-	}
+
+        public void Commit(IRecordContainer _record)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 
 }
 

@@ -92,6 +92,11 @@ namespace BicDB.Storage
 			loadByFile(_table, _callback, _parameter);
 		}
 
+        public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+        {
+			Save(_table, _callback);
+        }
+
 		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			var _encryptKey = encryptKey;
@@ -252,8 +257,8 @@ namespace BicDB.Storage
 			String Output = Convert.ToBase64String(xBuff);
 			return Output;
 		}
-		#endregion
-	}
+        #endregion
+    }
 
 	public class FileStorageParameter{
 		public string EncryptKey;

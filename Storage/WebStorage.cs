@@ -41,7 +41,13 @@ namespace BicDB.Storage
 		public string StorageType{get{ return "WebStorage"; }}
 		
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
+			if (_callback != null) {
+				_callback(new Result((int)ResultCode.Success));
+			}
+		}
 
+		public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+		{
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
 			}

@@ -52,6 +52,7 @@ namespace BicDB.Storage
 		void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new();
+		void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new();
 	}
 
 	public interface IDataStoreStorage

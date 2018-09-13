@@ -19,6 +19,7 @@ namespace BicDB.Container
 		#endregion
 
 		IVariable GetRecordKey(IRecordContainer _record);
+		void Commit(IRecordContainer _record);
 	}
 
 	public interface IDataStoreContainer<T> : IDataBase, IDictionary<string, T>, IRecordContainerParent, IDataStoreStorageSuppoter where T : IRecordContainer
@@ -57,6 +58,7 @@ namespace BicDB.Container
 		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string _key, IDataBase _value);
 		void CopyBy(IRecordContainer _model);
+		void Commit();
 	}
 
 	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer

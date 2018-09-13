@@ -39,6 +39,10 @@ namespace BicDB.Container
 		public void ClearNotifyAndBinding(){
 			OnChangedValueActions = delegate{};
 		}
+
+		public void Commit(){
+			Parent.Commit(this);
+		}
 		#endregion
 
 		#region IDataBase
@@ -158,10 +162,8 @@ namespace BicDB.Container
 		}
 
 		public void CopyBy(IRecordContainer _model){
-
 			foreach (var _item in _model) {
 				if (data.ContainsKey(_item.Key)) {
-
 					string _json = "";
 					int _counter = 0;
 					_model.BuildFormattedString (ref _json, JsonConvertor.GetInstance ());

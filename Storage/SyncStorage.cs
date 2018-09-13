@@ -58,6 +58,12 @@ namespace BicDB.Storage
 			}
 		}
 
+		public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+		{
+			//TODO: 구현해야함.
+			throw new NotImplementedException("");
+		}
+
 		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
 			loadCallback = _callback;
 			StartCoroutine (GetTextFromWWW (_table));

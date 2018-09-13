@@ -46,10 +46,10 @@ namespace BicDB.Variable
         #endregion
 
         #region Foreign
-        private ITableContainer<T> targetTable;
+        protected ITableContainer<T> targetTable;
         private T linkedRecord = null;
         private IntVariable targetField;
-        private string targetFieldName;
+        protected string targetFieldName;
 
         public T LinkedRecord{
             get{

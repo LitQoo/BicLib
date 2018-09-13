@@ -36,6 +36,11 @@ namespace BicDB.Storage{
 			}
 		}
 
+		public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+		{
+			Save(_table, _callback);
+		}
+
 		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
 			loadByResourceFile(_table, _callback, _parameter);
@@ -111,8 +116,8 @@ namespace BicDB.Storage{
 			return tText.text;
 			#endif 
 		}
-		#endregion
-	}
+        #endregion
+    }
 
 	public class ResourceStorageParameter{
 		public string Path;
