@@ -6,7 +6,7 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-    public class ForeignKeyIntVariable<T> : VariableBase, IVariable where T : class, IRecordContainer, new() 
+    public class ForeignIntVariable<T> : VariableBase, IVariable where T : class, IRecordContainer, new() 
     {
         #region AsValue
         protected int data;
@@ -18,9 +18,10 @@ namespace BicDB.Variable
         #endregion
 
         #region LifeCycle
-        public ForeignKeyIntVariable(ITableContainer<T> _targetTable, string _targetFieldName) : base(){
+        public ForeignIntVariable(ITableContainer<T> _targetTable, string _targetFieldName, Func<T, bool> _condition = null) : base(){
             targetTable = _targetTable;
             targetFieldName = _targetFieldName;
+            condition = _condition;
         }
         #endregion
 
@@ -47,27 +48,32 @@ namespace BicDB.Variable
 
         #region Foreign
         protected ITableContainer<T> targetTable;
-        private T linkedRecord = null;
+        private T record = null;
         private IntVariable targetField;
         protected string targetFieldName;
+        private Func<T, bool> condition;
 
-        public T LinkedRecord{
+        public T Record{
             get{
-                if(linkedRecord == null){
+                if(record == null){
                     cached();
                 }else if(targetField != null && data != targetField.AsInt){
                     cached();
                 }
 
-                return linkedRecord;
+                return record;
             }
         }
 
         private void cached(){
-            linkedRecord = targetTable.FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsInt == data);
+            if(condition == null){
+                record = targetTable.FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsInt == data);
+            }else{
+                record = targetTable.Where(condition).FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsInt == data);
+            }
 
-            if(linkedRecord != null){
-                targetField = linkedRecord[targetFieldName].As<IntVariable>();
+            if(record != null){
+                targetField = record[targetFieldName].As<IntVariable>();
             }else{
                 targetField = null;
             }
