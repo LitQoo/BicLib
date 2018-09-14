@@ -3,11 +3,11 @@ using BicDB;
 using BicDB.Storage;
 using BicDB.Variable;
 
-namespace BicUtil.InfinityMoney
+namespace BicUtil.InfinityNumber
 {
-    public class InfinityMoneyVariable : InfinityMoney, IVariable
+    public class InfinityNumberVariable : InfinityNumber, IVariable
     {
-        public InfinityMoneyVariable(int _quantity, int _unit) : base(_quantity, _unit)
+        public InfinityNumberVariable(int _quantity, int _unit) : base(_quantity, _unit)
         {
 
         }

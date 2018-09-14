@@ -4,13 +4,13 @@ using UnityEngine.TestTools;
 using NUnit.Framework;
 using System.Collections;
 
-namespace BicUtil.InfinityMoney
+namespace BicUtil.InfinityNumber
 {
-	public class InfinityMoneyVariableTest {
+	public class InfinityNumberVariableTest {
 
 		[Test]
 		public void CreateTest() {
-			var _gold = new InfinityMoneyVariable(1000, 0);
+			var _gold = new InfinityNumberVariable(1000, 0);
 
 			Assert.AreEqual(_gold.Quantity, 1000);
 			Assert.AreEqual(_gold.Unit, 0);
@@ -19,21 +19,21 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void AdjustmentUnitTest(){
 			{
-				var _gold = new InfinityMoneyVariable(9999, 0);
+				var _gold = new InfinityNumberVariable(9999, 0);
 
 				Assert.AreEqual(_gold.Quantity, 9999, "test1");
 				Assert.AreEqual(_gold.Unit, 0, "test1");
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000000, 0);
+				var _gold = new InfinityNumberVariable(1000000, 0);
 
 				Assert.AreEqual(_gold.Quantity, 1000, "test2");
 				Assert.AreEqual(_gold.Unit, 1, "test2");
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(999, 1);
+				var _gold = new InfinityNumberVariable(999, 1);
 
 				Assert.AreEqual(_gold.Quantity, 999000, "test3");
 				Assert.AreEqual(_gold.Unit, 0, "test3");
@@ -44,7 +44,7 @@ namespace BicUtil.InfinityMoney
 		public void AddTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoneyVariable(1000, 0);
+				var _gold = new InfinityNumberVariable(1000, 0);
 
 				_gold.Add(1000, 0);
 
@@ -55,7 +55,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000, 1);
+				var _gold = new InfinityNumberVariable(1000, 1);
 
 				_gold.Add(1000, 0);
 
@@ -66,7 +66,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000, 1);
+				var _gold = new InfinityNumberVariable(1000, 1);
 
 				_gold.Add(1000, 2);
 
@@ -81,7 +81,7 @@ namespace BicUtil.InfinityMoney
 		public void SubTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoneyVariable(1000, 0);
+				var _gold = new InfinityNumberVariable(1000, 0);
 
 				_gold.Sub(1000, 0);
 
@@ -92,7 +92,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000, 1);
+				var _gold = new InfinityNumberVariable(1000, 1);
 
 				_gold.Sub(1000, 0);
 
@@ -103,7 +103,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(2001, 1);
+				var _gold = new InfinityNumberVariable(2001, 1);
 
 				_gold.Sub(1001, 2);
 
@@ -114,7 +114,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(-2001, 1);
+				var _gold = new InfinityNumberVariable(-2001, 1);
 
 				Assert.AreEqual(_gold.ToString(), "-2.001M");
 				testNo++;
@@ -126,7 +126,7 @@ namespace BicUtil.InfinityMoney
 		public void MultiplyTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoneyVariable(1000, 0);
+				var _gold = new InfinityNumberVariable(1000, 0);
 
 				_gold.Multiply(1000, 0);
 
@@ -137,7 +137,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000, 1);
+				var _gold = new InfinityNumberVariable(1000, 1);
 
 				_gold.Multiply(1000, 0);
 
@@ -148,7 +148,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(2001, 1);
+				var _gold = new InfinityNumberVariable(2001, 1);
 
 				_gold.Multiply(1001, 2);
 
@@ -163,7 +163,7 @@ namespace BicUtil.InfinityMoney
 		public void MultiplyTest2(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoneyVariable(1000, 0);
+				var _gold = new InfinityNumberVariable(1000, 0);
 
 				_gold.Multiply(3.5f);
 
@@ -174,7 +174,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(1000, 1);
+				var _gold = new InfinityNumberVariable(1000, 1);
 
 				_gold.Multiply(0.01f);
 
@@ -185,7 +185,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(2001, 1);
+				var _gold = new InfinityNumberVariable(2001, 1);
 
 				_gold.Multiply(2000.001f);
 
@@ -196,7 +196,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(2001, 1);
+				var _gold = new InfinityNumberVariable(2001, 1);
 
 				_gold.Multiply(9000000000);
 
@@ -207,7 +207,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(100000, 0);
+				var _gold = new InfinityNumberVariable(100000, 0);
 
 				_gold.Multiply(0.0002f);
 				
@@ -222,7 +222,7 @@ namespace BicUtil.InfinityMoney
 		public void SetByStringTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoneyVariable(0, 0);
+				var _gold = new InfinityNumberVariable(0, 0);
 
 				_gold.SetByString("3.500 K");
 
@@ -233,7 +233,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(0, 0);
+				var _gold = new InfinityNumberVariable(0, 0);
 
 				_gold.SetByString("10 K");
 
@@ -244,7 +244,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(0, 0);
+				var _gold = new InfinityNumberVariable(0, 0);
 
 				_gold.SetByString("4.002 B");
 
@@ -255,7 +255,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(0, 0);
+				var _gold = new InfinityNumberVariable(0, 0);
 
 				_gold.SetByString("18.008 bb");
 
@@ -266,7 +266,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoneyVariable(0, 0);
+				var _gold = new InfinityNumberVariable(0, 0);
 
 				_gold.SetByString("19");
 
@@ -279,7 +279,7 @@ namespace BicUtil.InfinityMoney
         
         [Test]
         public void onchangednotifyteset(){
-            var _gold = new InfinityMoneyVariable(0, 0);
+            var _gold = new InfinityNumberVariable(0, 0);
             
             bool _isCalledNotify = false;
             _gold.OnChangedValueActions += _variable=>{
@@ -308,7 +308,7 @@ namespace BicUtil.InfinityMoney
 
         [Test]
         public void toJsonTest(){
-            var _gold = new InfinityMoneyVariable(100, 2);
+            var _gold = new InfinityNumberVariable(100, 2);
 
             string _json = "";
             _gold.BuildFormattedString(ref _json, BicUtil.Json.JsonConvertor.GetInstance());
@@ -318,7 +318,7 @@ namespace BicUtil.InfinityMoney
         
         [Test]
         public void fromJsonTest(){
-            var _gold = new InfinityMoneyVariable(100, 2);
+            var _gold = new InfinityNumberVariable(100, 2);
 
             string _json = "\"100.100 B\"";
             int _counter = 0;

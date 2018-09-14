@@ -3,25 +3,25 @@ using System.Text;
 using BicDB.Variable;
 using UnityEngine;
 
-namespace BicUtil.InfinityMoney
+namespace BicUtil.InfinityNumber
 {
-    public struct InfinityMoneyData{
+    public struct InfinityNumberData{
         public int Quantity;
         public int Unit;
 
-        public InfinityMoneyData(int _quantity, int _unit){
+        public InfinityNumberData(int _quantity, int _unit){
             this.Quantity = _quantity;
             this.Unit = _unit;
         }
     }
-    public class InfinityMoney{
+    public class InfinityNumber{
         #region Static
         static public string[] UnitStrings = {"", "K", "M", "B", "aa", "bb", "cc", "dd", "ee", "ff","hh","ii","jj","kk","ll","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz", "AA","BB","CC","DD","EE","FF","GG","HH","II","JJ","KK","LL","MM","NN","OO","PP","QQ","RR","SS","TT","UU","VV","WW","XX","YY","ZZ"};
         static public string GetUnitString(int _unit){
             return UnitStrings[_unit];
         }
 
-        static public InfinityMoneyData StringToInfinityMoneyData(string _moneyString, char _splitChar = ' '){
+        static public InfinityNumberData StringToInfinityNumberData(string _moneyString, char _splitChar = ' '){
             if(_moneyString.Contains(_splitChar.ToString()) == true){
                 var _moneyStrings = _moneyString.Split(_splitChar);
                 int _unit = 0;
@@ -40,16 +40,16 @@ namespace BicUtil.InfinityMoney
                     }else{
                         _quantity -= Int32.Parse(_moneyStrings2[1]);
                     }
-                    return new InfinityMoneyData(_quantity, _unit - 1);
+                    return new InfinityNumberData(_quantity, _unit - 1);
                 }else{
-                    return new InfinityMoneyData(Int32.Parse(_moneyStrings[0]), _unit);
+                    return new InfinityNumberData(Int32.Parse(_moneyStrings[0]), _unit);
                 }
             }else{
-                return new InfinityMoneyData(Int32.Parse(_moneyString), 0);
+                return new InfinityNumberData(Int32.Parse(_moneyString), 0);
             }
         }
 
-        public static int GetQuantityAtUnit(InfinityMoney _money, int _unit){
+        public static int GetQuantityAtUnit(InfinityNumber _money, int _unit){
             var _unitDiff = _money.Unit - _unit;
             var _quantity = _money.Quantity;
 
@@ -68,7 +68,7 @@ namespace BicUtil.InfinityMoney
             return _quantity;
         }
 
-        public static bool operator >(InfinityMoney c1, InfinityMoney c2)
+        public static bool operator >(InfinityNumber c1, InfinityNumber c2)
         {   
             var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
@@ -79,7 +79,7 @@ namespace BicUtil.InfinityMoney
             }
         }
 
-        public static bool operator <(InfinityMoney c1, InfinityMoney c2)
+        public static bool operator <(InfinityNumber c1, InfinityNumber c2)
         {
             var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
@@ -90,30 +90,7 @@ namespace BicUtil.InfinityMoney
             }
         }
 
-
-        // public static bool operator ==(InfinityMoney c1, InfinityMoney c2)
-        // {
-        //     var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-        //     if(c1.Quantity == _quantity){
-        //         return true;
-        //     }else{
-        //         return false;
-        //     }
-        // }
-
-        // public static bool operator !=(InfinityMoney c1, InfinityMoney c2)
-        // {
-        //     var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-        //     if(c1.Quantity != _quantity){
-        //         return true;
-        //     }else{
-        //         return false;
-        //     }
-        // }
-
-        public static bool operator >=(InfinityMoney c1, InfinityMoney c2)
+        public static bool operator >=(InfinityNumber c1, InfinityNumber c2)
         {
             var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
@@ -124,7 +101,7 @@ namespace BicUtil.InfinityMoney
             }
         }
 
-        public static bool operator <=(InfinityMoney c1, InfinityMoney c2)
+        public static bool operator <=(InfinityNumber c1, InfinityNumber c2)
         {
             var _quantity = GetQuantityAtUnit(c2, c1.Unit);
 
@@ -135,7 +112,7 @@ namespace BicUtil.InfinityMoney
             }
         }
 
-        public static float operator / (InfinityMoney c1, InfinityMoney c2)
+        public static float operator / (InfinityNumber c1, InfinityNumber c2)
         {
             float _quantity = (float)c1.Quantity / (float)c2.Quantity;
             int _unitDiff = c1.Unit - c2.Unit;
@@ -154,17 +131,17 @@ namespace BicUtil.InfinityMoney
             return _quantity;
         }
 
-        public static InfinityMoney operator - (InfinityMoney c1, InfinityMoney c2)
+        public static InfinityNumber operator - (InfinityNumber c1, InfinityNumber c2)
         {
-            InfinityMoney _result = new InfinityMoney(c1.Quantity, c1.Unit);
+            InfinityNumber _result = new InfinityNumber(c1.Quantity, c1.Unit);
             _result.Sub(c2.Quantity, c2.Unit);
 
             return _result;
         }
 
-        public static InfinityMoney operator + (InfinityMoney c1, InfinityMoney c2)
+        public static InfinityNumber operator + (InfinityNumber c1, InfinityNumber c2)
         {
-            InfinityMoney _result = new InfinityMoney(c1.Quantity, c1.Unit);
+            InfinityNumber _result = new InfinityNumber(c1.Quantity, c1.Unit);
             _result.Add(c2.Quantity, c2.Unit);
 
             return _result;
@@ -181,12 +158,12 @@ namespace BicUtil.InfinityMoney
         #endregion
 
         #region LifeCycle
-        public InfinityMoney(string _moneyString){
+        public InfinityNumber(string _moneyString){
             seed = EncryptedIntVariable.Random.Next(int.MaxValue);
             SetByString(_moneyString);
         }
 
-        public InfinityMoney(int _quantity, int _unit){
+        public InfinityNumber(int _quantity, int _unit){
             seed = EncryptedIntVariable.Random.Next(int.MaxValue);
             Set(_quantity, _unit);
         }
@@ -243,7 +220,7 @@ namespace BicUtil.InfinityMoney
 
         
         public void SetByString(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
             this.Set(_data.Quantity, _data.Unit);
         }
 
@@ -271,11 +248,11 @@ namespace BicUtil.InfinityMoney
         }
 
         public void Add(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
             this.Add(_data.Quantity, _data.Unit);
         }
         
-        public void Add(InfinityMoney _subMoney){
+        public void Add(InfinityNumber _subMoney){
             this.Add(_subMoney.Quantity, _subMoney.Unit);
         }
 
@@ -284,11 +261,11 @@ namespace BicUtil.InfinityMoney
         }
 
         public void Sub(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityMoneyData(_moneyString, _splitChar);
+            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
             this.Sub(_data.Quantity, _data.Unit);
         }
 
-        public void Sub(InfinityMoney _subMoney){
+        public void Sub(InfinityNumber _subMoney){
             this.Sub(_subMoney.Quantity, _subMoney.Unit);
         }
 

@@ -4,13 +4,13 @@ using UnityEngine.TestTools;
 using NUnit.Framework;
 using System.Collections;
 
-namespace BicUtil.InfinityMoney
+namespace BicUtil.InfinityNumber
 {
-	public class InfinityMoneyTest {
+	public class InfinityNumberTest {
 
 		[Test]
 		public void CreateTest() {
-			var _gold = new InfinityMoney(1000, 0);
+			var _gold = new InfinityNumber(1000, 0);
 
 			Assert.AreEqual(_gold.Quantity, 1000);
 			Assert.AreEqual(_gold.Unit, 0);
@@ -19,21 +19,21 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void AdjustmentUnitTest(){
 			{
-				var _gold = new InfinityMoney(9999, 0);
+				var _gold = new InfinityNumber(9999, 0);
 
 				Assert.AreEqual(_gold.Quantity, 9999, "test1");
 				Assert.AreEqual(_gold.Unit, 0, "test1");
 			}
 
 			{
-				var _gold = new InfinityMoney(1000000, 0);
+				var _gold = new InfinityNumber(1000000, 0);
 
 				Assert.AreEqual(_gold.Quantity, 1000, "test2");
 				Assert.AreEqual(_gold.Unit, 1, "test2");
 			}
 
 			{
-				var _gold = new InfinityMoney(999, 1);
+				var _gold = new InfinityNumber(999, 1);
 
 				Assert.AreEqual(_gold.Quantity, 999000, "test3");
 				Assert.AreEqual(_gold.Unit, 0, "test3");
@@ -44,7 +44,7 @@ namespace BicUtil.InfinityMoney
 		public void AddTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Add(1000, 0);
 
@@ -55,7 +55,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Add(1000, 0);
 
@@ -66,7 +66,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Add(1000, 2);
 
@@ -82,7 +82,7 @@ namespace BicUtil.InfinityMoney
 		public void AddTest2(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Add("1000");
 
@@ -93,7 +93,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Add("1000");
 
@@ -104,7 +104,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Add("1000 M");
 
@@ -119,7 +119,7 @@ namespace BicUtil.InfinityMoney
 		public void SubTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Sub(1000, 0);
 
@@ -130,7 +130,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Sub(1000, 0);
 
@@ -141,7 +141,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(2001, 1);
+				var _gold = new InfinityNumber(2001, 1);
 
 				_gold.Sub(1001, 2);
 
@@ -152,7 +152,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(-2001, 1);
+				var _gold = new InfinityNumber(-2001, 1);
 
 				Assert.AreEqual(_gold.ToString(), "-2.001M");
 				testNo++;
@@ -162,7 +162,7 @@ namespace BicUtil.InfinityMoney
 		public void SubTest2(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Sub("1000");
 
@@ -173,7 +173,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Sub("1000");
 
@@ -184,7 +184,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(2001, 1);
+				var _gold = new InfinityNumber(2001, 1);
 
 				_gold.Sub("1001 M");
 
@@ -200,7 +200,7 @@ namespace BicUtil.InfinityMoney
 		public void MultiplyTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Multiply(1000, 0);
 
@@ -211,7 +211,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Multiply(1000, 0);
 
@@ -222,7 +222,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(2001, 1);
+				var _gold = new InfinityNumber(2001, 1);
 
 				_gold.Multiply(1001, 2);
 
@@ -237,7 +237,7 @@ namespace BicUtil.InfinityMoney
 		public void MultiplyTest2(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(1000, 0);
+				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Multiply(3.5f);
 
@@ -248,7 +248,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(1000, 1);
+				var _gold = new InfinityNumber(1000, 1);
 
 				_gold.Multiply(0.01f);
 
@@ -259,7 +259,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(2001, 1);
+				var _gold = new InfinityNumber(2001, 1);
 
 				_gold.Multiply(2000.001f);
 
@@ -270,7 +270,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(2001, 1);
+				var _gold = new InfinityNumber(2001, 1);
 
 				_gold.Multiply(9000000000);
 
@@ -281,7 +281,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(100000, 0);
+				var _gold = new InfinityNumber(100000, 0);
 
 				_gold.Multiply(0.0002f);
 				
@@ -296,7 +296,7 @@ namespace BicUtil.InfinityMoney
 		public void SetByStringTest(){
 			int testNo = 1;
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("3.500 K");
 
@@ -307,7 +307,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("10 K");
 
@@ -318,7 +318,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("4.002 B");
 
@@ -329,7 +329,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("18.008 bb");
 
@@ -340,7 +340,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("100.100 B");
 
@@ -351,7 +351,7 @@ namespace BicUtil.InfinityMoney
 			}
 
 			{
-				var _gold = new InfinityMoney(0, 0);
+				var _gold = new InfinityNumber(0, 0);
 
 				_gold.SetByString("-100.100 B");
 
@@ -366,43 +366,43 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void IsGreaterTest(){
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2000, 1);
 				
 				Assert.AreEqual(_c2 > _c1, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(1000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(1000, 1);
 
 				Assert.AreEqual(_c2 > _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(100, 2);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(100, 2);
 
 				Assert.AreEqual(_c2 > _c1, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney(10, 2);
-				var _c2 = new InfinityMoney(1000, 1);
+				var _c1 = new InfinityNumber(10, 2);
+				var _c2 = new InfinityNumber(1000, 1);
 
 				Assert.AreEqual(_c2 > _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1000 M");
-				var _c2 = new InfinityMoney("2 B");
+				var _c1 = new InfinityNumber("1000 M");
+				var _c2 = new InfinityNumber("2 B");
 
 				Assert.AreEqual(_c2 > _c1, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1000 M");
-				var _c2 = new InfinityMoney("1 B");
+				var _c1 = new InfinityNumber("1000 M");
+				var _c2 = new InfinityNumber("1 B");
 
 				Assert.AreEqual(_c2 > _c1, false);
 				Assert.AreEqual(_c1 > _c2, false);
@@ -413,43 +413,43 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void IsLowerTest(){
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2000, 1);
 
 				Assert.AreEqual(_c2 < _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(1000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(1000, 1);
 
 				Assert.AreEqual(_c2 < _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(100, 2);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(100, 2);
 
 				Assert.AreEqual(_c2 < _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney(10, 2);
-				var _c2 = new InfinityMoney(1000, 1);
+				var _c1 = new InfinityNumber(10, 2);
+				var _c2 = new InfinityNumber(1000, 1);
 
 				Assert.AreEqual(_c2 < _c1, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1000 M");
-				var _c2 = new InfinityMoney("2 B");
+				var _c1 = new InfinityNumber("1000 M");
+				var _c2 = new InfinityNumber("2 B");
 
 				Assert.AreEqual(_c2 < _c1, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1000 M");
-				var _c2 = new InfinityMoney("1 B");
+				var _c1 = new InfinityNumber("1000 M");
+				var _c2 = new InfinityNumber("1 B");
 
 				Assert.AreEqual(_c2 < _c1, false);
 				Assert.AreEqual(_c1 < _c2, false);
@@ -460,36 +460,36 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void IsSameTest(){
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2000, 1);
 				Assert.AreEqual(_c1 >= _c2, false);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(1000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(1000, 1);
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(100, 2);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(100, 2);
 				Assert.AreEqual(_c1 >= _c2, false);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1001 M");
-				var _c2 = new InfinityMoney("1 B");
+				var _c1 = new InfinityNumber("1001 M");
+				var _c2 = new InfinityNumber("1 B");
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, false);
 			}
 
 			{
-				var _c1 = new InfinityMoney("1000 M");
-				var _c2 = new InfinityMoney("1 B");
+				var _c1 = new InfinityNumber("1000 M");
+				var _c2 = new InfinityNumber("1 B");
 				Assert.AreEqual(_c1 >= _c2, true);
 				Assert.AreEqual(_c1 <= _c2, true);
 			}
@@ -498,24 +498,24 @@ namespace BicUtil.InfinityMoney
 		[Test]
 		public void divisionTest(){
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2000, 1);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2000, 1);
 
 				Assert.AreEqual(_c2/_c1, 2f);
 				Assert.AreEqual(_c1/_c2, 0.5f);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2000, 0);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2000, 0);
 
 				Assert.AreEqual(_c2/_c1, 0.002f);
 				Assert.AreEqual(_c1/_c2, 500f);
 			}
 
 			{
-				var _c1 = new InfinityMoney(1000, 1);
-				var _c2 = new InfinityMoney(2500, 3);
+				var _c1 = new InfinityNumber(1000, 1);
+				var _c2 = new InfinityNumber(2500, 3);
 
 				Assert.AreEqual(_c2/_c1, 2500000f);
 			}
