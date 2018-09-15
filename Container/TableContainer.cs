@@ -53,6 +53,7 @@ namespace BicDB.Container
 		#region ITableContainer
 		public virtual Action<T> OnAddedRowActions { get; set; }
 		public virtual Action<T> OnRemovedRowActions { get; set; }
+		public virtual Action OnChangeCountActions { get; set; }
 
 		public event Action OnSetup;
 		public event Action<string, string> OnMigration;
@@ -80,6 +81,10 @@ namespace BicDB.Container
 			if (OnAddedRowActions != null) {
 				OnAddedRowActions(_item);
 			}
+			
+			if(OnChangeCountActions != null){
+				OnChangeCountActions();
+			}
 		}
 
 		public void RemoveAt(int _index)
@@ -87,6 +92,10 @@ namespace BicDB.Container
 			rows [_index].Parent = null;
 			if (OnRemovedRowActions != null) {
 				OnRemovedRowActions(rows [_index]);
+			}
+
+			if(OnChangeCountActions != null){
+				OnChangeCountActions();
 			}
 			rows.RemoveAt(_index);
 		}
@@ -97,6 +106,10 @@ namespace BicDB.Container
 			rows.Add(_item);
 			if (OnAddedRowActions != null) {
 				OnAddedRowActions(_item);
+			}
+			
+			if(OnChangeCountActions != null){
+				OnChangeCountActions();
 			}
 		}
 
@@ -127,7 +140,13 @@ namespace BicDB.Container
 				}
 			}
 
+
+
 			rows.Clear();
+
+			if(OnChangeCountActions != null){
+				OnChangeCountActions();
+			}
 		}
 
 		public bool Contains(T _item)
@@ -147,6 +166,10 @@ namespace BicDB.Container
 				_item.Parent = null;
 				if (OnRemovedRowActions != null) {
 					OnRemovedRowActions(_item);
+				}
+
+				if(OnChangeCountActions != null){
+					OnChangeCountActions();
 				}
 				return true;
 			}
