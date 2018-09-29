@@ -371,6 +371,9 @@ namespace BicUtil.Tween
 		}
 
 		private void complete(){
+            this.IsPlaying = false;
+			this.destoryCount = 3;
+
 			if(OnCompleteCallback != null){
 				OnCompleteCallback();
 			}
@@ -378,10 +381,6 @@ namespace BicUtil.Tween
 			if(this.pool.IsLocked == false){
 				Clear();
 			}
-
-			
-            this.IsPlaying = false;
-			this.destoryCount = 3;
 			
 		}
 

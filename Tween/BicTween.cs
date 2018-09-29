@@ -533,6 +533,10 @@ namespace BicUtil.Tween
 
 		public bool IsComplete{
 			get{
+				if(Tween == null){
+					return true;
+				}
+				
 				if(Tween.IsDestroyed == true){
 					return true;
 				}
