@@ -10,6 +10,7 @@ namespace BicUtil.Tween
         Sequance,
         Spawn,
         Move,
+        Follow,
         Active,
         Scale,
         Rotate,
@@ -30,6 +31,7 @@ namespace BicUtil.Tween
 
             switch(_tween.Type){
                 case TweenType.Move: _tween.UpdateFunc = Move; break;
+                case TweenType.Follow: _tween.UpdateFunc = Follow; break;
                 case TweenType.Scale: _tween.UpdateFunc = Scale; break;
                 case TweenType.Rotate: _tween.UpdateFunc = Rotate; break;
                 case TweenType.Bezier: _tween.UpdateFunc = Bezier; break;
@@ -61,6 +63,12 @@ namespace BicUtil.Tween
 		public static void Move(IUpdateData _data){
 			_data.TargetObject.transform.localPosition = _data.CurrentValue;
 		}
+
+        public static void Follow(IUpdateData _data){
+            var _targetTransform = _data.Data as Transform;
+            _data.DiffValue = _targetTransform.position - (Vector3)_data.OriginValue;
+            _data.TargetObject.transform.position = _data.CurrentValue;
+        }
 
 		public static void Scale(IUpdateData _data){
 			_data.TargetObject.transform.localScale = _data.CurrentValue;

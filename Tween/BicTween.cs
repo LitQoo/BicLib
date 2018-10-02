@@ -182,6 +182,24 @@ namespace BicUtil.Tween
 			return MoveLocal(_object, _from, _to, _time, _pool);
 		}
 
+		public static TweenModel Follow(GameObject _object, GameObject _targetObject, float _time, TweenPool _pool = null){
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.OriginValue = _object.transform.position;
+			_tween.DiffValue = _targetObject.transform.position - (Vector3)_tween.OriginValue;
+			_tween.Data = _targetObject.transform;
+			_tween.Time = _time;
+			_tween.Type = TweenType.Follow;
+			_tween.UpdateFunc = UpdateFuncs.Follow;
+
+			return _tween;
+		}
+
+		public static TweenModel FollowWithSpeed(GameObject _object, GameObject _targetObject, float _distancePerSecond, TweenPool _pool = null){
+			var _time = Vector3.Distance(_object.transform.position, _targetObject.transform.position) / _distancePerSecond;
+			return Follow(_object, _targetObject, _time, _pool);
+		}
+
 		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
 			return MoveLocalWithSpeed(_object, _object.transform.localPosition, _to, _distancePerSecond, _pool);
 		}
@@ -373,6 +391,7 @@ namespace BicUtil.Tween
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = null;
 			_tween.Time = _time;
+			_tween.Data = _spine;
 			_tween.Type = TweenType.Delay;
 			_tween.UpdateFunc = (_updateData)=>{
 				_spine.AnimationState.SetAnimation(0, _spineData, false);
