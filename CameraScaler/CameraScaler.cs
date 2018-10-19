@@ -17,6 +17,8 @@ namespace BicUtil.CameraScaler
 		private VerticalAlign verticalAlign = VerticalAlign.Center;
 		[SerializeField]
 		private HorizonalAlign horizonalAlign = HorizonalAlign.Center;
+		[SerializeField]
+		private RectTransform manageFullSizeRect;
 		#endregion
 
 		#region LifeCycle
@@ -27,6 +29,11 @@ namespace BicUtil.CameraScaler
 
 		#region Logic
 		private void init(){
+			if(referenceTransform == manageFullSizeRect){
+				Debug.LogWarning("[CameraScaler] Set referenceTransform != manageFullSizeRect");
+				return;
+			}
+
 			if (referenceTransform != null) {
 				referenceResolution = referenceTransform.sizeDelta;
 			}
@@ -48,7 +55,13 @@ namespace BicUtil.CameraScaler
 				}
 
 				mainCamera.transform.position = new Vector3 (_xOffset, 0, -10);
-			} else {
+
+
+				if(manageFullSizeRect != null){
+					float _rate = referenceResolution.y / (float)Screen.height;
+					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.width * _rate, (float)Screen.height * _rate);
+				}
+			} else if(_referenceRate > _screenRate){
 				float _rate = referenceResolution.x / (float)Screen.width;
 				float _hSize = (float)Screen.height * _rate;
 				mainCamera.orthographicSize = _hSize / 2f;
@@ -65,9 +78,11 @@ namespace BicUtil.CameraScaler
 				}
 
 				mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
+
+				if(manageFullSizeRect != null){
+					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.width * _rate, (float)Screen.height * _rate);
+				}
 			}
-
-
 		}
 		#endregion
 
