@@ -178,7 +178,7 @@ namespace BicUtil.InfinityNumber
             adjustmentUnit();
         }
 
-        public string ToString(){
+        public override string ToString(){
             return GetMoneyString(string.Empty);
         }
 
