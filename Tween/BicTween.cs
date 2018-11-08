@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Spine.Unity;
-using TMPro;
 using UnityEngine;
 namespace BicUtil.Tween
 {
@@ -86,7 +85,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		static public TweenModel Counting(TextMeshPro _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null){
+		static public TweenModel Counting(TextMesh _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null){
 			int _repeatCount = (int)(_time / _intervalTime);
 			float _dt = (_to - _from)/(float)_repeatCount;
 
