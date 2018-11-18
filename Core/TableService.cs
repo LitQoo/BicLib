@@ -62,7 +62,13 @@ namespace BicDB.Core
                 return;
             }
 
-            currentVersion = Application.version;
+            try{
+                currentVersion = Application.version;
+            }catch(System.MissingMethodException _e){
+                currentVersion = "0";
+                return;
+            }
+
             isInit = true;
             TableInfo = new TableContainer<TableModel>(TABLENAME);
             TableInfo.SetStorage(BicDB.Storage.FileStorage.GetInstance());
