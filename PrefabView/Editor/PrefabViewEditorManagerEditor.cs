@@ -57,7 +57,7 @@ namespace BicUtil.PrefabView
 	    }
 
 		public static void OpenPrefabView(UnityEngine.Object _targetObject, string _scenePath){
-			PrefabViewEditorManagerEditor.SelectedPrefabView = (PrefabUtility.GetPrefabParent(_targetObject) as PrefabView);
+			PrefabViewEditorManagerEditor.SelectedPrefabView = (PrefabUtility.GetCorrespondingObjectFromSource(_targetObject) as PrefabView);
 			PrefabViewEditorManagerEditor.LastScenePath = _scenePath;
 			EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 			openEditorScene();
@@ -79,7 +79,7 @@ namespace BicUtil.PrefabView
 			EditorUtility.DisplayProgressBar("Saving","Update Prefab",0.0f);
 
             // 1. save prefab; 
-            UnityEngine.Object _prefab = PrefabUtility.GetPrefabParent(_targetPrefabObject);
+            UnityEngine.Object _prefab = PrefabUtility.GetCorrespondingObjectFromSource(_targetPrefabObject);
 
 			var _editedPrefab = PrefabUtility.ReplacePrefab((_targetPrefabObject as PrefabView).gameObject, _prefab, ReplacePrefabOptions.ConnectToPrefab);
 
@@ -154,7 +154,7 @@ namespace BicUtil.PrefabView
 					GameObject.DestroyImmediate(_updateTargetChild.gameObject);
 
 					//save prefab
-					PrefabUtility.ReplacePrefab(_updateTargetPrefab, PrefabUtility.GetPrefabParent(_updateTargetPrefab), ReplacePrefabOptions.ConnectToPrefab);
+					PrefabUtility.ReplacePrefab(_updateTargetPrefab, PrefabUtility.GetCorrespondingObjectFromSource(_updateTargetPrefab), ReplacePrefabOptions.ConnectToPrefab);
 					
 					GameObject.DestroyImmediate(_updateTargetPrefab);
 
