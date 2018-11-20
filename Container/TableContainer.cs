@@ -329,6 +329,21 @@ namespace BicDB.Container
 			}
 		}
 		#endregion
+
+		#region Autoincrease
+		private const string AUTO_INCREASE_NUMBER = "__AutoIncreaseNumber__";
+		public int AutoIncreaseNumber{
+			get{
+				if(this.Property.ContainsKey(AUTO_INCREASE_NUMBER) == false){
+					this.Property.Add(AUTO_INCREASE_NUMBER, new IntVariable(1));
+				}
+
+				var _result = this.Property[AUTO_INCREASE_NUMBER].AsVariable.AsInt;
+				this.Property[AUTO_INCREASE_NUMBER].AsVariable.AsInt++;
+				return _result;
+			}
+		}
+		#endregion
 	}
 
 }

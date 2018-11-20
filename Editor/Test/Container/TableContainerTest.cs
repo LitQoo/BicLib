@@ -11,6 +11,7 @@ using BicDB.Storage;
 
 namespace BicDB.Container
 {
+	[TestFixture]
 	public class TableTest {
 		[Test]
 		public void GetRowSizeTest(){
@@ -353,6 +354,20 @@ namespace BicDB.Container
 
 			_storage.ReceivedWithAnyArgs().Load<RecordContainer>(_table, _callback);
 			Assert.Pass();
+		}
+
+		[Test]
+		public void AutoIncreaseTest(){
+			var _table = new TableContainer<RecordContainer>("tablename");
+			
+			var _index1 = _table.AutoIncreaseNumber;
+
+			Assert.AreEqual(_index1, 1);
+
+
+			var _index2 = _table.AutoIncreaseNumber;
+
+			Assert.AreEqual(_index2, 2);
 		}
 	}
 }
