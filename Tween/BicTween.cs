@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+#if BICUTIL_SPINE
 using Spine.Unity;
+#endif
 using UnityEngine;
 namespace BicUtil.Tween
 {
@@ -383,6 +385,7 @@ namespace BicUtil.Tween
 		}
 
 		
+		#if BICUTIL_SPINE
 		public static TweenModel SpineAnimation(SkeletonAnimation _spine, string _animationName, TweenPool _pool = null){
 			var _spineData = _spine.AnimationState.Data.skeletonData.FindAnimation(_animationName);
 			float _time = _spineData.Duration;
@@ -398,6 +401,7 @@ namespace BicUtil.Tween
 			};
 			return _tween;
 		}
+		#endif
 		
 		public static TweenModel Value(float _from, float _to, float _time, TweenPool _pool = null){
 			return Value(new Vector4(_from, 0, 0, 0), new Vector4(_to, 0, 0, 0), _time);
