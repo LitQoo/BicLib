@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿//유니티 신규버전 프리팹 시스템 개선으로 인해 개발 중단
+#if BICTWEEN_PREFABVIEW
+using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
@@ -103,3 +105,4 @@ namespace BicUtil.PrefabView{
 		}
 	}
 }
+#endif
