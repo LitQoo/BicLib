@@ -172,8 +172,25 @@ namespace BicUtil.Tween
 			_tween.OriginValue = _from;
 			_tween.DiffValue = _to - _from;
 			_tween.Time = _time;
-			_tween.Type = TweenType.Move;
-			_tween.UpdateFunc = UpdateFuncs.Move;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
+
+			return _tween;
+		}
+
+		public static TweenModel MoveWorld(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null){
+			return MoveWorld(_object, _object.transform.localPosition, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveWorld(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
+
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.OriginValue = _from;
+			_tween.DiffValue = _to - _from;
+			_tween.Time = _time;
+			_tween.Type = TweenType.MoveWorld;
+			_tween.UpdateFunc = UpdateFuncs.MoveWorld;
 
 			return _tween;
 		}
@@ -216,8 +233,8 @@ namespace BicUtil.Tween
 			_tween.OriginValue = new Vector3(_from, _object.transform.localPosition.y, _object.transform.localPosition.z);
 			_tween.DiffValue = new Vector3(_to - _from, 0f, 0f);
 			_tween.Time = _time;
-			_tween.Type = TweenType.Move;
-			_tween.UpdateFunc = UpdateFuncs.Move;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
 
 			return _tween;
 		}
@@ -234,8 +251,8 @@ namespace BicUtil.Tween
 			_tween.OriginValue = new Vector3(_object.transform.localPosition.x, _from, _object.transform.localPosition.z);
 			_tween.DiffValue = new Vector3(0f, _to - _from, 0f);
 			_tween.Time = _time;
-			_tween.Type = TweenType.Move;
-			_tween.UpdateFunc = UpdateFuncs.Move;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
 
 			return _tween;
 		}

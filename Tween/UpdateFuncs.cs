@@ -9,7 +9,7 @@ namespace BicUtil.Tween
         None,
         Sequance,
         Spawn,
-        Move,
+        MoveLocal,
         Follow,
         Active,
         Scale,
@@ -22,7 +22,8 @@ namespace BicUtil.Tween
         Size,
         Shake,
         TypeWriting,
-        Counter
+        Counter,
+        MoveWorld
     }
 
     public static class UpdateFuncs{
@@ -30,7 +31,8 @@ namespace BicUtil.Tween
             _tween.UpdateFunc = None;
 
             switch(_tween.Type){
-                case TweenType.Move: _tween.UpdateFunc = Move; break;
+                case TweenType.MoveLocal: _tween.UpdateFunc = MoveLocal; break;
+                case TweenType.MoveWorld: _tween.UpdateFunc = MoveWorld; break;
                 case TweenType.Follow: _tween.UpdateFunc = Follow; break;
                 case TweenType.Scale: _tween.UpdateFunc = Scale; break;
                 case TweenType.Rotate: _tween.UpdateFunc = Rotate; break;
@@ -60,9 +62,13 @@ namespace BicUtil.Tween
 
         }
 
-		public static void Move(IUpdateData _data){
+		public static void MoveLocal(IUpdateData _data){
 			_data.TargetObject.transform.localPosition = _data.CurrentValue;
 		}
+
+        public static void MoveWorld(IUpdateData _data){
+            _data.TargetObject.transform.position = _data.CurrentValue;
+        }
 
         public static void Follow(IUpdateData _data){
             var _targetTransform = _data.Data as Transform;

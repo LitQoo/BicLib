@@ -12,18 +12,18 @@ namespace BicUtil.Tween
 		//private void onClicked?Node(TweenModel _tween, Event _event)
 
 
-        [TweenEditorDrawNode(TweenType.Move)]
+        [TweenEditorDrawNode(TweenType.MoveLocal)]
         private Rect drawMoveNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 		
-		[TweenEditorDrawSetting(TweenType.Move)]
+		[TweenEditorDrawSetting(TweenType.MoveLocal)]
 		private void drawMoveSetting(TweenModel _tween){
 			_tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
 			_tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
 		}
 
-        [TweenEditorDrawHandleControl(TweenType.Move)]
+        [TweenEditorDrawHandleControl(TweenType.MoveLocal)]
 		private void drawMoveHandleControl(TweenModel _tween){
 			if(_tween.TargetObject == null){
 				return;
