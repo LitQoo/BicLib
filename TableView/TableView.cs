@@ -26,7 +26,7 @@ namespace BicUtil.TableView
         /// The data source that will feed this table view with information. Required.
         /// </summary>
 
-		public void SetDBSource<T>(IList<T> _table) where T : IRecordContainer, new(){
+		public void SetDBSource<T>(IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) where T : IRecordContainer, new(){
 			GetCellDataFunc = (int _cellIndex) => {
                 if(_table.Count <= _cellIndex){
                     return null;
@@ -39,7 +39,7 @@ namespace BicUtil.TableView
 				return _table.Count;
 			};
 
-			DataSource = new TableDataSourceAuto();
+			DataSource = new TableDataSourceAuto<T>(_table, _getRowHeightFunc);
 		}
 
         [System.Serializable]
@@ -640,25 +640,6 @@ namespace BicUtil.TableView
 
         
     }
-
-	internal class TableDataSourceAuto : ITableViewDataSource{
-		public int GetNumberOfCellsForTableView(TableView _tableView)
-		{
-			return _tableView.GetTableSize();
-		}
-
-		public float GetHeightForRowInTableView(TableView _tableView, int _rowIndex)
-		{
-			return _tableView.GetRowHeight();
-		}
-
-		public TableRow GetCellForRowInTableView(TableView _tableView, int _rowIndex)
-		{
-			var _tableRow = _tableView.CreateTableRow(); // 셀 리턴
-			_tableRow.RowIndex = _rowIndex;
-			return _tableRow;
-		}
-	}
 
     internal static class RangeExtensions
     {
