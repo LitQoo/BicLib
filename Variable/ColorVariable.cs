@@ -1,0 +1,100 @@
+using System;
+using BicDB;
+using System.Linq;
+using System.Collections.Generic;
+using BicDB.Container;
+using UnityEngine;
+
+namespace BicDB.Variable
+{
+	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover
+	{
+		#region Event
+		public event Action<ColorVariable> OnChangedValueActions;
+		#endregion
+
+		#region LifeCycle
+        public ColorVariable() : base(){
+            this ["r"] = new FloatVariable (1f);
+            this ["g"] = new FloatVariable (1f);
+            this ["b"] = new FloatVariable (1f);
+            this ["a"] = new FloatVariable (1f);
+        }
+
+		public ColorVariable(float r, float g, float b, float a) : base(){
+			this ["r"] = new FloatVariable (r);
+			this ["g"] = new FloatVariable (g);
+            this ["b"] = new FloatVariable (b);
+			this ["a"] = new FloatVariable (a);
+		}
+		#endregion
+
+		#region Member
+		public float R {
+			get{ 
+				return this ["r"].AsFloat;
+			}
+            set{
+                this["r"].AsFloat = value;
+                NotifyChanged();
+            }
+		}
+
+		public float G {
+			get{ 
+				return this ["g"].AsFloat;
+			}
+            set{
+                this["g"].AsFloat = value;
+                NotifyChanged();
+            }
+		}
+
+        public float B {
+			get{ 
+				return this ["b"].AsFloat;
+			}
+            set{
+                this["b"].AsFloat = value;
+                NotifyChanged();
+            }
+        }
+
+        public float A {
+			get{ 
+				return this ["a"].AsFloat;
+			}
+            set{
+                this["a"].AsFloat = value;
+                NotifyChanged();
+            }
+        }
+
+		public Color AsColor{
+			get{
+				return new Color(this.R, this.G, this.B, this.A);
+			}
+
+			set{ 
+				this ["r"].AsFloat = value.r;
+				this ["g"].AsFloat = value.g;
+				this ["b"].AsFloat = value.b;
+				this ["a"].AsFloat = value.a;
+				NotifyChanged ();
+			}
+		}
+		#endregion
+
+		#region Logic
+		public void NotifyChanged(){
+			if (OnChangedValueActions != null) {
+				OnChangedValueActions (this);
+			}
+		}
+
+		public void ClearNotifyAndBinding (){
+			OnChangedValueActions = null;
+		}
+		#endregion
+	}
+}
