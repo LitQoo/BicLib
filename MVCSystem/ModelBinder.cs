@@ -36,6 +36,30 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
+		public void BindModelToController (VectorIntVariable _variable, Action<VectorIntVariable> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
+			_variable.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_variable);
+			}
+		}
+
+		public void BindModelToController (ColorVariable _variable, Action<ColorVariable> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (()=>{
+				_variable.OnChangedValueActions -= _func;
+			});
+
+			_variable.OnChangedValueActions += _func;
+
+			if (_needFirstCall == true) {
+				_func (_variable);
+			}
+		}
+
 		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.OnChangedValueActions -= _func;
