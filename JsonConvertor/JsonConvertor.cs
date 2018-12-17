@@ -222,6 +222,12 @@ namespace BicUtil.Json
 
 					_counter++;
 
+					increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
+					
+					if(_json[_counter] == ']'){
+						return;
+					}
+
 					while (_counter < _json.Length) {
 
 						T _model = new T();
@@ -505,6 +511,13 @@ namespace BicUtil.Json
 			}
 
 			_counter++;
+			
+			increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
+
+			if(_json[_counter] == ']'){
+				_counter++;
+				return;
+			}
 
 			while (_counter < _json.Length) {
 				var _value = new T();
@@ -536,7 +549,9 @@ namespace BicUtil.Json
 
 			_counter++;
 
-			if (_json[_counter] == '}') {
+			increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
+
+			if(_json[_counter] == '}'){
 				_counter++;
 				return;
 			}
