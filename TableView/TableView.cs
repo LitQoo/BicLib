@@ -269,6 +269,9 @@ namespace BicUtil.TableView
 
         private Dictionary<int, TableRow> m_visibleRows;
 		private Range m_visibleRowRange;
+        public Range VisibleRowRange{
+            get{ return m_visibleRowRange;}
+        }
 
         private RectTransform m_reusableRowContainer;
         private Dictionary<string, LinkedList<TableRow>> m_reusableRows;
