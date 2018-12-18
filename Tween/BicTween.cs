@@ -179,7 +179,7 @@ namespace BicUtil.Tween
 		}
 
 		public static TweenModel MoveWorld(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null){
-			return MoveWorld(_object, _object.transform.localPosition, _to, _time, _pool);
+			return MoveWorld(_object, _object.transform.position, _to, _time, _pool);
 		}
 
 		public static TweenModel MoveWorld(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
@@ -193,11 +193,6 @@ namespace BicUtil.Tween
 			_tween.UpdateFunc = UpdateFuncs.MoveWorld;
 
 			return _tween;
-		}
-
-		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
-			var _time = Vector3.Distance(_from, _to) / _distancePerSecond;
-			return MoveLocal(_object, _from, _to, _time, _pool);
 		}
 
 		public static TweenModel Follow(GameObject _object, GameObject _targetObject, float _time, TweenPool _pool = null){
@@ -218,8 +213,23 @@ namespace BicUtil.Tween
 			return Follow(_object, _targetObject, _time, _pool);
 		}
 
+		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
+			var _time = Vector3.Distance(_from, _to) / _distancePerSecond;
+			return MoveLocal(_object, _from, _to, _time, _pool);
+		}
+
 		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
 			return MoveLocalWithSpeed(_object, _object.transform.localPosition, _to, _distancePerSecond, _pool);
+		}
+
+
+		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
+			var _time = Vector3.Distance(_from, _to) / _distancePerSecond;
+			return MoveWorld(_object, _from, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
+			return MoveWorldWithSpeed(_object, _object.transform.position, _to, _distancePerSecond, _pool);
 		}
 
 		public static TweenModel MoveLocalX(GameObject _object, float _to, float _time, TweenPool _pool = null){
