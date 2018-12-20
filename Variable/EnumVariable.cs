@@ -12,7 +12,7 @@ namespace BicDB.Variable
 		#region AsValue
 		virtual protected T data { get; set; }
 		public int AsInt{ get{ return (int)Enum.ToObject(typeof(T), data); } set{ data = (T)Enum.ToObject(typeof(T), value); NotifyChanged ();} }
-		public string AsString{ get{ return data.ToString (); } set{ AsInt = (int)Enum.Parse(typeof(T), value);} }
+		public string AsString{ get{ return data.ToString (); } set{ AsEnum = (T)Enum.Parse(typeof(T), value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public DataType Type { get { return DataType.Enum; }}
@@ -46,7 +46,11 @@ namespace BicDB.Variable
 		#region IDatabase
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
 		{
-			_parser.BuildNumberVariable(this, ref _json, ref _counter);
+			if(_json[_counter] == '"'){
+				_parser.BuildStringVariable(this, ref _json, ref _counter);
+			}else{
+				_parser.BuildNumberVariable(this, ref _json, ref _counter);
+			}
 		}
 
 		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
