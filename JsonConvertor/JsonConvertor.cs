@@ -180,7 +180,7 @@ namespace BicUtil.Json
 		}
 
 		public void BuildFormattedString(IVariable _variable, ref string _json){
-			if (_variable.Type == DataType.String) {
+			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum) {
 				_json += "\"" + _variable.AsString.Replace("\"","\\\"") + "\"";
 			} else {
 				_json += _variable.AsString;
