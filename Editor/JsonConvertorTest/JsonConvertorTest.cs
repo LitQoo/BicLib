@@ -473,10 +473,10 @@ namespace BicUtil.Json
 
 			_table.Property["test"] = new StringVariable("testvalue");
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_table, ref _json, null);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_table, _stringBuilder, null);
 
-			Assert.AreEqual("{\"test\":\"testvalue\",\"data\":[{\"key1\":1,\"key2\":\"two\",\"key3\":{\"key1\":2}},{\"key1\":12,\"key2\":\"two2\",\"key3\":{\"key1\":22}}]}", _json);
+			Assert.AreEqual("{\"test\":\"testvalue\",\"data\":[{\"key1\":1,\"key2\":\"two\",\"key3\":{\"key1\":2}},{\"key1\":12,\"key2\":\"two2\",\"key3\":{\"key1\":22}}]}", _stringBuilder.ToString());
 		}
 
 		[Test]
@@ -521,10 +521,10 @@ namespace BicUtil.Json
 			_dict.Add("test", new StringVariable("test"));
 			_dict.Add("key1", new StringVariable("test1"));
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_dict, ref _json);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_dict, _stringBuilder);
 
-			Assert.AreEqual("{\"test\":\"test\",\"key1\":\"test1\"}", _json);
+			Assert.AreEqual("{\"test\":\"test\",\"key1\":\"test1\"}", _stringBuilder.ToString());
 		}
 
 		[Test]
@@ -533,10 +533,10 @@ namespace BicUtil.Json
 			_dict.Add(new StringVariable("test0"));
 			_dict.Add(new StringVariable("test1"));
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_dict, ref _json);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_dict, _stringBuilder);
 
-			Assert.AreEqual("[\"test0\",\"test1\"]", _json);
+			Assert.AreEqual("[\"test0\",\"test1\"]", _stringBuilder.ToString());
 		}
 
 		[Test]
@@ -546,10 +546,10 @@ namespace BicUtil.Json
 			_model.member2.AsString = "test";
 			_model.member3.member1.AsInt = 888;
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_model, ref _json);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_model, _stringBuilder);
 
-			Assert.AreEqual("{\"key1\":999,\"key2\":\"test\",\"key3\":{\"key1\":888}}", _json);
+			Assert.AreEqual("{\"key1\":999,\"key2\":\"test\",\"key3\":{\"key1\":888}}", _stringBuilder.ToString());
 		}
 
 
@@ -558,21 +558,21 @@ namespace BicUtil.Json
 			StringVariable _value = new StringVariable();
 			_value.AsString = "good";
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_value, ref _json);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_value, _stringBuilder);
 
-			Assert.AreEqual("\"good\"", _json);
+			Assert.AreEqual("\"good\"", _stringBuilder.ToString());
 		}
 
 		[Test]
-		public void NumberToJson(){
+		public void EnumToJson(){
 			EnumVariable<TestEnum> _value = new EnumVariable<TestEnum>();
 			_value.AsEnum = TestEnum.three;
 
-			string _json = string.Empty;
-			JsonConvertor.GetInstance().BuildFormattedString(_value, ref _json);
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			JsonConvertor.GetInstance().BuildFormattedString(_value, _stringBuilder);
 
-			Assert.AreEqual("three", _json);
+			Assert.AreEqual("\"three\"", _stringBuilder.ToString());
 		}
 
 

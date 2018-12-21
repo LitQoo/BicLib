@@ -310,10 +310,10 @@ namespace BicUtil.InfinityNumber
         public void toJsonTest(){
             var _gold = new InfinityNumberVariable(100, 2);
 
-            string _json = "";
-            _gold.BuildFormattedString(ref _json, BicUtil.Json.JsonConvertor.GetInstance());
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+            _gold.BuildFormattedString(_stringBuilder, BicUtil.Json.JsonConvertor.GetInstance());
 
-            Assert.AreEqual("100 M", _json);
+            Assert.AreEqual("100 M", _stringBuilder.ToString());
         }
         
         [Test]

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine.Assertions;
 using BicDB;
 using BicDB.Storage;
+using System.Text;
 
 namespace BicUtil.Json
 {
@@ -29,13 +30,13 @@ namespace BicUtil.Json
 
 		#region StringFormatter
 		public string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new(){
-			string _result = string.Empty;
-			BuildFormattedString(_table, ref _result, null);
-			return _result;
+			StringBuilder _stringBuilder = new StringBuilder();
+			BuildFormattedString(_table, _stringBuilder, null);
+			return _stringBuilder.ToString();
 		}
 
-		public void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
-			_json += "{";
+		public void BuildFormattedString<T>(ITableContainer<T> _table, StringBuilder _stringBuilder, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
+			_stringBuilder.Append("{");
 
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
 			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
@@ -47,28 +48,33 @@ namespace BicUtil.Json
 			for(int i = 0; i < _propertyKeys.Length; i++){
 				IDataBase _property = _table.Property[_propertyKeys [i]];
 
-				_json += "\"" + _propertyKeys[i] + "\":";
-				_property.BuildFormattedString(ref _json, this);
+				_stringBuilder.Append('\"');
+				_stringBuilder.Append(_propertyKeys[i]);
+				_stringBuilder.Append("\":");
 
-				_json += ",";
+				_property.BuildFormattedString(_stringBuilder, this);
+
+				_stringBuilder.Append(',');
 			}
 
-			_json += "\"" + _dataFieldName + "\":[";
+			_stringBuilder.Append("\"");
+			_stringBuilder.Append(_dataFieldName);
+			_stringBuilder.Append("\":[");
 
 			//data
 			for (int i = 0; i < _table.Count; i++) {
-				BuildFormattedString(_table[i], ref _json);
+				BuildFormattedString(_table[i], _stringBuilder);
 
 				if (i != _table.Count - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
 
-			_json += "]}";
+			_stringBuilder.Append("]}");
 		}
 
-		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
-			_json += "{";
+		public void BuildFormattedString<T>(IDataStoreContainer<T> _table, StringBuilder _stringBuilder, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
+			_stringBuilder.Append('{');
 
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
 			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
@@ -80,116 +86,115 @@ namespace BicUtil.Json
 			for(int i = 0; i < _propertyKeys.Length; i++){
 				IDataBase _property = _table.Property[_propertyKeys [i]];
 
-				_json += "\"" + _propertyKeys[i] + "\":";
-				_property.BuildFormattedString(ref _json, this);
+				_stringBuilder.AppendFormat("\"{0}\":", _propertyKeys[i]);
+				_property.BuildFormattedString(_stringBuilder, this);
 
-				_json += ",";
+				_stringBuilder.Append(",");
 			}
 
-			_json += "\"" + _dataFieldName + "\":{";
+			_stringBuilder.AppendFormat("\"{0}\":{", _dataFieldName);
 
 			//data
 
 			var _lastItem = _table.Last();
 			foreach (var _item in _table) {
-				_json += "\"" + _item.Key + "\":";
-				BuildFormattedString(_item.Value, ref _json);
+				_stringBuilder.AppendFormat("\"{0}\":", _item.Key);
+
+				BuildFormattedString(_item.Value, _stringBuilder);
 				if (_item.Key != _lastItem.Key) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
-
-			_json += "}}";
+			_stringBuilder.Append("}}");
 		}
 
-		public void BuildFormattedString(IMutableListContainer _list, ref string _json){
-			_json += "[";
+		public void BuildFormattedString(IMutableListContainer _list, StringBuilder _stringBuilder){
+			_stringBuilder.Append('[');
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
-				BuildFormattedString(_list[i], ref _json);
+				BuildFormattedString(_list[i], _stringBuilder);
 
 				if (i != _size - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
-			_json += "]";
+			_stringBuilder.Append(']');
 		}
 
 
-		public void BuildFormattedString<T> (IListContainer<T> _list, ref string _json) where T : IDataBase, new(){
-			_json += "[";
+		public void BuildFormattedString<T> (IListContainer<T> _list, StringBuilder _stringBuilder) where T : IDataBase, new(){
+			_stringBuilder.Append('[');
 			int _size = _list.Count;
 			for (int i = 0; i < _size; i++) {
-				BuildFormattedString(_list[i], ref _json);
+				BuildFormattedString(_list[i], _stringBuilder);
 
 				if (i != _size - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
-			_json += "]";
+			_stringBuilder.Append(']');
 		}
 
-		public void BuildFormattedString(IMutableDictionaryContainer _dictionary, ref string _json){
+		public void BuildFormattedString(IMutableDictionaryContainer _dictionary, StringBuilder _stringBuilder){
 			var _keys = _dictionary.Keys.ToArray();
-			_json += "{";
+			_stringBuilder.Append('{');
 
 			for (int i = 0; i < _keys.Length; i++) {
-				_json += "\"" + _keys[i] + "\":";
-				_dictionary[_keys[i]].BuildFormattedString(ref _json, this);
+				_stringBuilder.AppendFormat("\"{0}\":", _keys[i]);
+				_dictionary[_keys[i]].BuildFormattedString(_stringBuilder, this);
 
 				if (i != _keys.Length - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
 
-			_json += "}";
+			_stringBuilder.Append('}');
 		}
 
-		public void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new(){
+		public void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, StringBuilder _stringBuilder) where T : IDataBase, new(){
 			var _keys = _dictionary.Keys.ToArray();
-			_json += "{";
+			_stringBuilder.Append('{');
 
 			for (int i = 0; i < _keys.Length; i++) {
-				_json += "\"" + _keys[i] + "\":";
-				_dictionary[_keys[i]].BuildFormattedString(ref _json, this);
+				_stringBuilder.AppendFormat("\"{0}\":", _keys[i]);
+				_dictionary[_keys[i]].BuildFormattedString(_stringBuilder, this);
 
 				if (i != _keys.Length - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
 
-			_json += "}";
+			_stringBuilder.Append('}');
 		}
 
-		public void BuildFormattedString(IRecordContainer _model, ref string _json){
-			_json += "{";
+		public void BuildFormattedString(IRecordContainer _model, StringBuilder _stringBuilder){
+			_stringBuilder.Append('{');
 			var _columnKeys = _model.Keys.ToArray();
 			for (int j = 0; j < _columnKeys.Length; j++) {
 				IDataBase _column = _model[_columnKeys[j]];
-
-				_json += "\"" + _columnKeys[j] + "\":";
-				_column.BuildFormattedString(ref _json, this);
+				_stringBuilder.AppendFormat("\"{0}\":", _columnKeys[j]);
+				_column.BuildFormattedString(_stringBuilder, this);
 
 				if (j != _columnKeys.Length - 1) {
-					_json += ",";
+					_stringBuilder.Append(',');
 				}
 			}
 
-			_json += "}";
+			_stringBuilder.Append('}');
 
 		}
 
-		public void BuildFormattedString(IVariable _variable, ref string _json){
+		public void BuildFormattedString(IVariable _variable, StringBuilder _stringBuilder){
 			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum) {
-				_json += "\"" + _variable.AsString.Replace("\"","\\\"") + "\"";
+				_stringBuilder.AppendFormat("\"{0}\"", _variable.AsString.Replace("\"","\\\""));
 			} else {
-				_json += _variable.AsString;
+				_stringBuilder.Append(_variable.AsString);
 			}
 		}
 
 
-		public void BuildFormattedString(IDataBase _variable, ref string _json){
-			_variable.BuildFormattedString(ref _json, this);
+		public void BuildFormattedString(IDataBase _variable, StringBuilder _stringBuilder){
+			_variable.BuildFormattedString(_stringBuilder, this);
 		}
 		#endregion
 
