@@ -6,13 +6,14 @@ using System.Linq;
 using System.Collections.Generic;
 using BicDB.Variable;
 using BicDB.Storage;
+using System.Text;
 
 namespace BicDB
 {
 	public interface IDataBase
 	{
 		void BuildVariable(ref string _json, ref int _counter, IStringParser _parser);
-		void BuildFormattedString(ref string _json, IStringFormatter _formatter);
+		void BuildFormattedString(StringBuilder _stringBuilder, IStringFormatter _formatter);
 		T As<T>() where T : class, IDataBase;
 
 		DataType Type { get; }

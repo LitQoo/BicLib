@@ -52,8 +52,8 @@ namespace BicDB.Container
 			_parser.BuildModelContainer(this, ref _json, ref _counter);
 		}
 
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
+		public void BuildFormattedString(System.Text.StringBuilder _stringBuilder, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, _stringBuilder);
 		}
 
 		public IVariable AsVariable{ 
@@ -67,9 +67,9 @@ namespace BicDB.Container
 		}
 
 		public override string ToString(){
-			string _result = string.Empty;
-			BuildFormattedString (ref _result, JsonConvertor.GetInstance ());
-			return _result;
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
 		}
 		#endregion
 
@@ -164,9 +164,10 @@ namespace BicDB.Container
 		public void CopyBy(IRecordContainer _model){
 			foreach (var _item in _model) {
 				if (data.ContainsKey(_item.Key)) {
-					string _json = "";
+					System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+					_model.BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
+					string _json = _stringBuilder.ToString();
 					int _counter = 0;
-					_model.BuildFormattedString (ref _json, JsonConvertor.GetInstance ());
 					this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 				} else {
 					data.Add(_item.Key, _item.Value);

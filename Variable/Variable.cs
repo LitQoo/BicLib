@@ -182,13 +182,12 @@ namespace BicDB.Variable
 				return false;
 			}
 
-			string _data1FormattedString = string.Empty;
-			string _data2FormattedString = string.Empty;
+			System.Text.StringBuilder _stringBuilder1 = new System.Text.StringBuilder();
+			System.Text.StringBuilder _stringBuilder2 = new System.Text.StringBuilder();
+			_data1.BuildFormattedString(_stringBuilder1, JsonConvertor.GetInstance());
+			_data2.BuildFormattedString(_stringBuilder2, JsonConvertor.GetInstance());
 
-			_data1.BuildFormattedString(ref _data1FormattedString, JsonConvertor.GetInstance());
-			_data2.BuildFormattedString(ref _data2FormattedString, JsonConvertor.GetInstance());
-
-			return _data1FormattedString == _data2FormattedString;
+			return _stringBuilder1.ToString() == _stringBuilder2.ToString();
 		}
 
 

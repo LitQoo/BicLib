@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using BicDB.Container;
 using BicDB.Variable;
 
@@ -35,15 +36,15 @@ namespace BicDB.Storage
 
 	public interface IStringFormatter{
 		string ToFormattedString<T>(ITableContainer<T> _table) where T : IRecordContainer, new();
-		void BuildFormattedString<T>(ITableContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildFormattedString<T>(IDataStoreContainer<T> _table, ref string _json, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
-		void BuildFormattedString(IMutableListContainer _list, ref string _json);
-		void BuildFormattedString<T> (IListContainer<T> _list, ref string _json) where T : IDataBase, new();
-		void BuildFormattedString(IMutableDictionaryContainer _dictionary, ref string _json);
-		void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, ref string _json) where T : IDataBase, new();
-		void BuildFormattedString(IRecordContainer _model, ref string _json);
-		void BuildFormattedString(IVariable _variable, ref string _json);
-		void BuildFormattedString(IDataBase _variable, ref string _json);
+		void BuildFormattedString<T>(ITableContainer<T> _table, StringBuilder _stringBuilder, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildFormattedString<T>(IDataStoreContainer<T> _table, StringBuilder _stringBuilder, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new();
+		void BuildFormattedString(IMutableListContainer _list, StringBuilder _stringBuilder);
+		void BuildFormattedString<T> (IListContainer<T> _list, StringBuilder _stringBuilder) where T : IDataBase, new();
+		void BuildFormattedString(IMutableDictionaryContainer _dictionary, StringBuilder _stringBuilder);
+		void BuildFormattedString<T> (IDictionaryContainer<T> _dictionary, StringBuilder _stringBuilder) where T : IDataBase, new();
+		void BuildFormattedString(IRecordContainer _model, StringBuilder _stringBuilder);
+		void BuildFormattedString(IVariable _variable, StringBuilder _stringBuilder);
+		void BuildFormattedString(IDataBase _variable, StringBuilder _stringBuilder);
 	}
 
 	public interface ITableStorage

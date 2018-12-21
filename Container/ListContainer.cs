@@ -33,8 +33,8 @@ namespace BicDB.Container
 			_parser.BuildListContainer(this, ref _json, ref _counter);
 		}
 
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
-			_formatter.BuildFormattedString(this, ref _json);
+		public void BuildFormattedString(System.Text.StringBuilder _stringBuilder, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this, _stringBuilder);
 		}
 
 		public IVariable AsVariable{ 

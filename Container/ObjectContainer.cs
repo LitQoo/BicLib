@@ -52,7 +52,7 @@ namespace BicDB.Container
 			//_parser.BuildStringVariable(this, ref _json, ref _counter);
 		}
 
-		public void BuildFormattedString(ref string _json, IStringFormatter _formatter){
+		public void BuildFormattedString(System.Text.StringBuilder _stringBuilder, IStringFormatter _formatter){
 			//_formatter.BuildFormattedString(this, ref _json);
 		}
 
