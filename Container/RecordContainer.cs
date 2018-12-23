@@ -25,7 +25,11 @@ namespace BicDB.Container
 		}
 
 		public void AddManagedColumn(string _key, IDataBase _value){
-			data.Add (_key, _value);
+			if(data.ContainsKey(_key) == false){
+				data.Add (_key, _value);
+			}else{
+				data[_key] = _value; 
+			}
 		}
 
 		public T GetValue<T>(string _key) where T : class, IDataBase{
