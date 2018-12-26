@@ -257,6 +257,7 @@ namespace BicUtil.Tween
 
 		private int sequanceIndex = 0;
 		private void updateForSequance(){
+			
 			if(Data == null){
 				var _childList = GetChildList();
 				Data = _childList;
@@ -268,7 +269,7 @@ namespace BicUtil.Tween
 				}
 				return;
 			}
-
+			
 			var _list = Data as List<TweenModel>;
 			
 			if(_list.Count <= sequanceIndex){
@@ -372,7 +373,6 @@ namespace BicUtil.Tween
 
 		private void complete(){
             this.IsPlaying = false;
-			this.destoryCount = 3;
 
 			if(OnCompleteCallback != null){
 				OnCompleteCallback();
@@ -381,7 +381,8 @@ namespace BicUtil.Tween
 			if(this.pool.IsLocked == false){
 				Clear();
 			}
-			
+
+			this.destoryCount = 3;
 		}
 
 		public List<TweenModel> GetChildList(){
