@@ -112,6 +112,7 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
+
 			var _openMode = currentUiInfo.OpenMode;
 			var _openFromUI = currentUiInfo.UI;
 			IUIFlowObject _closeFromUI = null;
@@ -119,7 +120,13 @@ namespace BicUtil.UIFlow
 				_closeFromUI = uiStack [uiStack.Count - 2].UI;	
 			}
 
+
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
+
+				#if UNITY_EDITOR
+				Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
+				#endif
+
 				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 					backAction = null;
 					currentUiInfo.UI.gameObject.SetActive(true);
@@ -215,6 +222,11 @@ namespace BicUtil.UIFlow
 			if (isWait == true) {
 				return;
 			}
+
+
+			#if UNITY_EDITOR
+			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
+			#endif
 
 			if (uiStack.Count > 0 && uiStack[uiStack.Count - 1].UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;

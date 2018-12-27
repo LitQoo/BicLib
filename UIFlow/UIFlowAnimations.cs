@@ -7,14 +7,14 @@ using BicUtil.Tween;
 namespace BicUtil.UIFlow
 {
 	static public class UIFlowAnimations {
-		static public void OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f){
+		static public void OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f, Action _finishCallback = null){
 			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
-			BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart);
+			BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart).SubscribeComplete(_finishCallback);
 		}
 
 		static public OnCloseUIResult CloseSwipeHorizontal(GameObject _layer, Action _finishCallback = null, float _firstPosition = -600, float _animationTime = 0.3f){
 			_layer.transform.localPosition = new Vector2 (0, 0);
-			BicTween.MoveLocalX (_layer, _firstPosition, _animationTime).SetEase(EaseType.InOutQuart);
+			BicTween.MoveLocalX (_layer, _firstPosition, _animationTime).SetEase(EaseType.InOutQuart).SubscribeComplete(_finishCallback);
 
 			return OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext;
 		}
