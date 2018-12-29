@@ -23,7 +23,9 @@ namespace BicUtil.Tween
         Shake,
         TypeWriting,
         Counter,
-        MoveWorld
+        MoveWorld,
+        AlphaSprite,
+        AlphaUIGraphic
     }
 
     public static class UpdateFuncs{
@@ -38,6 +40,8 @@ namespace BicUtil.Tween
                 case TweenType.Rotate: _tween.UpdateFunc = Rotate; break;
                 case TweenType.Bezier: _tween.UpdateFunc = Bezier; break;
                 case TweenType.Active: _tween.UpdateFunc = Active; break;
+                case TweenType.AlphaSprite: _tween.UpdateFunc = AlphaSprite; break;
+                case TweenType.AlphaUIGraphic: _tween.UpdateFunc = AlphaUIGraphic; break;
                 case TweenType.Alpha:
                  
                     var _uiGraphinc = _tween.TargetObject.GetComponent<UnityEngine.UI.Graphic>();

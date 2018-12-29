@@ -316,29 +316,60 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-
-		public static TweenModel Alpha(GameObject _object, float _to, float _time){
+		public static TweenModel Alpha(GameObject _object, float _to, float _time, TweenPool _pool = null){
 			float _from = 0;
 			var _uigraphic = _object.GetComponent<UnityEngine.UI.Graphic>();
 			if(_uigraphic != null){
 				_from = _uigraphic.color.a;
+				return alpha(_object, _from, _to, _time, TweenType.AlphaUIGraphic, _pool);
 			}else{
 				var _sprite = _object.GetComponent<SpriteRenderer>();
 				if(_sprite != null){
 					_from = _sprite.color.a;
+					return alpha(_object, _from, _to, _time, TweenType.AlphaUIGraphic, _pool);
 				}
 			}
 
-			return Alpha(_object, _from, _to, _time);
+			throw new SystemException("[BICTWEEN] Did not support this object " + _object.name);
 		}
 
 		public static TweenModel Alpha(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null){
+			var _uigraphic = _object.GetComponent<UnityEngine.UI.Graphic>();
+			if(_uigraphic != null){
+				return alpha(_object, _from, _to, _time, TweenType.AlphaUIGraphic, _pool);
+			}else{
+				var _sprite = _object.GetComponent<SpriteRenderer>();
+				if(_sprite != null){
+					return alpha(_object, _from, _to, _time, TweenType.AlphaUIGraphic, _pool);
+				}
+			}
+
+			throw new SystemException("[BICTWEEN] Did not support this object " + _object.name);
+		}
+
+		public static TweenModel Alpha(UnityEngine.UI.Graphic _uigraphic, float _from, float _to, float _time, TweenPool _pool = null){
+			return alpha(_uigraphic.gameObject, _from, _to, _time, TweenType.AlphaUIGraphic, _pool);
+		}
+
+		public static TweenModel Alpha(SpriteRenderer _sprite, float _from, float _to, float _time, TweenPool _pool = null){
+			return alpha(_sprite.gameObject, _from, _to, _time, TweenType.AlphaSprite, _pool);
+		}
+
+		public static TweenModel Alpha(UnityEngine.UI.Graphic _uigraphic, float _to, float _time, TweenPool _pool = null){
+			return alpha(_uigraphic.gameObject, _uigraphic.color.a, _to, _time, TweenType.AlphaUIGraphic, _pool);
+		}
+
+		public static TweenModel Alpha(SpriteRenderer _sprite, float _to, float _time, TweenPool _pool = null){
+			return alpha(_sprite.gameObject, _sprite.color.a, _to, _time, TweenType.AlphaSprite, _pool);
+		}
+
+		private static TweenModel alpha(GameObject _object, float _from, float _to, float _time, TweenType _alphaType, TweenPool _pool = null){
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = new Vector4(0, 0, 0, _from);
 			_tween.DiffValue = new Vector4(0, 0, 0, _to) - _tween.OriginValue;
 			_tween.Time = _time;
-			_tween.Type = TweenType.Alpha;
+			_tween.Type = _alphaType;
 			UpdateFuncs.SetUpdateFunc(_tween);
 			return _tween;
 		}
