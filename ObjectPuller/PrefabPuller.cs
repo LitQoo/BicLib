@@ -11,12 +11,22 @@ namespace BicUtil.ObjectPuller
 		private Action<T> pullingFunction = null;
 		private UnityEngine.Object prefab;
 
-		public PrefabPuller(int _readyObjectCount,string _prefabPath, Action<T> _pullingFunction = null, Action<T> _usingFunction = null){
+		public PrefabPuller(int _readyObjectCount, string _prefabPath, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
+			this.prefab = Resources.Load(_prefabPath);
+			createReadyObject(_readyObjectCount);
+		}
+
+		public PrefabPuller(int _readyObjectCount, UnityEngine.Object _prefab, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
+			this.prefab = _prefab;
+			createReadyObject(_readyObjectCount);
+		}
+
+		public PrefabPuller(Action<T> _pullingFunction = null, Action<T> _usingFunction = null){
 			usingFunction = _usingFunction;
 			pullingFunction = _pullingFunction;
+		}
 
-			prefab = Resources.Load(_prefabPath);
-			
+		private void createReadyObject(int _readyObjectCount){
 			for (int i = 0; i < _readyObjectCount; i++) {
 				var _object = copyPrefab ();
 				PullingObject (_object);
