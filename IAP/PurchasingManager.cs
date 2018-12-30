@@ -39,7 +39,7 @@ namespace BicUtil.Purchasing{
 		}
 
 
-		public void Initialize() 
+		public override void Initialize() 
 		{
 			if(products.Count == 0){
 				throw new Exception("No Products");
