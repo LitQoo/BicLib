@@ -47,6 +47,9 @@ namespace BicDB.Core
 
             }
         }
+        
+        static public bool IsSetup{get{ return isSetup; }}
+        static public bool IsUpdate{get{ return isUpdate; }}
 
         static private string lastVersion = "";
         static private string currentVersion = "";
