@@ -17,6 +17,7 @@ namespace BicUtil.Tween
         public float Rate{ get;set;}
         public int PlayingIndex{get;set;}
         public bool IsPlaying{get;set;}
+        public bool IsLockedComplete{get;set;}
 		public Action Update{get;set;}
 		public string StringData{get{ return stringData;} set{stringData = value;}}
         public bool IsDestroyed{get{ return destoryCount >= 1; }}
@@ -182,6 +183,7 @@ namespace BicUtil.Tween
             childDataList = null;
 			Type = TweenType.None;
 			TargetObject = null;
+			IsLockedComplete = false;
 
 			if(this.childDataList != null){
 				this.childDataList.Clear();
@@ -218,6 +220,7 @@ namespace BicUtil.Tween
 			_tween.DiffValue = this.DiffValue;
 			_tween.Time = this.Time;
 			_tween.stringData = this.stringData;
+			_tween.IsLockedComplete = this.IsLockedComplete;
 			
 			#if UNITY_EDITOR
 			_tween.editor_targetPath = this.pool.GetTargetPath(_tween.targetObject);
@@ -262,7 +265,7 @@ namespace BicUtil.Tween
 				var _childList = GetChildList();
 				Data = _childList;
 				sequanceIndex = 0;
-				if(_childList.Count > 0){
+				if(_childList.Count > 0){	
                 	_childList[sequanceIndex].Play(false);
 				}else{
 					complete();
@@ -273,7 +276,7 @@ namespace BicUtil.Tween
 			var _list = Data as List<TweenModel>;
 			
 			if(_list.Count <= sequanceIndex){
-				if(RepeatCount == CurrentRepeatCount){	
+				if(RepeatCount == CurrentRepeatCount){		
 					complete();
 					Data = null;
 				}else{
@@ -288,7 +291,7 @@ namespace BicUtil.Tween
 				return;
 			}
 
-			if(_list[sequanceIndex].IsDestroyed){
+			if(_list[sequanceIndex].IsPlaying == false){
 				if(_list.Count > sequanceIndex){
 					sequanceIndex++;
 					if(sequanceIndex < _list.Count){
@@ -328,7 +331,7 @@ namespace BicUtil.Tween
 			
 			
 			for(int i = _list.Count - 1; i >= 0; i--){
-				if(_list[i].IsDestroyed){
+				if(_list[i].IsPlaying == false){	
 					_list.RemoveAt(i);
 				}
 			}
@@ -372,12 +375,24 @@ namespace BicUtil.Tween
 		}
 
 		private void complete(){
-            this.IsPlaying = false;
+			this.IsPlaying = false;
 
 			if(OnCompleteCallback != null){
 				OnCompleteCallback();
 			}
 
+			
+			if(IsLockedComplete == false){
+				destoryAndClear();
+			}
+		}
+
+		private void destoryAndClear(){
+			var _childList = GetChildList();
+			for(int i = 0; i < _childList.Count; i++){
+				_childList[i].destoryAndClear();
+			}
+			
 			if(this.pool.IsLocked == false){
 				Clear();
 			}
@@ -420,7 +435,7 @@ namespace BicUtil.Tween
 		}
 
 		public void Cancel(int _id){
-			if(_id != this.Id || this.IsPlaying == false){
+			if(_id != this.Id || this.IsDestroyed == true){
 				return;
 			}
 
@@ -502,7 +517,7 @@ namespace BicUtil.Tween
 
 		public TweenModel AddChild(TweenModel _tween){
 			_tween.Pause();
-
+			_tween.IsLockedComplete = true;
 			childDataList.Add(_tween.Id);
 			return this;
 		}
