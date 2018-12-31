@@ -14,6 +14,10 @@ namespace BicUtil
 		private UnityEngine.UI.Image backImage;
 		[SerializeField]
 		private UnityEngine.UI.Button button;
+		[SerializeField]
+		private UnityEngine.UI.Text buttonText;
+		[SerializeField]
+		private UnityEngine.UI.Text discriptionText;
 		#endregion
 
 		#region LifeCycle
@@ -34,7 +38,8 @@ namespace BicUtil
 
 			maskList [_maskIndex].gameObject.SetActive (true);
 			maskList [_maskIndex].transform.position = _position;
-			maskList [_maskIndex].transform.localScale = _size;
+			maskList [_maskIndex].rectTransform.sizeDelta = _size;
+			maskList [_maskIndex].rectTransform.localScale = new Vector2(1, 1);
 		}
 
 		public void DisableAllMask(){
@@ -46,6 +51,7 @@ namespace BicUtil
 		public void Close(float _animationTime = 0.5f, Action _callback = null){
 			HideSpotAnimation (()=>{});
 			SetButtonEnabled (false);
+			SetDiscriptionTextEnabled(false);
 			CoroutineTween.Instance.Alpha (backImage, backImage.color.a, 0f, _animationTime, () => {
 				gameObject.SetActive (false);
 				if(_callback != null){
@@ -62,8 +68,18 @@ namespace BicUtil
 			CoroutineTween.Instance.Alpha (backImage, 0, _dimmedAlpha, _animationTime, _callback);
 		}
 
-		public void SetButtonEnabled(bool _isEnabled){
+		public void SetButtonEnabled(bool _isEnabled, Action _onClickCallback = null, string _buttonText = ""){
+			if(_onClickCallback != null){
+				OnClickedButtonActions = _onClickCallback;
+			}
+
 			button.gameObject.SetActive (_isEnabled);
+			buttonText.text = _buttonText;
+		}
+
+		public void SetDiscriptionTextEnabled(bool _isEnabled, string _text = ""){
+			discriptionText.gameObject.SetActive(_isEnabled);
+			discriptionText.text = _text;
 		}
 
 		public void ShowSpotAnimation(){
