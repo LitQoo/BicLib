@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 using BicUtil.SingletonBase;
 using UnityEngine.Purchasing.Security;
+using BicDB.Container;
+using System.Linq;
+using BicDB.Storage;
 
 namespace BicUtil.Purchasing{
 	public enum PurchasingResult{
@@ -17,32 +20,32 @@ namespace BicUtil.Purchasing{
 		Unknown
 	}
 
-	public struct ProductInfo{
-		public string Id;
-		public IDs IdsForStore;
-		public ProductType Type;
-		public Action<PurchasingResult> Callback;
+	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener where PRODUCTTYPE : struct {
+		// private List<ProductInfo> products = new List<ProductInfo>();
+		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Purchasing");
+		public bool isLoadedProductTable = false;
+		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value){
+			if(isLoadedProductTable == false){
+				ProductTable.SetStorage(FileStorage.GetInstance());
+				ProductTable.Load(null, new FileStorageParameter("purchase"));
+				isLoadedProductTable = true; 
+			}
 
-		public ProductInfo(string _id, ProductType _type, Action<PurchasingResult> _callback){
-			Id = _id;
-			IdsForStore = new IDs(){{ _id, AppleAppStore.Name },{ _id,  GooglePlay.Name },};
-			Type = _type;
-			Callback = _callback;
-		}
-	}
+			var _product = GetProduct(_idType);
 
-	public class PurchasingManager : SingletonBase<PurchasingManager>, IStoreListener {
-		private List<ProductInfo> products = new List<ProductInfo>();
+			if(_product == null){
+				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _value);
+				ProductTable.Add(_product);
+			}
 
-		public void AddProduct(string _id, ProductType _type, Action<PurchasingResult> _callback){
-			products.Add(new ProductInfo(_id, _type, _callback));
+			_product.ProductType.AsEnum = _productType;
 		}
 
 
 		public override void Initialize() 
 		{
-			if(products.Count == 0){
-				throw new Exception("No Products");
+			if(ProductTable.Count == 0){
+				return;
 			}
 
 			// If we have already connected to Purchasing ...
@@ -58,19 +61,25 @@ namespace BicUtil.Purchasing{
 			var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
 			
-			foreach(var _product in products){
-				builder.AddProduct(_product.Id, _product.Type, _product.IdsForStore);
+			foreach(var _product in ProductTable){
+				builder.AddProduct(_product.Id.AsString, _product.ProductType.AsEnum, _product.StoreIds);
 			}
 			
 			UnityPurchasing.Initialize(this, builder);
 		}
 
-		public void BuyProduct(string productId)
-		{
-			ProductInfo _product = getProductInfo(productId);
+		private Action<PurchasingResult> buyCallback;
+		public void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback)
+		{	
+			buyCallback = _callback;
+			ProductModel<PRODUCTTYPE> _product = GetProduct(_idType);
 
 			#if UNITY_EDITOR
-			_product.Callback(PurchasingResult.Complete);
+			if(buyCallback != null){
+				completePurchase(_product.Id.AsString);
+				buyCallback(PurchasingResult.Complete);
+				buyCallback = null;
+			}
 			return;
 			#endif
 
@@ -81,7 +90,7 @@ namespace BicUtil.Purchasing{
 				if (IsInitialized())
 				{
 					// ... look up the Product reference with the general product identifier and the Purchasing system's products collection.
-					Product product = m_StoreController.products.WithID(productId);
+					Product product = m_StoreController.products.WithID(_product.Id.AsString);
 					
 					// If the look up found a product for this device's store and that product is ready to be sold ... 
 					if (product != null && product.availableToPurchase)
@@ -89,24 +98,29 @@ namespace BicUtil.Purchasing{
 						m_StoreController.InitiatePurchase(product);
 					}
 					// Otherwise ...
-					else
+					else if(buyCallback != null)
 					{
 						// ... report the product look-up failure situation  
-						_product.Callback(PurchasingResult.NotAvailable);
+						buyCallback(PurchasingResult.NotAvailable);
+						buyCallback = null;
 					}
 				}
 				// Otherwise ...
-				else
+				else if(buyCallback != null)
 				{
 					// ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or retrying initiailization.
-					_product.Callback(PurchasingResult.NotInitialized);
+					buyCallback(PurchasingResult.NotInitialized);
+					buyCallback = null;
 				}
 			}
 			// Complete the unexpected exception handling ...
 			catch (Exception e)
 			{
 				// ... by reporting any unexpected exception for later diagnosis.
-				_product.Callback(PurchasingResult.Unknown);
+				if(buyCallback != null){
+					buyCallback(PurchasingResult.Unknown);
+					buyCallback = null;
+				}
 			}
 		}
 
@@ -126,6 +140,7 @@ namespace BicUtil.Purchasing{
 			if (Application.platform == RuntimePlatform.IPhonePlayer || 
 				Application.platform == RuntimePlatform.OSXPlayer)
 			{
+				//TODO: 추가필요
 				// ... begin restoring purchases
 				Debug.Log("RestorePurchases started ...");
 				
@@ -157,16 +172,14 @@ namespace BicUtil.Purchasing{
 			return m_StoreController != null && m_StoreExtensionProvider != null;
 		}
 
-		private ProductInfo getProductInfo(string _id){
-			foreach(var _product in products){
-				if(string.Equals(_id, _product.Id, StringComparison.Ordinal)){
-					return _product;
-				}
-			}
-
-			throw new Exception("Product " + _id + " Not Found");
+		public ProductModel<PRODUCTTYPE> GetProduct(PRODUCTTYPE _idType){
+			
+			return ProductTable.FirstOrDefault<ProductModel<PRODUCTTYPE>>(_row=>Enum.Equals(_row.IdType.AsEnum, _idType));
 		}
-		
+
+		private ProductModel<PRODUCTTYPE> getProduct(string _id){
+			return ProductTable.FirstOrDefault(_row=>_row.Id.AsString == _id);
+		}
 		
 		
 		//  
@@ -188,8 +201,14 @@ namespace BicUtil.Purchasing{
 
 				try{
 					if(_product.hasReceipt){
-						ProductInfo _productInfo = getProductInfo(_product.definition.id);
-						_productInfo.Callback(checkRecipt(_product.definition.id, _product.receipt));
+						if(buyCallback != null){
+							var _result = checkRecipt(_product.definition.id, _product.receipt);
+							if(_result == PurchasingResult.Complete){
+								completePurchase(_product.definition.id);
+							}else if(_result == PurchasingResult.Refunded){
+								completeRefund(_product.definition.id);
+							}
+						}
 					}
 				}catch(Exception e){
 					Debug.Log("not support product " + _product.definition.id);
@@ -209,16 +228,51 @@ namespace BicUtil.Purchasing{
 		
 		public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args) 
 		{
+			var _result = checkRecipt(args.purchasedProduct.definition.id, args.purchasedProduct.receipt);
+			if(_result == PurchasingResult.Complete)
+			{
+				completePurchase(args.purchasedProduct.definition.id);
+			}
 
-			ProductInfo _productInfo = getProductInfo(args.purchasedProduct.definition.id);
-			
-			_productInfo.Callback(checkRecipt(args.purchasedProduct.definition.id, args.purchasedProduct.receipt));
+			if(buyCallback != null){
+                buyCallback(_result);
+				buyCallback = null;
+			}
 
 			return PurchaseProcessingResult.Complete;
 		}
 
+        private void completePurchase(string _id)
+        {
+            ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
+            if (_productInfo.ProductType.AsEnum == ProductType.Consumable)
+            {
+                _productInfo.Value.AsInt += 1;
+            }
+            else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
+            {
+                _productInfo.Value.AsInt = 1;
+            }
 
-		public PurchasingResult checkRecipt(string _productId, string _recipt) {
+			ProductTable.Save();
+        }
+		
+		private void completeRefund(string _id)
+        {
+            ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
+            if (_productInfo.ProductType.AsEnum == ProductType.Consumable)
+            {
+                _productInfo.Value.AsInt -= 1;
+            }
+            else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
+            {
+                _productInfo.Value.AsInt = 0;
+            }
+
+			ProductTable.Save();
+        }
+
+        public PurchasingResult checkRecipt(string _productId, string _recipt) {
 
 			// #if UNITY_IOS || UNITY_STANDALONE_OSX
 			// return PurchasingResult.Complete;
@@ -290,9 +344,12 @@ namespace BicUtil.Purchasing{
 		
 		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 		{
-			var _product = getProductInfo(product.definition.id);
-
-			_product.Callback(PurchasingResult.Failed);
+			var _product = getProduct(product.definition.id);
+			
+			if(buyCallback != null){
+				buyCallback(PurchasingResult.Failed);
+				buyCallback = null;
+			}
 			// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
 			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}",product.definition.storeSpecificId, failureReason));
 		}
