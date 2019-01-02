@@ -14,7 +14,9 @@ namespace BicUtil.Tween
 			id++;
 			return id;
 		}
+		
 
+		#if BICUTIL_UNITY_ANIMATOR
 		public static void PlayMecanimAnimation(Animator _animator, string _stateHashName){
 			#if UNITY_EDITOR
 			if(Application.isPlaying){
@@ -36,6 +38,7 @@ namespace BicUtil.Tween
 			_animator.Play(_stateHashName);
 			#endif
 		}
+		#endif
 
 		static public TweenModel MoveSlider(UnityEngine.UI.Slider _slider, float _to, float _time){
 			return MoveSlider(_slider, _slider.value, _to, _time);
