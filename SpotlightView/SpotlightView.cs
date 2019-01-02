@@ -12,12 +12,6 @@ namespace BicUtil
 		private UnityEngine.UI.Image maskImage;
 		[SerializeField]
 		private UnityEngine.UI.Image backImage;
-		[SerializeField]
-		private UnityEngine.UI.Button button;
-		[SerializeField]
-		private UnityEngine.UI.Text buttonText;
-		[SerializeField]
-		private UnityEngine.UI.Text discriptionText;
 		#endregion
 
 		#region LifeCycle
@@ -27,7 +21,6 @@ namespace BicUtil
 		#endregion
 
 		#region Interface
-		public Action OnClickedButtonActions;
 
 
 		public void SetMask(int _maskIndex, Vector2 _position, Vector2 _size){
@@ -50,8 +43,6 @@ namespace BicUtil
 
 		public void Close(float _animationTime = 0.5f, Action _callback = null){
 			HideSpotAnimation (()=>{});
-			SetButtonEnabled (false);
-			SetDiscriptionTextEnabled(false);
 			CoroutineTween.Instance.Alpha (backImage, backImage.color.a, 0f, _animationTime, () => {
 				gameObject.SetActive (false);
 				if(_callback != null){
@@ -63,24 +54,10 @@ namespace BicUtil
 		public void Open(Action _callback, float _dimmedAlpha = 0.7f, float _animationTime = 0.5f){
 			gameObject.SetActive (true);
 			DisableAllMask ();
-			SetButtonEnabled (false);
-
+			
 			CoroutineTween.Instance.Alpha (backImage, 0, _dimmedAlpha, _animationTime, _callback);
 		}
 
-		public void SetButtonEnabled(bool _isEnabled, Action _onClickCallback = null, string _buttonText = ""){
-			if(_onClickCallback != null){
-				OnClickedButtonActions = _onClickCallback;
-			}
-
-			button.gameObject.SetActive (_isEnabled);
-			buttonText.text = _buttonText;
-		}
-
-		public void SetDiscriptionTextEnabled(bool _isEnabled, string _text = ""){
-			discriptionText.gameObject.SetActive(_isEnabled);
-			discriptionText.text = _text;
-		}
 
 		public void ShowSpotAnimation(){
 			StartCoroutine("showSpotAnimation");
@@ -90,15 +67,6 @@ namespace BicUtil
 			StopCoroutine ("showSpotAnimation");
 			StartCoroutine("hideSpotAnimation", _callback);
 		}
-		#endregion
-
-		#region Event
-		public void OnClickedButton(){
-			SetButtonEnabled (false);
-			OnClickedButtonActions ();
-		}
-
-
 		#endregion
 
 		#region logic
