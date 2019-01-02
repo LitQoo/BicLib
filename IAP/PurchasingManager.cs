@@ -22,7 +22,7 @@ namespace BicUtil.Purchasing{
 
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener where PRODUCTTYPE : struct {
 		// private List<ProductInfo> products = new List<ProductInfo>();
-		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Purchasing");
+		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public bool isLoadedProductTable = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value){
 			if(isLoadedProductTable == false){
