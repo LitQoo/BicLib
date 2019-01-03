@@ -47,6 +47,12 @@ namespace BicUtil.UIFlow
 			Application.Quit();
 		}
 
+		public bool IsMoving{
+			get{
+				return isWait;
+			}
+		}
+
 		private void cleaningValriables(){
 			UIFlow.Instance.ClearRegisteredUI();
 			backAction = null;
