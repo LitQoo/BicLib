@@ -47,22 +47,23 @@ namespace BicUtil.TouchNotifier
 				OnTouchMove.Invoke (_position);
 				OnTouchMoveWithStartingPosition.Invoke(startTouchPosition[0], _position);
 			}
+
 			#else
 			if(Input.touchCount > 0){
 				for(int i = 0; i < Input.touchCount; i++){
 					if(Input.GetTouch(i).phase == TouchPhase.Began){
 						if(UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject (i) == false){
-							startTouchPosition[i] = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+							startTouchPosition[i] = Camera.main.ScreenToWorldPoint (Input.GetTouch(i).position);
 							OnTouchDown.Invoke (startTouchPosition[i]);
 							isTouchIn = true;
 						}
 					} else if(Input.GetTouch(i).phase == TouchPhase.Ended && isTouchIn == true){
-						Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+						Vector2 _position = Camera.main.ScreenToWorldPoint (Input.GetTouch(i).position);
 						OnTouchUp.Invoke (_position);
 						OnTouchUpWithStartingPosition.Invoke(startTouchPosition[i], _position);
 						isTouchIn = false;
 					} else if(isTouchIn == true){
-						Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+						Vector2 _position = Camera.main.ScreenToWorldPoint (Input.GetTouch(i).position);
 						OnTouchMove.Invoke (_position);
 						OnTouchMoveWithStartingPosition.Invoke(startTouchPosition[i], _position);
 					}
