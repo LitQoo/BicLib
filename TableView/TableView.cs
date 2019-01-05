@@ -101,6 +101,10 @@ namespace BicUtil.TableView
 			return m_rowHeight;
 		}
 
+        public void StopScrollMovement(){
+            m_scrollRect.StopMovement();
+        }
+
         public bool isEmpty { get; private set; }
 
         /// <summary>
@@ -321,7 +325,7 @@ namespace BicUtil.TableView
             isEmpty = true;
 			m_scrollRect = GetComponent<EventControlledScrollRect>();
 			m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<VerticalLayoutGroup>();
-
+            
 			if(m_LayoutGroup == null) {
 				m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<HorizontalLayoutGroup>();
 				m_isVertical = false;
