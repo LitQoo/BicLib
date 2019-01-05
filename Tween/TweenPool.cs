@@ -187,6 +187,7 @@ namespace BicUtil.Tween{
 		[NonSerialized]
 		public int MaxPlayingIndex = 0;
 		public bool IsLocked = false;
+		[SerializeField]
 		private int nextId = 0;
 		public int NextId{ get{ return nextId++;} }
 
@@ -194,7 +195,7 @@ namespace BicUtil.Tween{
 			if(TweenList == null){
 				TweenList = new List<TweenModel>(100);
 			}
-
+			
 			var _count = TweenList.Count;
 			for(int i = 0; i < _count; i++){
 				if(TweenList[i] != null){
