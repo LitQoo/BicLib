@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if BICUTIL_WWW
+using UnityEngine;
 using System.Collections;
 using System;
 using BicDB.Container;
@@ -101,3 +102,4 @@ namespace BicDB.Storage
 
 	}
 }
+#endif
