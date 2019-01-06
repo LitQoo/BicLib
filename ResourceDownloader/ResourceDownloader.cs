@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if BICUTIL_WWW
+using UnityEngine;
 using System.Collections;
 using System.IO;
 using System;
@@ -95,3 +96,4 @@ namespace BicUtil.ResourceDownloader
 		}
 	}
 }
+#endif
