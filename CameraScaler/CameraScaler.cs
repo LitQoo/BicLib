@@ -41,6 +41,7 @@ namespace BicUtil.CameraScaler
 			float _referenceRate = referenceResolution.x / referenceResolution.y;
 			float _screenRate = (float)Screen.width / (float)Screen.height;
 
+			//설정보다 뚱뚱할때
 			if (_referenceRate < _screenRate) {
 				mainCamera.orthographicSize = referenceResolution.y / 2f;
 
@@ -59,8 +60,10 @@ namespace BicUtil.CameraScaler
 
 				if(manageFullSizeRect != null){
 					float _rate = referenceResolution.y / (float)Screen.height;
-					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.width * _rate, (float)Screen.height * _rate);
+					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.safeArea.width * _rate, (float)Screen.safeArea.height * _rate);
 				}
+
+			//설정보다 길쭉할때
 			} else if(_referenceRate > _screenRate){
 				float _rate = referenceResolution.x / (float)Screen.width;
 				float _hSize = (float)Screen.height * _rate;
@@ -80,7 +83,7 @@ namespace BicUtil.CameraScaler
 				mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
 
 				if(manageFullSizeRect != null){
-					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.width * _rate, (float)Screen.height * _rate);
+					manageFullSizeRect.sizeDelta = new Vector3((float)Screen.safeArea.width * _rate, (float)Screen.safeArea.height * _rate);
 				}
 			}
 		}
