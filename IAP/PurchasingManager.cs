@@ -21,7 +21,6 @@ namespace BicUtil.Purchasing{
 	}
 
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener where PRODUCTTYPE : struct {
-		// private List<ProductInfo> products = new List<ProductInfo>();
 		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public bool isLoadedProductTable = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value){
@@ -126,11 +125,14 @@ namespace BicUtil.Purchasing{
 
 		// 애플로 출시할때는 이 코드를 추가해야하나봄??? 
 		// Restore purchases previously made by this customer. Some platforms automatically restore purchases. Apple currently requires explicit purchase restoration for IAP.
-		public void RestorePurchases()
+		public void RestorePurchases(Action<bool> _callback)
 		{
 			// If Purchasing has not yet been set up ...
 			if (!IsInitialized())
 			{
+				if(_callback != null){
+					_callback(false);
+				}
 				// ... report the situation and stop restoring. Consider either waiting longer, or retrying initialization.
 				Debug.Log("RestorePurchases FAIL. Not initialized.");
 				return;
@@ -147,14 +149,15 @@ namespace BicUtil.Purchasing{
 				// Fetch the Apple store-specific subsystem.
 				var apple = m_StoreExtensionProvider.GetExtension<IAppleExtensions>();
 				// Begin the asynchronous process of restoring purchases. Expect a confirmation response in the Action<bool> below, and ProcessPurchase if there are previously purchased products to restore.
-				apple.RestoreTransactions((result) => {
-					// The first phase of restoration. If no more responses are received on ProcessPurchase then no purchases are available to be restored.
-					Debug.Log("RestorePurchases continuing: " + result + ". If no further messages, no purchases available to restore.");
-				});
+				apple.RestoreTransactions(_callback);
 			}
 			// Otherwise ...
 			else
 			{
+				if(_callback != null){
+					_callback(false);
+				}
+
 				// We are not running on an Apple device. No work is necessary to restore purchases.
 				Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
 			}
@@ -189,16 +192,19 @@ namespace BicUtil.Purchasing{
 		public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
 		{
 			// Purchasing has succeeded initializing. Collect our Purchasing references.
-			Debug.Log("OnInitialized: PASS");
-			
 			// Overall Purchasing system, configured with products for this application.
 			m_StoreController = controller;
 			// Store specific subsystem, for accessing device-specific store features.
 			m_StoreExtensionProvider = extensions;
 
 			foreach(var _product in m_StoreController.products.all){
-				Debug.Log("is availeble : " + _product.availableToPurchase.ToString() + "/" + _product.hasReceipt.ToString());
-
+				var _model = this.ProductTable.FirstOrDefault(_row=>_row.Id.AsString == _product.definition.id);
+				if(_model != null){
+					_model.CurrencyCode.AsString = _product.metadata.isoCurrencyCode;
+					_model.PriceString.AsString = _product.metadata.localizedPriceString;
+					_model.Title.AsString = _product.metadata.localizedTitle;
+				}
+				
 				try{
 					if(_product.hasReceipt){
 						if(buyCallback != null){
@@ -214,8 +220,6 @@ namespace BicUtil.Purchasing{
 					Debug.Log("not support product " + _product.definition.id);
 				}
 			}
-
-			Debug.Log("OnInitialized: Finished");
 		}
 		
 		

@@ -23,6 +23,12 @@ namespace BicUtil.Purchasing
 
         #endregion
 
+        #region InstantData
+        public StringVariable CurrencyCode = new StringVariable();
+        public StringVariable PriceString = new StringVariable();
+        public StringVariable Title = new StringVariable();
+        #endregion
+
         #region LifeCycle
         public ProductModel(){
             init();
