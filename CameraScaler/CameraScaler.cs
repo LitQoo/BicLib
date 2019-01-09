@@ -91,6 +91,10 @@ namespace BicUtil.CameraScaler
 
 		#if UNITY_EDITOR
 		private void Update(){
+			if(manageFullSizeRect != null){
+				return;
+			}
+			
 			init ();
 		}
 		#endif
