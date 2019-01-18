@@ -1,4 +1,4 @@
-﻿#if BICUTIL_UNITYADS
+﻿#if BICUTIL_UNITYADS2
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -41,14 +41,10 @@ namespace BicUtil.AdsManager{
         
         public override void Initialize(){
             UpdateLastPlayedAdsTimeAll();
-
         }
         
-        public bool IsReady(object _adsType){
-            return Advertisement.IsReady(adsData[_adsType].Id) && isPossiblePlayAds(_adsType);
-        }
 
-        public void ShowAd(object _adsType, Action<AdsResult> _callback)
+        private void showAd(object _adsType, Action<AdsResult> _callback)
         {
             var options = new ShowOptions { resultCallback = _result=>{ UpdateLastPlayedAdsTimeAll(); _callback(convert(_result));} };
             Advertisement.Show(adsData[_adsType].Id, options);
@@ -82,6 +78,50 @@ namespace BicUtil.AdsManager{
             #if UNITY_ANDROID
             Advertisement.Initialize(_id, false);
             #endif
+        }
+
+        public void SetAdsSettingAndroidOnly(string _adsId, object _type, int _playTimeInterval)
+        {
+            #if UNITY_ANDROID
+            adsData[_type] = new AdsInfo(_adsId, _type, _playTimeInterval);
+            #endif
+        }
+
+        public void SetAdsSettingIOSOnly(string _adsId, object _type, int _playTimeInterval)
+        {
+            #if UNITY_IOS
+            adsData[_type] = new AdsInfo(_adsId, _type, _playTimeInterval);
+            #endif
+        }
+
+        public void LoadInterstitial(object _adsType)
+        {
+            
+        }
+
+        public bool IsReadyInterstitial(object _adsType)
+        {
+            return Advertisement.IsReady(adsData[_adsType].Id) && isPossiblePlayAds(_adsType);
+        }
+
+        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        {
+            showAd(_adsType, _callback);
+        }
+
+        public void LoadRewardBased(object _adsType)
+        {
+            
+        }
+
+        public bool IsReadyRewardBased(object _adsType)
+        {
+            return Advertisement.IsReady(adsData[_adsType].Id) && isPossiblePlayAds(_adsType);
+        }
+
+        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        {
+            showAd(_adsType, _callback);
         }
         #endregion
     }
