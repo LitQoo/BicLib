@@ -25,11 +25,16 @@ namespace BicUtil.AdsManager{
         private RewardBasedVideoAd rewardBasedVideo;
         bool isInit = false;
         public override void Initialize(){
+            if(adsData.Count == 0){
+                return;
+            }
+            
             if(isInit == true){
                 return; 
             }
 
             isInit = true;
+
             rewardBasedVideo = RewardBasedVideoAd.Instance;
             rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
 
@@ -137,7 +142,7 @@ namespace BicUtil.AdsManager{
             _callback(AdsResult.Finished);
             return;
             #endif
-            
+
             lastPlayedAdType = _adsType;
             adsData[_adsType].Data = _callback;
             rewardBasedVideo.Show();
