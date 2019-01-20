@@ -1,0 +1,271 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Security.Cryptography;
+using System.Text;
+using System.IO;
+using BicDB.Container;
+using BicDB.Variable;
+using BicUtil.Json;
+
+namespace BicDB.Storage
+{
+	public class FileStorage : ITableStorage{
+		#region Constant
+		static public string FILE_NAME_PREFIX = "bdb_"; 
+		#endregion
+
+		public enum ResultCode
+		{
+			Success = 0,
+			FailedConvertJson = 1
+		}
+
+		#region Singleton
+		static private FileStorage instance = null;
+		static public FileStorage GetInstance(){
+			if (instance == null) {
+				instance = new FileStorage();
+			}
+
+			return instance;
+		}
+		#endregion
+
+		#region EncryptKey
+		private Dictionary<string, string> encryptKeys = new Dictionary<string, string>();
+
+		private string encryptKey = "";
+		public void SetEncryptKey(string _key){
+			#if !UNITY_EDITOR
+			if (_key != string.Empty) {
+				encryptKey = _key.PadRight(16, '_');
+			}
+			#endif
+		}
+
+		public void SetEncryptKey(string _tableName, string _key){
+			#if !UNITY_EDITOR
+			if (_key != string.Empty) {
+				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			}
+			#endif
+		}
+
+		public string GetEncryptKey(string _tableName){
+			#if !UNITY_EDITOR
+			if(encryptKeys.ContainsKey(_tableName)){
+				return encryptKeys[_tableName];
+			}
+			#endif
+
+			return string.Empty;
+			
+		}
+		#endregion
+
+		#region IStorage
+		public string StorageType{get{ return "FileStorage"; }}
+
+		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
+			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
+			int _hashCode = _json.GetHashCode();
+			var _encryptKey = encryptKey;
+			if(encryptKeys.ContainsKey(_table.Name)){
+				_encryptKey = encryptKeys[_table.Name];
+			}
+			
+			FileStorage.Write(_json, getFileName(_table.Name), _encryptKey);
+
+			if (_callback != null) {
+				_callback(new Result((int)ResultCode.Success, _hashCode));
+			}
+		}
+
+		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
+		{
+			loadByFile(_table, _callback, _parameter);
+		}
+
+		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
+			_table.Clear();
+			loadByFile(_table, _callback, _parameter);
+		}
+
+        public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+        {
+			Save(_table, _callback);
+        }
+
+		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
+		{
+			var _encryptKey = encryptKey;
+			if(encryptKeys.ContainsKey(_table.Name)){
+				_encryptKey = encryptKeys[_table.Name];
+			}else if(_parameter != null){
+				var _filestorageParameter = _parameter as FileStorageParameter;
+				if(_filestorageParameter.EncryptKey != ""){
+					SetEncryptKey(_table.Name, _filestorageParameter.EncryptKey);
+					_encryptKey = GetEncryptKey(_table.Name);
+				}
+			}
+			
+			string _data = FileStorage.Read(getFileName(_table.Name), _encryptKey);
+			int _hashCode = 0;
+			int _counter = 0;
+
+			if(_data != null){
+				_hashCode = _data.GetHashCode();
+			}
+
+			var _result = new Result ((int)ResultCode.Success, _hashCode);
+
+			if (!string.IsNullOrEmpty (_data)) {
+				try {
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
+				} catch (Exception) {
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = ResultCode.FailedConvertJson.ToString ();
+				}
+			}
+
+			if (_callback != null) {
+				_callback (_result);
+			}
+		} 
+
+		private string getFileName(string _tableName){
+			return FILE_NAME_PREFIX + _tableName;
+		}
+		#endregion
+	
+
+		#region static
+		static public void Write(string _data, string _fileName, string _key){
+			#if !WEB_BUILD
+
+			string _path = Application.persistentDataPath + "/" + _fileName;
+			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
+
+			if(_key != string.Empty){
+				_streamWriter.WriteLine(AESEncrypt256(_data, _key));
+			}else{
+				_streamWriter.WriteLine(_data);
+			}
+
+			_streamWriter.Close();
+			_file.Close();
+
+
+			#else
+
+			throw new System.Exception ("webbuild do not save to file");
+
+			#endif
+		}
+
+		static public string Read(string _fileName, string _key){
+			#if !WEB_BUILD
+			string _path = Application.persistentDataPath + "/" + _fileName;
+			
+			if (System.IO.File.Exists(_path))
+			{
+				System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+				System.IO.StreamReader _stream = new System.IO.StreamReader(_file);
+				string _data = null;
+				_data = _stream.ReadLine ();
+				_stream.Close();
+				_file.Close();
+
+				if(_key != string.Empty){
+					var _result = AESDecrypt256(_data, _key);
+					return _result;
+				}else{
+					return _data;
+				}
+			}
+			else
+			{
+				Debug.LogWarning("file not exists " + _path);
+				return null;
+			}
+			#else
+			return null;
+			#endif 
+		}
+
+		static private string AESDecrypt256(String Input, String key)
+		{
+			if (string.IsNullOrEmpty(Input)) {
+				return string.Empty;
+			}
+
+			RijndaelManaged aes = new RijndaelManaged();
+			aes.KeySize = 256;
+			aes.BlockSize = 128;
+			aes.Mode = CipherMode.CBC;
+			aes.Padding = PaddingMode.PKCS7;
+			aes.Key = Encoding.UTF8.GetBytes(key);
+			aes.IV = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
+			var decrypt = aes.CreateDecryptor();
+			byte[] xBuff = null;
+			using (var ms = new MemoryStream())
+			{
+				using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
+				{
+					byte[] xXml = Convert.FromBase64String(Input);
+					cs.Write(xXml, 0, xXml.Length);
+				}
+
+				xBuff = ms.ToArray();
+			}
+
+			String Output = Encoding.UTF8.GetString(xBuff);
+			return Output;
+		}
+
+		static private String AESEncrypt256(String Input, String key)
+		{
+			if (string.IsNullOrEmpty(Input)) {
+				return string.Empty;
+			}
+
+			RijndaelManaged aes = new RijndaelManaged();
+			aes.KeySize = 256;
+			aes.BlockSize = 128;
+			aes.Mode = CipherMode.CBC;
+			aes.Padding = PaddingMode.PKCS7;
+			aes.Key = Encoding.UTF8.GetBytes(key);        
+			aes.IV = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+			var encrypt = aes.CreateEncryptor(aes.Key, aes.IV);
+			byte[] xBuff = null;
+			using (var ms = new MemoryStream())
+			{
+				using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
+				{
+					byte[] xXml = Encoding.UTF8.GetBytes(Input);
+					cs.Write(xXml, 0, xXml.Length);
+				}
+
+				xBuff = ms.ToArray();
+			}
+
+			String Output = Convert.ToBase64String(xBuff);
+			return Output;
+		}
+        #endregion
+    }
+
+	public class FileStorageParameter{
+		public string EncryptKey;
+
+		public FileStorageParameter(string _encryptKey = ""){
+			EncryptKey = _encryptKey;
+		}
+	}
+}
+
