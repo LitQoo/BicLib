@@ -27,19 +27,7 @@ namespace BicUtil.TableView
         /// </summary>
 
 		public void SetDBSource<T>(IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) where T : IRecordContainer, new(){
-			GetCellDataFunc = (int _cellIndex) => {
-                if(_table.Count <= _cellIndex){
-                    return null;
-                }
-
-				return _table[_cellIndex];	
-			};
-
-			GetTableSizeFunc = () => {
-				return _table.Count;
-			};
-
-			DataSource = new TableDataSourceAuto<T>(_table, _getRowHeightFunc);
+           DataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
 		}
 
         [System.Serializable]
@@ -90,11 +78,7 @@ namespace BicUtil.TableView
 		}
 
 		public int GetTableSize(){
-			if (GetTableSizeFunc == null) {
-				return 0;
-			}
-
-			return GetTableSizeFunc();
+			return DataSource.GetNumberOfCellsForTableView();
 		}
 
 		public float GetRowHeight(){
@@ -112,7 +96,7 @@ namespace BicUtil.TableView
         /// (number of rows changed, etc)
         /// </summary>
         public void ReloadData() {
-            m_rowSizes = new float[(int)Math.Ceiling((float)m_dataSource.GetNumberOfCellsForTableView(this) / (float)cellCountInARow)];
+            m_rowSizes = new float[DataSource.GetRowCount()];
             this.isEmpty = m_rowSizes.Length == 0;
 
             if (this.isEmpty) {
@@ -123,7 +107,7 @@ namespace BicUtil.TableView
             m_cleanCumulativeIndex = -1;
 
             for (int i = 0; i < m_rowSizes.Length; i++) {
-                m_rowSizes[i] = m_dataSource.GetHeightForRowInTableView(this, i * cellCountInARow);
+                m_rowSizes[i] = m_dataSource.GetHeightForRowInTableView(i);
                 if (i > 0) {
                     m_rowSizes[i] += m_LayoutGroup.spacing;
                 }
@@ -166,7 +150,7 @@ namespace BicUtil.TableView
         /// </summary>
         public void NotifyRowDimensionsChanged(int _rowIndex) {
             float oldHeight = m_rowSizes[_rowIndex];
-            m_rowSizes[_rowIndex] = m_dataSource.GetHeightForRowInTableView(this, _rowIndex);
+            m_rowSizes[_rowIndex] = m_dataSource.GetHeightForRowInTableView(_rowIndex);
             m_cleanCumulativeIndex = Mathf.Min(m_cleanCumulativeIndex, _rowIndex - 1);
             if (m_visibleRowRange.Contains(_rowIndex)) {
                 TableRow _row = GetRow(_rowIndex);
@@ -256,8 +240,11 @@ namespace BicUtil.TableView
 
 		[SerializeField]
 		private TableRow tableRow;
-        private int cellCountInARow = 0;
-
+        public int CellCountInRowDefault{
+            get{
+                return tableRow.Cells.Count;
+            }
+        }
         private ITableViewDataSource m_dataSource;
         private bool m_requiresReload;
 
@@ -291,9 +278,6 @@ namespace BicUtil.TableView
 			get { return m_dataSource; }
 			set { m_dataSource = value; m_requiresReload = true; }
 		}
-
-		private Func<int, IRecordContainer> GetCellDataFunc = null;
-		private Func<int> GetTableSizeFunc = null;
 
         private void ScrollViewValueChanged(Vector2 newScrollValue) {
 			if(m_isVertical) {
@@ -347,8 +331,7 @@ namespace BicUtil.TableView
 				}
 			}
             
-            cellCountInARow = tableRow.GetCellCount();
-
+            tableRow.InitializeCells();
             m_topPadding = CreateEmptyPaddingElement("TopPadding");
             m_topPadding.transform.SetParent(m_scrollRect.content, false);
             m_bottomPadding = CreateEmptyPaddingElement("Bottom");
@@ -467,7 +450,8 @@ namespace BicUtil.TableView
 
             for (int i = 0; i < visibleRows.count; i++)
             {   
-                AddRow(visibleRows.from + i, true, m_scrollRect.content);
+                var _rowIndex = visibleRows.from + i;
+                AddRow(_rowIndex, true, m_scrollRect.content);
             }
             m_visibleRowRange = visibleRows;
             UpdatePaddingElements();
@@ -475,9 +459,10 @@ namespace BicUtil.TableView
 
         private void AddRow(int _rowIndex, bool _isEnd, RectTransform _parent)
         {
-            TableRow newRow = m_dataSource.GetCellForRowInTableView(this, _rowIndex);
+            TableRow newRow = m_dataSource.GetCellForRowInTableView(_rowIndex);
+            int _startDataIndex = DataSource.GetStartDataIndex(_rowIndex);
 
-            newRow.SetData(_rowIndex * cellCountInARow, GetCellDataFunc);
+            newRow.SetData(_startDataIndex, DataSource.GetCellData, DataSource.GetCellCountInRow(_rowIndex));
 
             newRow.transform.SetParent(_parent, false);
 
@@ -542,6 +527,7 @@ namespace BicUtil.TableView
             for (int i = oldTo + 1; i <= newTo; i++) {
                 AddRow(i, true, m_scrollRect.content);
             }
+
             m_visibleRowRange = newVisibleRows;
             UpdatePaddingElements();
         }

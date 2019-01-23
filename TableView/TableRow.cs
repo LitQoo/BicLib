@@ -13,7 +13,7 @@ namespace BicUtil.TableView
     {
 		#region Member
 		[SerializeField]
-		private int CellCount = 1;
+		private int cellCount = 1;
 
 		[HideInInspector]
 		public List<TableCell> Cells = new List<TableCell>();
@@ -42,11 +42,11 @@ namespace BicUtil.TableView
 		#endregion
 
 		#region Logic
-		public int GetCellCount(){
-			if(CellCount > 0){
+		public void InitializeCells(){
+			if(cellCount > 0){
 				var _tableCell = transform.GetChild(0).GetComponent<TableCell>();
 				var _cellCount = transform.childCount;
-				for(int i = _cellCount; i < CellCount; i++){
+				for(int i = _cellCount; i < cellCount; i++){
 					var _cell = Instantiate(_tableCell.gameObject);
 					_cell.transform.SetParent(this.gameObject.transform);
 				}
@@ -63,17 +63,19 @@ namespace BicUtil.TableView
 				}
 			}
 
-			CellCount = Cells.Count;
-
-			return CellCount;
+			cellCount = Cells.Count;
 		}
 
-		public void SetData(int _startCellIndex, Func<int, IRecordContainer> _cellDataFunc){
+		public void SetData(int _startCellIndex, Func<int, IRecordContainer> _cellDataFunc, int _cellCount){
 			for(int i = 0; i < Cells.Count; i++){
-				var _model = _cellDataFunc(_startCellIndex + i);
-				if(_model != null){
-					Cells[i].gameObject.SetActive(true);
-					Cells[i].Model = _model;
+				if(_cellCount > i){
+					var _model = _cellDataFunc(_startCellIndex + i);
+					if(_model != null){
+						Cells[i].gameObject.SetActive(true);
+						Cells[i].Model = _model;
+					}else{
+						Cells[i].gameObject.SetActive(false);
+					}
 				}else{
 					Cells[i].gameObject.SetActive(false);
 				}

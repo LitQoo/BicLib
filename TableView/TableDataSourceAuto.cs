@@ -5,32 +5,55 @@ using BicDB.Container;
 namespace BicUtil.TableView
 {
     internal class TableDataSourceAuto<T> : ITableViewDataSource  where T : IRecordContainer, new(){
-        public Func<TableView, IList<T>, int, float> getRowHeightFunc = null;
-
+        private Func<TableView, IList<T>, int, float> getRowHeightFunc = null;
 		private IList<T> table;
-        public TableDataSourceAuto(IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null){
+		private TableView tableView;
+
+        public TableDataSourceAuto(TableView _tableView, IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null){
             table = _table;
+			tableView = _tableView;
             getRowHeightFunc = _getRowHeightFunc;
         }
         
-        public int GetNumberOfCellsForTableView(TableView _tableView)
+        public int GetNumberOfCellsForTableView()
 		{
-			return _tableView.GetTableSize();
+			return table.Count;
 		}
 
-		public float GetHeightForRowInTableView(TableView _tableView, int _rowIndex)
+		public float GetHeightForRowInTableView(int _rowIndex)
 		{
             if(getRowHeightFunc != null){
-                return getRowHeightFunc(_tableView, table, _rowIndex);
+                return getRowHeightFunc(tableView, table, _rowIndex);
             }
-			return _tableView.GetRowHeight();
+
+			return tableView.GetRowHeight();
 		}
 
-		public TableRow GetCellForRowInTableView(TableView _tableView, int _rowIndex)
+		public TableRow GetCellForRowInTableView(int _rowIndex)
 		{
-			var _tableRow = _tableView.CreateTableRow(); // 셀 리턴
+			var _tableRow = tableView.CreateTableRow(); // 셀 리턴
 			_tableRow.RowIndex = _rowIndex;
 			return _tableRow;
+		}
+
+		public IRecordContainer GetCellData(int _index){
+			if(table.Count <= _index){
+				return null;
+			}
+
+			return table[_index];	
+		}
+
+		public int GetCellCountInRow(int _rowIndex){
+			return tableView.CellCountInRowDefault;
+		}
+
+		public int GetRowCount(){
+			return (int)Math.Ceiling((float)GetNumberOfCellsForTableView() / (float)tableView.CellCountInRowDefault);
+		}
+
+		public int GetStartDataIndex(int _rowIndex){
+			 return _rowIndex * tableView.CellCountInRowDefault;
 		}
 	}
 
