@@ -55,6 +55,10 @@ namespace BicUtil.TableView
 		public int GetStartDataIndex(int _rowIndex){
 			 return _rowIndex * tableView.CellCountInRowDefault;
 		}
+
+		public void ReloadData(){
+			
+		}
 	}
 
 }

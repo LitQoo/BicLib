@@ -96,6 +96,7 @@ namespace BicUtil.TableView
         /// (number of rows changed, etc)
         /// </summary>
         public void ReloadData() {
+            DataSource.ReloadData();
             m_rowSizes = new float[DataSource.GetRowCount()];
             this.isEmpty = m_rowSizes.Length == 0;
 

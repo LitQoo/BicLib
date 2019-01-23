@@ -13,6 +13,7 @@ namespace BicUtil.TableView
         int GetCellCountInRow(int _rowIndex);
         int GetRowCount();
         int GetStartDataIndex(int _rowIndex);
+        void ReloadData();
     }
 }
 
