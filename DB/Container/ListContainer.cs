@@ -22,6 +22,7 @@ namespace BicDB.Container
 
 		#region IListContainer
 		public event Action<T> OnAddedValueActions = delegate{};
+		public event Action<T> OnRemvoedValueActions = delegate{};
 		public event Action OnClearedValueActions = delegate{};
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 		#endregion
@@ -62,6 +63,7 @@ namespace BicDB.Container
 
 		public void RemoveAt(int _index)
 		{
+			OnRemvoedValueActions(data[_index]);
 			data.RemoveAt(_index);
 		}
 
@@ -89,6 +91,7 @@ namespace BicDB.Container
 
 		public bool Remove(T _item)
 		{
+			OnRemvoedValueActions(_item);
 			return data.Remove(_item);
 		}
 
