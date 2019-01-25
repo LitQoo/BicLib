@@ -11,17 +11,9 @@ using System.Linq;
 using BicDB.Storage;
 
 namespace BicUtil.Purchasing{
-	public enum PurchasingResult{
-		Complete,
-		Refunded,
-		NotInitialized,
-		NotAvailable,
-		Failed,
-		Unknown
-	}
-
-	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener where PRODUCTTYPE : struct {
-		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
+	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
+		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
+		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
 		public bool isLoadedProductTable = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value){
 			if(isLoadedProductTable == false){
