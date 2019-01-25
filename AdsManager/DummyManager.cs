@@ -5,8 +5,8 @@ namespace BicUtil.AdsManager{
 
     public class DummyManager : IAdsManager
     {
-        private IAdsManager instance = null;
-        public IAdsManager Instance{
+        static private IAdsManager instance = null;
+        static public IAdsManager Instance{
             get{
                 if(instance == null){
                     instance = new DummyManager();
@@ -15,7 +15,7 @@ namespace BicUtil.AdsManager{
                 return instance;
             }
         } 
-        
+
         public void Initialize()
         {
             

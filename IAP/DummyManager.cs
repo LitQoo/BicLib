@@ -6,8 +6,8 @@ using UnityEngine.Purchasing;
 namespace BicUtil.Purchasing{
     public class DummyManager<PRODUCTTYPE> : IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct
     {
-        private IPurchasingManager<PRODUCTTYPE> instance = null;
-        public IPurchasingManager<PRODUCTTYPE> Instance{
+        static private IPurchasingManager<PRODUCTTYPE> instance = null;
+        static public IPurchasingManager<PRODUCTTYPE> Instance{
             get{
                 if(instance == null){
                     instance = new DummyManager<PRODUCTTYPE>();
