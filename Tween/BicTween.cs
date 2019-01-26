@@ -377,9 +377,10 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Size(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
+		public static TweenModel Size(RectTransform _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
 			var _tween = CreateModel(_pool);
-			_tween.TargetObject = _object;
+			_tween.TargetObject = _object.gameObject;
+			_tween.Data = _object;
 			_tween.OriginValue = _from;
 			_tween.DiffValue = _to - _from;
 			_tween.Time = _time;
@@ -387,6 +388,10 @@ namespace BicUtil.Tween
 			_tween.UpdateFunc = UpdateFuncs.Size;
 
 			return _tween;
+		}
+
+		public static TweenModel Size(RectTransform _object, Vector3 _to, float _time, TweenPool _pool = null){
+			return Size(_object, _object.sizeDelta, _to, _time, _pool);
 		}
 
 
