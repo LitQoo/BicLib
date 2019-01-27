@@ -235,6 +235,21 @@ namespace BicUtil.TableView
             return retVal;
         }
 
+        public float GetScrollYForCell(int _cellIndex, bool _above){
+            int _cellCount = 0;
+            int _rowIndex = DataSource.GetRowCount();
+            for(int i = 0; i < DataSource.GetRowCount(); i++){
+                _cellCount += DataSource.GetCellCountInRow(i);
+
+                if(_cellIndex <= _cellCount){
+                    _rowIndex = i;
+                    break;
+                }
+            }
+
+            return GetScrollYForRow(_rowIndex, _above);
+        }
+
         #endregion
 
         #region Private implementation
