@@ -16,6 +16,11 @@ namespace BicUtil.AdsManager{
             }
         } 
 
+        public bool IsReadyInterstitialReturn = false;
+        public bool IsReadyRewardBasedReturn = false;
+        public AdsResult ShowInterstitialReturn = AdsResult.Finished;
+        public AdsResult ShowRewardBasedReturn = AdsResult.Finished;
+
         public void Initialize()
         {
             
@@ -23,12 +28,12 @@ namespace BicUtil.AdsManager{
 
         public bool IsReadyInterstitial(object _adsType)
         {
-            return false;
+            return IsReadyInterstitialReturn;
         }
 
         public bool IsReadyRewardBased(object _adsType)
         {
-            return false;
+            return IsReadyRewardBasedReturn;
         }
 
         public void LoadInterstitial(object _adsType)
@@ -63,12 +68,12 @@ namespace BicUtil.AdsManager{
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
-            _callback(AdsResult.Finished);
+            _callback(ShowInterstitialReturn);
         }
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
-            _callback(AdsResult.Finished);
+            _callback(ShowRewardBasedReturn);
         }
     }
 }
