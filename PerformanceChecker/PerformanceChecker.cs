@@ -43,5 +43,11 @@ namespace BicUtil.PerformanceChecker{
 			stopwatch.Stop();
 			return stopwatch.ElapsedMilliseconds;
 		}
+
+		public void PrintTimeCheck(string _log){
+			var _time = StopTimeCheck();
+			Debug.Log("[PerformanceCheck] Time:" + _time.ToString() + " / " + _log);
+			StartTimeCheck();
+		}
 	}
 }
