@@ -28,7 +28,7 @@ namespace BicUtil.TouchNotifier
 		private bool[] isTouchIn = new bool[5]{false, false, false, false, false};
 
 		private void Update () {
-			#if UNITY_EDITOR
+			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 			if (Input.GetMouseButtonDown (0)) {
 				if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject () == false) {
 					startTouchPosition[0] = Camera.main.ScreenToWorldPoint (Input.mousePosition);
