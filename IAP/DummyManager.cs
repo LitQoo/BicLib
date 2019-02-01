@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using BicDB.Container;
+using BicDB.Storage;
 using UnityEngine.Purchasing;
 
 namespace BicUtil.Purchasing{
@@ -19,11 +20,24 @@ namespace BicUtil.Purchasing{
 
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
         public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
+        public bool isLoadedProductTable = false;
 
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value)
         {
-            var _product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _value);
-            ProductTable.Add(_product);
+            if(isLoadedProductTable == false){
+				ProductTable.SetStorage(FileStorage.GetInstance());
+				ProductTable.Load(null, new FileStorageParameter("purchase"));
+				isLoadedProductTable = true; 
+			}
+
+            var _product = GetProduct(_idType);
+
+            if(_product == null){
+                _product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _value);
+                ProductTable.Add(_product);
+            }
+
+            _product.ProductType.AsEnum = _productType;
         }
 
         public void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback)
@@ -38,7 +52,7 @@ namespace BicUtil.Purchasing{
 
         public void Initialize()
         {
-            
+           
         }
 
         public void RestorePurchases(Action<bool> _callback)

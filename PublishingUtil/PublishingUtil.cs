@@ -57,7 +57,11 @@ namespace BicUtil.PublishingUtil{
 
 		static public bool IsWriteReview{
 			get{
+				#if UNITY_WEBGL
+				return true;
+				#else
 				return getBoolValue("isWriteReview");
+				#endif
 			}
 		}
 
