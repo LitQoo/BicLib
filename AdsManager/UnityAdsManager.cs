@@ -40,13 +40,21 @@ namespace BicUtil.AdsManager{
         #region Logic
         
         public override void Initialize(){
-            UpdateLastPlayedAdsTimeAll();
         }
         
 
         private void showAd(object _adsType, Action<AdsResult> _callback)
         {
-            var options = new ShowOptions { resultCallback = _result=>{ UpdateLastPlayedAdsTimeAll(); _callback(convert(_result));} };
+            var options = new ShowOptions { 
+                resultCallback = _result=>{ 
+                    if(_result != ShowResult.Failed){ 
+                        UpdateLastPlayedAdsTime(_adsType);
+                    } 
+                    
+                    _callback(convert(_result));
+                }
+            };
+
             Advertisement.Show(adsData[_adsType].Id, options);
         }
 
