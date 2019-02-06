@@ -126,6 +126,21 @@ namespace BicDB.Core
 
             return _tableInfo;
         }
+
+        static public IVariable GetProperty(string _key, IVariable _defaultVariable){
+            Init();
+            
+            if(TableInfo.Property.ContainsKey(_key) == false){
+                TableInfo.Property.Add(_key, _defaultVariable);
+                TableInfo.Save();
+            }
+
+            return TableInfo.Property[_key].AsVariable;
+        }
+
+        static public void Save(){
+            TableInfo.Save();
+        }
         #endregion
 	}
 }
