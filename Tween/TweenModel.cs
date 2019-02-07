@@ -402,7 +402,7 @@ namespace BicUtil.Tween
 
 		public List<TweenModel> GetChildList(){
 			List<TweenModel> _result = new List<TweenModel>();
-			if(childDataList != null){
+			if(childDataList != null && this.type != TweenType.Bezier && this.type != TweenType.BezierWorld){
 				for(int i = 0; i < childDataList.Count; i++){
 					_result.Add(pool.GetTween(childDataList[i]));
 				}
