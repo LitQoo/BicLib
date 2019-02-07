@@ -303,6 +303,26 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel MoveWorldByBezier(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null){
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.Type = TweenType.BezierWorld;
+			_tween.OriginValue = new Vector4(0, 0, 0, 0);
+			_tween.DiffValue = new Vector4(1f, 0, 0, 0);
+			_tween.Time = _time;
+			_tween.UpdateFunc = UpdateFuncs.BezierWorld;
+			_tween.childDataList = BezierToChildData(_to);
+			return _tween;
+		}
+		
+		public static TweenModel MoveWorldByBezierWithSpeed(GameObject _object, Vector3[] _to, float _distancePerSecond, TweenPool _pool = null){
+			var _bezier = new BezierPath(BicTween.ChildDataToBezier(BezierToChildData(_to)).ToArray());
+			var _time = _bezier.distance / _distancePerSecond;
+			var _tween = MoveWorldByBezier(_object, _to, _time, _pool);
+			_tween.Data = _bezier;
+			return _tween;
+		}
+
 		public static TweenModel Scale(GameObject _object, Vector3 _to, float _time){
 			return Scale(_object, _object.transform.localScale, _to, _time);
 		}

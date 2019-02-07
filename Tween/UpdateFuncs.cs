@@ -25,7 +25,8 @@ namespace BicUtil.Tween
         Counter,
         MoveWorld,
         AlphaSprite,
-        AlphaUIGraphic
+        AlphaUIGraphic,
+        BezierWorld
     }
 
     public static class UpdateFuncs{
@@ -95,6 +96,15 @@ namespace BicUtil.Tween
 
 			var _curveData = (_data.Data as BezierPath);
 			_data.TargetObject.transform.localPosition = _curveData.point(_data.CurrentValue.x);
+		}
+
+		public static void BezierWorld(IUpdateData _data){
+			if(_data.Data == null){
+				_data.Data = new BezierPath(BicTween.ChildDataToBezier(_data.ChildDataList).ToArray());
+			}
+
+			var _curveData = (_data.Data as BezierPath);
+			_data.TargetObject.transform.position = _curveData.point(_data.CurrentValue.x);
 		}
 
 		public static void Active(IUpdateData _data){
