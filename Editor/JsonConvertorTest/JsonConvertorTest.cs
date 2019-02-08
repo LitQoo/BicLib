@@ -316,6 +316,32 @@ namespace BicUtil.Json
 			Assert.AreEqual (_table [0].member4[3].AsFloat, 1);
 		}	
 
+
+		[Test]
+		public void JsonToTable5(){
+			ITableContainer<TestClass3> _table = new TableContainer<TestClass3>("test4");
+			_table.PrimaryKey = "key1";
+			string _json1 = "{\"data\":	[ [\"key4\", \"key1\", \"key2\", \"key3\"],[ [4,3,2,1], 123, 	\"string\",{\"key1\":119, \"key2\":\"test\"}]	, [[5,6,7,8], 2, \"string\", {\"key1\":222}]],\"name\":\"test\"}";
+			int _counter1 = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_table[0].member1.AsInt, 123);
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+
+			Assert.AreEqual(_table[0].member2.AsString, "string");
+			Assert.AreEqual(_table[1].member1.AsInt, 2);
+			Assert.AreEqual((_table.Property["name"] as IVariable).AsString, "test");
+			Assert.AreEqual(_table[0].member3.member1.AsInt, 119);
+			Assert.AreEqual((_table[0].member3["key2"] as IVariable).AsString, "test");
+
+			Assert.AreEqual (_table [0].member4.Count, 4);
+			Assert.AreEqual (_table [0].member4[0].AsFloat, 4);
+			Assert.AreEqual (_table [0].member4[1].AsFloat, 3);
+			Assert.AreEqual (_table [0].member4[2].AsFloat, 2);
+			Assert.AreEqual (_table [0].member4[3].AsFloat, 1);
+		}	
+
 		[Test]
 		public void BuildVariableTest(){
 			string _json = "{\"head\":\"value\",\"list\":[100,200,300], \"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
