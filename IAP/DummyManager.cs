@@ -1,3 +1,4 @@
+#if BICUTIL_IAP
 using System;
 using System.Linq;
 using BicDB.Container;
@@ -61,3 +62,4 @@ namespace BicUtil.Purchasing{
         }
     }
 }
+#endif

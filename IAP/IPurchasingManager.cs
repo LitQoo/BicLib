@@ -1,3 +1,4 @@
+#if BICUTIL_IAP
 using UnityEngine.Purchasing;
 using BicDB.Container;
 using BicDB.Variable;
@@ -25,3 +26,4 @@ namespace BicUtil.Purchasing{
         void RestorePurchases(Action<bool> _callback);
     }
 }
+#endif

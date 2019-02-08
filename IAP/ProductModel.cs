@@ -1,4 +1,5 @@
-﻿using BicDB.Container;
+﻿#if BICUTIL_IAP
+using BicDB.Container;
 using BicDB.Variable;
 using UnityEngine.Purchasing;
 
@@ -54,3 +55,4 @@ namespace BicUtil.Purchasing
     }
 
 }
+#endif
