@@ -37,30 +37,51 @@ namespace BicDB.Storage
 
 		private string encryptKey = "";
 		public void SetEncryptKey(string _key){
-			#if !UNITY_EDITOR
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return;
+			}
+			#endif
+
+
 			if (_key != string.Empty) {
 				encryptKey = _key.PadRight(16, '_');
 			}
-			#endif
 		}
 
 		public void SetEncryptKey(string _tableName, string _key){
-			#if !UNITY_EDITOR
-			if (_key != string.Empty) {
-				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return;
 			}
 			#endif
+
+			if (_key == string.Empty) {
+				encryptKeys[_tableName] = _key;
+			}else{
+				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			}
 		}
 
 		public string GetEncryptKey(string _tableName){
-			#if !UNITY_EDITOR
-			if(encryptKeys.ContainsKey(_tableName)){
-				return encryptKeys[_tableName];
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return string.Empty;
 			}
 			#endif
 
+			if(encryptKeys.ContainsKey(_tableName)){
+				return encryptKeys[_tableName];
+			}
+			
 			return string.Empty;
 			
+		}
+
+		private bool isEncryptOnEditor = false;
+		public void SetEncryptOnEditor(bool _isEncryptOnEditor)
+		{
+			isEncryptOnEditor = _isEncryptOnEditor;
 		}
 		#endregion
 
@@ -165,7 +186,7 @@ namespace BicDB.Storage
 			#endif
 		}
 
-		static public string Read(string _fileName, string _key){
+        static public string Read(string _fileName, string _key){
 			#if !WEB_BUILD
 			string _path = Application.persistentDataPath + "/" + _fileName;
 			
