@@ -2,13 +2,11 @@ using System;
 
 namespace BicUtil.AdsManager
 {
-    public interface IAdsManager
-    {
+    public interface IAdsPlatform {
         void SetPlatformAndroid(string _androidId);
         void SetPlatformIos(string _iosId);
-        void SetAdsSettingAndroidOnly(string _adsId, object _type, int _playTimeInterval);
-        void SetAdsSettingIOSOnly(string _adsId, object _type, int _playTimeInterval);
-        void Initialize();
+        void SetAdsSettingAndroidOnly(string _adsId, object _type);
+        void SetAdsSettingIOSOnly(string _adsId, object _type);
 
         void LoadInterstitial(object _adsType);
         bool IsReadyInterstitial(object _adsType);
@@ -17,7 +15,20 @@ namespace BicUtil.AdsManager
         void LoadRewardBased(object _adsType);
         bool IsReadyRewardBased(object _adsType);
         void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
-         
+    }
+
+    public interface IAdsManager
+    {
+        void LoadInterstitial(object _adsType);
+        bool IsReadyInterstitial(object _adsType);
+        void ShowInterstitial(object _adsType, Action<AdsResult> _callback);
+
+        void LoadRewardBased(object _adsType);
+        bool IsReadyRewardBased(object _adsType);
+        void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
+
+        void SetAdsSetting(string _adsId, object _type, int _playTimeInterval);
+        void AddAdsPlatform(IAdsPlatform _platform);
     }
 
     public enum AdsResult
@@ -26,6 +37,18 @@ namespace BicUtil.AdsManager
         Skipped,
         Cancel,
         Failed
+    }
+
+
+    public class AdsPlatformInfo{
+        public string Id;
+        public object AdsType;
+        public object Data = null;
+
+        public AdsPlatformInfo(string _id, object _type){
+            this.Id = _id;
+            this.AdsType = _type;
+        }
     }
 
     public class AdsInfo{
