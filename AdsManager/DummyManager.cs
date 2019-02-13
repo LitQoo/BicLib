@@ -15,6 +15,11 @@ namespace BicUtil.AdsManager{
             
         }
 
+        public IAdsBanner CreateBanner(object _adsType)
+        {
+            return null;
+        }
+
         public bool IsReadyInterstitial(object _adsType)
         {
             return IsReadyInterstitialReturn;

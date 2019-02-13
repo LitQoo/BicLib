@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace BicUtil.AdsManager
 {
@@ -138,12 +140,61 @@ namespace BicUtil.AdsManager
             adsPlatforms.Add(_platform);
         }
 
-        public void ShowBanner(object _adsType){
 
+        private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
+        public IAdsBanner CreateBanner(object _adsType){
+            for(int i = 0; i < adsPlatforms.Count; i++){
+                var _banner = adsPlatforms[i].CreateBanner(_adsType);
+                if(_banner != null){
+                    if(bannerList.ContainsKey(_adsType) == true){
+                        bannerList[_adsType].Destroy();
+                    }
+
+                    bannerList[_adsType] = _banner;
+                    return _banner;
+                }
+            }
+
+            return new DummyBanner();
         }
 
-        public void HideBanner(object _adsType){
+        public IAdsBanner GetBanner(object _adsType){
+            if(bannerList.ContainsKey(_adsType)){
+                return bannerList[_adsType];
+            }
 
+            return new DummyBanner();
+        }
+
+        public void RemoveBanner(IAdsBanner _banner){
+            if(bannerList.ContainsValue(_banner)){
+                var _item = bannerList.First(_row => _row.Value == _banner);
+                bannerList.Remove(_item.Key);
+            }
+        }
+    }
+
+    public class DummyBanner : IAdsBanner
+    {
+
+        public void Destroy()
+        {
+            AdsManager.Instance.RemoveBanner(this);
+        }
+
+        public void Hide()
+        {
+            
+        }
+
+        public void SetPosition(Transform _parent, Vector2 _position)
+        {
+            
+        }
+
+        public void Show()
+        {
+            
         }
     }
 }

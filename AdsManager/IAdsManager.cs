@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace BicUtil.AdsManager
 {
@@ -15,6 +16,7 @@ namespace BicUtil.AdsManager
         void LoadRewardBased(object _adsType);
         bool IsReadyRewardBased(object _adsType);
         void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
+        IAdsBanner CreateBanner(object _adsType);
     }
 
     public interface IAdsManager
@@ -29,6 +31,15 @@ namespace BicUtil.AdsManager
 
         void SetAdsSetting(string _adsId, object _type, int _playTimeInterval);
         void AddAdsPlatform(IAdsPlatform _platform);
+        IAdsBanner CreateBanner(object _adsType);
+        void RemoveBanner(IAdsBanner _adsType);
+    }
+
+    public interface IAdsBanner {
+        void Show();
+        void Hide();
+        void Destroy();
+        void SetPosition(Transform _parent, Vector2 _position);
     }
 
     public enum AdsResult

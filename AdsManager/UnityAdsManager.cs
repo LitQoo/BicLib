@@ -37,7 +37,7 @@ namespace BicUtil.AdsManager{
             return AdsResult.Failed;
         }
 
-        public void SetAdsSetting(string _adsId, object _type, int _playTimeInterval){
+        public void SetAdsSetting(string _adsId, object _type){
             
             adsData[_type] = new AdsPlatformInfo(_adsId, _type);
         }
@@ -64,7 +64,7 @@ namespace BicUtil.AdsManager{
         public void SetAdsSettingIOSOnly(string _adsId, object _type)
         {
             #if UNITY_IOS
-            adsData[_type] = new AdsPlatformInfo(_adsId, _type, _playTimeInterval);
+            adsData[_type] = new AdsPlatformInfo(_adsId, _type);
             #endif
         }
 
@@ -96,6 +96,11 @@ namespace BicUtil.AdsManager{
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
             showAd(_adsType, _callback);
+        }
+
+        public IAdsBanner CreateBanner(object _adsType)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
