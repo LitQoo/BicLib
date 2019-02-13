@@ -6,6 +6,7 @@ using System.Collections;
 using BicDB.Container;
 using BicDB.Variable;
 using BicUtil.Json;
+using UnityEngine.Networking;
 
 namespace BicDB.Storage
 {
@@ -124,20 +125,21 @@ namespace BicDB.Storage
 			}
 
 			string _url = (_table.Header[LOAD_URL_KEY] as IVariable).AsString;
-			WWW www = new WWW(_url);
-			yield return www;
+			UnityWebRequest www = UnityWebRequest.Get(_url);
+			yield return www.SendWebRequest();
 
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;
-			string _json = www.text;
 
-			if (www.error != null)
+			if (www.error != null || www.isNetworkError || www.isHttpError)
 			{
 				_result.Code = (int)ResultCode.ErrorNetwork;
 				_result.Message = www.error;
 			}
 			else
 			{
+				string _json = www.downloadHandler.text;
+
 				try {
 					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 				} catch (Exception) {
