@@ -308,7 +308,7 @@ namespace BicUtil.Json
                 if (!string.IsNullOrEmpty(_table.PrimaryKey))
                 {
                     _findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IRecordContainer)[_table.PrimaryKey], (_model as IRecordContainer)[_table.PrimaryKey]));
-                }
+				}
             }
             catch (Exception)
             {
@@ -553,6 +553,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
+
+			_list.Clear();
 				
 			_counter++;
 
@@ -581,6 +583,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
+
+			_list.Clear();
 
 			_counter++;
 			
@@ -618,6 +622,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find { at ");
 			}
+
+			_dictionary.Clear();
 
 			_counter++;
 
@@ -659,6 +665,8 @@ namespace BicUtil.Json
 				throw new SystemException("fail find { at ");
 			}
 
+			_dictionary.Clear();
+			
 			_counter++;
 
 			if (_json[_counter] == '}') {
