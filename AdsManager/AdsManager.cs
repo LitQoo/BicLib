@@ -176,6 +176,9 @@ namespace BicUtil.AdsManager
 
     public class DummyBanner : IAdsBanner
     {
+        public bool IsReady(){
+            return true;
+        }
 
         public void Destroy()
         {

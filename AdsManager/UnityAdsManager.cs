@@ -21,7 +21,7 @@ namespace BicUtil.AdsManager{
                 }
             };
 
-            Advertisement.Show(adsData[_adsType].Id, options);
+            Advertisement.Show(adsData[_adsType].PlatformId, options);
         }
 
         private AdsResult convert(ShowResult _result){
@@ -37,9 +37,9 @@ namespace BicUtil.AdsManager{
             return AdsResult.Failed;
         }
 
-        public void SetAdsSetting(string _adsId, object _type){
+        public void SetAdsSetting(string _unityAdsId, object _type){
             
-            adsData[_type] = new AdsPlatformInfo(_adsId, _type);
+            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
         }
 
         public void SetPlatformIos(string _id){
@@ -54,14 +54,14 @@ namespace BicUtil.AdsManager{
             #endif
         }
 
-        public void SetAdsSettingAndroidOnly(string _adsId, object _type)
+        public void SetAdsSettingAndroidOnly(string _unityAdsId, object _type)
         {
             #if UNITY_ANDROID
-            adsData[_type] = new AdsPlatformInfo(_adsId, _type);
+            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
             #endif
         }
 
-        public void SetAdsSettingIOSOnly(string _adsId, object _type)
+        public void SetAdsSettingIOSOnly(string _unityAdsId, object _type)
         {
             #if UNITY_IOS
             adsData[_type] = new AdsPlatformInfo(_adsId, _type);
@@ -75,7 +75,7 @@ namespace BicUtil.AdsManager{
 
         public bool IsReadyInterstitial(object _adsType)
         {
-            return Advertisement.IsReady(adsData[_adsType].Id);
+            return Advertisement.IsReady(adsData[_adsType].PlatformId);
         }
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
@@ -90,7 +90,7 @@ namespace BicUtil.AdsManager{
 
         public bool IsReadyRewardBased(object _adsType)
         {
-            return Advertisement.IsReady(adsData[_adsType].Id);
+            return Advertisement.IsReady(adsData[_adsType].PlatformId);
         }
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)

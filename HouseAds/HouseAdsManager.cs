@@ -1,0 +1,226 @@
+﻿using UnityEngine;
+using System.Collections;
+using BicDB;
+using BicDB.Variable;
+using System;
+using BicDB.Storage;
+using System.Linq;
+using BicDB.Container;
+using BicUtil.ResourceDownloader;
+using BicUtil.Tween;
+using BicUtil.AdsManager;
+using BicUtil.SingletonBase;
+using System.Collections.Generic;
+
+namespace HouseAds
+{
+	public class HouseAdsManager : MonoBehaviourHardBase<HouseAdsManager> , IAdsPlatform{
+		
+		#region InstantData
+		private Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
+		private string dataUrl = string.Empty;
+		#endregion
+		
+		#region Init
+		private void Awake(){
+			setDatabase();
+		}
+		#endregion
+
+		#region Database
+		static public ITableContainer<HouseAdsModel> HouseAdsTable;
+		static public ITableContainer<HouseAdsResourceModel> HouseAdsResourceTable;
+		private void setDatabase(){
+			HouseAdsTable = BicDB.Manager.GetOrCreateTable<HouseAdsModel> ("houseAdsTable");
+			
+			if(dataUrl == string.Empty){
+				dataUrl = "https://allapp-7c9c4.firebaseio.com/localAds/ver1/" + Application.identifier.Replace(".", "") + "/" + Application.platform.ToString() + ".json";
+			}
+
+			var _syncStorage = SyncStorage.GetInstance();
+			HouseAdsTable.Header[SyncStorage.LOAD_URL_KEY] = new StringVariable(dataUrl);
+			HouseAdsTable.Header[SyncStorage.ENCRYPT_KEY] = new StringVariable("houseads");
+			HouseAdsTable.PrimaryKey = "id";
+			HouseAdsTable.SetStorage (_syncStorage);
+
+			HouseAdsResourceTable = BicDB.Manager.GetOrCreateTable<HouseAdsResourceModel> ("houseAdsResource");
+			HouseAdsResourceTable.SetStorage (FileStorage.GetInstance());
+			HouseAdsResourceTable.Load (null, new FileStorageParameter("houseads"));
+
+			loadByServer();
+		}
+		#endregion
+
+		private float reloadInterval = 2f;
+		private void loadByServer(){
+			HouseAdsTable.Load (onLoadedData, new SyncStorageParameter(SyncStorageParameter.SyncMode.All, SyncStorageParameter.SyncTarget.All));
+		}
+
+		private void onLoadedData(Result _result){
+			if (_result.Code == (int)SyncStorage.ResultCode.Success) {
+				HouseAdsTable.Save ();
+				downloadResource ();
+			} else {
+				BicTween.Delay (reloadInterval).SubscribeComplete(loadByServer);
+				reloadInterval *= 2f;
+			}
+		}
+
+		private void downloadResource(){
+			for (int i = 0; i < HouseAdsTable.Count; i++) {
+				for (int j = 0; j < HouseAdsTable [i].Images.Count; j++) {
+					string _url = HouseAdsTable [i].Images [j].AsString;
+					var _item = HouseAdsResourceTable.FirstOrDefault (_row => _row.Url.AsString == _url);
+					if (_item == null) {
+						ResourceDownloader.GetInstance ().DownlaodAndSaveImage (_url, Guid.NewGuid ().ToString () + ".png", onFinishedDownloadResource);
+					}
+				}
+			}
+		}
+
+		void onFinishedDownloadResource (ResourceDownloader.ResultParam _param)
+		{
+			if (_param.IsSuccess) {
+				saveResourceInfo (_param.Url, _param.SavePath);
+			}
+		}
+
+		void saveResourceInfo(string _url, string _filePath){
+			var _row = new HouseAdsResourceModel ();
+			_row.FilePath.AsString = _filePath;
+			_row.Url.AsString = _url;
+			HouseAdsResourceTable.Add (_row);
+			HouseAdsResourceTable.Save ();
+		}
+		
+		public void SetDataUrl(string _url){
+			this.dataUrl = _url;
+		}
+
+		public void SetAdsSetting(string _platformId, object _type, string _prefabPath){
+			adsData[_type] = new AdsPlatformInfo(_platformId, _type);
+			adsData[_type].Data = _prefabPath;
+		}
+
+        public void LoadInterstitial(object _adsType)
+        {
+			
+		}
+
+        public bool IsReadyInterstitial(object _adsType)
+        {
+            return isReady(_adsType);
+        }
+
+		private bool isReady(object _adsType){
+			if(adsData.ContainsKey(_adsType) == false){
+				return false;
+			}
+
+			var _count = getAdsList(_adsType).Count();
+
+			if(_count > 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        {
+			showInterstitial(_adsType, _callback, 5);
+        }
+
+		private void showInterstitial(object _adsType, Action<AdsResult> _callback, int _time){
+			if(adsData.ContainsKey(_adsType) == true){
+				string _prefabPath = adsData[_adsType].Data as string;
+
+				var _ads = getHouseAds(_adsType);
+
+				if(_ads != null){
+					var _interstitial = Instantiate(Resources.Load<HouseInterstitialController>(_prefabPath));
+					_interstitial.OnClose += ()=>{
+						_callback(AdsResult.Finished);
+					};
+					
+					var _canvasList = Resources.FindObjectsOfTypeAll(typeof(Canvas));
+					var _canvas = (_canvasList[0] as Canvas);
+					_interstitial.transform.SetParent(_canvas.transform);
+					_interstitial.transform.localScale = new Vector2(1f, 1f);
+					_interstitial.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
+					_interstitial.GetComponent<RectTransform>().offsetMax = new Vector2(0f, 0f);
+					_interstitial.Load(_adsType, _ads, _time);
+					_interstitial.Show();
+
+				}else{
+					_callback(AdsResult.Failed);
+				}
+			}else{
+				_callback(AdsResult.Failed);
+			}
+		}
+
+        public void LoadRewardBased(object _adsType)
+        {
+			
+        }
+
+        public bool IsReadyRewardBased(object _adsType)
+        {
+            return isReady(_adsType);
+        }
+
+        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        {
+			showInterstitial(_adsType, _callback, 20);
+        }
+
+        public IAdsBanner CreateBanner(object _adsType)
+        {
+			if(adsData.ContainsKey(_adsType) == true){
+				string _prefabPath = adsData[_adsType].Data as string;
+				var _ads = getHouseAds(_adsType);
+
+				if(_ads != null){
+					var _banner = Instantiate(Resources.Load<HouseBannerController>(_prefabPath));
+					_banner.Load(adsData[_adsType].AdsType.ToString(), _ads);
+					return _banner;
+				}
+			}
+
+			return null;
+        }
+
+		private HouseAdsModel getHouseAds(object _adsType){
+			if(adsData.ContainsKey(_adsType) == false){
+				return null;
+			}
+
+			var _data = adsData[_adsType];
+			var _adsList = getAdsList(_adsType);
+			
+			if(_adsList.Count() <= 0){
+				return null;
+			}
+			
+			int _totalWeight = _adsList.Sum(_row => _row.ViewWeight.AsInt);
+			int _selectWeight = UnityEngine.Random.Range(0, _totalWeight);
+			int _sumWeight = 0;
+
+			foreach(var _ads in _adsList){
+				_sumWeight += _ads.ViewWeight.AsInt;
+				if (_sumWeight >= _selectWeight) {
+					return _ads;
+				}
+			}
+
+			return _adsList.ElementAt(0);
+		}
+
+        private IEnumerable<HouseAdsModel> getAdsList(object _adsType)
+        {
+			var _id = adsData[_adsType].PlatformId;
+            return HouseAdsManager.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true));
+        }
+    }
+}

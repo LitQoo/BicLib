@@ -1,14 +1,10 @@
 using System;
+using HouseAds;
 using UnityEngine;
 
 namespace BicUtil.AdsManager
 {
     public interface IAdsPlatform {
-        void SetPlatformAndroid(string _androidId);
-        void SetPlatformIos(string _iosId);
-        void SetAdsSettingAndroidOnly(string _adsId, object _type);
-        void SetAdsSettingIOSOnly(string _adsId, object _type);
-
         void LoadInterstitial(object _adsType);
         bool IsReadyInterstitial(object _adsType);
         void ShowInterstitial(object _adsType, Action<AdsResult> _callback);
@@ -16,6 +12,7 @@ namespace BicUtil.AdsManager
         void LoadRewardBased(object _adsType);
         bool IsReadyRewardBased(object _adsType);
         void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
+        
         IAdsBanner CreateBanner(object _adsType);
     }
 
@@ -36,6 +33,7 @@ namespace BicUtil.AdsManager
     }
 
     public interface IAdsBanner {
+        bool IsReady();
         void Show();
         void Hide();
         void Destroy();
@@ -52,25 +50,25 @@ namespace BicUtil.AdsManager
 
 
     public class AdsPlatformInfo{
-        public string Id;
+        public string PlatformId;
         public object AdsType;
         public object Data = null;
 
-        public AdsPlatformInfo(string _id, object _type){
-            this.Id = _id;
+        public AdsPlatformInfo(string _platformAdsId, object _type){
+            this.PlatformId = _platformAdsId;
             this.AdsType = _type;
         }
     }
 
     public class AdsInfo{
-        public string Id;
+        public string AdsId;
         public object AdsType;
         public int TimeInterval;
         public long LastPlayedAdsTime;
         public object Data = null;
 
-        public AdsInfo(string _id, object _type, int _playTimeInterval){
-            this.Id = _id;
+        public AdsInfo(string _adsId, object _type, int _playTimeInterval){
+            this.AdsId = _adsId;
             this.AdsType = _type;
             this.TimeInterval = _playTimeInterval;
             this.LastPlayedAdsTime = getTimestamp();
