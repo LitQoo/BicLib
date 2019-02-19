@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Advertisements;
 
-namespace BicUtil.AdsManager{
+namespace BicUtil.Ads{
     public class UnityAdsManager : IAdsPlatform
     {
         #region InstantData

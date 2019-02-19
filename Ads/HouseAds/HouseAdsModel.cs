@@ -7,7 +7,7 @@ using BicDB.Storage;
 using BicDB.Container;
 using System.Linq;
 
-namespace HouseAds
+namespace BicUtil.Ads
 {
 	public class HouseAdsModel : BicDB.Container.RecordContainer{
 		public IVariable AdsId = new StringVariable("");

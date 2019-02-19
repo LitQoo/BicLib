@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BicUtil.AdsManager
+namespace BicUtil.Ads
 {
     public class AdsManager : BicUtil.SingletonBase.SingletonBase<AdsManager>, IAdsManager
     {
@@ -142,9 +142,9 @@ namespace BicUtil.AdsManager
 
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
-        public IAdsBanner CreateBanner(object _adsType){
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadAction){
             for(int i = 0; i < adsPlatforms.Count; i++){
-                var _banner = adsPlatforms[i].CreateBanner(_adsType);
+                var _banner = adsPlatforms[i].CreateBanner(_adsType, _onLoadAction);
                 if(_banner != null){
                     if(bannerList.ContainsKey(_adsType) == true){
                         bannerList[_adsType].Destroy();

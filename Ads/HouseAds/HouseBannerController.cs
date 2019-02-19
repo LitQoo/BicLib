@@ -3,10 +3,9 @@ using System.Collections;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using BicUtil.AdsManager;
 using UnityEngine.Analytics;
 
-namespace HouseAds
+namespace BicUtil.Ads
 {
 	public class HouseBannerController : MonoBehaviour, IAdsBanner {
 
@@ -58,6 +57,10 @@ namespace HouseAds
             AdsManager.Instance.RemoveBanner(this);
 			Destroy(this.gameObject);
         }
+
+		private void OnDestroy() {
+			AdsManager.Instance.RemoveBanner(this);
+		}
 
         public void SetPosition(Transform _parent, Vector2 _position)
         {

@@ -2,10 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BicUtil.Tween;
 using GoogleMobileAds.Api;
 using UnityEngine;
 
-namespace BicUtil.AdsManager{
+namespace BicUtil.Ads{
     public class AdmobManager : IAdsPlatform
     {
         #region InstantData
@@ -16,10 +17,6 @@ namespace BicUtil.AdsManager{
         private RewardBasedVideoAd rewardBasedVideo;
         bool isInit = false;
         public AdmobManager(){
-            if(adsData.Count == 0){
-                return;
-            }
-            
             if(isInit == true){
                 return; 
             }
@@ -28,6 +25,7 @@ namespace BicUtil.AdsManager{
 
             rewardBasedVideo = RewardBasedVideoAd.Instance;
             rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
+            rewardBasedVideo.OnAdFailedToLoad += reloadRewardBased;
 
         }
 
@@ -59,6 +57,8 @@ namespace BicUtil.AdsManager{
 
         #region Interstitial
         public bool IsReadyInterstitial(object _adsType){
+            LoadInterstitial(_adsType);
+
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
             if(_interstitial != null && _interstitial.IsLoaded() == true){
                 return true;
@@ -69,33 +69,41 @@ namespace BicUtil.AdsManager{
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback){
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
-            
-            _interstitial.OnAdFailedToLoad += (_sender, _args)=>{
-                if(adsData[_adsType].Data != null){
-                    _interstitial.Destroy();
-                    adsData[_adsType].Data = null;
-                    _callback(AdsResult.Failed);
-                }
-            };
-
+            object __adsType = _adsType;
             _interstitial.OnAdClosed += (_sender, _args)=>{
-                if(adsData[_adsType].Data != null){
+                if(adsData[__adsType].Data != null){
                     _interstitial.Destroy();
-                    adsData[_adsType].Data = null;
-                    updateLastPlayedAdsTimeAll();
-                    _callback(AdsResult.Failed);
+                    adsData[__adsType].Data = null;
+                    BicTween.Delay(0.5f).SubscribeComplete(()=>{
+                        LoadInterstitial(__adsType);
+                    });
+
+                    _callback(AdsResult.Finished);
                 }
             };
 
             _interstitial.Show();
 
-            LoadInterstitial(_adsType);
         }
 
         public void LoadInterstitial(object _adsType){
+            loadInterstitial(_adsType, 1);
+        }
+
+        public void loadInterstitial(object _adsType, int _time){
             if(adsData[_adsType].Data == null){
-                InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].Id);
+                InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].PlatformId);
                 AdRequest _request = new AdRequest.Builder().Build();
+                int __time = _time;
+                object __adsType = _adsType;
+                _interstitial.OnAdFailedToLoad += (_sender, _args)=>{
+                    _interstitial.Destroy();
+                    adsData[_adsType].Data = null;
+                    BicTween.Delay(1f).SubscribeComplete(()=>{
+                        loadInterstitial(__adsType, __time * 2);
+                    });
+                };
+
                 _interstitial.LoadAd(_request);
                 adsData[_adsType].Data = _interstitial;
             }
@@ -107,29 +115,65 @@ namespace BicUtil.AdsManager{
             if(lastPlayedAdType != null){
                 var _callback = adsData[lastPlayedAdType].Data as Action<AdsResult>;
                 _callback(AdsResult.Finished);
-                lastPlayedAdType = null;
             }
+
+            reloadTime = 1;
+            loadRewardBased(lastPlayedAdType, 0);
         }
 
         public void LoadRewardBased(object _adsType){
-            AdRequest request = new AdRequest.Builder().Build();
-            this.rewardBasedVideo.LoadAd(request, adsData[_adsType].Id);
+            if(lastPlayedAdType == null || lastPlayedAdType != _adsType){
+                loadRewardBased(_adsType, 0);
+            }
         }
 
         object lastPlayedAdType = null;
+        int reloadTime = 1;
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback){
             lastPlayedAdType = _adsType;
             adsData[_adsType].Data = _callback;
             rewardBasedVideo.Show();
         }
 
-        public bool IsReadyRewardBased(object _adsType){
-            if(this.rewardBasedVideo.IsLoaded() == true){
-                return true;
-            }
-
-            return false;
+        private void reloadRewardBased(object sender, AdFailedToLoadEventArgs e)
+        {
+            loadRewardBased(lastPlayedAdType, reloadTime * 2);
         }
+
+        private void loadRewardBased(object _adsType, int _time){
+            object __adsType = _adsType;
+            lastPlayedAdType = __adsType;
+            
+            if(_time == 0){
+                loadRewardBased(__adsType);
+            }else{
+                BicTween.Delay(_time).SubscribeComplete(()=>{
+                    loadRewardBased(__adsType);
+                });
+            }
+        }
+
+        private void loadRewardBased(object _adsType){
+            AdRequest request = new AdRequest.Builder().Build();
+            this.rewardBasedVideo.LoadAd(request, adsData[_adsType].PlatformId);
+        }
+
+        public bool IsReadyRewardBased(object _adsType){
+            LoadRewardBased(_adsType);
+            return this.rewardBasedVideo.IsLoaded();
+        }
+        #endregion
+
+        #region Banner
+        private BannerView bannerView;
+
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        {
+            var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));
+            _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction);
+            return _banner;
+        }
+
         #endregion
     }
 }

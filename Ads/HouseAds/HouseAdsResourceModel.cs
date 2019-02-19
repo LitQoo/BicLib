@@ -5,7 +5,7 @@ using System;
 using BicDB.Storage;
 
 
-namespace HouseAds
+namespace BicUtil.Ads
 {
 	public class HouseAdsResourceModel : BicDB.Container.RecordContainer{
 		public IVariable FilePath = new StringVariable("");

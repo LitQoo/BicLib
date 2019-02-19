@@ -1,19 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
-using System.Linq;
-using System.IO;
 using System.Collections.Generic;
-using BicUtil.AdsManager;
 using BicUtil.Tween;
-using System;
+using UnityEngine;
 
-namespace HouseAds
+namespace BicUtil.Ads
 {
-    public class HouseInterstitialController : MonoBehaviour
+    public class LocalInterstitialController : MonoBehaviour
     {
         #region LinkingObject
-        [SerializeField]
-        private HouseBannerController houseBanner;
         [SerializeField]
         private UnityEngine.UI.Text timeCountText;
         [SerializeField]
@@ -29,22 +24,37 @@ namespace HouseAds
         #endregion
 
         #region 
-        public void Load(object _adsType, HouseAdsModel _model, int _time){
-            houseBanner.Load(_adsType.ToString(), _model);
-            closeButton.gameObject.SetActive(false);
-            timeCountText.gameObject.SetActive(true);
+        public void Load(int _time){
+            if(closeButton != null){
+                closeButton.gameObject.SetActive(false);
+            }
+
+            if(timeCountText != null){
+                timeCountText.gameObject.SetActive(true);
+            }
+
             time = _time;
         }
 
         public void Show(){
-            houseBanner.Show();
             this.gameObject.SetActive(true);
-            timeCountText.text = time.ToString();
+
+            if(timeCountText != null){
+                timeCountText.text = time.ToString();
+            }
+
             BicTween.Interval(1f, time).SubscribeRepeat((_tween, _count)=>{
-                timeCountText.text = (time - _count + 1).ToString();
+                if(timeCountText != null){
+                    timeCountText.text = (time - _count + 1).ToString();
+                }
             }).SubscribeComplete(()=>{
-                closeButton.gameObject.SetActive(true);
-                timeCountText.gameObject.SetActive(false);
+                if(closeButton != null){
+                    closeButton.gameObject.SetActive(true);
+                }
+
+                if(timeCountText != null){
+                    timeCountText.gameObject.SetActive(false);
+                }
             }).SetTargetObject(this.gameObject);
         }
 
@@ -56,11 +66,6 @@ namespace HouseAds
             }
 
             Destroy(this.gameObject);
-        }
-
-        public void MoveToStore(){
-            houseBanner.MoveToStore();
-            this.Close();
         }
         #endregion
     }

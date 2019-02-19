@@ -1,7 +1,7 @@
 
 using System;
 
-namespace BicUtil.AdsManager{
+namespace BicUtil.Ads{
 
     public class DummyManager : IAdsPlatform
     {
@@ -15,7 +15,7 @@ namespace BicUtil.AdsManager{
             
         }
 
-        public IAdsBanner CreateBanner(object _adsType)
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
             return null;
         }

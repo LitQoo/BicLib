@@ -8,11 +8,11 @@ using System.Linq;
 using BicDB.Container;
 using BicUtil.ResourceDownloader;
 using BicUtil.Tween;
-using BicUtil.AdsManager;
+using BicUtil.Ads;
 using BicUtil.SingletonBase;
 using System.Collections.Generic;
 
-namespace HouseAds
+namespace BicUtil.Ads
 {
 	public class HouseAdsManager : MonoBehaviourHardBase<HouseAdsManager> , IAdsPlatform{
 		
@@ -72,13 +72,13 @@ namespace HouseAds
 					string _url = HouseAdsTable [i].Images [j].AsString;
 					var _item = HouseAdsResourceTable.FirstOrDefault (_row => _row.Url.AsString == _url);
 					if (_item == null) {
-						ResourceDownloader.GetInstance ().DownlaodAndSaveImage (_url, Guid.NewGuid ().ToString () + ".png", onFinishedDownloadResource);
+						ResourceDownloader.ResourceDownloader.GetInstance ().DownlaodAndSaveImage (_url, Guid.NewGuid ().ToString () + ".png", onFinishedDownloadResource);
 					}
 				}
 			}
 		}
 
-		void onFinishedDownloadResource (ResourceDownloader.ResultParam _param)
+		void onFinishedDownloadResource (ResourceDownloader.ResourceDownloader.ResultParam _param)
 		{
 			if (_param.IsSuccess) {
 				saveResourceInfo (_param.Url, _param.SavePath);
@@ -175,15 +175,16 @@ namespace HouseAds
 			showInterstitial(_adsType, _callback, 20);
         }
 
-        public IAdsBanner CreateBanner(object _adsType)
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
-			if(adsData.ContainsKey(_adsType) == true){
+            if(adsData.ContainsKey(_adsType) == true){
 				string _prefabPath = adsData[_adsType].Data as string;
 				var _ads = getHouseAds(_adsType);
 
 				if(_ads != null){
 					var _banner = Instantiate(Resources.Load<HouseBannerController>(_prefabPath));
 					_banner.Load(adsData[_adsType].AdsType.ToString(), _ads);
+					_onLoadBannerAction(_banner);
 					return _banner;
 				}
 			}
