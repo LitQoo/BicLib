@@ -71,7 +71,7 @@ namespace BicUtil.Ads
             this.transform.SetParent(_parent);
             this.transform.localPosition = _position;
 
-            if(_position.y > 0){
+            if(_parent.localPosition.y > 0){
                 bannerView.SetPosition(AdPosition.Top);
             }else{
                 bannerView.SetPosition(AdPosition.Bottom);

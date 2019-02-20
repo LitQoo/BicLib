@@ -265,6 +265,10 @@ namespace BicUtil.Json
 
         private void makeModelByCompressJson<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new()
         {
+
+			#if UNITY_EDITOR
+			Debug.Log("[BicDB] makeModelByCompressJson " + _table.Name);
+			#endif
             ListContainer<StringVariable> fieldNames = new ListContainer<StringVariable>();
             fieldNames.BuildVariable(ref _json, ref _counter, this);
             while (_counter < _json.Length)
@@ -317,7 +321,7 @@ namespace BicUtil.Json
 
             if (_findRow != null)
             {
-                (_findRow as IRecordContainer).CopyBy(_model);
+                (_findRow as IRecordContainer).MergeCopyBy(_model);
             }
             else
             {
@@ -739,8 +743,10 @@ namespace BicUtil.Json
 		}
 
 		public void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter){
-			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
+			if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "\"", "\n\t ")) {
 				throw new SystemException("fail find first \"");
+				BuildNumberVariable(_variable, ref _json,ref _counter);
+				return;
 			}
 
 			_counter++;

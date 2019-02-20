@@ -57,7 +57,7 @@ namespace BicDB.Container
 
 		void NotifyChanged(string _message = "");
 		void AddManagedColumn(string _key, IDataBase _value);
-		void CopyBy(IRecordContainer _model);
+		void MergeCopyBy(IRecordContainer _model);
 		void Commit();
 	}
 
