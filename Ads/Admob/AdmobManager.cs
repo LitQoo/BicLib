@@ -169,9 +169,13 @@ namespace BicUtil.Ads{
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
-            var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));
-            _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction);
-            return _banner;
+            if(adsData.ContainsKey(_adsType) == true){
+                var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));
+                _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction);
+                return _banner;
+            }else{
+                return null;
+            }
         }
 
         #endregion
