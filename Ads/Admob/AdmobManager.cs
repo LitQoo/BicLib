@@ -15,13 +15,15 @@ namespace BicUtil.Ads{
 
         #region Logic
         private RewardBasedVideoAd rewardBasedVideo;
-        bool isInit = false;
-        public AdmobManager(){
-            if(isInit == true){
-                return; 
-            }
+        public AdmobManager(string _androidAppId, string _iosAppId){
+            
+            #if UNITY_IOS
+            MobileAds.Initialize(_iosAppId);
+            #endif
 
-            isInit = true;
+            #if UNITY_ANDROID
+            MobileAds.Initialize(_androidAppId);
+            #endif
 
             rewardBasedVideo = RewardBasedVideoAd.Instance;
             rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
@@ -38,18 +40,6 @@ namespace BicUtil.Ads{
         public void SetAdsSettingAndroidOnly(string _adsId, object _type){
             #if UNITY_ANDROID
             adsData[_type] = new AdsPlatformInfo(_adsId, _type);
-            #endif
-        }
-
-        public void SetPlatformIos(string _id){
-            #if UNITY_IOS
-            MobileAds.Initialize(_id);
-            #endif
-        }
-
-        public void SetPlatformAndroid(string _id){
-            #if UNITY_ANDROID
-            MobileAds.Initialize(_id);
             #endif
         }
         
