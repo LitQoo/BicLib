@@ -96,6 +96,10 @@ namespace BicDB.Storage
 				_encryptKey = encryptKeys[_table.Name];
 			}
 			
+			#if UNITY_EDITOR
+			Debug.Log("[FileStorage] write " + _table.Name + "/" + _encryptKey);
+			#endif
+
 			FileStorage.Write(_json, getFileName(_table.Name), _encryptKey);
 
 			if (_callback != null) {
@@ -130,6 +134,10 @@ namespace BicDB.Storage
 					_encryptKey = GetEncryptKey(_table.Name);
 				}
 			}
+			
+			#if UNITY_EDITOR
+			Debug.Log("[FileStorage] load " + _table.Name + "/" + _encryptKey);
+			#endif
 			
 			string _data = FileStorage.Read(getFileName(_table.Name), _encryptKey);
 			int _hashCode = 0;
@@ -168,7 +176,7 @@ namespace BicDB.Storage
 			string _path = Application.persistentDataPath + "/" + _fileName;
 			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
 			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
-
+			
 			if(_key != string.Empty){
 				_streamWriter.WriteLine(AESEncrypt256(_data, _key));
 			}else{
