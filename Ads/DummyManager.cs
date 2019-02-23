@@ -12,7 +12,6 @@ namespace BicUtil.Ads{
 
         public DummyManager()
         {
-            
         }
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)

@@ -208,8 +208,13 @@ namespace BicDB.Storage
 				_file.Close();
 
 				if(_key != string.Empty){
-					var _result = AESDecrypt256(_data, _key);
-					return _result;
+					try{
+						var _result = AESDecrypt256(_data, _key);
+						return _result;
+					}catch{
+						Debug.Log("key = " + _key + "/ data = " + _data);
+						return _data;
+					}
 				}else{
 					return _data;
 				}

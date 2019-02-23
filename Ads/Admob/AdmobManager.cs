@@ -10,13 +10,12 @@ namespace BicUtil.Ads{
     public class AdmobManager : IAdsPlatform
     {
         #region InstantData
-        Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
+        private Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
 
         #region Logic
         private RewardBasedVideoAd rewardBasedVideo;
         public AdmobManager(string _androidAppId, string _iosAppId){
-            
             #if UNITY_IOS
             MobileAds.Initialize(_iosAppId);
             #endif

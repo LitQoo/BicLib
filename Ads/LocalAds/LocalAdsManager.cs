@@ -16,7 +16,6 @@ namespace BicUtil.Ads
         #region LifeCycle
         public override void Initialize()
         {
-            
         }
         #endregion
 

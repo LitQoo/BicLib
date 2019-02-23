@@ -25,7 +25,7 @@ namespace BicUtil.Ads
         bool IsReadyRewardBased(object _adsType);
         void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
 
-        void SetAdsSetting(string _adsId, object _type, int _playTimeInterval);
+        void SetAdsSetting(object _type, int _playTimeInterval);
         void AddAdsPlatform(IAdsPlatform _platform);
         IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction);
         void RemoveBanner(IAdsBanner _adsType);
@@ -60,14 +60,12 @@ namespace BicUtil.Ads
     }
 
     public class AdsInfo{
-        public string AdsId;
         public object AdsType;
         public int TimeInterval;
         public long LastPlayedAdsTime;
         public object Data = null;
 
-        public AdsInfo(string _adsId, object _type, int _playTimeInterval){
-            this.AdsId = _adsId;
+        public AdsInfo(object _type, int _playTimeInterval){
             this.AdsType = _type;
             this.TimeInterval = _playTimeInterval;
             this.LastPlayedAdsTime = getTimestamp();
