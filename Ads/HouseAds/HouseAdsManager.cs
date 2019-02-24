@@ -19,6 +19,7 @@ namespace BicUtil.Ads
 		#region InstantData
 		private Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
 		private string dataUrl = string.Empty;
+		private bool isReadyByRandom = false;
 		#endregion
 		
 		#region Init
@@ -53,6 +54,7 @@ namespace BicUtil.Ads
 
 		private float reloadInterval = 2f;
 		private void loadByServer(){
+			Debug.Log("loadbyserver");
 			HouseAdsTable.Load (onLoadedData, new SyncStorageParameter(SyncStorageParameter.SyncMode.All, SyncStorageParameter.SyncTarget.All));
 		}
 
@@ -60,13 +62,28 @@ namespace BicUtil.Ads
 			if (_result.Code == (int)SyncStorage.ResultCode.Success) {
 				HouseAdsTable.Save ();
 				downloadResource ();
+				updateIsReadyByRandom();
 			} else {
 				BicTween.Delay (reloadInterval).SubscribeComplete(loadByServer);
 				reloadInterval *= 2f;
 			}
 		}
 
-		private void downloadResource(){
+        private void updateIsReadyByRandom()
+        {
+            if(HouseAdsTable.Property.ContainsKey("ViewRate") == true){
+				var _viewRate = HouseAdsTable.Property["ViewRate"].AsVariable.AsInt;
+				var _rand = UnityEngine.Random.Range(0, 100);
+				if(_rand < _viewRate){
+					isReadyByRandom = true;
+					return;
+				}
+			}
+
+			isReadyByRandom = false;
+        }
+
+        private void downloadResource(){
 			for (int i = 0; i < HouseAdsTable.Count; i++) {
 				for (int j = 0; j < HouseAdsTable [i].Images.Count; j++) {
 					string _url = HouseAdsTable [i].Images [j].AsString;
@@ -117,6 +134,11 @@ namespace BicUtil.Ads
 				return false;
 			}
 
+			if(isReadyByRandom == false){
+				updateIsReadyByRandom();
+				return false;
+			}
+
 			var _count = getAdsList(_adsType).Count();
 
 			if(_count > 0){
@@ -129,6 +151,7 @@ namespace BicUtil.Ads
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
 			showInterstitial(_adsType, _callback, 5);
+			updateIsReadyByRandom();
         }
 
 		private void showInterstitial(object _adsType, Action<AdsResult> _callback, int _time){
@@ -173,6 +196,7 @@ namespace BicUtil.Ads
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
 			showInterstitial(_adsType, _callback, 20);
+			updateIsReadyByRandom();
         }
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
@@ -185,6 +209,7 @@ namespace BicUtil.Ads
 					var _banner = Instantiate(Resources.Load<HouseBannerController>(_prefabPath));
 					_banner.Load(adsData[_adsType].AdsType.ToString(), _ads);
 					_onLoadBannerAction(_banner);
+					updateIsReadyByRandom();
 					return _banner;
 				}
 			}
