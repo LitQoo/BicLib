@@ -298,5 +298,15 @@ namespace BicUtil.Tween{
 				}
 			}
 		}
-    }
+
+		public void CancelAll(){
+			var _count = TweenList.Count;
+			for(int i = 0; i < TweenList.Count; i++){
+				var _tween = TweenList[i];
+				if(_tween.IsPlaying == true){
+					_tween.Cancel(_tween.Id);
+				}
+			}
+		}
+  }
 }

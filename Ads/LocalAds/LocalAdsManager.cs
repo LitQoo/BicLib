@@ -97,6 +97,7 @@ namespace BicUtil.Ads
 
                 var _canvasList = Resources.FindObjectsOfTypeAll(typeof(Canvas));
                 var _canvas = (_canvasList[0] as Canvas);
+                
                 _interstitial.transform.SetParent(_canvas.transform);
                 _interstitial.transform.localScale = new Vector2(1f, 1f);
                 _interstitial.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
