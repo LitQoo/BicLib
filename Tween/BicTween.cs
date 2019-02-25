@@ -542,6 +542,14 @@ namespace BicUtil.Tween
 				defaultPool.Cancel(_targetObject);
 			}
 		}
+
+		public static void CancelAll(TweenPool _pool = null){
+			if(_pool != null){
+				_pool.CancelAll();
+			}else{
+				defaultPool.CancelAll();
+			}
+		}
 		#endregion
 
 
