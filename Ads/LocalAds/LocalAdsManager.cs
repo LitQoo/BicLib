@@ -4,6 +4,7 @@ using UnityEngine;
 using BicUtil.SingletonBase;
 using System;
 using System.Linq;
+using BicUtil.Tween;
 
 namespace BicUtil.Ads
 {
@@ -11,6 +12,7 @@ namespace BicUtil.Ads
     {
         #region InstantData
         private List<LocalAdsInfo> adsData = new List<LocalAdsInfo>();
+        public float ReloadTime = 60;
         #endregion
 
         #region LifeCycle
@@ -33,6 +35,13 @@ namespace BicUtil.Ads
             if(_ads != null){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<LocalBannerController>(_ads.PrefabPath));
                 _onLoadBannerAction(_banner);
+
+                var _nextAdsType = _adsType;
+                var _nextOnLoadBannerAction = _onLoadBannerAction;
+                BicTween.Delay(ReloadTime).SetTargetObject(_banner.gameObject).SubscribeComplete(()=>{
+                    _banner.Destroy();
+                    AdsManager.Instance.CreateBanner(_nextAdsType, _nextOnLoadBannerAction);
+                });
                 return _banner;
             }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.Analytics;
 
@@ -9,12 +10,12 @@ namespace BicUtil.Ads
     {
         public void Destroy()
         {
-            AdsManager.Instance.RemoveBanner(this);
             Destroy(this.gameObject);
         }
         
         private void OnDestroy() {
             AdsManager.Instance.RemoveBanner(this);
+            BicTween.Cancel(this.gameObject);
         }
 
         public void Hide()
@@ -40,7 +41,6 @@ namespace BicUtil.Ads
         }
 
         public void MoveToStore(string _iosId, string _androidId, string _campainName){
-            
             Analytics.CustomEvent("clickHouseAds", new Dictionary<string, object>
             {
                 { "type", "houseAds"  },
