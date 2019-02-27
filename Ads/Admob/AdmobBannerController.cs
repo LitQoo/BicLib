@@ -52,7 +52,6 @@ namespace BicUtil.Ads
         #region IAdsBanner
         public void Destroy()
         {
-            AdsManager.Instance.RemoveBanner(this);
             Destroy(this.gameObject);
         }
 

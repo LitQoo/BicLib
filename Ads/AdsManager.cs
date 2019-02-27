@@ -12,6 +12,7 @@ namespace BicUtil.Ads
         Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
         Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
         List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
+        List<object> passAdsList = new List<object>();
         #endregion
         
         public override void Initialize()
@@ -54,6 +55,10 @@ namespace BicUtil.Ads
 
         public bool IsReadyInterstitial(object _adsType)
         {
+            if(passAdsList.Contains(_adsType) == true){
+                return true;
+            }
+
             if(isPossiblePlayAds(_adsType) == false){
                 return false;
             }
@@ -69,6 +74,10 @@ namespace BicUtil.Ads
 
         public bool IsReadyRewardBased(object _adsType)
         {
+            if(passAdsList.Contains(_adsType) == true){
+                return true;
+            }
+
             if(isPossiblePlayAds(_adsType) == false){
                 return false;
             }
@@ -98,8 +107,14 @@ namespace BicUtil.Ads
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
+            if(passAdsList.Contains(_adsType) == true){
+                _callback(AdsResult.Finished);
+                return;
+            }
+
             if(isPossiblePlayAds(_adsType) == false){
                 _callback(AdsResult.Failed);
+                return;
             }
 
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
@@ -127,8 +142,14 @@ namespace BicUtil.Ads
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
+            if(passAdsList.Contains(_adsType) == true){
+                _callback(AdsResult.Finished);
+                return;
+            }
+
             if(isPossiblePlayAds(_adsType) == false){
                 _callback(AdsResult.Failed);
+                return;
             }
 
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
@@ -161,6 +182,10 @@ namespace BicUtil.Ads
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadAction){
+            if(passAdsList.Contains(_adsType) == true){
+                return new DummyBanner();
+            }
+
             for(int i = 0; i < adsPlatforms.Count; i++)
             {
                 var _banner = createBanner(_adsType, _onLoadAction, adsPlatforms[i]);
@@ -211,6 +236,14 @@ namespace BicUtil.Ads
                 var _item = bannerList.First(_row => _row.Value == _banner);
                 bannerList.Remove(_item.Key);
             }
+        }
+
+        public void SetPass(object _adsType){
+            if(passAdsList.Contains(_adsType) == false){
+                passAdsList.Add(_adsType);
+            }
+
+            GetBanner(_adsType).Destroy();
         }
     }
 

@@ -12,7 +12,7 @@ namespace BicUtil.Ads
     {
         #region InstantData
         private List<LocalAdsInfo> adsData = new List<LocalAdsInfo>();
-        public float ReloadTime = 60;
+        public float BannerReloadTime = 60;
         #endregion
 
         #region LifeCycle
@@ -22,8 +22,8 @@ namespace BicUtil.Ads
         #endregion
 
         #region set 
-        public void SetAdsSetting(object _adsType, string _prefabPath, int _wieght, int _time, Func<bool> _isReady){
-            var _ads = new LocalAdsInfo(_adsType, _prefabPath, _wieght, _time, _isReady);
+        public void SetAdsSetting(object _adsType, string _prefabPath, int _wieght, Func<bool> _isReady){
+            var _ads = new LocalAdsInfo(_adsType, _prefabPath, _wieght, _isReady);
             adsData.Add(_ads);
         }
         #endregion
@@ -38,7 +38,7 @@ namespace BicUtil.Ads
 
                 var _nextAdsType = _adsType;
                 var _nextOnLoadBannerAction = _onLoadBannerAction;
-                BicTween.Delay(ReloadTime).SetTargetObject(_banner.gameObject).SubscribeComplete(()=>{
+                BicTween.Delay(BannerReloadTime).SetTargetObject(_banner.gameObject).SubscribeComplete(()=>{
                     _banner.Destroy();
                     AdsManager.Instance.CreateBanner(_nextAdsType, _nextOnLoadBannerAction);
                 });
@@ -123,7 +123,7 @@ namespace BicUtil.Ads
 
            foreach(var _ads in _adsList){
                _sumWeight += _ads.ViewWeight;
-               if (_sumWeight >= _selectWeight) {
+               if (_sumWeight >= _selectWeight){
                    return _ads;
                }
            }
@@ -142,14 +142,12 @@ namespace BicUtil.Ads
 
     public class LocalAdsInfo{
         public object AdsType;
-        public int Time;
         public string PrefabPath;
         public int ViewWeight;
         private Func<bool> isReady;
 
-        public LocalAdsInfo(object _type, string _prefabPath, int _weight, int _time, Func<bool> _isReady){
+        public LocalAdsInfo(object _type, string _prefabPath, int _weight, Func<bool> _isReady){
             this.AdsType = _type;
-            this.Time = _time;
             this.PrefabPath = _prefabPath;
             this.ViewWeight = _weight;
             this.isReady = _isReady;
