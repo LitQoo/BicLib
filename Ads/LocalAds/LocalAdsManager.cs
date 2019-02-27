@@ -22,8 +22,8 @@ namespace BicUtil.Ads
         #endregion
 
         #region set 
-        public void SetAdsSetting(object _adsType, string _prefabPath, int _wieght, Func<bool> _isReady){
-            var _ads = new LocalAdsInfo(_adsType, _prefabPath, _wieght, _isReady);
+        public void SetAdsSetting(string _id, object _adsType, string _prefabPath, int _wieght, Func<bool> _isReady){
+            var _ads = new LocalAdsInfo(_id, _adsType, _prefabPath, _wieght, _isReady);
             adsData.Add(_ads);
         }
         #endregion
@@ -83,6 +83,15 @@ namespace BicUtil.Ads
         {
         }
 
+        public void ShowInterstitial(string _id, Action<AdsResult> _callback, int _time){
+            var _ads = adsData.FirstOrDefault(_row=>_row.Id == _id);
+            if(_ads != null){
+                showInterstitialByPrefab(_ads, _callback, _time);
+            }else{
+                _callback(AdsResult.Failed);
+            }
+        }
+
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
             showInterstitial(_adsType, _callback, 5);
@@ -106,24 +115,28 @@ namespace BicUtil.Ads
             }
 
             if(_ads != null){
-                var _interstitial = MonoBehaviour.Instantiate(Resources.Load<LocalInterstitialController>(_ads.PrefabPath));
-                _interstitial.OnClose += ()=>{
-                    _callback(AdsResult.Finished);
-                };
-
-                var _canvasList = Resources.FindObjectsOfTypeAll(typeof(Canvas));
-                var _canvas = (_canvasList[0] as Canvas);
-                
-                _interstitial.transform.SetParent(_canvas.transform);
-                _interstitial.transform.localScale = new Vector2(1f, 1f);
-                _interstitial.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
-                _interstitial.GetComponent<RectTransform>().offsetMax = new Vector2(0f, 0f);
-                _interstitial.Load(_time);
-                _interstitial.Show();
+                showInterstitialByPrefab(_ads, _callback, _time);
 
             }else{
                 _callback(AdsResult.Failed);
             }
+        }
+
+        private void showInterstitialByPrefab(LocalAdsInfo _ads, Action<AdsResult> _callback, int _time){
+            var _interstitial = MonoBehaviour.Instantiate(Resources.Load<LocalInterstitialController>(_ads.PrefabPath));
+            _interstitial.OnClose += ()=>{
+                _callback(AdsResult.Finished);
+            };
+
+            var _canvasList = Resources.FindObjectsOfTypeAll(typeof(Canvas));
+            var _canvas = (_canvasList[0] as Canvas);
+
+            _interstitial.transform.SetParent(_canvas.transform);
+            _interstitial.transform.localScale = new Vector2(1f, 1f);
+            _interstitial.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
+            _interstitial.GetComponent<RectTransform>().offsetMax = new Vector2(0f, 0f);
+            _interstitial.Load(_time);
+            _interstitial.Show();
         }
 
         public LocalAdsInfo GetAds(object _adsType){
@@ -157,12 +170,14 @@ namespace BicUtil.Ads
     
 
     public class LocalAdsInfo{
+        public string Id;
         public object AdsType;
         public string PrefabPath;
         public int ViewWeight;
         private Func<bool> isReady;
 
-        public LocalAdsInfo(object _type, string _prefabPath, int _weight, Func<bool> _isReady){
+        public LocalAdsInfo(string _id, object _type, string _prefabPath, int _weight, Func<bool> _isReady){
+            this.Id = _id;
             this.AdsType = _type;
             this.PrefabPath = _prefabPath;
             this.ViewWeight = _weight;
