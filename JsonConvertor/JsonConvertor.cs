@@ -301,6 +301,7 @@ namespace BicUtil.Json
                 }
 
                 addRowToTable(_table, _model);
+				
             }
         }
 
@@ -744,7 +745,6 @@ namespace BicUtil.Json
 
 		public void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "\"", "\n\t ")) {
-				throw new SystemException("fail find first \"");
 				BuildNumberVariable(_variable, ref _json,ref _counter);
 				return;
 			}
