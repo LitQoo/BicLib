@@ -12,6 +12,7 @@ namespace BicUtil.Ads
         bool IsReadyRewardBased(object _adsType);
         void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
         
+        bool IsReadyBanner(object _adsType);
         IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction);
     }
 

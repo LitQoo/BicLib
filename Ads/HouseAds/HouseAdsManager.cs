@@ -54,7 +54,6 @@ namespace BicUtil.Ads
 
 		private float reloadInterval = 2f;
 		private void loadByServer(){
-			Debug.Log("loadbyserver");
 			HouseAdsTable.Load (onLoadedData, new SyncStorageParameter(SyncStorageParameter.SyncMode.All, SyncStorageParameter.SyncTarget.All));
 		}
 
@@ -198,6 +197,11 @@ namespace BicUtil.Ads
 			showInterstitial(_adsType, _callback, 20);
 			updateIsReadyByRandom();
         }
+
+
+		public bool IsReadyBanner(object _adsType){
+			return adsData.ContainsKey(_adsType);
+		}
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {

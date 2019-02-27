@@ -155,7 +155,10 @@ namespace BicUtil.Ads{
 
         #region Banner
         private BannerView bannerView;
-
+        
+        public bool IsReadyBanner(object _adsType){
+            return true;
+        }
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
             if(adsData.ContainsKey(_adsType) == true){

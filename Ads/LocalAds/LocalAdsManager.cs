@@ -29,9 +29,20 @@ namespace BicUtil.Ads
         #endregion
 
         #region IAdsPlatform
+        public bool IsReadyBanner(object _adsType){
+            var _ads = adsData.FirstOrDefault(_row=>_row.AdsType.ToString() == _adsType.ToString() && _row.IsReady() == true);
+            selectedAds[_adsType] = _ads;
+            return _ads != null;
+        }
+
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
-            var _ads = adsData.FirstOrDefault(_row=>_row.AdsType.ToString() == _adsType.ToString());
+            var _ads = selectedAds[_adsType];
+            
+            if(_ads == null){
+                _ads = adsData.FirstOrDefault(_row=>_row.AdsType.ToString() == _adsType.ToString());
+            }
+
             if(_ads != null){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<LocalBannerController>(_ads.PrefabPath));
                 _onLoadBannerAction(_banner);
@@ -48,14 +59,20 @@ namespace BicUtil.Ads
             return null;
         }
 
+        private Dictionary<object, LocalAdsInfo> selectedAds = new Dictionary<object, LocalAdsInfo>();        
+        
         public bool IsReadyInterstitial(object _adsType)
         {
-            return isReady(_adsType);
+            selectedAds[_adsType] = GetAds(_adsType);
+            
+            return selectedAds[_adsType] != null;
         }
 
         public bool IsReadyRewardBased(object _adsType)
         {
-            return isReady(_adsType);
+            selectedAds[_adsType] = GetAds(_adsType);
+
+            return selectedAds[_adsType] != null;
         }
 
         public void LoadInterstitial(object _adsType)
@@ -75,19 +92,18 @@ namespace BicUtil.Ads
         {
             showInterstitial(_adsType, _callback, 20);
         }
-        
-        private bool isReady(object _adsType){
-            var _count = getAdsList(_adsType).Count();
-
-            if(_count > 0){
-                return true;
-            }else{
-                return false;
-            }
-        }
 
         private void showInterstitial(object _adsType, Action<AdsResult> _callback, int _time){
-            var _ads = GetAds(_adsType);
+            LocalAdsInfo _ads = null;
+            
+            if(selectedAds.ContainsKey(_adsType) == true){
+                _ads = selectedAds[_adsType];
+                selectedAds[_adsType] = null;
+            }
+            
+            if(_ads == null){
+                _ads = GetAds(_adsType);
+            }
 
             if(_ads != null){
                 var _interstitial = MonoBehaviour.Instantiate(Resources.Load<LocalInterstitialController>(_ads.PrefabPath));

@@ -53,6 +53,7 @@ namespace BicUtil.Ads
             defaultAdsData[_type] = _platform;
         }
 
+        int selectedInterstitialPlatform = -1;
         public bool IsReadyInterstitial(object _adsType)
         {
             if(passAdsList.Contains(_adsType) == true){
@@ -65,6 +66,7 @@ namespace BicUtil.Ads
 
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyInterstitial(_adsType) == true){
+                    selectedInterstitialPlatform = i;
                     return true;
                 }
             }
@@ -112,18 +114,19 @@ namespace BicUtil.Ads
                 return;
             }
 
-            if(isPossiblePlayAds(_adsType) == false){
-                _callback(AdsResult.Failed);
-                return;
-            }
-
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
                 } 
 
+                selectedInterstitialPlatform = -1;
                 _callback(_adsResult);
             };
+
+            if(selectedInterstitialPlatform >= 0){
+                adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsType, _func);
+                return;
+            }
 
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyInterstitial(_adsType) == true){
@@ -188,14 +191,16 @@ namespace BicUtil.Ads
 
             for(int i = 0; i < adsPlatforms.Count; i++)
             {
-                var _banner = createBanner(_adsType, _onLoadAction, adsPlatforms[i]);
-                if(_banner != null){
-                    return _banner;
+                if(adsPlatforms[i].IsReadyBanner(_adsType) == true){
+                    var _banner = createBanner(_adsType, _onLoadAction, adsPlatforms[i]);
+                    if(_banner != null){
+                        return _banner;
+                    }
                 }
             }
 
             if (defaultAdsData.ContainsKey(_adsType) == true){
-                var _banner = createBanner(_adsType, _onLoadAction, defaultAdsData[_adsType]);
+                var _banner = createBanner(_adsType, _onLoadAction, defaultAdsData[_adsType], true);
                 if(_banner != null){
                     return _banner;
                 }
@@ -204,7 +209,7 @@ namespace BicUtil.Ads
             return new DummyBanner();
         }
 
-        private IAdsBanner createBanner(object _adsType, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform)
+        private IAdsBanner createBanner(object _adsType, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform, bool isForced = false)
         {
             var _banner = _platform.CreateBanner(_adsType, _onLoadAction);
             if (_banner != null)

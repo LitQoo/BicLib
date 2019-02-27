@@ -59,7 +59,7 @@ namespace BicUtil.Ads
 
         public void MoveToStore(){
             houseBanner.MoveToStore();
-            this.Close();
+            BicTween.Delay(0.5f).SubscribeComplete(this.Close);
         }
         #endregion
     }

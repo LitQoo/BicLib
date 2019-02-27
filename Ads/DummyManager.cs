@@ -14,6 +14,11 @@ namespace BicUtil.Ads{
         {
         }
 
+
+        public bool IsReadyBanner(object _adsType){
+            return false;
+        }
+
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
             return null;
