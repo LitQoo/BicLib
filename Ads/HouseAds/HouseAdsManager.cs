@@ -70,15 +70,22 @@ namespace BicUtil.Ads
 
         private void updateIsReadyByRandom()
         {
+			Debug.Log("HouseAds start updateIsReadyByRandom");
             if(HouseAdsTable.Property.ContainsKey("ViewRate") == true){
 				var _viewRate = HouseAdsTable.Property["ViewRate"].AsVariable.AsInt;
 				var _rand = UnityEngine.Random.Range(0, 100);
+				Debug.Log("_viewRate = " + _viewRate.ToString());
 				if(_rand < _viewRate){
 					isReadyByRandom = true;
+					Debug.Log("HouseAds updateIsReadyByRandom true");
 					return;
 				}
+			}else{
+
+				Debug.Log("HouseAds updateIsReadyByRandom not found viewrate");
 			}
 
+			Debug.Log("HouseAds updateIsReadyByRandom false");
 			isReadyByRandom = false;
         }
 
