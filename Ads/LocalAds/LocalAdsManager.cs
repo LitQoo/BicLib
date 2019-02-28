@@ -160,9 +160,9 @@ namespace BicUtil.Ads
            return _adsList.ElementAt(0);
         }
 
-        private IEnumerable<LocalAdsInfo> getAdsList(object _adsType)
+        private List<LocalAdsInfo> getAdsList(object _adsType)
         {
-            return adsData.Where(_row => _row.IsReady() == true && (_row.AdsType.ToString() == _adsType.ToString()));
+            return adsData.Where(_row => _row.IsReady() == true && (_row.AdsType.ToString() == _adsType.ToString())).ToList();
         }
         #endregion
     }

@@ -254,10 +254,10 @@ namespace BicUtil.Ads
 			return _adsList.ElementAt(0);
 		}
 
-        private IEnumerable<HouseAdsModel> getAdsList(object _adsType)
+        private List<HouseAdsModel> getAdsList(object _adsType)
         {
 			var _id = adsData[_adsType].PlatformId;
-            return HouseAdsManager.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true));
+            return HouseAdsManager.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true)).ToList();
         }
     }
 }
