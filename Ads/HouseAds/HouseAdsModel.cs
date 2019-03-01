@@ -34,7 +34,7 @@ namespace BicUtil.Ads
 
 		public bool IsLoaded(){
 			for (int i = 0; i < Images.Count; i++) {
-				var _item = HouseAdsManager.HouseAdsResourceTable.FirstOrDefault (_row => _row.Url.AsString == Images[i].AsString);
+				var _item = HouseAdsManager.Instance.HouseAdsResourceTable.FirstOrDefault (_row => _row.Url.AsString == Images[i].AsString);
 				if (_item == null) {
 					return false;
 				}
@@ -46,7 +46,7 @@ namespace BicUtil.Ads
 			List<string> _result = new List<string>();
 
 			for (int i = 0; i < Images.Count; i++) {
-				var _item = HouseAdsManager.HouseAdsResourceTable.FirstOrDefault(_row => _row.Url.AsString == Images[i].AsString);
+				var _item = HouseAdsManager.Instance.HouseAdsResourceTable.FirstOrDefault(_row => _row.Url.AsString == Images[i].AsString);
 				_result.Add(_item.FilePath.AsString);
 			}
 

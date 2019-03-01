@@ -29,8 +29,8 @@ namespace BicUtil.Ads
 		#endregion
 
 		#region Database
-		static public ITableContainer<HouseAdsModel> HouseAdsTable;
-		static public ITableContainer<HouseAdsResourceModel> HouseAdsResourceTable;
+		public ITableContainer<HouseAdsModel> HouseAdsTable;
+		public ITableContainer<HouseAdsResourceModel> HouseAdsResourceTable;
 		private void setDatabase(){
 			HouseAdsTable = BicDB.Manager.GetOrCreateTable<HouseAdsModel> ("houseAdsTable");
 			
@@ -70,22 +70,15 @@ namespace BicUtil.Ads
 
         private void updateIsReadyByRandom()
         {
-			Debug.Log("HouseAds start updateIsReadyByRandom");
-            if(HouseAdsTable.Property.ContainsKey("ViewRate") == true){
+			if(HouseAdsTable.Property.ContainsKey("ViewRate") == true){
 				var _viewRate = HouseAdsTable.Property["ViewRate"].AsVariable.AsInt;
 				var _rand = UnityEngine.Random.Range(0, 100);
-				Debug.Log("_viewRate = " + _viewRate.ToString());
 				if(_rand < _viewRate){
 					isReadyByRandom = true;
-					Debug.Log("HouseAds updateIsReadyByRandom true");
 					return;
 				}
-			}else{
-
-				Debug.Log("HouseAds updateIsReadyByRandom not found viewrate");
 			}
-
-			Debug.Log("HouseAds updateIsReadyByRandom false");
+			
 			isReadyByRandom = false;
         }
 
@@ -257,7 +250,7 @@ namespace BicUtil.Ads
         private List<HouseAdsModel> getAdsList(object _adsType)
         {
 			var _id = adsData[_adsType].PlatformId;
-            return HouseAdsManager.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true)).ToList();
+            return HouseAdsManager.Instance.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true)).ToList();
         }
     }
 }
