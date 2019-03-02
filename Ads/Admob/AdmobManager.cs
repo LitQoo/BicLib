@@ -107,6 +107,7 @@ namespace BicUtil.Ads{
             }
 
             reloadTime = 1;
+            lastPlayedAdType = null;
             loadRewardBased(lastPlayedAdType, 0);
         }
 
