@@ -75,6 +75,7 @@ namespace BicUtil.Ads
             return false;
         }
 
+        int selectedRewardBasedPlatform = -1;
         public bool IsReadyRewardBased(object _adsType)
         {
             if(passAdsList.Contains(_adsType) == true){
@@ -87,6 +88,7 @@ namespace BicUtil.Ads
 
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyRewardBased(_adsType) == true ){
+                    selectedRewardBasedPlatform = i;
                     return true;
                 }
             }
@@ -161,8 +163,15 @@ namespace BicUtil.Ads
                     UpdateLastPlayedAdsTime(_adsType);
                 } 
 
+                selectedRewardBasedPlatform = -1;
                 _callback(_adsResult);
             };
+
+
+            if(selectedRewardBasedPlatform >= 0){
+                adsPlatforms[selectedRewardBasedPlatform].ShowInterstitial(_adsType, _func);
+                return;
+            }
             
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyRewardBased(_adsType) == true){
@@ -170,7 +179,6 @@ namespace BicUtil.Ads
                     return;
                 }
             }
-
 
             if(defaultAdsData.ContainsKey(_adsType) == true){
                 defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
