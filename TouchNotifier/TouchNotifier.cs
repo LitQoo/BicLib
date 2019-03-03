@@ -42,7 +42,9 @@ namespace BicUtil.TouchNotifier
 				isTouchIn[0] = false;
 			} else if (isTouchIn[0] == true) {
 				Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-				OnTouchMove.Invoke (startTouchPosition[0],_position, 0);
+				if(startTouchPosition[0] != _position){
+					OnTouchMove.Invoke (startTouchPosition[0], _position, 0);
+				}
 			}
 
 			#else
@@ -61,7 +63,9 @@ namespace BicUtil.TouchNotifier
 						isTouchIn[i] = false;
 					} else if(isTouchIn[i] == true){
 						Vector2 _position = Camera.main.ScreenToWorldPoint (_touch.position);
-						OnTouchMove.Invoke(startTouchPosition[i], _position, i);
+						if(_position != startTouchPosition[i]){
+							OnTouchMove.Invoke(startTouchPosition[i], _position, i);
+						}
 					}
 				}
 			}
