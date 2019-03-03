@@ -44,19 +44,22 @@ namespace BicUtil.TableView
 		#region Logic
 		public void InitializeCells(){
 			if(cellCount > 0){
-				var _tableCell = transform.GetChild(0).GetComponent<TableCell>();
-				var _cellCount = transform.childCount;
+				var _tableCell = transform.GetComponentInChildren<TableCell>();
+				var _childs = transform.GetComponentsInChildren<TableCell>();
+				var _cellCount = _childs.Length;
 				for(int i = _cellCount; i < cellCount; i++){
 					var _cell = Instantiate(_tableCell.gameObject);
 					_cell.transform.SetParent(this.gameObject.transform);
+					_cell.transform.SetSiblingIndex(_tableCell.transform.GetSiblingIndex());
 				}
 
 				Cells.Clear();
 			}
 			
 			if(Cells.Count <= 0){
-				for(int i = 0; i < transform.childCount; i++){
-					var _tableCell = transform.GetChild(i).GetComponent<TableCell>();
+				var _childs = transform.GetComponentsInChildren<TableCell>();
+				for(int i = 0; i < _childs.Length; i++){
+					var _tableCell = _childs[i];
 					if(_tableCell != null){
 						Cells.Add(_tableCell);
 					}
