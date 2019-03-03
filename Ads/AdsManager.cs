@@ -169,7 +169,7 @@ namespace BicUtil.Ads
 
 
             if(selectedRewardBasedPlatform >= 0){
-                adsPlatforms[selectedRewardBasedPlatform].ShowInterstitial(_adsType, _func);
+                adsPlatforms[selectedRewardBasedPlatform].ShowRewardBased(_adsType, _func);
                 return;
             }
             
@@ -181,7 +181,7 @@ namespace BicUtil.Ads
             }
 
             if(defaultAdsData.ContainsKey(_adsType) == true){
-                defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
+                defaultAdsData[_adsType].ShowRewardBased(_adsType, _func);
             }else{
                 _callback(AdsResult.Failed);
             }

@@ -46,13 +46,13 @@ namespace BicUtil.Ads{
 
         #region Interstitial
         public bool IsReadyInterstitial(object _adsType){
-            LoadInterstitial(_adsType);
 
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
             if(_interstitial != null && _interstitial.IsLoaded() == true){
                 return true;
             }
 
+            LoadInterstitial(_adsType);
             return false;
         }
 
@@ -103,11 +103,13 @@ namespace BicUtil.Ads{
         private void onRewardBasedAdClosed(object sender, EventArgs args){
             if(lastPlayedAdType != null){
                 var _callback = adsData[lastPlayedAdType].Data as Action<AdsResult>;
+                
                 _callback(AdsResult.Finished);
             }
 
             reloadTime = 1;
             lastPlayedAdType = null;
+
             loadRewardBased(lastPlayedAdType, 0);
         }
 
@@ -133,7 +135,8 @@ namespace BicUtil.Ads{
         private void loadRewardBased(object _adsType, int _time){
             object __adsType = _adsType;
             lastPlayedAdType = __adsType;
-            
+            reloadTime = _time;
+
             if(_time == 0){
                 loadRewardBased(__adsType);
             }else{
@@ -149,8 +152,13 @@ namespace BicUtil.Ads{
         }
 
         public bool IsReadyRewardBased(object _adsType){
-            LoadRewardBased(_adsType);
-            return this.rewardBasedVideo.IsLoaded();
+            var _result =  this.rewardBasedVideo.IsLoaded();
+
+            if(_result == false){
+                LoadRewardBased(_adsType);
+            }
+
+            return _result;
         }
         #endregion
 
