@@ -1,7 +1,9 @@
+#if BICUTIL_IAP
 using System;
 using System.Linq;
 using BicDB.Container;
 using BicDB.Storage;
+using BicDB.Variable;
 using UnityEngine.Purchasing;
 
 namespace BicUtil.Purchasing{
@@ -22,7 +24,7 @@ namespace BicUtil.Purchasing{
         public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
         public bool isLoadedProductTable = false;
 
-        public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value)
+        public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value, Action<IVariable> _valueChangedCallback)
         {
             if(isLoadedProductTable == false){
 				ProductTable.SetStorage(FileStorage.GetInstance());
@@ -38,6 +40,11 @@ namespace BicUtil.Purchasing{
             }
 
             _product.ProductType.AsEnum = _productType;
+
+            if(_valueChangedCallback != null){
+                _product.Value.OnChangedValueActions += _valueChangedCallback;
+                _product.Value.NotifyChanged();
+            }
         }
 
         public void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback)
@@ -61,3 +68,4 @@ namespace BicUtil.Purchasing{
         }
     }
 }
+#endif

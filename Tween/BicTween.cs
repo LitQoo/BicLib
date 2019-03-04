@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Spine.Unity;
 #endif
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 namespace BicUtil.Tween
 {
 
@@ -117,6 +119,9 @@ namespace BicUtil.Tween
 			get{
 				if(defaultPool == null){
 					defaultPool = createPool();
+					SceneManager.activeSceneChanged += (_next, _current)=>{
+						defaultPool.CancelAll();
+					};
 				}
 
 				return defaultPool;
@@ -535,6 +540,14 @@ namespace BicUtil.Tween
 				_pool.Cancel(_targetObject);
 			}else{
 				defaultPool.Cancel(_targetObject);
+			}
+		}
+
+		public static void CancelAll(TweenPool _pool = null){
+			if(_pool != null){
+				_pool.CancelAll();
+			}else{
+				defaultPool.CancelAll();
 			}
 		}
 		#endregion

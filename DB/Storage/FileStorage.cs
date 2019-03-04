@@ -37,30 +37,51 @@ namespace BicDB.Storage
 
 		private string encryptKey = "";
 		public void SetEncryptKey(string _key){
-			#if !UNITY_EDITOR
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return;
+			}
+			#endif
+
+
 			if (_key != string.Empty) {
 				encryptKey = _key.PadRight(16, '_');
 			}
-			#endif
 		}
 
 		public void SetEncryptKey(string _tableName, string _key){
-			#if !UNITY_EDITOR
-			if (_key != string.Empty) {
-				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return;
 			}
 			#endif
+
+			if (_key == string.Empty) {
+				encryptKeys[_tableName] = _key;
+			}else{
+				encryptKeys[_tableName] = _key.PadRight(16, '_');
+			}
 		}
 
 		public string GetEncryptKey(string _tableName){
-			#if !UNITY_EDITOR
-			if(encryptKeys.ContainsKey(_tableName)){
-				return encryptKeys[_tableName];
+			#if UNITY_EDITOR
+			if(isEncryptOnEditor == false){
+				return string.Empty;
 			}
 			#endif
 
+			if(encryptKeys.ContainsKey(_tableName)){
+				return encryptKeys[_tableName];
+			}
+			
 			return string.Empty;
 			
+		}
+
+		private bool isEncryptOnEditor = false;
+		public void SetEncryptOnEditor(bool _isEncryptOnEditor)
+		{
+			isEncryptOnEditor = _isEncryptOnEditor;
 		}
 		#endregion
 
@@ -75,6 +96,10 @@ namespace BicDB.Storage
 				_encryptKey = encryptKeys[_table.Name];
 			}
 			
+			#if UNITY_EDITOR
+			Debug.Log("[FileStorage] write " + _table.Name + "/" + _encryptKey);
+			#endif
+
 			FileStorage.Write(_json, getFileName(_table.Name), _encryptKey);
 
 			if (_callback != null) {
@@ -109,6 +134,10 @@ namespace BicDB.Storage
 					_encryptKey = GetEncryptKey(_table.Name);
 				}
 			}
+			
+			#if UNITY_EDITOR
+			Debug.Log("[FileStorage] load " + _table.Name + "/" + _encryptKey);
+			#endif
 			
 			string _data = FileStorage.Read(getFileName(_table.Name), _encryptKey);
 			int _hashCode = 0;
@@ -147,7 +176,7 @@ namespace BicDB.Storage
 			string _path = Application.persistentDataPath + "/" + _fileName;
 			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
 			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
-
+			
 			if(_key != string.Empty){
 				_streamWriter.WriteLine(AESEncrypt256(_data, _key));
 			}else{
@@ -165,7 +194,7 @@ namespace BicDB.Storage
 			#endif
 		}
 
-		static public string Read(string _fileName, string _key){
+        static public string Read(string _fileName, string _key){
 			#if !WEB_BUILD
 			string _path = Application.persistentDataPath + "/" + _fileName;
 			
@@ -179,8 +208,13 @@ namespace BicDB.Storage
 				_file.Close();
 
 				if(_key != string.Empty){
-					var _result = AESDecrypt256(_data, _key);
-					return _result;
+					try{
+						var _result = AESDecrypt256(_data, _key);
+						return _result;
+					}catch{
+						Debug.Log("key = " + _key + "/ data = " + _data);
+						return _data;
+					}
 				}else{
 					return _data;
 				}

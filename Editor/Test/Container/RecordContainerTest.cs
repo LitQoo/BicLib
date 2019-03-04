@@ -59,7 +59,7 @@ namespace BicDB.Container
 		}
 
 		[Test]
-		public void CopyByTest1(){
+		public void MergeCopyByTest1(){
 			var _model = new RecordContainer ();
 			var _var1 = new IntVariable (1);
 			var _var2 = new IntVariable (2);
@@ -72,7 +72,7 @@ namespace BicDB.Container
 			_model2.AddManagedColumn ("key1", _var3);
 			_model2.AddManagedColumn ("key3", _var4);
 
-			_model.CopyBy(_model2);
+			_model.MergeCopyBy(_model2);
 
 			Assert.AreEqual((_model["key1"] as IntVariable).AsInt, 3);
 			Assert.AreEqual((_model["key2"] as IntVariable).AsInt, 2);
@@ -80,7 +80,7 @@ namespace BicDB.Container
 		}
 
 		[Test]
-		public void CopyByTest2(){
+		public void MergeCopyByTest2(){
 			var _model = new RecordContainer ();
 			var _var1 = new ListContainer<IntVariable>();
 			_var1.Add(new IntVariable(11));
@@ -97,10 +97,11 @@ namespace BicDB.Container
 			_model2.AddManagedColumn ("key1", _var3);
 			_model2.AddManagedColumn ("key3", _var4);
 
-			_model.CopyBy(_model2);
+			_model.MergeCopyBy(_model2);
 
-			Assert.AreEqual(_model["key1"].As<IListContainer<IntVariable>>()[0].AsInt, 11);
+			Assert.AreEqual(_model["key1"].As<IListContainer<IntVariable>>()[0].AsInt, 33);
 			Assert.AreEqual(_model["key2"].As<IListContainer<IntVariable>>()[0].AsInt, 22);
+			Assert.AreEqual(_model["key3"].As<IListContainer<IDataBase>>()[0].AsVariable.AsInt, 44);
 		}
 	}
 }

@@ -206,10 +206,13 @@ namespace BicUtil.Json
 			}
 
 
+
+
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
 			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
 				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
 			}
+
 
 			_counter++;
 
@@ -219,49 +222,33 @@ namespace BicUtil.Json
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 
+				if (_fieldName == _dataFieldName)
+                {
 
+                    increaseCounterUntilFoundChar(ref _json, ref _counter, '[');
 
-				if (_fieldName == _dataFieldName) {
-					
-					increaseCounterUntilFoundChar(ref _json, ref _counter, '[');
+                    _counter++;
 
-					_counter++;
+                    increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
 
-					increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
-					
-					if(_json[_counter] == ']'){
-						return;
+                    if (_json[_counter] == ']')
+                    {
+                        return;
+                    }
+
+					if(_json[_counter] == '[')
+                    {
+                        makeModelByCompressJson(_table, ref _json, ref _counter);
+                    }
+                    else
+                    {
+                    	makeModelByRegularJson(_table, ref _json, ref _counter);
 					}
 
-					while (_counter < _json.Length) {
-
-						T _model = new T();
-						_model.BuildVariable(ref _json, ref _counter, this);
-						object _findRow = null;
-
-						try {
-							if(!string.IsNullOrEmpty(_table.PrimaryKey)){
-								_findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IRecordContainer)[_table.PrimaryKey], (_model as IRecordContainer)[_table.PrimaryKey]));
-							}
-						} catch (Exception) {
-							
-						}
-
-						if (_findRow != null) {
-							(_findRow as IRecordContainer).CopyBy(_model);
-						} else {
-							_table.Add(_model);
-						}
-
-						if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t ")) {
-							break;
-						}
-
-					}
-
-					increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
-					_counter++;
-				} else {
+                    increaseCounterUntilFoundChar(ref _json, ref _counter, ']');
+                    _counter++;
+                }
+                else {
 					_table.Property[_fieldName] = BuildVariable(ref _json, ref _counter);
 				}
 
@@ -276,7 +263,92 @@ namespace BicUtil.Json
 
 		}
 
-		public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
+        private void makeModelByCompressJson<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new()
+        {
+
+			#if UNITY_EDITOR
+			Debug.Log("[BicDB] makeModelByCompressJson " + _table.Name);
+			#endif
+            ListContainer<StringVariable> fieldNames = new ListContainer<StringVariable>();
+            fieldNames.BuildVariable(ref _json, ref _counter, this);
+            while (_counter < _json.Length)
+            {
+                increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "[]", "\n\t ");
+
+                if (_json[_counter] == ']')
+                {
+                    break;
+                }
+
+                _counter++;
+
+                T _model = new T();
+
+                for (int i = 0; i < fieldNames.Count; i++)
+                {
+                    _model[fieldNames[i].AsString].BuildVariable(ref _json, ref _counter, this);
+
+                    increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ");
+                    if (_json[_counter] == ',')
+                    {
+                        _counter++;
+                    }
+                    else if (_json[_counter] == ']')
+                    {
+                        _counter++;
+                        break;
+                    }
+                }
+
+                addRowToTable(_table, _model);
+				
+            }
+        }
+
+        private static void addRowToTable<T>(ITableContainer<T> _table, T _model) where T : IRecordContainer, new()
+        {
+            object _findRow = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(_table.PrimaryKey))
+                {
+                    _findRow = (object)_table.FirstOrDefault<T>((T _row) => VariableUtil.IsEqual((_row as IRecordContainer)[_table.PrimaryKey], (_model as IRecordContainer)[_table.PrimaryKey]));
+				}
+            }
+            catch (Exception)
+            {
+                
+            }
+
+            if (_findRow != null)
+            {
+                (_findRow as IRecordContainer).MergeCopyBy(_model);
+            }
+            else
+            {
+                _table.Add(_model);
+            }
+        }
+
+        private void makeModelByRegularJson<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new()
+        {
+            while (_counter < _json.Length)
+            {
+
+                T _model = new T();
+                _model.BuildVariable(ref _json, ref _counter, this);
+                
+				addRowToTable(_table, _model);
+
+                if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t "))
+                {
+                    break;
+                }
+
+            }
+        }
+
+        public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find {");
 			}
@@ -486,6 +558,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
+
+			_list.Clear();
 				
 			_counter++;
 
@@ -514,6 +588,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
 				throw new SystemException("fail find [");
 			}
+
+			_list.Clear();
 
 			_counter++;
 			
@@ -551,6 +627,8 @@ namespace BicUtil.Json
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				throw new SystemException("fail find { at ");
 			}
+
+			_dictionary.Clear();
 
 			_counter++;
 
@@ -592,6 +670,8 @@ namespace BicUtil.Json
 				throw new SystemException("fail find { at ");
 			}
 
+			_dictionary.Clear();
+			
 			_counter++;
 
 			if (_json[_counter] == '}') {
@@ -664,8 +744,9 @@ namespace BicUtil.Json
 		}
 
 		public void BuildStringVariable(IVariable _variable, ref string _json, ref int _counter){
-			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '"')) {
-				throw new SystemException("fail find first \"");
+			if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "\"", "\n\t ")) {
+				BuildNumberVariable(_variable, ref _json,ref _counter);
+				return;
 			}
 
 			_counter++;

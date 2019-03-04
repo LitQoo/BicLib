@@ -9,13 +9,14 @@ using UnityEngine.Purchasing.Security;
 using BicDB.Container;
 using System.Linq;
 using BicDB.Storage;
+using BicDB.Variable;
 
 namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
 		public bool isLoadedProductTable = false;
-		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value){
+		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _defaultValue, Action<IVariable> _valueChangedCallback = null){
 			if(isLoadedProductTable == false){
 				ProductTable.SetStorage(FileStorage.GetInstance());
 				ProductTable.Load(null, new FileStorageParameter("purchase"));
@@ -25,11 +26,16 @@ namespace BicUtil.Purchasing{
 			var _product = GetProduct(_idType);
 
 			if(_product == null){
-				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _value);
+				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _defaultValue);
 				ProductTable.Add(_product);
 			}
 
 			_product.ProductType.AsEnum = _productType;
+
+			if(_valueChangedCallback != null){
+				_product.Value.OnChangedValueActions += _valueChangedCallback;
+				_product.Value.NotifyChanged();
+			}
 		}
 
 
@@ -45,8 +51,6 @@ namespace BicUtil.Purchasing{
 				// ... we are done here.
 				return;
 			}
-
-
 
 			// Create a builder, first passing in a suite of Unity provided stores.
 			var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
@@ -228,6 +232,8 @@ namespace BicUtil.Purchasing{
 			if(_result == PurchasingResult.Complete)
 			{
 				completePurchase(args.purchasedProduct.definition.id);
+			}else if(_result == PurchasingResult.Refunded){
+				completeRefund(args.purchasedProduct.definition.id);
 			}
 
 			if(buyCallback != null){

@@ -1,29 +1,27 @@
 
 using System;
 
-namespace BicUtil.AdsManager{
+namespace BicUtil.Ads{
 
-    public class DummyManager : IAdsManager
+    public class DummyManager : IAdsPlatform
     {
-        static private IAdsManager instance = null;
-        static public IAdsManager Instance{
-            get{
-                if(instance == null){
-                    instance = new DummyManager();
-                }
-
-                return instance;
-            }
-        } 
-
         public bool IsReadyInterstitialReturn = false;
         public bool IsReadyRewardBasedReturn = false;
         public AdsResult ShowInterstitialReturn = AdsResult.Finished;
         public AdsResult ShowRewardBasedReturn = AdsResult.Finished;
 
-        public void Initialize()
+        public DummyManager()
         {
-            
+        }
+
+
+        public bool IsReadyBanner(object _adsType){
+            return false;
+        }
+
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        {
+            return null;
         }
 
         public bool IsReadyInterstitial(object _adsType)
@@ -46,12 +44,12 @@ namespace BicUtil.AdsManager{
             
         }
 
-        public void SetAdsSettingAndroidOnly(string _adsId, object _type, int _playTimeInterval)
+        public void SetAdsSettingAndroidOnly(string _adsId, object _type)
         {
             
         }
 
-        public void SetAdsSettingIOSOnly(string _adsId, object _type, int _playTimeInterval)
+        public void SetAdsSettingIOSOnly(string _adsId, object _type)
         {
             
         }

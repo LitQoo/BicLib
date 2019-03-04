@@ -165,18 +165,10 @@ namespace BicDB.Container
 			}
 		}
 
-		public void CopyBy(IRecordContainer _model){
-			foreach (var _item in _model) {
-				if (data.ContainsKey(_item.Key)) {
-					System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
-					_model.BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
-					string _json = _stringBuilder.ToString();
-					int _counter = 0;
-					this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
-				} else {
-					data.Add(_item.Key, _item.Value);
-				}
-			}
+		public void MergeCopyBy(IRecordContainer _model){
+			string _json = _model.ToString();
+			int _counter = 0;
+			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 		}
 		#endregion
 	}
