@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if BICUTIL_WWW
+using UnityEngine;
 using System.Collections;
 using System.Linq;
 using System.IO;
@@ -144,3 +145,4 @@ namespace BicUtil.Ads
 		#endregion        
     }
 }
+#endif

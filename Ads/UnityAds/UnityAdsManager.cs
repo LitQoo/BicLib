@@ -98,9 +98,14 @@ namespace BicUtil.Ads{
             showAd(_adsType, _callback);
         }
 
-        public IAdsBanner CreateBanner(object _adsType)
+        public bool IsReadyBanner(object _adsType)
         {
-            throw new NotImplementedException();
+            return false;
+        }
+
+        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        {
+            return null;
         }
         #endregion
     }

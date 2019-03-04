@@ -48,7 +48,7 @@ namespace BicUtil.Ads
             adsData[_type] = new AdsInfo(_type, _playTimeInterval);
         }
 
-        public void SetDefaultAds(AdsType _type, IAdsPlatform _platform)
+        public void SetDefaultAds(object _type, IAdsPlatform _platform)
         {
             defaultAdsData[_type] = _platform;
         }

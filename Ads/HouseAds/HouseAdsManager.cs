@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if BICUTIL_WWW
+using UnityEngine;
 using System.Collections;
 using BicDB;
 using BicDB.Variable;
@@ -254,3 +255,4 @@ namespace BicUtil.Ads
         }
     }
 }
+#endif

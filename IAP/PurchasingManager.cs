@@ -16,6 +16,7 @@ namespace BicUtil.Purchasing{
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
 		public bool isLoadedProductTable = false;
+
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _defaultValue, Action<IVariable> _valueChangedCallback = null){
 			if(isLoadedProductTable == false){
 				ProductTable.SetStorage(FileStorage.GetInstance());
@@ -355,6 +356,6 @@ namespace BicUtil.Purchasing{
 			// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
 			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}",product.definition.storeSpecificId, failureReason));
 		}
-	}
+    }
 }
 #endif

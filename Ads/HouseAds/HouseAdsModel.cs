@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if BICUTIL_WWW
+using System.Collections;
 using BicDB;
 using BicDB.Variable;
 using System;
@@ -54,3 +55,4 @@ namespace BicUtil.Ads
 		}
 	}
 }
+#endif
