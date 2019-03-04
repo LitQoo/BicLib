@@ -11,13 +11,22 @@ namespace BicUtil.TableView
 {
     public class TableRow : MonoBehaviour
     {
+		#region Type
+		[System.Serializable]
+		public class RowDataChanged : UnityEvent<TableRow> { }
+		#endregion
+
 		#region Member
 		[SerializeField]
 		private int cellCount = 1;
 
+		[SerializeField]
+		public RowDataChanged OnCreateFunction;
+		[SerializeField]
+		public RowDataChanged OnRemoveFunction;
+
 		[HideInInspector]
 		public List<TableCell> Cells = new List<TableCell>();
-
         public virtual string reuseIdentifier { 
 			get { 
 				return "tableRow"; 
@@ -34,6 +43,8 @@ namespace BicUtil.TableView
 		}
 
 		public void OnRemove(){
+			OnRemoveFunction.Invoke(this);
+
 			for(int i = 0; i < Cells.Count; i++){
 				Cells[i].OnRemove();
 			}
@@ -83,6 +94,8 @@ namespace BicUtil.TableView
 					Cells[i].gameObject.SetActive(false);
 				}
 			}
+
+			OnCreateFunction.Invoke(this);
 		}
 
 		public void BindOnClickedEvent(Dictionary<string, Action<IRecordContainer>> _onClickedEvent){
