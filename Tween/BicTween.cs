@@ -119,8 +119,10 @@ namespace BicUtil.Tween
 			get{
 				if(defaultPool == null){
 					defaultPool = createPool();
-					SceneManager.activeSceneChanged += (_next, _current)=>{
-						defaultPool.CancelAll();
+					SceneManager.activeSceneChanged += (_current, _next)=>{
+							if(_current.isLoaded == true){
+								defaultPool.CancelAll();
+							}
 					};
 				}
 

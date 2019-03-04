@@ -50,6 +50,17 @@ namespace BicDB.Core
         
         static public bool IsSetup{get{ return isSetup; }}
         static public bool IsUpdate{get{ return isUpdate; }}
+        static public int SessionCount{get{
+            if(TableInfo == null){
+                return 0;
+            }
+
+            if(TableInfo.Property.ContainsKey("initCount") == false){
+                return 0;
+            }
+            
+            return TableInfo.Property["initCount"].AsVariable.AsInt;
+        ;}} 
 
         static private string lastVersion = "";
         static private string currentVersion = "";
