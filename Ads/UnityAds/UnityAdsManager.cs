@@ -64,7 +64,7 @@ namespace BicUtil.Ads{
         public void SetAdsSettingIOSOnly(string _unityAdsId, object _type)
         {
             #if UNITY_IOS
-            adsData[_type] = new AdsPlatformInfo(_adsId, _type);
+            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
             #endif
         }
 
