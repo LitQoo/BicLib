@@ -59,6 +59,22 @@ namespace BicUtil.TableView
 		public void ReloadData(){
 			
 		}
+
+		public int GetRowIndex(int _cellIndex){
+			int _cellCount = 0;
+            int _rowCount = GetRowCount();
+			var _rowIndex = _rowCount;
+            for(int i = 0; i < _rowCount; i++){
+                _cellCount += GetCellCountInRow(i);
+
+                if(_cellIndex <= _cellCount){
+                    _rowIndex = i;
+                    break;
+                }
+            }
+
+            return _rowIndex;
+		}
 	}
 
 }

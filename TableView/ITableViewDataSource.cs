@@ -14,6 +14,7 @@ namespace BicUtil.TableView
         int GetRowCount();
         int GetStartDataIndex(int _rowIndex);
         void ReloadData();
+        int GetRowIndex(int _cellIndex);
     }
 }
 
