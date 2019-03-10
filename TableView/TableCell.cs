@@ -78,7 +78,9 @@ namespace BicUtil.TableView
 		public Dictionary<string, Action<IRecordContainer>> OnClickedActions{ get; set;}
 
 		public void OnClicked(string _buttonName){
-			OnClickedActions [_buttonName] (model);
+			if(OnClickedActions.ContainsKey(_buttonName)){
+				OnClickedActions [_buttonName] (model);
+			}
 		}
 		#endregion
 

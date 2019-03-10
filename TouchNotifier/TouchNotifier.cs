@@ -25,7 +25,7 @@ namespace BicUtil.TouchNotifier
 		public TouchEventWithStartingPosition OnTouchUp;
 		private Vector2[] startTouchPosition = new Vector2[5];
 
-		private bool[] isTouchIn = new bool[5]{false, false, false, false, false};
+		private bool[] isTouchIn = new bool[10]{false, false, false, false, false,false, false, false, false, false};
 
 		private void Update () {
 			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
