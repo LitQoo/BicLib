@@ -19,7 +19,9 @@ namespace BicUtil.Ads{
 
             MaxSdk.SetSdkKey(_sdkKey);
             MaxSdk.InitializeSdk();
+            
             InitializeRewardedAds();
+            InitializeInterstitialAds();
         }
         #endregion
 
