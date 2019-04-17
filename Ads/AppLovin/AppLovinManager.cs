@@ -151,7 +151,7 @@ namespace BicUtil.Ads{
 
         public bool IsReadyInterstitial(object _adsType)
         {
-            return MaxSdk.IsRewardedAdReady(adsData[_adsType].PlatformId);
+            return MaxSdk.IsInterstitialReady(adsData[_adsType].PlatformId);
         }
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
