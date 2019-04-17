@@ -7,39 +7,31 @@ using BicUtil.Tween;
 
 namespace BicUtil.Ads
 {
-    public class AppLovinBannerController : MonoBehaviour, IAdsBanner
+    public class AppLovinBannerController : IAdsBanner
     {
         #region InstantData
         #endregion
 
-        #region LifeCycle
-        private void OnDestroy() {
-            AdsManager.Instance.RemoveBanner(this);
-        }
-        #endregion
-
         #region Logic
         private object adsType;
-        private Action<IAdsBanner> onLoadBannerAction;
-        public void Load(string _unitId, object _adsType, Action<IAdsBanner> _onLoadBannerAction){
+        private string unitId;
+        public void Load(string _unitId, object _adsType){
+            unitId = _unitId;
             adsType = _adsType;
-            onLoadBannerAction = _onLoadBannerAction;
-        }
-
-        private void onLoaded(object sender, EventArgs e)
-        {
-            onLoadBannerAction(this);
+            MaxSdk.CreateBanner(_unitId, MaxSdkBase.BannerPosition.TopCenter);
         }
         #endregion
 
         #region IAdsBanner
         public void Destroy()
         {
-            Destroy(this.gameObject);
+            AdsManager.Instance.RemoveBanner(this);
+            MaxSdk.HideBanner(unitId);
         }
 
         public void Hide()
         {
+            MaxSdk.HideBanner(unitId);
         }
 
         public bool IsReady()
@@ -49,19 +41,12 @@ namespace BicUtil.Ads
 
         public void SetPosition(Transform _parent, Vector2 _position)
         {
-            this.transform.SetParent(_parent);
-            this.transform.localPosition = _position;
-
-            if(_parent.localPosition.y > 0){
-                
-            }else{
-                
-            }
+            
         }
 
         public void Show()
         {
-            
+            MaxSdk.ShowBanner(unitId);
         }
         #endregion
     }

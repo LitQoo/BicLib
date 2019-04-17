@@ -183,8 +183,13 @@ namespace BicUtil.Ads{
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
-            MaxSdk.CreateBanner(adsData[_adsType].PlatformId, MaxSdkBase.BannerPosition.TopCenter);
-            return null;
+            if(adsData.ContainsKey(_adsType) == true){
+                var _banner = new AppLovinBannerController();
+                _banner.Load(adsData[_adsType].PlatformId, _adsType);
+                return _banner;
+            }else{
+                return null;
+            }
         }
         #endregion
     }

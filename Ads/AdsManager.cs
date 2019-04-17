@@ -29,7 +29,6 @@ namespace BicUtil.Ads
             isInit = true;
             AnalyticsTable.SetStorage(FileStorage.GetInstance());
             AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
-            Debug.Log("init");
         }
 
         #region Time
@@ -316,7 +315,7 @@ namespace BicUtil.Ads
                 break;
             }
 
-            this.AnalyticsTable.Save();
+            //this.AnalyticsTable.Save();
         }
     }
 
