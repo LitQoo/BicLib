@@ -19,7 +19,7 @@ namespace BicUtil.Ads{
 
             MaxSdk.SetSdkKey(_sdkKey);
             MaxSdk.InitializeSdk();
-            
+
             InitializeRewardedAds();
             InitializeInterstitialAds();
         }
@@ -178,7 +178,7 @@ namespace BicUtil.Ads{
 
         public bool IsReadyBanner(object _adsType)
         {
-            return false;
+            return true;
         }
 
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
