@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BicDB.Container;
+using BicDB.Storage;
+using BicDB.Variable;
 using UnityEngine;
 
 namespace BicUtil.Ads
@@ -13,10 +16,20 @@ namespace BicUtil.Ads
         Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
         List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
         List<object> passAdsList = new List<object>();
+
+        public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
         #endregion
-        
+        private bool isInit = false;
         public override void Initialize()
         {
+            if(isInit == true){
+                return;
+            }
+
+            isInit = true;
+            AnalyticsTable.SetStorage(FileStorage.GetInstance());
+            AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
+            Debug.Log("init");
         }
 
         #region Time
@@ -124,6 +137,8 @@ namespace BicUtil.Ads
 
                 selectedInterstitialPlatform = -1;
                 _callback(_adsResult);
+
+                increaseCount(AdsStat.INTERSTITIAL, _adsResult);
             };
 
             if(selectedInterstitialPlatform >= 0){
@@ -143,6 +158,7 @@ namespace BicUtil.Ads
                 defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
             }else{
                  _callback(AdsResult.Failed);
+                 increaseCount(AdsStat.INTERSTITIAL, AdsResult.Failed);
             }
         }
 
@@ -165,6 +181,8 @@ namespace BicUtil.Ads
 
                 selectedRewardBasedPlatform = -1;
                 _callback(_adsResult);
+
+                increaseCount(AdsStat.REWARD, _adsResult);
             };
 
 
@@ -184,6 +202,7 @@ namespace BicUtil.Ads
                 defaultAdsData[_adsType].ShowRewardBased(_adsType, _func);
             }else{
                 _callback(AdsResult.Failed);
+                increaseCount(AdsStat.REWARD, AdsResult.Failed);
             }
         }
 
@@ -195,6 +214,7 @@ namespace BicUtil.Ads
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadAction){
             if(passAdsList.Contains(_adsType) == true){
+                increaseCount(AdsStat.BANNER, AdsResult.Skipped);
                 return new DummyBanner();
             }
 
@@ -203,6 +223,8 @@ namespace BicUtil.Ads
                 if(adsPlatforms[i].IsReadyBanner(_adsType) == true){
                     var _banner = createBanner(_adsType, _onLoadAction, adsPlatforms[i]);
                     if(_banner != null){
+
+                        increaseCount(AdsStat.BANNER, AdsResult.Finished);
                         return _banner;
                     }
                 }
@@ -211,10 +233,13 @@ namespace BicUtil.Ads
             if (defaultAdsData.ContainsKey(_adsType) == true){
                 var _banner = createBanner(_adsType, _onLoadAction, defaultAdsData[_adsType], true);
                 if(_banner != null){
+                    increaseCount(AdsStat.BANNER, AdsResult.Finished);
                     return _banner;
                 }
             }
 
+
+            increaseCount(AdsStat.BANNER, AdsResult.Failed);
             return new DummyBanner();
         }
 
@@ -259,6 +284,40 @@ namespace BicUtil.Ads
 
             GetBanner(_adsType).Destroy();
         }
+
+        private AdsStat getStat(string _name){
+            var _stat = AnalyticsTable.FirstOrDefault(_row=>_row.Name.AsString == _name);
+            if(_stat == null){
+                _stat = new AdsStat(_name);
+                AnalyticsTable.Add(_stat);
+            }
+
+            return _stat;
+        }
+
+        private void increaseCount(string _name, AdsResult _result){
+            var _stat = getStat(_name);
+
+            switch(_result){
+                case AdsResult.Cancel:
+                _stat.CancelCount.AsInt++;
+                break;
+                case AdsResult.Failed:
+                _stat.FailCount.AsInt++;
+                break;
+                case AdsResult.Finished:
+                _stat.FinishCount.AsInt++;
+                break;
+                case AdsResult.Skipped:
+                _stat.SkipCount.AsInt++;
+                break;
+                default:
+                _stat.OtherCount.AsInt++;
+                break;
+            }
+
+            this.AnalyticsTable.Save();
+        }
     }
 
     public class DummyBanner : IAdsBanner
@@ -286,5 +345,37 @@ namespace BicUtil.Ads
         {
             
         }
+    }
+
+    public class AdsStat : RecordContainer{
+        #region Static
+        public const string REWARD = "Reward";
+        public const string INTERSTITIAL = "Intersitital";
+        public const string BANNER = "Banner";
+        #endregion
+
+        #region Field
+        public StringVariable Name = new StringVariable();
+        public IntVariable FinishCount = new IntVariable();
+        public IntVariable FailCount = new IntVariable();
+        public IntVariable SkipCount = new IntVariable();
+        public IntVariable CancelCount = new IntVariable();
+        public IntVariable OtherCount = new IntVariable();
+        #endregion
+
+        #region LifeCycle
+        public AdsStat(){
+            AddManagedColumn("Name", this.Name);
+            AddManagedColumn("Finish", this.FinishCount);
+            AddManagedColumn("Fail", this.FailCount);
+            AddManagedColumn("Skip", this.SkipCount);
+            AddManagedColumn("Cancel", this.CancelCount);
+            AddManagedColumn("Other", this.OtherCount);
+        }
+
+        public AdsStat(string Name) : base(){
+            this.Name.AsString = Name;
+        }
+        #endregion
     }
 }
