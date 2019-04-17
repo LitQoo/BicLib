@@ -12,23 +12,69 @@ namespace BicUtil.Ads{
         Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
 
-        #region Callback
+        #region LifeCycle
+        public AppLovinManager(string _sdkKey){
+            MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration sdkConfiguration) => {
+            };
+
+            MaxSdk.SetSdkKey(_sdkKey);
+            MaxSdk.InitializeSdk();
+            InitializeRewardedAds();
+        }
+        #endregion
+
+        #region InterstitalCallback
+        public void InitializeInterstitialAds()
+        {
+            // Attach callback
+            MaxSdkCallbacks.OnInterstitialLoadedEvent += OnInterstitialLoadedEvent;
+            MaxSdkCallbacks.OnInterstitialLoadFailedEvent += OnInterstitialFailedEvent;
+            MaxSdkCallbacks.OnInterstitialAdFailedToDisplayEvent += InterstitialFailedToDisplayEvent;
+            MaxSdkCallbacks.OnInterstitialHiddenEvent += OnInterstitialDismissedEvent;
+        }
+
+        private void OnInterstitialLoadedEvent(string adUnitId)
+        {
+            // Interstitial ad is ready to be shown. MaxSdk.IsInterstitialReady(interstitialAdUnitId) will now return 'true'
+        }
+
+        private void OnInterstitialFailedEvent(string adUnitId, int errorCode)
+        {
+            var _adId = adUnitId;
+            BicTween.Delay(3f).SubscribeComplete(()=>{
+                MaxSdk.LoadInterstitial(_adId);
+            });
+        }
+
+        private void InterstitialFailedToDisplayEvent(string adUnitId, int errorCode)
+        {
+            if(callback != null){
+                callback(AdsResult.Failed);
+            }
+
+            // Interstitial ad failed to display. We recommend loading the next ad
+            MaxSdk.LoadInterstitial(adUnitId);
+        }
+
+        private void OnInterstitialDismissedEvent(string adUnitId)
+        {
+            if(callback != null){
+                callback(AdsResult.Finished);
+            }
+
+            // Interstitial ad is hidden. Pre-load the next ad
+            MaxSdk.LoadInterstitial(adUnitId);
+        }
+        #endregion
+
+        #region RewarededCallback
         public void InitializeRewardedAds()
         {
             // Attach callback
             MaxSdkCallbacks.OnRewardedAdLoadedEvent += OnRewardedAdLoadedEvent;
             MaxSdkCallbacks.OnRewardedAdHiddenEvent += OnRewardedAdDismissedEvent;
-            MaxSdkCallbacks.OnRewardedAdLoadFailedEvent += OnRewardedAdFailedEvent;
+            MaxSdkCallbacks.OnRewardedAdLoadFailedEvent += OnRewardedAdFailedLoadEvent;
             MaxSdkCallbacks.OnRewardedAdFailedToDisplayEvent += RewardedAdFailedToDisplayEvent;
-
-            // Load the first RewardedAd
-            LoadRewardedAd();
-        }
-
-        string rewardedAdUnitId = "";
-        private void LoadRewardedAd()
-        {
-            MaxSdk.LoadRewardedAd(rewardedAdUnitId);
         }
 
         private void OnRewardedAdLoadedEvent(string adUnitId)
@@ -38,25 +84,36 @@ namespace BicUtil.Ads{
 
         private void OnRewardedAdDismissedEvent(string adUnitId)
         {
+            if(callback != null){
+                callback(AdsResult.Finished);
+            }
+
             // Rewarded ad is hidden. Pre-load the next ad
-            LoadRewardedAd();
+            MaxSdk.LoadRewardedAd(adUnitId);
         }
 
-        private void OnRewardedAdFailedEvent(string adUnitId, int errorCode)
+        private void OnRewardedAdFailedLoadEvent(string adUnitId, int errorCode)
         {
+            var _adId = adUnitId;
             // Rewarded ad failed to load. We recommend re-trying in 3 seconds.
-            BicTween.Delay(3f).SubscribeComplete(LoadRewardedAd);
+            BicTween.Delay(3f).SubscribeComplete(()=>{
+                MaxSdk.LoadRewardedAd(_adId);
+            });
         }
 
         private void RewardedAdFailedToDisplayEvent(string adUnitId, int errorCode)
         {
+            if(callback != null){
+                callback(AdsResult.Failed);
+            }
+
             // Rewarded ad failed to display. We recommend loading the next ad
-            LoadRewardedAd();
+            MaxSdk.LoadRewardedAd(adUnitId);
         }
         #endregion
         
         #region Logic
-
+        private Action<AdsResult> callback;
 
         public void SetAdsSetting(string _unityAdsId, object _type){
             
@@ -87,7 +144,7 @@ namespace BicUtil.Ads{
 
         public void LoadInterstitial(object _adsType)
         {
-            
+            MaxSdk.LoadInterstitial(adsData[_adsType].PlatformId);
         }
 
         public bool IsReadyInterstitial(object _adsType)
@@ -97,14 +154,13 @@ namespace BicUtil.Ads{
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
-            
-            MaxSdk.ShowInterstitial(adsData[_adsType].PlatformId);
-            
+            callback = _callback;
+            MaxSdk.ShowInterstitial(adsData[_adsType].PlatformId);   
         }
 
         public void LoadRewardBased(object _adsType)
         {
-            
+            MaxSdk.LoadRewardedAd(adsData[_adsType].PlatformId);
         }
 
         public bool IsReadyRewardBased(object _adsType)
@@ -114,6 +170,7 @@ namespace BicUtil.Ads{
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
+            callback = _callback;
             MaxSdk.ShowRewardedAd(adsData[_adsType].PlatformId);
         }
 
@@ -122,10 +179,9 @@ namespace BicUtil.Ads{
             return false;
         }
 
-        string bannerAdUnitId = "";
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
         {
-            MaxSdk.CreateBanner(bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
+            MaxSdk.CreateBanner(adsData[_adsType].PlatformId, MaxSdkBase.BannerPosition.TopCenter);
             return null;
         }
         #endregion
