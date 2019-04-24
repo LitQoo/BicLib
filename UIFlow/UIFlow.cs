@@ -30,7 +30,14 @@ namespace BicUtil.UIFlow
 		public void UnregisterUI(IUIFlowObject _object){
 			uiObjects.Remove(_object.GetType());
 		}
+
+		public IUIFlowObject CurrentUI{
+			get{
+				return this.currentUiInfo.UI;
+			}
+		}
 		#endregion
+
 		private List<UIInfo> uiStack = new List<UIInfo> ();
 		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
