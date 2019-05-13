@@ -15,6 +15,7 @@ namespace BicUtil.Ads{
         #region LifeCycle
         public AppLovinManager(string _sdkKey){
             MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration sdkConfiguration) => {
+                Debug.Log("MaxSdk : " + sdkConfiguration.ConsentDialogState.ToString());
             };
 
             MaxSdk.SetSdkKey(_sdkKey);
