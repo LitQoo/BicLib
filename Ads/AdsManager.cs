@@ -12,14 +12,18 @@ namespace BicUtil.Ads
     {
 
         #region InstantData
-        Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
-        Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
-        List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
-        List<object> passAdsList = new List<object>();
-
+        private Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
+        private Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
+        private List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
+        private List<object> passAdsList = new List<object>();
         public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
-        #endregion
         private bool isInit = false;
+
+        public bool IsShowingInterstital {get; private set;}
+        public bool IsShowingRewardBased {get; private set;}
+        public bool IsShowingAds{get{return IsShowingInterstital || IsShowingRewardBased;}}
+        #endregion
+
         public override void Initialize()
         {
             if(isInit == true){
@@ -124,12 +128,17 @@ namespace BicUtil.Ads
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
+            IsShowingInterstital = true;
+
             if(passAdsList.Contains(_adsType) == true){
+                IsShowingInterstital = false;
                 _callback(AdsResult.Finished);
                 return;
             }
 
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
+                IsShowingInterstital = false;
+                
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
                 } 
@@ -156,24 +165,31 @@ namespace BicUtil.Ads
             if(defaultAdsData.ContainsKey(_adsType) == true){
                 defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
             }else{
-                 _callback(AdsResult.Failed);
-                 increaseCount(AdsStat.INTERSTITIAL, AdsResult.Failed);
+                IsShowingInterstital = false;
+                _callback(AdsResult.Failed);
+                increaseCount(AdsStat.INTERSTITIAL, AdsResult.Failed);
             }
         }
+        
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
+            IsShowingRewardBased = true;
             if(passAdsList.Contains(_adsType) == true){
+                IsShowingRewardBased = false;
                 _callback(AdsResult.Finished);
                 return;
             }
 
             if(isPossiblePlayAds(_adsType) == false){
+                IsShowingRewardBased = false;
                 _callback(AdsResult.Failed);
                 return;
             }
 
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
+                IsShowingRewardBased = false;
+                
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
                 } 
@@ -200,6 +216,8 @@ namespace BicUtil.Ads
             if(defaultAdsData.ContainsKey(_adsType) == true){
                 defaultAdsData[_adsType].ShowRewardBased(_adsType, _func);
             }else{
+                IsShowingRewardBased = false;
+
                 _callback(AdsResult.Failed);
                 increaseCount(AdsStat.REWARD, AdsResult.Failed);
             }
