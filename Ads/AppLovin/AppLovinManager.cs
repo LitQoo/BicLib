@@ -157,7 +157,6 @@ namespace BicUtil.Ads{
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
         {
-            Debug.LogWarning("ShowInterstitial " + _adsType.ToString() + "/" + adsData[_adsType].PlatformId);
             callback = _callback;
             MaxSdk.ShowInterstitial(adsData[_adsType].PlatformId);   
         }
