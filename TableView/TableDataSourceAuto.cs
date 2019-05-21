@@ -36,7 +36,7 @@ namespace BicUtil.TableView
 			return _tableRow;
 		}
 
-		public IRecordContainer GetCellData(int _index){
+		public IRecordContainer GetCellData(int _index, int _rowIndex, int _cellOrder){
 			if(table.Count <= _index){
 				return null;
 			}

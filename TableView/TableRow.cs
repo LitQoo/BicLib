@@ -80,10 +80,10 @@ namespace BicUtil.TableView
 			cellCount = Cells.Count;
 		}
 
-		public void SetData(int _startCellIndex, Func<int, IRecordContainer> _cellDataFunc, int _cellCount){
+		public void SetData(int _startCellIndex, Func<int, int, int, IRecordContainer> _cellDataFunc, int _cellCount){
 			for(int i = 0; i < Cells.Count; i++){
 				if(_cellCount > i){
-					var _model = _cellDataFunc(_startCellIndex + i);
+					var _model = _cellDataFunc(_startCellIndex + i, RowIndex, i);
 					if(_model != null){
 						Cells[i].gameObject.SetActive(true);
 						Cells[i].Model = _model;
