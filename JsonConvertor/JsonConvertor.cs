@@ -273,7 +273,7 @@ namespace BicUtil.Json
             fieldNames.BuildVariable(ref _json, ref _counter, this);
             while (_counter < _json.Length)
             {
-                increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "[]", "\n\t ");
+                increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, "[]", "\n\t ,");
 
                 if (_json[_counter] == ']')
                 {
@@ -286,7 +286,7 @@ namespace BicUtil.Json
 
                 for (int i = 0; i < fieldNames.Count; i++)
                 {
-                    _model[fieldNames[i].AsString].BuildVariable(ref _json, ref _counter, this);
+					_model[fieldNames[i].AsString].BuildVariable(ref _json, ref _counter, this);
 
                     increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ");
                     if (_json[_counter] == ',')
