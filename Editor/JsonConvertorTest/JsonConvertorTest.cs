@@ -248,7 +248,7 @@ namespace BicUtil.Json
 
 		[Test]
 		public void JsonToTable2(){
-			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
+			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test2");
 			_table.PrimaryKey = "key1";
 			string _json1 = "{ \"data\" : [{\"key1\":123, \"key2\" :\"string\", \"key3\":{\"key1\":119, \"key2\":\"test\"}} ,{\"key1\":2, \"key2\" :\"string\", \"key3\":{\"key1\":222}}], \"name\" : \"test\"}";
 			int _counter1 = 0;
@@ -275,7 +275,7 @@ namespace BicUtil.Json
 
 		[Test]
 		public void JsonToTable3(){
-			ITableContainer<RecordContainer> _table = new TableContainer<RecordContainer>("test");
+			ITableContainer<RecordContainer> _table = new TableContainer<RecordContainer>("test3");
 			string _json = "{\"data\":[{\"adress\":{\"city\":\"gogo\",\"country\":\"korea\"},\"age\":13,\"name\":\"mike\"},{\"adress\":{\"city\":\"seoul\",\"country\":\"korea\"},\"age\":14,\"name\":\"js\"}], \"name\" : \"test\"}";
 			int _counter = 0;
 
@@ -319,7 +319,7 @@ namespace BicUtil.Json
 
 		[Test]
 		public void JsonToTable5(){
-			ITableContainer<TestClass3> _table = new TableContainer<TestClass3>("test4");
+			ITableContainer<TestClass3> _table = new TableContainer<TestClass3>("test5");
 			_table.PrimaryKey = "key1";
 			string _json1 = "{\"data\":	[ [\"key4\", \"key1\", \"key2\", \"key3\"],[ [4,3,2,1], 123, 	\"string\",{\"key1\":119, \"key2\":\"test\"}]	, [[5,6,7,8], 2, \"string\", {\"key1\":222}]],\"name\":\"test\"}";
 			int _counter1 = 0;
@@ -340,6 +340,27 @@ namespace BicUtil.Json
 			Assert.AreEqual (_table [0].member4[1].AsFloat, 3);
 			Assert.AreEqual (_table [0].member4[2].AsFloat, 2);
 			Assert.AreEqual (_table [0].member4[3].AsFloat, 1);
+		}	
+
+
+		[Test]
+		public void JsonToTable6(){
+			ITableContainer<TestClass4> _table = new TableContainer<TestClass4>("test6");
+			_table.PrimaryKey = "key1";
+			string _json1 = "{\"ir\":true,\"data\":[[\"MN\",\"CG\",\"IP\",\"SV\",\"TC\"],[1,1,false,false,0],[2,1,false,false,0],[3,1,false,false,0],[4,1,false,false,0],[5,1,true,false,0],[92,1,true,false,0],[7,2,true,false,0],[8,3,true,false,29],[9,3,true,false,98],[10,1,true,false,0],[11,3,true,false,48],[12,1,true,false,0],[13,0,false,true,0],[191,0,false,false,0],[193,0,false,false,0],[192,0,false,false,0],[196,0,false,false,0],[15,1,false,false,0],[14,1,true,false,0],[17,1,true,false,0]]}";
+			int _counter1 = 0;
+
+			JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_table[0].MapNo.AsInt, 1);
+			Assert.AreEqual(_table[1].MapNo.AsInt, 2);
+
+			Assert.AreEqual(_table[0].ClearGrade.AsInt, 1);
+			Assert.AreEqual(_table[1].ClearGrade.AsInt, 1);
+
+
+			Assert.AreEqual(_table[0].IsPerfect.AsBool, false);
+			Assert.AreEqual(_table[1].IsPerfect.AsBool, false);
 		}	
 
 		[Test]
@@ -635,6 +656,35 @@ namespace BicUtil.Json
 				AddManagedColumn("key3", member3);
 				AddManagedColumn("key4", member4);
 			}
+		}
+
+		 public class TestClass4 : RecordContainer{
+			#region FieldName
+			private const string MAP_NO = "MN";
+			private const string CLEAR_GRADE = "CG";
+			private const string IS_PERFECT = "IP";
+			private const string HAS_SAVING = "SV";
+			private const string IS_REWARDED = "IR";
+			private const string TIME_RECORD = "TC";
+			#endregion
+
+			#region Field
+			public IntVariable MapNo = new IntVariable(0);
+			public IntVariable ClearGrade = new IntVariable(0);
+			public BoolVariable IsPerfect = new BoolVariable();
+			public BoolVariable HasSaving = new BoolVariable(false);
+			public IntVariable TimeRecord = new IntVariable(0);
+			#endregion
+
+			#region LifeCycle
+			public TestClass4(){
+				AddManagedColumn(MAP_NO, this.MapNo);
+				AddManagedColumn(CLEAR_GRADE, this.ClearGrade);
+				AddManagedColumn(IS_PERFECT, this.IsPerfect);
+				AddManagedColumn(HAS_SAVING, this.HasSaving);
+				AddManagedColumn(TIME_RECORD, this.TimeRecord);
+			}
+			#endregion
 		}
 
 		enum TestEnum 

@@ -13,7 +13,7 @@ namespace BicDB.Variable
 		#region AsValue
 		protected int data;
 		public int AsInt{ get{ return data ^ seed; } set{ data = value ^ seed; NotifyChanged();} }
-		public string AsString{ get{ return AsInt.ToString (); } set{ AsInt = int.Parse (value);} }
+		public string AsString{ get{ return AsInt.ToString (); } set{ AsInt = IntVariable.parse (value);} }
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public DataType Type { get { return DataType.Int; }}

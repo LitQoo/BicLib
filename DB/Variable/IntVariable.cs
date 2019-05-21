@@ -53,10 +53,13 @@ namespace BicDB.Variable
 		#endregion
 
 		#region parser
-		private int parse(string _value){
+		static internal int parse(string _value){
 			try {
 				return int.Parse(_value);
 			} catch (Exception) {
+				#if UNITY_EDITOR
+				UnityEngine.Debug.LogWarning("[BicDB] int parse warning : " + _value);
+				#endif
 				return (int)float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
 			}
 		}
