@@ -294,6 +294,8 @@ namespace BicUtil.UIFlow
 			case CloseMode.Disable:
 				_ui.gameObject.SetActive(false);
 				break;
+			case CloseMode.None:
+				break;
 			}
 		}
 
@@ -358,7 +360,8 @@ namespace BicUtil.UIFlow
 	public enum CloseMode
 	{
 		Destroy,
-		Disable
+		Disable,
+		None
 	}
 
 }
