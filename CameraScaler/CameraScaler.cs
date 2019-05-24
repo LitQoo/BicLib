@@ -85,30 +85,34 @@ namespace BicUtil.CameraScaler
 				float _hSize = (float)Screen.height * _rate;
 				mainCamera.orthographicSize = _hSize / 2f;
 
-
-				float _yOffset = 0;
-				switch (verticalAlign) {
-				case VerticalAlign.Top:
-					if(manageFullSizeOffset.y != 0){
-						_yOffset = manageFullSizeOffset.y / 2f;
-					}else{
-						_yOffset = (_hSize - referenceResolution.y) / 2f * -1;
-					}
-					break; 
-				case VerticalAlign.Bottom:
-					if(manageFullSizeOffset.y != 0){
-						_yOffset = - manageFullSizeOffset.y / 2f;
-					}else{
-						_yOffset = (_hSize - referenceResolution.y) / 2f;
-					}
-					break; 
-				}
-
-				mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
-
 				if(manageFullSizeRect != null){
 					var _rectRate = referenceResolution.x / (float)Screen.width;
 					manageFullSizeRect.sizeDelta = new Vector2((float)Screen.safeArea.width * _rectRate, (float)Screen.safeArea.height * _rectRate) + manageFullSizeOffset;
+					
+					float _yOffset = 0;
+					switch (verticalAlign) {
+					case VerticalAlign.Top:
+						_yOffset = manageFullSizeOffset.y / 2f;
+						break; 
+					case VerticalAlign.Bottom:
+						_yOffset = - manageFullSizeOffset.y / 2f;
+						break; 
+					}
+
+					mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
+				}else{
+
+					float _yOffset = 0;
+					switch (verticalAlign) {
+					case VerticalAlign.Top:
+						_yOffset = (_hSize - referenceResolution.y) / 2f * -1;
+						break; 
+					case VerticalAlign.Bottom:
+						_yOffset = (_hSize - referenceResolution.y) / 2f;
+						break; 
+					}
+
+					mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
 				}
 			}
 
