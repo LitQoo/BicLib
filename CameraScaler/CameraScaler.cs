@@ -128,6 +128,7 @@ namespace BicUtil.CameraScaler
 			#endif
 		}
 		
+		[SerializeField]
 		private Vector2 manageFullSizeOffset = Vector2.zero;
 
 		public void SetManageFullSizeOffset(Vector2 _offset){
