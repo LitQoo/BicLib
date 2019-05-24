@@ -262,7 +262,6 @@ namespace BicUtil.UIFlow
 				}
 
 				_finishCallback ();
-				finishWait();
 			};
 
 			Action _finishFunc = () => {
@@ -273,13 +272,14 @@ namespace BicUtil.UIFlow
 				if(_manageStack != null){
 					_manageStack();
 				}
+
+				finishWait();
 			};
 
 			var _result = _ui.OnClosedUI (_fromUI, _finishFunc, _parameter);
 
 			if (_result == OnCloseUIResult.DoNotWait) {
 				_finishFunc ();
-				finishWait();
 			} else if (_result == OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext) {
 				_manageStack ();
 				_manageStack = null;
@@ -295,7 +295,7 @@ namespace BicUtil.UIFlow
 				_ui.gameObject.SetActive(false);
 				break;
 			case CloseMode.None:
-				break;
+			break;
 			}
 		}
 
