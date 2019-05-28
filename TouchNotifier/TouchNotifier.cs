@@ -23,7 +23,7 @@ namespace BicUtil.TouchNotifier
 		public TouchEvent OnTouchDown;
 		public TouchEventWithStartingPosition OnTouchMove;
 		public TouchEventWithStartingPosition OnTouchUp;
-		private Vector2[] startTouchPosition = new Vector2[5];
+		private Vector2[] startTouchPosition = new Vector2[10];
 
 		private bool[] isTouchIn = new bool[10]{false, false, false, false, false,false, false, false, false, false};
 
