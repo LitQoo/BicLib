@@ -20,6 +20,8 @@ namespace BicUtil.TableView
 		public CellDataChanged SetDataFunction;
 		[SerializeField]
 		public CellDataChanged OnRemoveFunction;
+		[SerializeField]
+		public RectTransform RectTransform;
 
 		#endregion
 
@@ -62,6 +64,12 @@ namespace BicUtil.TableView
 					OnRemoveFunction.AddListener(_cell.Unbind);
 				}
 			}
+
+			#region UNITY_EDITOR
+			if(RectTransform == null){
+				Debug.LogError("[TableView] Set Recttrasform in TableCell");
+			}
+			#endregion
 		}
 
 		public void OnDestory(){

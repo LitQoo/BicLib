@@ -95,38 +95,49 @@ namespace BicUtil.TableView
         /// Reload the table view. Manually call this if the data source changed in a way that alters the basic layout
         /// (number of rows changed, etc)
         /// </summary>
-        public void ReloadData() {
+        public void ReloadData()
+        {
             DataSource.ReloadData();
             m_rowSizes = new float[DataSource.GetRowCount()];
             this.isEmpty = m_rowSizes.Length == 0;
 
-            if (this.isEmpty) {
+            if (this.isEmpty)
+            {
                 ClearAllRows();
                 return;
             }
             m_cumulativeRowSizes = new float[m_rowSizes.Length];
             m_cleanCumulativeIndex = -1;
 
-            for (int i = 0; i < m_rowSizes.Length; i++) {
+            for (int i = 0; i < m_rowSizes.Length; i++)
+            {
                 m_rowSizes[i] = m_dataSource.GetHeightForRowInTableView(i);
-                if (i > 0) {
+                if (i > 0)
+                {
                     m_rowSizes[i] += m_LayoutGroup.spacing;
                 }
             }
 
-
-			if(m_isVertical) {
-				m_scrollRect.content.sizeDelta = new Vector2(m_scrollRect.content.sizeDelta.x, 
-					GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.top + m_LayoutGroup.padding.bottom);
-			} else {
-				m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.left + m_LayoutGroup.padding.right, m_scrollRect.content.sizeDelta.y);
-			}
+            RecalculateContentSize();
 
             RecalculateVisibleRowsFromScratch();
             m_requiresReload = false;
             // scrollDistance = 1;
             // scrollDistance = 0; 
 
+        }
+
+        private void RecalculateContentSize()
+        {
+            if (m_isVertical)
+            {
+                var _height = GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.top + m_LayoutGroup.padding.bottom;
+                m_scrollRect.content.sizeDelta = new Vector2(m_scrollRect.content.sizeDelta.x, _height);
+            }
+            else
+            {
+                m_scrollRect.content.sizeDelta = new Vector2(GetCumulativeRowHeight(m_rowSizes.Length - 1) + m_LayoutGroup.padding.left + m_LayoutGroup.padding.right, m_scrollRect.content.sizeDelta.y);
+            }
         }
 
         /// <summary>
@@ -205,6 +216,7 @@ namespace BicUtil.TableView
                 if (this.isEmpty) {
                     return;
                 }
+
                 value = Mathf.Clamp(value, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
                 if (m_scrollDistance != value) {
                     m_scrollDistance = value;
@@ -217,6 +229,30 @@ namespace BicUtil.TableView
 					} else {
 						m_scrollRect.horizontalNormalizedPosition = relativeScroll;
 					}
+                }
+            }
+        }
+
+        public void test(float _scroll, float _offset){
+            var rect = m_scrollRect.transform.Find("Content").GetComponentInChildren<RectTransform>();
+            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, _scroll);
+            m_requiresRefresh = true;
+            return;
+            if (this.isEmpty) {
+                return;
+            }
+
+            _scroll = Mathf.Clamp(_scroll, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
+            if (m_scrollDistance != _scroll) {
+                m_scrollDistance = _scroll;
+                m_requiresRefresh = true;
+
+                float relativeScroll = _scroll / this.scrollableDistance;
+
+                if(m_isVertical) {
+                    m_scrollRect.verticalNormalizedPosition = 1 - relativeScroll;
+                } else {
+                    m_scrollRect.horizontalNormalizedPosition = relativeScroll;
                 }
             }
         }
@@ -625,6 +661,7 @@ namespace BicUtil.TableView
                     m_cumulativeRowSizes[m_cleanCumulativeIndex] += m_cumulativeRowSizes[m_cleanCumulativeIndex - 1];
                 } 
             }
+
             return m_cumulativeRowSizes[_rowIndex];
         }
 
@@ -642,6 +679,22 @@ namespace BicUtil.TableView
 
             m_reusableRows[reuseIdentifier].AddLast(_row);
             _row.transform.SetParent(m_reusableRowContainer, false);
+        }
+
+        public void ChangeRowSize(int _rowIndex, float _size){
+            m_rowSizes[_rowIndex] = _size;
+
+            if(m_visibleRowRange.Contains(_rowIndex)){
+                if(m_isVertical == true){
+                    m_visibleRows[_rowIndex].LayoutElement.preferredHeight = _size;
+                }else{
+                    m_visibleRows[_rowIndex].LayoutElement.preferredWidth = _size;
+                }
+
+                UpdatePaddingElements();
+                m_cleanCumulativeIndex = -1;
+                RecalculateContentSize();
+            }
         }
 
         #endregion

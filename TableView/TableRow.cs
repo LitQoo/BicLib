@@ -24,6 +24,8 @@ namespace BicUtil.TableView
 		public RowDataChanged OnCreateFunction;
 		[SerializeField]
 		public RowDataChanged OnRemoveFunction;
+		[SerializeField]
+		public LayoutElement LayoutElement;
 
 		[HideInInspector]
 		public List<TableCell> Cells = new List<TableCell>();
