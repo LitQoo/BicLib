@@ -19,6 +19,11 @@ namespace BicDB.Variable
 		public float AsFloat{ get{ return (float)AsInt; } set{ AsInt = (int)value;} }
 		public bool AsBool{ get{ return AsInt == 0 ? false : true; } set{ AsInt = (value ? 1 : 0) ;} }
 		public DataType Type { get { return DataType.Int; }}
+
+		public int AsIntWithoutNotify{
+			set{data = value;}
+			get{return data;}
+		}
 		#endregion
 
 		#region LifeCycle
