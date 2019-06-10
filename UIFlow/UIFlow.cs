@@ -122,6 +122,9 @@ namespace BicUtil.UIFlow
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
 			if (isWait == true) {
+				#if UNITY_EDITOR
+				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation");
+				#endif
 				return;
 			}
 
@@ -233,6 +236,7 @@ namespace BicUtil.UIFlow
 		
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
 			if (isWait == true) {
+				Debug.LogWarning("[UIFLOW] Failed Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ") Wating");
 				return;
 			}
 
