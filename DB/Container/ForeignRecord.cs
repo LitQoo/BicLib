@@ -10,17 +10,24 @@ namespace BicDB.Container
 		private ITableContainer<T> targetTable;
 		private string targetFieldName;
 		private IVariable findVariable;
+		private T cached = default(T);
 		public ForeignRecord(ITableContainer<T> _targetTable, string _findFieldName, IVariable _findVariable){
 			targetTable = _targetTable;
 			targetFieldName = _findFieldName;
 			findVariable = _findVariable;
+
+			findVariable.OnChangedValueActions += findRecord;
+			findRecord(findVariable);
 		}
 
-		T Value{
+		T Record{
 			get{
-				return targetTable.FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsString == findVariable.AsString);
+				return cached;
 			}
 		}
 
+		private void findRecord(IVariable _findVariable){
+			cached = targetTable.FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsString == findVariable.AsString);
+		}
 	}
 }
