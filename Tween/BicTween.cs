@@ -232,7 +232,6 @@ namespace BicUtil.Tween
 			return MoveLocalWithSpeed(_object, _object.transform.localPosition, _to, _distancePerSecond, _pool);
 		}
 
-
 		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
 			var _time = Vector3.Distance(_from, _to) / _distancePerSecond;
 			return MoveWorld(_object, _from, _to, _time, _pool);
@@ -244,6 +243,15 @@ namespace BicUtil.Tween
 
 		public static TweenModel MoveLocalX(GameObject _object, float _to, float _time, TweenPool _pool = null){
 			return MoveLocalX(_object, _object.transform.localPosition.x, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveLocalXWithSpeed(GameObject _object, float _from, float _to, float _distancePerSecond, TweenPool _pool = null){
+			var _time = Mathf.Abs(_from - _to) / _distancePerSecond;
+			return MoveLocalX(_object, _from, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveLocalXWithSpeed(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null){
+			return MoveLocalXWithSpeed(_object, _object.transform.localPosition.x, _to, _distancePerSecond, _pool);
 		}
 
 		public static TweenModel MoveLocalX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null){
