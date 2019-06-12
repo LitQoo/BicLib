@@ -267,6 +267,23 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel MoveWorldX(GameObject _object, float _to, float _time, TweenPool _pool = null){
+			return MoveWorldX(_object, _object.transform.position.x, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveWorldX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null){
+
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			_tween.OriginValue = new Vector3(_from, _object.transform.position.y, _object.transform.position.z);
+			_tween.DiffValue = new Vector3(_to - _from, 0f, 0f);
+			_tween.Time = _time;
+			_tween.Type = TweenType.MoveWorld;
+			_tween.UpdateFunc = UpdateFuncs.MoveWorld;
+
+			return _tween;
+		}
+
 
 		public static TweenModel MoveLocalY(GameObject _object, float _to, float _time, TweenPool _pool = null){
 			return MoveLocalY(_object, _object.transform.localPosition.y, _to, _time, _pool);
