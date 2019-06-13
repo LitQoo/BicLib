@@ -128,6 +128,7 @@ namespace BicUtil.Tween
 		#endregion 
 
 		#region  Events
+		public Action OnStartCallback;
         public Action OnCompleteCallback;
         public Action<Vector4> OnUpdateCallback;
         public Action<TweenModel, int> OnRepeatCallback;
@@ -168,6 +169,7 @@ namespace BicUtil.Tween
         public void Clear(){
 			Rate = 0;
 			OnCompleteCallback = null;
+			OnStartCallback = null;
 			OnUpdateCallback = null;
 			OnRepeatCallback = null;
 			EaseFunc = EaseFuncs.Linear;
@@ -203,6 +205,7 @@ namespace BicUtil.Tween
 			_tween.Rate = 0;
 			_tween.Name = this.Name + "_copy";
 			_tween.OnCompleteCallback = this.OnCompleteCallback;
+			_tween.OnStartCallback = this.OnStartCallback;
 			_tween.OnUpdateCallback = this.OnUpdateCallback;
 			_tween.EaseFunc = this.EaseFunc;
 			_tween.EaseType = this.EaseType;
@@ -421,8 +424,13 @@ namespace BicUtil.Tween
 			this.CurrentRepeatCount = 0;
 			this.Data = null;
 
+
 			if(_needApplyInitialInformations == true){
 				pool.ApplyInitialInformation(this.Id);
+			}
+
+			if(OnStartCallback != null){
+				OnStartCallback();
 			}
 
 			pool.UpdateMaxPlayingIndex(this.PoolIndex);
@@ -457,6 +465,23 @@ namespace BicUtil.Tween
 		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
 			_cancelObject.SetTween(this);
 
+			return this;
+		}
+
+		public TweenModel SubscribeStart(Action _callback, bool _clearSubscribe = false){
+			if(_clearSubscribe == true){
+				ClearSubscribeStart();
+			}
+
+			if(_callback != null){
+				OnStartCallback += _callback;
+			}
+
+			return this;
+		}
+
+		public TweenModel ClearSubscribeStart(){
+			OnStartCallback = null;
 			return this;
 		}
 
