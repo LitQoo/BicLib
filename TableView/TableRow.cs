@@ -105,6 +105,12 @@ namespace BicUtil.TableView
 				Cells[i].OnClickedActions = _onClickedEvent;
 			}
 		}
+
+		public void ReloadCells(){
+			for(int i = 0; i < Cells.Count; i++){
+				Cells[i].Model = Cells[i].Model;
+			}
+		}
 		#endregion
     }
 }
