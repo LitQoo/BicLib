@@ -675,6 +675,58 @@ namespace BicUtil.Tween
 		}
 	}
 
+	public class MultiTweenMaker{
+		private TweenModel sequance;
+		private List<TweenModel> backupList;
+		private Action onStartAction;
+
+		public MultiTweenMaker(){
+			backupList = new List<TweenModel>();
+			this.Reset();
+		}
+
+		public void SubscribeStart(Action _action){
+			this.onStartAction += _action;
+		}
+
+		public void Reset(){
+			sequance = BicTween.Sequance();
+			backupList.Clear();
+			onStartAction = null;
+		}
+
+		public void AddChild(TweenModel _tween){
+			_tween.Pause();
+			backupList.Add(_tween);
+		}
+
+		public void NextStep(){
+			if(backupList.Count == 0){
+				return;
+			}else if(backupList.Count == 1){
+				sequance.AddChild(backupList[0]);
+			}else{
+				var _spwan = BicTween.Spawn();
+				for(int i = 0; i < backupList.Count; i++){
+					_spwan.AddChild(backupList[i]);
+				}
+				sequance.AddChild(_spwan);
+			}
+
+			backupList.Clear();
+		}
+
+		public TweenModel Make(){
+			NextStep();
+			sequance.SubscribeStart(this.onStartAction);
+
+			var _result = sequance;
+			
+			Reset();
+			return _result;
+		}
+	}
+
 	public class TweenCancelObject{
 		public TweenModel Tween = null;
 		public int Id = -1;
@@ -717,6 +769,17 @@ namespace BicUtil.Tween
 			if(Tween.IsPlaying == true){
 				Tween.Cancel(Id);
 			}
+
+			Tween = null;
+			Id = -1;
+		}
+
+		public void Skip(){
+			if(Tween == null){
+				return;
+			}
+
+			Tween.Skip(Id);
 
 			Tween = null;
 			Id = -1;

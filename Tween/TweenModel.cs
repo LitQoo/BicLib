@@ -6,7 +6,13 @@ using UnityEngine.Events;
 namespace BicUtil.Tween
 {
     [Serializable]
-	public class TweenModel : IEaseData, IUpdateData{        
+	public class TweenModel : IEaseData, IUpdateData{       
+		#region Static
+		public const int DESTORY_WAIT_3FRAME = 3;
+		public const int DESTORY_READY_TO_RECYCLE = 1;
+		public const int DESTORY_NOT = 0;
+		#endregion
+
 		#region properties
 		public GameObject TargetObject{get{return targetObject;} set{targetObject = value;}}
 		public Vector4 OriginValue{get{return originValue;}set{originValue = value;}}
@@ -20,7 +26,7 @@ namespace BicUtil.Tween
         public bool IsLockedComplete{get;set;}
 		public Action Update{get;set;}
 		public string StringData{get{ return stringData;} set{stringData = value;}}
-        public bool IsDestroyed{get{ return destoryCount >= 1; }}
+        public bool IsDestroyed{get{ return destoryCount >= DESTORY_READY_TO_RECYCLE; }}
         public TweenType Type{get{return type;}set{type = value; SetUpdate();}}
 		public int PoolIndex{get{ return pool.GetIndex(this);}}
         public Action<IUpdateData> UpdateFunc{
@@ -84,9 +90,10 @@ namespace BicUtil.Tween
 				return Type == TweenType.Sequance || Type == TweenType.Spawn;
 			}
 		}
-		#endregion
-       
-		#region Serialized Members
+
+        #endregion
+
+        #region Serialized Members
         public string Name; 
 		public float Time;
 		public int Id;
@@ -115,7 +122,7 @@ namespace BicUtil.Tween
 		#region  NoneSerialized Members (just use in playmode)
 		//public TweenModel Parent;
         [NonSerialized]
-		public int destoryCount = 0;
+		public int destoryCount = DESTORY_NOT;
         [NonSerialized]
 		public int CurrentRepeatCount;
 		#endregion
@@ -178,7 +185,7 @@ namespace BicUtil.Tween
 			TimeFunc = TimeFuncs.ScaledTime;
 			timeType = TimeType.Scaled;
 			IsPlaying = false;
-			destoryCount = 0;
+			destoryCount = DESTORY_NOT;
 			RepeatCount = 0;
 			Data = null;
 			CurrentRepeatCount = 0;
@@ -213,7 +220,7 @@ namespace BicUtil.Tween
 			_tween.TimeFunc = this.TimeFunc;
 			_tween.TimeType = this.TimeType;
 			_tween.IsPlaying = false;
-			_tween.destoryCount = 0;
+			_tween.destoryCount = DESTORY_NOT;
 			_tween.RepeatCount = 0;
 			_tween.Data = null;
 			_tween.CurrentRepeatCount = 0;
@@ -265,6 +272,10 @@ namespace BicUtil.Tween
 		private void updateForSequance(){
 			
 			if(Data == null){
+				if(OnStartCallback != null){
+					OnStartCallback();
+				}
+
 				var _childList = GetChildList();
 				Data = _childList;
 				sequanceIndex = 0;
@@ -306,6 +317,10 @@ namespace BicUtil.Tween
 
 		private void updateForSpawn(){
 			if(Data == null){
+				if(OnStartCallback != null){
+					OnStartCallback();
+				}
+
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
 					_childList[i].Play(false);
@@ -351,6 +366,10 @@ namespace BicUtil.Tween
 			#else
 			float _deltaTime = TimeFunc();
 			#endif
+
+			if(Rate == 0f && OnStartCallback != null){
+				OnStartCallback();
+			}
 			
 			Rate = Mathf.Min(1f, Rate +  _deltaTime / Time);
 			CurrentValue = EaseFunc(this);
@@ -400,7 +419,7 @@ namespace BicUtil.Tween
 				Clear();
 			}
 
-			this.destoryCount = 3;
+			this.destoryCount = DESTORY_WAIT_3FRAME;
 		}
 
 		public List<TweenModel> GetChildList(){
@@ -420,17 +439,13 @@ namespace BicUtil.Tween
 		public TweenModel Play(bool _needApplyInitialInformations = true){
 			this.Rate = 0;
 			this.IsPlaying = true;
-			this.destoryCount = 0;
+			this.destoryCount = DESTORY_NOT;
 			this.CurrentRepeatCount = 0;
 			this.Data = null;
 
 
 			if(_needApplyInitialInformations == true){
 				pool.ApplyInitialInformation(this.Id);
-			}
-
-			if(OnStartCallback != null){
-				OnStartCallback();
 			}
 
 			pool.UpdateMaxPlayingIndex(this.PoolIndex);
@@ -447,14 +462,46 @@ namespace BicUtil.Tween
 				return;
 			}
 
-			this.IsPlaying = false;
-			this.destoryCount = 1;
-
 			if(IsGrouped == true){
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
 					_childList[i].Cancel(_childList[i].Id);
 				}
+			}
+
+			this.Clear();
+		}
+
+		public void Skip(int _id){
+			if(_id != this.Id || this.IsDestroyed == true){
+				return;
+			}
+
+			
+
+			if(IsGrouped == true){
+				if(this.Data == null && OnStartCallback != null){
+					OnStartCallback();
+				}
+
+				var _childList = GetChildList();
+				for(int i = 0; i < _childList.Count; i++){
+					_childList[i].Skip(_childList[i].Id);
+				}
+
+				if(OnRepeatCallback != null){
+					OnRepeatCallback(this, this.RepeatCount);
+				}
+
+				complete();
+			}else{
+				if(Rate == 0f && OnStartCallback != null){
+					OnStartCallback();
+				}
+
+				Rate = 1f;
+				this.CurrentRepeatCount = this.RepeatCount;
+				updateForSingle();
 			}
 		}
 
@@ -543,7 +590,24 @@ namespace BicUtil.Tween
 		public TweenModel AddChild(TweenModel _tween){
 			_tween.Pause();
 			_tween.IsLockedComplete = true;
+			
+			if(this.Type == TweenType.Spawn){
+				this.Time = Mathf.Max(_tween.Time, this.Time);
+			}else if(this.Type == TweenType.Sequance){
+				this.Time += _tween.Time;
+			}
+			
 			childDataList.Add(_tween.Id);
+			return this;
+		}
+
+		public TweenModel AddTo(TweenModel _tween){
+			_tween.AddChild(this);
+			return this;
+		}
+
+		public TweenModel AddTo(MultiTweenMaker _maker){
+			_maker.AddChild(this);
 			return this;
 		}
 

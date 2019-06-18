@@ -202,7 +202,7 @@ namespace BicUtil.Tween{
 					var __model = TweenList[i];
 
 					if(IsLocked == false){
-						if(__model.destoryCount == 1){
+						if(__model.destoryCount == TweenModel.DESTORY_READY_TO_RECYCLE){
 							__model.Clear();
 							__model.Id = NextId;
 							__model.Play();
@@ -266,7 +266,7 @@ namespace BicUtil.Tween{
 						if(_tween.Update != null){
 							_tween.Update();
 						}
-					}else if(_tween.destoryCount > 1){
+					}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
 						_tween.destoryCount--;
 					}
 				}
