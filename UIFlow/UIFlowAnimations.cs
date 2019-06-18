@@ -7,9 +7,15 @@ using BicUtil.Tween;
 namespace BicUtil.UIFlow
 {
 	static public class UIFlowAnimations {
-		static public void OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f, Action _finishCallback = null){
+		[Obsolete]
+		static public TweenModel OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f, Action _finishCallback = null){
 			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
-			BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart).SubscribeComplete(_finishCallback);
+			return BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart).SubscribeComplete(_finishCallback);
+		}
+
+		static public TweenModel OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f){
+			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
+			return BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart);
 		}
 
 		static public OnCloseUIResult CloseSwipeHorizontal(GameObject _layer, Action _finishCallback = null, float _firstPosition = -600, float _animationTime = 0.3f){
@@ -19,9 +25,15 @@ namespace BicUtil.UIFlow
 			return OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext;
 		}
 		
-		static public void OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f, Action _finishCallback = null, EaseType _easyType = EaseType.InOutQuart){
+		[Obsolete]
+		static public TweenModel OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f, Action _finishCallback = null, EaseType _easyType = EaseType.InOutQuart){
 			_layer.transform.localPosition = new Vector2 (0, _firstPosition);
-			BicTween.MoveLocalY (_layer, 0, _animationTime).SetEase(_easyType).SubscribeComplete(_finishCallback);
+			return BicTween.MoveLocalY (_layer, 0, _animationTime).SetEase(_easyType).SubscribeComplete(_finishCallback);
+		}
+
+		static public TweenModel OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f){
+			_layer.transform.localPosition = new Vector2 (0, _firstPosition);
+			return BicTween.MoveLocalY (_layer, 0, _animationTime);
 		}
 
 		static public OnCloseUIResult CloseSwipeVertical(GameObject _layer, Action _finishCallback = null, float _firstPosition = -1200, float _animationTime = 0.3f){
