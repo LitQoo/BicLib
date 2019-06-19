@@ -19,6 +19,7 @@ namespace BicUtil.Tween
 		public Vector4 DiffValue{get{return diffValue;}set{diffValue = value;}}
 		public List<int> ChildDataList{get{return childDataList;} set{childDataList = value;}}
 		public Vector4 CurrentValue{get;set;}
+		public Action<TweenModel> LateSetValueFunc{get;set;}
         public object Data{get;set;}
         public float Rate{ get;set;}
         public int PlayingIndex{get;set;}
@@ -179,6 +180,7 @@ namespace BicUtil.Tween
 			OnStartCallback = null;
 			OnUpdateCallback = null;
 			OnRepeatCallback = null;
+			LateSetValueFunc = null;
 			EaseFunc = EaseFuncs.Linear;
 			EaseType = EaseType.Linear;
 			UpdateFunc = null;
@@ -214,6 +216,7 @@ namespace BicUtil.Tween
 			_tween.OnCompleteCallback = this.OnCompleteCallback;
 			_tween.OnStartCallback = this.OnStartCallback;
 			_tween.OnUpdateCallback = this.OnUpdateCallback;
+			_tween.LateSetValueFunc = this.LateSetValueFunc;
 			_tween.EaseFunc = this.EaseFunc;
 			_tween.EaseType = this.EaseType;
 			_tween.UpdateFunc = this.UpdateFunc;
@@ -258,6 +261,12 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		private void setValuesByFunc(){
+			if(LateSetValueFunc != null){
+				LateSetValueFunc(this);
+			}
+		}
+
 		public void SetUpdate(){
 			if(type == TweenType.Sequance || type == TweenType.Virtual){
 				Update = updateForSequance;
@@ -272,6 +281,8 @@ namespace BicUtil.Tween
 		private void updateForSequance(){
 			
 			if(Data == null){
+				setValuesByFunc();
+
 				if(OnStartCallback != null){
 					OnStartCallback();
 				}
@@ -317,6 +328,8 @@ namespace BicUtil.Tween
 
 		private void updateForSpawn(){
 			if(Data == null){
+				setValuesByFunc();
+
 				if(OnStartCallback != null){
 					OnStartCallback();
 				}
@@ -366,9 +379,14 @@ namespace BicUtil.Tween
 			#else
 			float _deltaTime = TimeFunc();
 			#endif
+			
+			
 
-			if(Rate == 0f && OnStartCallback != null){
-				OnStartCallback();
+			if(Rate == 0f){
+				setValuesByFunc();
+				if(OnStartCallback != null){
+					OnStartCallback();
+				}
 			}
 			
 			Rate = Mathf.Min(1f, Rate +  _deltaTime / Time);
@@ -495,8 +513,12 @@ namespace BicUtil.Tween
 
 				complete();
 			}else{
-				if(Rate == 0f && OnStartCallback != null){
-					OnStartCallback();
+				if(Rate == 0f){
+					setValuesByFunc();
+
+					if(OnStartCallback != null){
+						OnStartCallback();
+					}
 				}
 
 				Rate = 1f;
@@ -606,7 +628,7 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel AddTo(MultiTweenMaker _maker){
+		public TweenModel AddTo(MultiTween _maker){
 			_maker.AddChild(this);
 			return this;
 		}

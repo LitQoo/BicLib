@@ -267,6 +267,38 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel MoveLocalXWithSpeedFromLast(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null){
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			var __to = _to;
+			var __distancePerSecond = _distancePerSecond;
+			_tween.LateSetValueFunc = (_t)=>{
+				_tween.OriginValue = _object.transform.localPosition;
+				_tween.DiffValue = new Vector3(_to - _tween.OriginValue.x, 0f, 0f);
+				_tween.Time = Mathf.Abs(_tween.DiffValue.x) / __distancePerSecond;
+			};
+			_tween.Time = 1f;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
+			return _tween;
+		}
+
+		public static TweenModel MoveLocalXFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null){
+
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			var __to = _to;
+			_tween.LateSetValueFunc = (_t)=>{
+				_tween.OriginValue = _object.transform.localPosition;
+				_tween.DiffValue = new Vector3(_to - _tween.OriginValue.x, 0f, 0f);
+			};
+			_tween.Time = _time;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
+
+			return _tween;
+		}
+
 		public static TweenModel MoveWorldX(GameObject _object, float _to, float _time, TweenPool _pool = null){
 			return MoveWorldX(_object, _object.transform.position.x, _to, _time, _pool);
 		}
@@ -562,6 +594,14 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static MultiTween Multi(){
+			return new MultiTween();
+		}
+
+		public static TweenCancelObject CancelObject(TweenModel _tween){
+			return new TweenCancelObject(_tween);
+		}
+
 		public static void Cancel(GameObject _targetObject, TweenPool _pool = null){
 			if(_pool != null){
 				_pool.Cancel(_targetObject);
@@ -675,57 +715,131 @@ namespace BicUtil.Tween
 		}
 	}
 
-	public class MultiTweenMaker{
-		private TweenModel sequance;
-		private List<TweenModel> backupList;
-		private Action onStartAction;
+	public class MultiTween{
+		TweenModel mother = null;
+		List<TweenModel> groupTween = new List<TweenModel>();
+		
+		public TweenModel Current{
+			get{
+				if(groupTween.Count <= 0){
+					throw new SystemException("MultiTween Current not found");
+				}
 
-		public MultiTweenMaker(){
-			backupList = new List<TweenModel>();
-			this.Reset();
+				return groupTween[groupTween.Count - 1];
+			}
 		}
 
-		public void SubscribeStart(Action _action){
-			this.onStartAction += _action;
+		private void addGroupTween(TweenModel _tween){
+			if(mother == null){
+				mother = _tween;
+			}
+
+			groupTween.Add(_tween);
+
+			if(groupTween.Count > 1){
+				groupTween[groupTween.Count - 2].AddChild(_tween);
+			}
 		}
 
-		public void Reset(){
-			sequance = BicTween.Sequance();
-			backupList.Clear();
-			onStartAction = null;
+		private void removeLastGroupTween(){
+			groupTween.RemoveAt(groupTween.Count - 1);
+		}
+		
+		public void StartSequance(int _tag = 0){
+			addGroupTween(BicTween.Sequance());
+		}
+
+		public void EndSequance(int _tag = 0){
+			if(Current.Type != TweenType.Sequance){
+				throw new SystemException("Current Tween is not Sequance");
+			}
+
+			removeLastGroupTween();
+		}
+
+		public void StartSpwan(int _tag = 0){
+			addGroupTween(BicTween.Spawn());
+		}
+
+		public void EndSpawn(int _tag = 0){
+			if(Current.Type != TweenType.Spawn){
+				throw new SystemException("Current Tween is not Spawn");
+			}
+
+			removeLastGroupTween();
 		}
 
 		public void AddChild(TweenModel _tween){
-			_tween.Pause();
-			backupList.Add(_tween);
-		}
-
-		public void NextStep(){
-			if(backupList.Count == 0){
-				return;
-			}else if(backupList.Count == 1){
-				sequance.AddChild(backupList[0]);
-			}else{
-				var _spwan = BicTween.Spawn();
-				for(int i = 0; i < backupList.Count; i++){
-					_spwan.AddChild(backupList[i]);
-				}
-				sequance.AddChild(_spwan);
-			}
-
-			backupList.Clear();
+			groupTween[groupTween.Count - 1].AddChild(_tween);
 		}
 
 		public TweenModel Make(){
-			NextStep();
-			sequance.SubscribeStart(this.onStartAction);
+			if(groupTween.Count != 0){
+				throw new SystemException("MultiTween Count is " + groupTween.Count.ToString());
+			}
 
-			var _result = sequance;
-			
-			Reset();
+			var _result = this.mother;
+			this.mother = null;
+			groupTween.Clear();
 			return _result;
 		}
+
+		public TweenModel Play(){
+			return Make().Play();
+		}
 	}
+
+	// public class MultiTweenMaker{
+	// 	private TweenModel sequance;
+	// // 	private List<TweenModel> backupList;
+	// // 	private Action onStartAction;
+
+	// // 	public MultiTweenMaker(){
+	// // 		backupList = new List<TweenModel>();
+	// // 		this.Reset();
+	// // 	}
+
+	// // 	public void SubscribeStart(Action _action){
+	// // 		this.onStartAction += _action;
+	// // 	}
+
+	// // 	public void Reset(){
+	// // 		sequance = BicTween.Sequance();
+	// // 		backupList.Clear();
+	// // 		onStartAction = null;
+	// // 	}
+
+	// // 	public void AddChild(TweenModel _tween){
+	// // 		_tween.Pause();
+	// // 		backupList.Add(_tween);
+	// // 	}
+
+	// // 	public void NextStep(){
+	// // 		if(backupList.Count == 0){
+	// // 			return;
+	// // 		}else if(backupList.Count == 1){
+	// // 			sequance.AddChild(backupList[0]);
+	// // 		}else{
+	// // 			var _spwan = BicTween.Spawn();
+	// // 			for(int i = 0; i < backupList.Count; i++){
+	// // 				_spwan.AddChild(backupList[i]);
+	// // 			}
+	// // 			sequance.AddChild(_spwan);
+	// // 		}
+
+	// // 		backupList.Clear();
+	// // 	}
+
+	// // 	public TweenModel Make(){
+	// // 		NextStep();
+	// // 		sequance.SubscribeStart(this.onStartAction);
+
+	// // 		var _result = sequance;
+			
+	// // 		Reset();
+	// // 		return _result;
+	// // 	}
+	// }
 
 	public class TweenCancelObject{
 		public TweenModel Tween = null;
