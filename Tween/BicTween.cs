@@ -534,6 +534,17 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel DelayOneFrame(TweenPool _pool = null){
+			TimeFuncs.UpdateFrameCount();
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = null;
+			_tween.Time = 1f / (float)Application.targetFrameRate;
+			_tween.Type = TweenType.Delay;
+			_tween.TimeType = TimeType.Frame;
+			_tween.UpdateFunc = null;
+			return _tween;
+		}
+
 		
 		#if BICUTIL_SPINE
 		public static TweenModel SpineAnimation(SkeletonAnimation _spine, string _animationName, TweenPool _pool = null){
@@ -684,7 +695,8 @@ namespace BicUtil.Tween
 		Scaled,
 		Unscaled,
 		Fixed,
-		Real
+		Real,
+		Frame
 	}
 
 	public class TimeFuncs{
@@ -694,6 +706,7 @@ namespace BicUtil.Tween
 				case TimeType.Scaled: return ScaledTime;
 				case TimeType.Unscaled: return UnscaledTime;
 				case TimeType.Real: return RealTime;
+				case TimeType.Frame: return Frame;
 			}
 
 			return null;
@@ -712,6 +725,24 @@ namespace BicUtil.Tween
 
 		public static float RealTime(){
 			return BicTween.realDeltaTime;
+		}
+
+		private static int lastFrameCount = -1; 
+		public static float Frame(){
+			if(lastFrameCount == -1){
+				lastFrameCount = UnityEngine.Time.frameCount;
+			}
+
+			if(lastFrameCount != UnityEngine.Time.frameCount){
+				lastFrameCount = UnityEngine.Time.frameCount;
+				return 1f/(float)Application.targetFrameRate;
+			}else{
+				return 0;
+			}
+		}
+
+		public static void UpdateFrameCount(){
+			lastFrameCount = UnityEngine.Time.frameCount;
 		}
 	}
 
