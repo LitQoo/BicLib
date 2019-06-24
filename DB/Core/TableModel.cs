@@ -15,6 +15,11 @@ namespace BicDB.Core
 		public IntVariable ErrorCount = new IntVariable(0);
 		#endregion
 
+		#region InstantData
+		public IQueryTable Table;
+		public bool IsFirstSetup = false;
+		#endregion
+
 		#region LifeCycle
 		public TableModel(){
 			AddManagedColumn ("name", Name);

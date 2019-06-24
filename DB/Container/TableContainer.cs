@@ -8,7 +8,7 @@ using BicDB.Core;
 
 namespace BicDB.Container
 {
-	public class TableContainer<T> : ITableContainer<T> where T : class, IRecordContainer, new(){
+	public class TableContainer<T> : ITableContainer<T>, IQueryTable where T : class, IRecordContainer, new(){
 		private IList<T> rows = new List<T>();
 
 		#region IRecordContainerParent
@@ -251,6 +251,7 @@ namespace BicDB.Container
 				if(_result.Code == 0){
 					if(Name != TableService.TABLENAME){
 						var _tableInfo = TableService.GetTableInfo(Name, true);
+						_tableInfo.Table = this;
 						_tableInfo.StorageType.AsString = storage.StorageType;
 						_tableInfo.HashCode.AsInt = _result.HashCode;
 						_tableInfo.SaveCount.AsInt++;
@@ -271,8 +272,10 @@ namespace BicDB.Container
 				if(_result.Code == 0){
 					if(Name != TableService.TABLENAME){
 						bool _saveTableInfomaiton = false;
-						var _tableInfo = TableService.GetTableInfo(Name);
-						if(_tableInfo == null){
+						var _tableInfo = TableService.GetTableInfo(Name, true);
+						_tableInfo.Table = this;
+						
+						if(_tableInfo.IsFirstSetup == true){
 							if(this.OnSetup != null){
 								this.OnSetup();
 							}
@@ -328,10 +331,15 @@ namespace BicDB.Container
 				commitRows.Clear();
 			}
 		}
-		#endregion
 
-		#region Autoincrease
-		private const string AUTO_INCREASE_NUMBER = "__AutoIncreaseNumber__";
+        public IRecordContainer RecordAt(int _index)
+        {
+            return this.ElementAt(_index) as IRecordContainer;
+        }
+        #endregion
+
+        #region Autoincrease
+        private const string AUTO_INCREASE_NUMBER = "__AutoIncreaseNumber__";
 		public int AutoIncreaseNumber{
 			get{
 				if(this.Property.ContainsKey(AUTO_INCREASE_NUMBER) == false){

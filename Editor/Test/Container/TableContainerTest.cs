@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using BicDB.Variable;
 using System.Linq;
 using BicDB.Storage;
+using BicDB.Core;
 
 namespace BicDB.Container
 {
@@ -368,6 +369,144 @@ namespace BicDB.Container
 			var _index2 = _table.AutoIncreaseNumber;
 
 			Assert.AreEqual(_index2, 2);
+		}
+
+        class TestStorage : ITableStorage
+        {
+            public string StorageType{ get{ return "teststorage";}}
+
+            public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new()
+            {
+				if(_callback != null){
+					_callback(new Result(0, 0));
+				} 
+            }
+
+            public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new()
+            {
+                if(_callback != null){
+					_callback(new Result(0, 0));
+				} 
+            }
+        }
+
+		class TestRecord : RecordContainer{
+
+		}
+
+        [Test]
+		public void QueryUpdateTest1(){
+			var _storage = new TestStorage();
+			var _table = new TableContainer<TestRecord>("QueryTest1");
+			_table.SetStorage(_storage);
+			_table.Load();
+			
+			var _row1 = new TestRecord();
+			_row1.Add("no", new IntVariable(1));
+			_row1.Add("name", new StringVariable("jone"));
+			_row1.Add("money", new IntVariable(1000));
+			_table.Add(_row1);
+
+			var _row2 = new TestRecord();
+			_row2.Add("no", new IntVariable(2));
+			_row2.Add("name", new StringVariable("smith"));
+			_row2.Add("money", new IntVariable(2000));
+			_table.Add(_row2);
+
+            TableService.Query("SETUP QueryId=ABC, TargetUser="+TableService.UserId+", Expired=99121223, Repeat=99999;UPDATE QueryTest1 SET money+=2100, name=\"change\" WHERE no=1");
+
+			Assert.AreEqual(_table[0]["no"].AsVariable.AsInt, 1);
+			Assert.AreEqual(_table[0]["name"].AsVariable.AsString, "change");
+			Assert.AreEqual(_table[0]["money"].AsVariable.AsInt, 3100);
+
+			Assert.AreEqual(_table[1]["no"].AsVariable.AsInt, 2);
+			Assert.AreEqual(_table[1]["name"].AsVariable.AsString, "smith");
+			Assert.AreEqual(_table[1]["money"].AsVariable.AsInt, 2000);
+
+		}
+		
+		[Test]
+		public void QueryUpdateTest2(){
+			var _storage = new TestStorage();
+			var _table = new TableContainer<TestRecord>("QueryTest2");
+			_table.SetStorage(_storage);
+			_table.Load();
+
+			var _row1 = new TestRecord();
+			_row1.Add("no", new IntVariable(1));
+			_row1.Add("name", new StringVariable("jone"));
+			_row1.Add("money", new IntVariable(1000));
+			_table.Add(_row1);
+
+			var _row2 = new TestRecord();
+			_row2.Add("no", new IntVariable(2));
+			_row2.Add("name", new StringVariable("smith"));
+			_row2.Add("money", new IntVariable(2000));
+			_table.Add(_row2);
+
+			
+			TableService.Query("SETUP QueryId=DEF, TargetUser="+TableService.UserId+", Expired=99121223, Repeat=99999;UPDATE QueryTest2 SET money*=2, name=\"change1\" WHERE no=2");
+			
+
+			Assert.AreEqual(_table[0]["no"].AsVariable.AsInt, 1);
+			Assert.AreEqual(_table[0]["name"].AsVariable.AsString, "jone");
+			Assert.AreEqual(_table[0]["money"].AsVariable.AsInt, 1000);
+
+			Assert.AreEqual(_table[1]["no"].AsVariable.AsInt, 2);
+			Assert.AreEqual(_table[1]["name"].AsVariable.AsString, "change1");
+			Assert.AreEqual(_table[1]["money"].AsVariable.AsInt, 4000);
+
+		}
+
+		[Test]
+		public void QueryExpiredCheck1(){
+			bool isException = false;
+			try{
+				TableService.Query("SETUP QueryId=EIAKFH, TargetUser="+TableService.UserId+", Expired=18121223, Repeat=99999;");
+			}catch(QueryException _e){
+				Assert.AreEqual(_e.ExceptionType, QueryExceptionType.Expired);
+				isException = true;
+			}
+
+			Assert.AreEqual(isException, true);
+
+		}
+
+		[Test]
+		public void QueryExpiredCheck2(){
+			bool isException = false;
+			try{
+				TableService.Query("SETUP QueryId=EIAKFH, TargetUser="+TableService.UserId+", Expired=99121223, Repeat=99999;");
+			}catch{
+				isException = true;
+			}
+
+			Assert.AreEqual(isException, false);
+
+		}
+
+		[Test]
+		public void QueryTargetUserCheck1(){
+			bool isException = false;
+			try{
+				TableService.Query("SETUP QueryId=EIAKFH, TargetUser=1234, Expired=99121223, Repeat=99999;");
+			}catch(QueryException _e){
+				Assert.AreEqual(_e.ExceptionType, QueryExceptionType.NotTargetUser);
+				isException = true;
+			}
+
+			Assert.AreEqual(isException, true);
+
 		}
 	}
 }

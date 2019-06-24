@@ -415,6 +415,12 @@ namespace BicUtil.Json
 
 		}
 
+		public IDataBase BuildVariable(string _json){
+			var __json = _json;
+			int _counter = 0;
+			return BuildVariable(ref __json, ref _counter);
+		}
+		
 		public IDataBase BuildVariable(ref string _json, ref int _counter){
 			// find start point
 			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {

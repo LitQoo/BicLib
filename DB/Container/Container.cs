@@ -61,7 +61,7 @@ namespace BicDB.Container
 		void Commit();
 	}
 
-	public interface ITableContainer<T> : IDataBase, IList<T>, IRecordContainerParent, ITableStorageSuppoter where T : IRecordContainer
+	public interface ITableContainer<T> : IRecordContainerParent, ITableStorageSuppoter, IDataBase, IList<T> where T : IRecordContainer
 	{
 		#region event
 		Action<T> OnAddedRowActions { get; set; }
@@ -71,5 +71,11 @@ namespace BicDB.Container
 		event Action<string, string> OnMigration;
 		event Action OnHashCodeError;
 		#endregion
+	}
+
+	public interface IQueryTable : IStorageSuppoter{
+		IRecordContainer RecordAt(int _index);
+		int Count{get;}
+
 	}
 }

@@ -6,10 +6,16 @@ using System.Linq;
 using BicDB.Storage;
 using System;
 using UnityEngine;
+using System.Text.RegularExpressions;
+using BicUtil.Json;
 
 namespace BicDB.Core
 {
 	static public class TableService{
+        private const string PROP_FIELD_SESSION_COUNT = "initCount";
+        private const string PROP_FIELD_USER_ID = "userId";
+        private const string PROP_FIELD_VERSION = "version";
+        private const string PROP_FIELD_IS_SETUP = "isSetup";
         #region Const
         static public readonly string TABLENAME = "BICSYSTEM";
         #endregion
@@ -17,6 +23,7 @@ namespace BicDB.Core
 		#region Member
         static private bool isInit = false;
         static public TableContainer<TableModel> TableInfo;
+        static public TableContainer<QueryModel> QueryTable;
         #endregion
 
         #region Event
@@ -51,16 +58,33 @@ namespace BicDB.Core
         static public bool IsSetup{get{ return isSetup; }}
         static public bool IsUpdate{get{ return isUpdate; }}
         static public int SessionCount{get{
+            Init();
+
             if(TableInfo == null){
                 return 0;
             }
 
-            if(TableInfo.Property.ContainsKey("initCount") == false){
+            if(TableInfo.Property.ContainsKey(PROP_FIELD_SESSION_COUNT) == false){
                 return 0;
             }
             
-            return TableInfo.Property["initCount"].AsVariable.AsInt;
+            return TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt;
         ;}} 
+        static public string UserId{
+            get{
+                Init();
+
+                if(TableInfo == null){
+                    return "0";
+                }
+
+                if(TableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                    return "0";
+                }
+
+                return TableInfo.Property[PROP_FIELD_USER_ID].AsVariable.AsString;
+            }
+        }
 
         static private string lastVersion = "";
         static private string currentVersion = "";
@@ -88,14 +112,18 @@ namespace BicDB.Core
             TableInfo.SetStorage(BicDB.Storage.FileStorage.GetInstance());
 
             TableInfo.Load(_result=>{
-                if(TableInfo.Property.ContainsKey("version")){
-                    lastVersion = TableInfo.Property["version"].AsVariable.AsString;
+                if(TableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
+                    lastVersion = TableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
                 }
 
-                if(!TableInfo.Property.ContainsKey("isSetup")){
-                    TableInfo.Property.Add("isSetup", new BoolVariable(true));
-                    TableInfo.Property.Add("initCount", new IntVariable(1));
-                    TableInfo.Property.Add("version", new StringVariable(currentVersion));
+                if(TableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                    TableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
+                }
+
+                if(!TableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
+                    TableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
+                    TableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
+                    TableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
                     TableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                             if(onSetup != null){
@@ -106,8 +134,8 @@ namespace BicDB.Core
                         }
                     });
                 }else if(currentVersion != lastVersion){
-                    TableInfo.Property["version"].AsVariable.AsString = currentVersion;
-                    TableInfo.Property["initCount"].AsVariable.AsInt++;
+                    TableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
+                    TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
                     TableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                              if(onUpdate != null){
@@ -119,9 +147,15 @@ namespace BicDB.Core
                     });
 
                 }else{
-                    TableInfo.Property["initCount"].AsVariable.AsInt++;
+                    TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
                     TableInfo.Save();
                 }
+
+            }, new FileStorageParameter("filesystem"));
+
+            QueryTable = new TableContainer<QueryModel>("qa");
+            QueryTable.SetStorage(BicDB.Storage.FileStorage.GetInstance());
+            QueryTable.Load(_result=>{
 
             }, new FileStorageParameter("filesystem"));
 
@@ -132,6 +166,7 @@ namespace BicDB.Core
             if(_tableInfo == null && _createIfNotExsit == true){
                 _tableInfo = new TableModel();
                 _tableInfo.Name.AsString = _tableName;
+                _tableInfo.IsFirstSetup = true;
                 TableInfo.Add(_tableInfo);
             }
 
@@ -151,6 +186,284 @@ namespace BicDB.Core
 
         static public void Save(){
             TableInfo.Save();
+        }
+
+        static public string Query(string _queryString){
+            TableService.Init();
+            /*
+                필수 QueryId EIFHAKEIFAAKEIDFKA;
+                필수아님 TargetUser 유저아이디;
+                필수아님 Expiered 19062023;
+                필수아님 Message 감사합니다. 완료되었습니다.;
+                필수 Repeat 1;
+                INSERT INTO 테이블이름(필드이름1, 필드이름2, 필드이름3, ...) VALUES (데이터값1, 데이터값2, 데이터값3, ...);
+                UPDATE 테이블이름 SET 필드이름1=데이터값1, 필드이름2=데이터값2, ... WHERE 필드이름=데이터값 AND 필드이름=데이터값;
+                DELETE FROM 테이블이름 WHERE (필드이름=데이터값 OR 필드이름=데이터값) AND 필드이름=데이터값;
+             */
+
+            string[] _querys = _queryString.Split(';');
+            
+            var _message = setupQuery(_querys[0]);
+
+            if(_queryString.Length >= 2){
+                for(int i = 1; i < _querys.Length; i++){
+                    string _query = _querys[i];
+                    if(_query != string.Empty){
+                        string _type = _query.Substring(0, _query.IndexOf(' '));
+                        doQuery(_type, _query);
+                    }
+                }
+            }
+
+            return _message;
+        }
+
+        static private void doQuery(string _type, string _query){
+            switch(_type.ToLower()){
+                case "insert":
+                queryInsert(_query);
+                break;
+                case "update":
+                queryUpdate(_query);
+                break;
+                case "delete":
+                queryDelete(_query);
+                break;
+            }
+        }
+
+        private static string setupQuery(string _queryString)
+        {
+            var _rx = new Regex(@"\bsetup\s+([\S\s]+)", RegexOptions.IgnoreCase);
+            var _match = _rx.Match(_queryString);
+
+            if(_match.Success == false){
+                throw new QueryException("It is not setup query", QueryExceptionType.SetupParse);
+            }
+
+            var _queryList = _match.Groups[1].Value.Split(new char[]{','});
+            int _repeat = 0;
+            string _message = "";
+            string _queryId = "";
+            for(int i = 0; i < _queryList.Length; i++){
+                var _query = _queryList[i].Split(new char[]{'='});
+                var _type = _query[0].Trim().ToLower();
+                var _option = _query[1].Trim();
+
+                switch(_type){
+                    case "queryid":
+                    _queryId = _option;
+                    break;
+                    case "targetuser":
+                    checkTargetUser(_option);
+                    break;
+                    case "expired":
+                    checkExpired(_option);
+                    break;
+                    case "repeat":
+                    _repeat = int.Parse(_option);
+                    break;
+                    case "message":
+                    _message = _option;
+                    break;
+                }
+            }
+
+            if(_queryId == ""){
+                throw new QueryException("Not found query id", QueryExceptionType.NotFoundQueryId);
+            }
+
+            var _queryModel = GetQueryModel(_queryId);
+
+            if(_queryModel.ExecCount.AsInt > _repeat){
+                throw new QueryException("No Repeat", QueryExceptionType.CanNotRepeat);
+            }
+
+            _queryModel.ExecCount.AsInt ++;
+            QueryTable.Save();
+
+            return _message;
+        }
+
+        private static void checkExpired(string _expiredDate)
+        {
+            var _now = int.Parse(DateTime.Now.ToString("yyMMddHH"));
+            var _expired = int.Parse(_expiredDate);
+            
+            if(_now >= _expired){
+                throw new QueryException("It is expired query", QueryExceptionType.Expired);
+            }
+        }
+
+        private static void checkTargetUser(string targetId)
+        {
+            if(targetId != TableService.UserId){
+                throw new QueryException("Your not targetUser", QueryExceptionType.NotTargetUser);
+            }
+        }
+
+        static private void queryInsert(string _query){
+
+        }
+
+        static private void queryUpdate(string _query)
+        {
+            //UPDATE 테이블이름 SET 필드이름1=데이터값1, 필드이름2=데이터값2 WHERE 필드이름=데이터값 AND 필드이름=데이터값;
+            // 이전에 해야할것 재화용테이블 만들기, 유저고유아이디 만들어 tableservice에 넣기
+            var _rx = new Regex(@"\bupdate\s+(\w+)\s+set\s([\S\s]+)where\s+([\S\s]+)\b", RegexOptions.IgnoreCase);
+            var _match = _rx.Match(_query);
+            var _tableName = _match.Groups[1].Value;
+            var _value = parseUpdateQuery(_match.Groups[2].Value);
+            var _where = parseWhereQuery(_match.Groups[3].Value);
+
+            var _tableInfo = TableService.GetTableInfo(_tableName, false);
+
+            if (_tableInfo == null)
+            {
+                throw new QueryException("not found table " + _tableName, QueryExceptionType.NotFoundTable);
+            }
+
+            findTargetRow(_tableInfo.Table, _where, _row=>
+            {
+                applyUpdateValue(_row, _value);
+            });
+
+            _tableInfo.Table.Save();
+        }
+
+        private static void applyUpdateValue(IRecordContainer _row, string[] _value)
+        {
+            for (int j = 0; j < _value.Length - 2; j += 3)
+            {
+                var _variable = JsonConvertor.GetInstance().BuildVariable(_value[j + 2]);
+
+                switch (_value[j])
+                {
+                    case "=":
+                        _row[_value[j + 1]].AsVariable.AsString = _variable.AsVariable.AsString;
+                        break;
+                    case "-=":
+                        _row[_value[j + 1]].AsVariable.AsFloat -= _variable.AsVariable.AsFloat;
+                        break;
+                    case "+=":
+                        _row[_value[j + 1]].AsVariable.AsFloat += _variable.AsVariable.AsFloat;
+                        break;
+                    case "*=":
+                        _row[_value[j + 1]].AsVariable.AsFloat *= _variable.AsVariable.AsFloat;
+                        break;
+                }
+            }
+        }
+
+        private static void findTargetRow(IQueryTable _table, string[] _where, Action<IRecordContainer> _applyCallback)
+        {
+            for (int i = 0; i < _table.Count; i++)
+            {
+                var _row = _table.RecordAt(i);
+
+                bool _result = true;
+                for (int j = 0; j < _where.Length - 2; j += 3)
+                {
+                    switch (_where[j])
+                    {
+                        case "=":
+                            _result = _result && _row[_where[j+1]].AsVariable.AsString == _where[j+2];
+                            break;
+                        case "!=":
+                            _result = _result && _row[_where[j+1]].AsVariable.AsString != _where[j+2];
+                            break;
+                    }
+                }
+
+                if (_result == true)
+                {
+                    _applyCallback(_row);
+                }
+            }
+        }
+
+        static private string[] parseWhereQuery(string _whereQuery){
+            string[] _whereQueryList;
+            List<string> _where = new List<string>();
+
+            if(_whereQuery.Contains("and") || _whereQuery.Contains("AND")){
+                _whereQueryList = _whereQuery.Split(new String[]{"and", "AND"}, StringSplitOptions.RemoveEmptyEntries);
+            }else{
+                _whereQueryList = new string[]{_whereQuery};
+            }
+
+            for(int i = 0; i < _whereQueryList.Length; i++){
+                if(_whereQueryList[i].Contains("!=")){
+                    var _query = _whereQueryList[i].Split(new String[]{"!="}, StringSplitOptions.RemoveEmptyEntries);
+                    _where.Add("!=");
+                    _where.Add(_query[0].Trim());
+                    _where.Add(_query[1].Trim());
+                }else if(_whereQueryList[i].Contains("=")){
+                    var _query = _whereQueryList[i].Split(new String[]{"="}, StringSplitOptions.RemoveEmptyEntries);
+                    _where.Add("=");
+                    _where.Add(_query[0].Trim());
+                    _where.Add(_query[1].Trim());
+                }else{
+                    throw new QueryException("Not found == or != in where query", QueryExceptionType.WhereParse);
+                }
+            }
+
+            return _where.ToArray();
+        }
+
+        static private string[] parseUpdateQuery(string _whereQuery){
+            string[] _valueQueryList;
+            List<string> _value = new List<string>();
+
+            if(_whereQuery.Contains(",")){
+                _valueQueryList = _whereQuery.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries);
+            }else{
+                _valueQueryList = new string[]{_whereQuery};
+            }
+
+            for(int i = 0; i < _valueQueryList.Length; i++){
+                if(_valueQueryList[i].Contains("+=")){
+                    var _query = _valueQueryList[i].Split(new String[]{"+="}, StringSplitOptions.RemoveEmptyEntries);
+                    _value.Add("+=");
+                    _value.Add(_query[0].Trim());
+                    _value.Add(_query[1].Trim());
+                }else if(_valueQueryList[i].Contains("-=")){
+                    var _query = _valueQueryList[i].Split(new String[]{"-="}, StringSplitOptions.RemoveEmptyEntries);
+                    _value.Add("-=");
+                    _value.Add(_query[0].Trim());
+                    _value.Add(_query[1].Trim());
+                }else if(_valueQueryList[i].Contains("*=")){
+                    var _query = _valueQueryList[i].Split(new String[]{"*="}, StringSplitOptions.RemoveEmptyEntries);
+                    _value.Add("*=");
+                    _value.Add(_query[0].Trim());
+                    _value.Add(_query[1].Trim());
+                }else if(_valueQueryList[i].Contains("=")){
+                    var _query = _valueQueryList[i].Split(new String[]{"="}, StringSplitOptions.RemoveEmptyEntries);
+                    _value.Add("=");
+                    _value.Add(_query[0].Trim());
+                    _value.Add(_query[1].Trim());
+                }else{
+                    throw new QueryException("Not found = or += or -= or *= in where query", QueryExceptionType.UpdateParse);
+                }
+            }
+
+            return _value.ToArray();
+        }
+
+        static private void queryDelete(string _query){
+            
+        }
+
+        static private QueryModel GetQueryModel(string _queryId){
+            var _result = QueryTable.FirstOrDefault(_row=>_row.Id.AsString == _queryId);
+            if(_result == null){
+                _result = new QueryModel();
+                _result.Id.AsString = _queryId;
+                _result.ExecCount.AsInt = 0;
+                QueryTable.Add(_result);
+            }
+
+            return _result;
         }
         #endregion
 	}
