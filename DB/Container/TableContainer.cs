@@ -5,6 +5,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using BicDB.Storage;
 using BicDB.Core;
+using UnityEngine;
 
 namespace BicDB.Container
 {
@@ -252,10 +253,14 @@ namespace BicDB.Container
 					if(Name != TableService.TABLENAME){
 						var _tableInfo = TableService.GetTableInfo(Name, true);
 						_tableInfo.Table = this;
+						_tableInfo.AddPath(_result.Path);
 						_tableInfo.StorageType.AsString = storage.StorageType;
 						_tableInfo.HashCode.AsInt = _result.HashCode;
 						_tableInfo.SaveCount.AsInt++;
 						TableService.TableInfo.Save();
+					}else{
+						PlayerPrefs.SetString(TableService.TABLENAME, _result.Path);
+						PlayerPrefs.Save();
 					}
 				}
 
@@ -263,8 +268,6 @@ namespace BicDB.Container
 					_callback(_result);
 				}
 			}, _parameter);
-			
-			
 		}
 
 		public void Load(Action<Result> _callback = null, object _parameter = null){

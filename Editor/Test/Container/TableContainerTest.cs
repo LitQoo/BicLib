@@ -378,7 +378,7 @@ namespace BicDB.Container
             public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new()
             {
 				if(_callback != null){
-					_callback(new Result(0, 0));
+					_callback(new Result(0, string.Empty, 0));
 				} 
             }
 
@@ -395,7 +395,7 @@ namespace BicDB.Container
             public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new()
             {
                 if(_callback != null){
-					_callback(new Result(0, 0));
+					_callback(new Result(0, string.Empty, 0));
 				} 
             }
         }

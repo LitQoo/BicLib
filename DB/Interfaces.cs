@@ -42,11 +42,13 @@ namespace BicDB
 		public int Code = 0;
 		public string Message = "";
 		public int HashCode = 0;
+		public string Path = "";
 
-		public Result(int _code, int _hashCode = 0, string _message = ""){
+		public Result(int _code, string _path, int _hashCode = 0, string _message = ""){
 			Code = _code;
 			Message = _message;
 			HashCode = _hashCode;
+			Path = _path;
 		}
 	}
 

@@ -34,14 +34,14 @@ namespace BicDB.Storage {
 			var _param = _parameter as ScriptableStorageParameter;
 
 			if (_param == null && _callback != null) {
-				_callback (new Result ((int)ResultCode.NeedParam));
+				_callback (new Result ((int)ResultCode.NeedParam, string.Empty));
 				return;
 			}
 
 			var _scriptableData = Resources.Load<ScriptableDataBase<T>> (_param.Path);
 
 			if (_scriptableData == null && _callback != null) {
-				_callback (new Result ((int)ResultCode.FailedLoad));
+				_callback (new Result ((int)ResultCode.FailedLoad, _param.Path));
 				return;
 			}
 				
@@ -57,7 +57,7 @@ namespace BicDB.Storage {
 			}
 
 			if (_callback != null) {
-				_callback(new Result ((int)ResultCode.Success));
+				_callback(new Result ((int)ResultCode.Success, _param.Path));
 			}
 		}
 

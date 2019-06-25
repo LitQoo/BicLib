@@ -32,7 +32,7 @@ namespace BicDB.Storage{
 		
 		public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			if (_callback != null) {
-				_callback(new Result((int)ResultCode.Success));
+				_callback(new Result((int)ResultCode.Success, string.Empty));
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace BicDB.Storage{
 			}
 
 			string _data = Read(_filePath);
-			var _result = new Result ((int)ResultCode.Success);
+			var _result = new Result ((int)ResultCode.Success, _filePath);
 			int _counter = 0;
 
 			if (!string.IsNullOrEmpty(_data)) {

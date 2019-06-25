@@ -7,6 +7,7 @@ using System.IO;
 using BicDB.Container;
 using BicDB.Variable;
 using BicUtil.Json;
+using BicDB.Core;
 
 namespace BicDB.Storage
 {
@@ -100,10 +101,11 @@ namespace BicDB.Storage
 			Debug.Log("[FileStorage] write " + _table.Name + "/" + _encryptKey);
 			#endif
 
-			FileStorage.Write(_json, getFileName(_table.Name), _encryptKey);
-
+			var _fileName = getFileName(_table.Name);
+			FileStorage.Write(_json, _fileName, _encryptKey);
+			
 			if (_callback != null) {
-				_callback(new Result((int)ResultCode.Success, _hashCode));
+				_callback(new Result((int)ResultCode.Success, GetPath(_fileName), _hashCode));
 			}
 		}
 
@@ -123,57 +125,114 @@ namespace BicDB.Storage
         }
 
 		private void loadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
-		{
-			var _encryptKey = encryptKey;
-			if(encryptKeys.ContainsKey(_table.Name)){
-				_encryptKey = encryptKeys[_table.Name];
-			}else if(_parameter != null){
-				var _filestorageParameter = _parameter as FileStorageParameter;
-				if(_filestorageParameter.EncryptKey != ""){
-					SetEncryptKey(_table.Name, _filestorageParameter.EncryptKey);
-					_encryptKey = GetEncryptKey(_table.Name);
-				}
-			}
+        {
+            var _encryptKey = encryptKey;
+            if (encryptKeys.ContainsKey(_table.Name))
+            {
+                _encryptKey = encryptKeys[_table.Name];
+            }
+            else if (_parameter != null)
+            {
+                var _filestorageParameter = _parameter as FileStorageParameter;
+                if (_filestorageParameter.EncryptKey != "")
+                {
+                    SetEncryptKey(_table.Name, _filestorageParameter.EncryptKey);
+                    _encryptKey = GetEncryptKey(_table.Name);
+                }
+            }
+
+#if UNITY_EDITOR
+            Debug.Log("[FileStorage] load " + _table.Name + "/" + _encryptKey);
+#endif
+
+            var _filename = getFileName(_table.Name);
+            int _hashCode = 0;
+            int _counter = 0;
+
+            string _data = getFileDataWithPathList(_table.Name, _encryptKey);
+
+            if (_data != null)
+            {
+                _hashCode = _data.GetHashCode();
+            }
+
+            var _result = new Result((int)ResultCode.Success, GetPath(_filename), _hashCode);
+
+            if (!string.IsNullOrEmpty(_data))
+            {
+                try
+                {
+                    JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
+                }
+                catch (Exception)
+                {
+                    _result.Code = (int)ResultCode.FailedConvertJson;
+                    _result.Message = ResultCode.FailedConvertJson.ToString();
+                }
+            }
+
+            if (_callback != null)
+            {
+                _callback(_result);
+            }
+        }
+
+        private string getFileDataWithPathList(string _tableName, string _encryptKey)
+        {
+			var _filename = getFileName(_tableName);
 			
-			#if UNITY_EDITOR
-			Debug.Log("[FileStorage] load " + _table.Name + "/" + _encryptKey);
-			#endif
-			
-			string _data = FileStorage.Read(getFileName(_table.Name), _encryptKey);
-			int _hashCode = 0;
-			int _counter = 0;
+            string _data = FileStorage.ReadByPath(GetPath(_filename), _encryptKey);
 
-			if(_data != null){
-				_hashCode = _data.GetHashCode();
-			}
+            if (_data == null || _data == string.Empty)
+            {
+				if(_tableName == TableService.TABLENAME){
+					#if UNITY_EDITOR
+					Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
+					#endif
 
-			var _result = new Result ((int)ResultCode.Success, _hashCode);
+					string _path = PlayerPrefs.GetString(TableService.TABLENAME);
+					if(_path != string.Empty){
+						_data = FileStorage.ReadByPath(_path, _encryptKey);
+					}
+				}else{
+					#if UNITY_EDITOR
+					Debug.Log("[BicDB] path by bicsystem.path");
+					#endif
 
-			if (!string.IsNullOrEmpty (_data)) {
-				try {
-					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
-				} catch (Exception) {
-					_result.Code = (int)ResultCode.FailedConvertJson;
-					_result.Message = ResultCode.FailedConvertJson.ToString ();
+					var _tableInfo = TableService.GetTableInfo(_tableName, false);
+					if (_tableInfo != null)
+					{
+						for (int i = _tableInfo.PathList.Count - 1; i >= 0; i--)
+						{
+							_data = FileStorage.ReadByPath(_tableInfo.PathList[i].AsString, _encryptKey);
+
+							if (_data != null && _data != string.Empty)
+							{
+								break;
+							}
+						}
+					}
 				}
-			}
+            }
 
-			if (_callback != null) {
-				_callback (_result);
-			}
-		} 
+            return _data;
+        }
 
-		private string getFileName(string _tableName){
+        private string getFileName(string _tableName){
 			return FILE_NAME_PREFIX + _tableName;
 		}
 		#endregion
 	
 
 		#region static
+		static public string GetPath(string _fileName){
+			return Application.persistentDataPath + "/" + _fileName;
+		}
+
 		static public void Write(string _data, string _fileName, string _key){
 			#if !WEB_BUILD
 
-			string _path = Application.persistentDataPath + "/" + _fileName;
+			string _path = GetPath(_fileName);
 			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
 			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
 			
@@ -194,9 +253,8 @@ namespace BicDB.Storage
 			#endif
 		}
 
-        static public string Read(string _fileName, string _key){
+        static public string ReadByPath(string _path, string _key){
 			#if !WEB_BUILD
-			string _path = Application.persistentDataPath + "/" + _fileName;
 			
 			if (System.IO.File.Exists(_path))
 			{
