@@ -77,7 +77,15 @@ namespace BicUtil.Ads{
             MaxSdkCallbacks.OnRewardedAdLoadedEvent += OnRewardedAdLoadedEvent;
             MaxSdkCallbacks.OnRewardedAdHiddenEvent += OnRewardedAdDismissedEvent;
             MaxSdkCallbacks.OnRewardedAdLoadFailedEvent += OnRewardedAdFailedLoadEvent;
+            MaxSdkCallbacks.OnRewardedAdReceivedRewardEvent += OnRewardedAdReceivedRewardEvent;
             MaxSdkCallbacks.OnRewardedAdFailedToDisplayEvent += RewardedAdFailedToDisplayEvent;
+        }
+
+        private void OnRewardedAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2)
+        {
+            if(callback != null){
+                callback(AdsResult.Finished);
+            }
         }
 
         private void OnRewardedAdLoadedEvent(string adUnitId)
@@ -87,10 +95,6 @@ namespace BicUtil.Ads{
 
         private void OnRewardedAdDismissedEvent(string adUnitId)
         {
-            if(callback != null){
-                callback(AdsResult.Finished);
-            }
-
             // Rewarded ad is hidden. Pre-load the next ad
             MaxSdk.LoadRewardedAd(adUnitId);
         }
