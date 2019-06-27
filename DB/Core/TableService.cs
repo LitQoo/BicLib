@@ -177,8 +177,12 @@ namespace BicDB.Core
             Init();
             
             if(TableInfo.Property.ContainsKey(_key) == false){
-                TableInfo.Property.Add(_key, _defaultVariable);
-                TableInfo.Save();
+                if(_defaultVariable != null){
+                    TableInfo.Property.Add(_key, _defaultVariable);
+                    TableInfo.Save();
+                }else{
+                    return null;
+                }
             }
 
             return TableInfo.Property[_key].AsVariable;
