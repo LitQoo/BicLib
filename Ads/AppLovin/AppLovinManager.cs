@@ -21,7 +21,7 @@ namespace BicUtil.Ads{
             MaxSdk.SetSdkKey(_sdkKey);
             MaxSdk.InitializeSdk();
 
-            InitializeRewardedAds();
+            initializeRewardedAds();
             InitializeInterstitialAds();
         }
         #endregion
@@ -71,7 +71,8 @@ namespace BicUtil.Ads{
         #endregion
 
         #region RewarededCallback
-        public void InitializeRewardedAds()
+        private bool isSuccessRewarded = false;
+        private void initializeRewardedAds()
         {
             // Attach callback
             MaxSdkCallbacks.OnRewardedAdLoadedEvent += OnRewardedAdLoadedEvent;
@@ -83,9 +84,7 @@ namespace BicUtil.Ads{
 
         private void OnRewardedAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2)
         {
-            if(callback != null){
-                callback(AdsResult.Finished);
-            }
+            isSuccessRewarded = true;
         }
 
         private void OnRewardedAdLoadedEvent(string adUnitId)
@@ -95,12 +94,22 @@ namespace BicUtil.Ads{
 
         private void OnRewardedAdDismissedEvent(string adUnitId)
         {
+            if(callback != null){
+                if(isSuccessRewarded == true){
+                    callback(AdsResult.Finished);
+                }else{
+                    callback(AdsResult.Skipped);
+                }
+            }
+
             // Rewarded ad is hidden. Pre-load the next ad
             MaxSdk.LoadRewardedAd(adUnitId);
+
         }
 
         private void OnRewardedAdFailedLoadEvent(string adUnitId, int errorCode)
         {
+            isSuccessRewarded = false;
             var _adId = adUnitId;
             // Rewarded ad failed to load. We recommend re-trying in 3 seconds.
             BicTween.Delay(3f).SubscribeComplete(()=>{
@@ -177,6 +186,7 @@ namespace BicUtil.Ads{
 
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
+            isSuccessRewarded = false;
             callback = _callback;
             MaxSdk.ShowRewardedAd(adsData[_adsType].PlatformId);
         }
