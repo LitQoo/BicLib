@@ -40,13 +40,9 @@ namespace BicUtil.PublishingUtil{
 		}
 
 		static private void saveBoolValue(string _propertyName, bool _value){
-			if(!TableService.TableInfo.Property.ContainsKey(_propertyName)){
-				TableService.TableInfo.Property.Add(_propertyName, new BoolVariable(_value));
-			}else{
-				TableService.TableInfo.Property[_propertyName].AsVariable.AsBool = _value;
-			}
-
-			TableService.TableInfo.Save();
+			var _property = TableService.GetProperty(_propertyName, new BoolVariable(_value));
+			_property.AsBool = _value;
+			TableService.Save();
 		}
 
 		static public bool IsRequestedReview{
@@ -66,10 +62,34 @@ namespace BicUtil.PublishingUtil{
 		}
 
 		static private bool getBoolValue(string _propertyName){
-			if(!TableService.TableInfo.Property.ContainsKey(_propertyName)){
+			var _property = TableService.GetProperty(_propertyName, null);
+			
+			if(_property == null){
 				return false;
 			}else{
-				return TableService.TableInfo.Property[_propertyName].AsVariable.AsBool;
+				return _property.AsBool;
+			}
+		}
+
+		static public bool IsReviewTime(int _trueCount){
+			if(IsWriteReview == true){
+				return false;
+			}
+
+			var _reviewCount = TableService.GetProperty("reviewCount", new IntVariable(0));
+			_reviewCount.AsInt++;
+			TableService.Save();
+
+			if(_reviewCount.AsInt % _trueCount == 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+		static public int ReviewCount{
+			get{
+				return TableService.GetProperty("reviewCount", new IntVariable(0)).AsInt;
 			}
 		}
 	}
