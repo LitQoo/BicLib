@@ -257,7 +257,7 @@ namespace BicDB.Container
 						_tableInfo.StorageType.AsString = storage.StorageType;
 						_tableInfo.HashCode.AsInt = _result.HashCode;
 						_tableInfo.SaveCount.AsInt++;
-						TableService.TableInfo.Save();
+						TableService.Save();
 					}else{
 						PlayerPrefs.SetString(TableService.TABLENAME, _result.Path);
 						PlayerPrefs.Save();
@@ -304,7 +304,7 @@ namespace BicDB.Container
 
 						if(_saveTableInfomaiton == true){
 							_tableInfo.SaveCount.AsInt++;
-							TableService.TableInfo.Save();
+							TableService.Save();
 						}
 					}
 				}

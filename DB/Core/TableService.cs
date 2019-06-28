@@ -22,8 +22,8 @@ namespace BicDB.Core
 
 		#region Member
         static private bool isInit = false;
-        static public TableContainer<TableModel> TableInfo;
-        static public TableContainer<QueryModel> QueryTable;
+        static private TableContainer<TableModel> tableInfo;
+        static private TableContainer<QueryModel> queryTable;
         #endregion
 
         #region Event
@@ -60,29 +60,29 @@ namespace BicDB.Core
         static public int SessionCount{get{
             Init();
 
-            if(TableInfo == null){
+            if(tableInfo == null){
                 return 0;
             }
 
-            if(TableInfo.Property.ContainsKey(PROP_FIELD_SESSION_COUNT) == false){
+            if(tableInfo.Property.ContainsKey(PROP_FIELD_SESSION_COUNT) == false){
                 return 0;
             }
             
-            return TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt;
+            return tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt;
         ;}} 
         static public string UserId{
             get{
                 Init();
 
-                if(TableInfo == null){
+                if(tableInfo == null){
                     return "0";
                 }
 
-                if(TableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
                     return "0";
                 }
 
-                return TableInfo.Property[PROP_FIELD_USER_ID].AsVariable.AsString;
+                return tableInfo.Property[PROP_FIELD_USER_ID].AsVariable.AsString;
             }
         }
 
@@ -108,23 +108,23 @@ namespace BicDB.Core
             }
 
             isInit = true;
-            TableInfo = new TableContainer<TableModel>(TABLENAME);
-            TableInfo.SetStorage(BicDB.Storage.FileStorage.GetInstance());
+            tableInfo = new TableContainer<TableModel>(TABLENAME);
+            tableInfo.SetStorage(BicDB.Storage.FileStorage.GetInstance());
 
-            TableInfo.Load(_result=>{
-                if(TableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
-                    lastVersion = TableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
+            tableInfo.Load(_result=>{
+                if(tableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
+                    lastVersion = tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
                 }
 
-                if(TableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
-                    TableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
+                if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                    tableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
                 }
 
-                if(!TableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
-                    TableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
-                    TableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
-                    TableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
-                    TableInfo.Save(_tableInfoSaveResult=>{
+                if(!tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
+                    tableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
+                    tableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
+                    tableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
+                    tableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                             if(onSetup != null){
                                 onSetup();
@@ -134,9 +134,9 @@ namespace BicDB.Core
                         }
                     });
                 }else if(currentVersion != lastVersion){
-                    TableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
-                    TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                    TableInfo.Save(_tableInfoSaveResult=>{
+                    tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
+                    tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
+                    tableInfo.Save(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                              if(onUpdate != null){
                                 onUpdate(lastVersion, currentVersion);
@@ -147,51 +147,63 @@ namespace BicDB.Core
                     });
 
                 }else{
-                    TableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                    TableInfo.Save();
+                    tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
+                    tableInfo.Save();
                 }
 
             }, new FileStorageParameter("filesystem"));
 
-            QueryTable = new TableContainer<QueryModel>("qa");
-            QueryTable.SetStorage(BicDB.Storage.FileStorage.GetInstance());
-            QueryTable.Load(_result=>{
+            queryTable = new TableContainer<QueryModel>("qa");
+            queryTable.SetStorage(BicDB.Storage.FileStorage.GetInstance());
+            queryTable.Load(_result=>{
 
             }, new FileStorageParameter("filesystem"));
 
         }
 
         static public TableModel GetTableInfo(string _tableName, bool _createIfNotExsit = false){
-            var _tableInfo = TableInfo.FirstOrDefault(_row=>_row.Name.AsString == _tableName);
+            var _tableInfo = tableInfo.FirstOrDefault(_row=>_row.Name.AsString == _tableName);
             if(_tableInfo == null && _createIfNotExsit == true){
                 _tableInfo = new TableModel();
                 _tableInfo.Name.AsString = _tableName;
                 _tableInfo.IsFirstSetup = true;
-                TableInfo.Add(_tableInfo);
+                tableInfo.Add(_tableInfo);
             }
 
             return _tableInfo;
         }
 
+        static public bool HasProperty(string _key){
+            Init();
+            return tableInfo.Property.ContainsKey(_key);
+        }
+
+        static public void RemoveProperty(string _key){
+            Init();
+            tableInfo.Property.Remove(_key);
+        }
+
         static public IVariable GetProperty(string _key, IVariable _defaultVariable){
             Init();
             
-            if(TableInfo.Property.ContainsKey(_key) == false){
+            if(tableInfo.Property.ContainsKey(_key) == false){
                 if(_defaultVariable != null){
-                    TableInfo.Property.Add(_key, _defaultVariable);
-                    TableInfo.Save();
+                    tableInfo.Property.Add(_key, _defaultVariable);
+                    tableInfo.Save();
                 }else{
                     return null;
                 }
             }
 
-            return TableInfo.Property[_key].AsVariable;
+            return tableInfo.Property[_key].AsVariable;
         }
 
         static public void Save(){
-            TableInfo.Save();
+            tableInfo.Save();
         }
+        #endregion
 
+        #region Query
         static public string Query(string _queryString){
             TableService.Init();
             /*
@@ -284,7 +296,7 @@ namespace BicDB.Core
             }
 
             _queryModel.ExecCount.AsInt ++;
-            QueryTable.Save();
+            queryTable.Save();
 
             return _message;
         }
@@ -459,12 +471,12 @@ namespace BicDB.Core
         }
 
         static private QueryModel GetQueryModel(string _queryId){
-            var _result = QueryTable.FirstOrDefault(_row=>_row.Id.AsString == _queryId);
+            var _result = queryTable.FirstOrDefault(_row=>_row.Id.AsString == _queryId);
             if(_result == null){
                 _result = new QueryModel();
                 _result.Id.AsString = _queryId;
                 _result.ExecCount.AsInt = 0;
-                QueryTable.Add(_result);
+                queryTable.Add(_result);
             }
 
             return _result;
