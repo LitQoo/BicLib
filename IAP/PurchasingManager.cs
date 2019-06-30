@@ -14,13 +14,12 @@ using BicDB.Variable;
 namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
-		public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
 		public bool isLoadedProductTable = false;
 
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _defaultValue, Action<IVariable> _valueChangedCallback = null){
 			if(isLoadedProductTable == false){
-				ProductTable.SetStorage(FileStorage.GetInstance());
-				ProductTable.Load(null, new FileStorageParameter("purchase"));
+				productTable.SetStorage(FileStorage.GetInstance());
+				productTable.Load(null, new FileStorageParameter("purchase"));
 				isLoadedProductTable = true; 
 			}
 
@@ -28,7 +27,7 @@ namespace BicUtil.Purchasing{
 
 			if(_product == null){
 				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _defaultValue);
-				ProductTable.Add(_product);
+				productTable.Add(_product);
 			}
 
 			_product.ProductType.AsEnum = _productType;
@@ -42,7 +41,7 @@ namespace BicUtil.Purchasing{
 
 		public override void Initialize() 
 		{
-			if(ProductTable.Count == 0){
+			if(productTable.Count == 0){
 				return;
 			}
 
@@ -57,7 +56,7 @@ namespace BicUtil.Purchasing{
 			var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
 			
-			foreach(var _product in ProductTable){
+			foreach(var _product in productTable){
 				builder.AddProduct(_product.Id.AsString, _product.ProductType.AsEnum, _product.StoreIds);
 			}
 			
@@ -174,11 +173,11 @@ namespace BicUtil.Purchasing{
 
 		public ProductModel<PRODUCTTYPE> GetProduct(PRODUCTTYPE _idType){
 			
-			return ProductTable.FirstOrDefault<ProductModel<PRODUCTTYPE>>(_row=>Enum.Equals(_row.IdType.AsEnum, _idType));
+			return productTable.FirstOrDefault<ProductModel<PRODUCTTYPE>>(_row=>Enum.Equals(_row.IdType.AsEnum, _idType));
 		}
 
 		private ProductModel<PRODUCTTYPE> getProduct(string _id){
-			return ProductTable.FirstOrDefault(_row=>_row.Id.AsString == _id);
+			return productTable.FirstOrDefault(_row=>_row.Id.AsString == _id);
 		}
 		
 		
@@ -195,7 +194,7 @@ namespace BicUtil.Purchasing{
 			m_StoreExtensionProvider = extensions;
 
 			foreach(var _product in m_StoreController.products.all){
-				var _model = this.ProductTable.FirstOrDefault(_row=>_row.Id.AsString == _product.definition.id);
+				var _model = this.productTable.FirstOrDefault(_row=>_row.Id.AsString == _product.definition.id);
 				if(_model != null){
 					_model.CurrencyCode.AsString = _product.metadata.isoCurrencyCode;
 					_model.PriceString.AsString = _product.metadata.localizedPriceString;
@@ -257,8 +256,12 @@ namespace BicUtil.Purchasing{
                 _productInfo.Value.AsInt = 1;
             }
 
-			ProductTable.Save();
+			productTable.Save();
         }
+
+		public void Save(Action<BicDB.Result> _callback = null, object _parameter = null){
+			productTable.Save(_callback, _parameter);
+		}
 		
 		private void completeRefund(string _id)
         {
@@ -272,7 +275,7 @@ namespace BicUtil.Purchasing{
                 _productInfo.Value.AsInt = 0;
             }
 
-			ProductTable.Save();
+			productTable.Save();
         }
 
         public PurchasingResult checkRecipt(string _productId, string _recipt) {

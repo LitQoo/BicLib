@@ -1,6 +1,7 @@
 #if BICUTIL_IAP
 using System;
 using System.Linq;
+using BicDB;
 using BicDB.Container;
 using BicDB.Storage;
 using BicDB.Variable;
@@ -21,14 +22,13 @@ namespace BicUtil.Purchasing{
         } 
 
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
-        public TableContainer<ProductModel<PRODUCTTYPE>> ProductTable{get{return productTable;}}
         public bool isLoadedProductTable = false;
 
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _value, Action<IVariable> _valueChangedCallback)
         {
             if(isLoadedProductTable == false){
-				ProductTable.SetStorage(FileStorage.GetInstance());
-				ProductTable.Load(null, new FileStorageParameter("purchase"));
+				productTable.SetStorage(FileStorage.GetInstance());
+				productTable.Load(null, new FileStorageParameter("purchase"));
 				isLoadedProductTable = true; 
 			}
 
@@ -36,7 +36,7 @@ namespace BicUtil.Purchasing{
 
             if(_product == null){
                 _product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _value);
-                ProductTable.Add(_product);
+                productTable.Add(_product);
             }
 
             _product.ProductType.AsEnum = _productType;
@@ -54,7 +54,7 @@ namespace BicUtil.Purchasing{
 
         public ProductModel<PRODUCTTYPE> GetProduct(PRODUCTTYPE _idType)
         {
-            return ProductTable.FirstOrDefault<ProductModel<PRODUCTTYPE>>(_row=>Enum.Equals(_row.IdType.AsEnum, _idType));
+            return productTable.FirstOrDefault<ProductModel<PRODUCTTYPE>>(_row=>Enum.Equals(_row.IdType.AsEnum, _idType));
         }
 
         public void Initialize()
@@ -65,6 +65,11 @@ namespace BicUtil.Purchasing{
         public void RestorePurchases(Action<bool> _callback)
         {
             _callback(false);
+        }
+
+        public void Save(Action<BicDB.Result> _callback = null, object _parameter = null)
+        {
+            productTable.Save(_callback, _parameter);
         }
     }
 }
