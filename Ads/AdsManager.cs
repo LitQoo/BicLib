@@ -24,6 +24,25 @@ namespace BicUtil.Ads
         public bool IsShowingAds{get{return IsShowingInterstital || IsShowingRewardBased;}}
         #endregion
 
+        #region Event
+        private Dictionary<object, Action<object>> OnPlayedAds = new Dictionary<object, Action<object>>();
+        public void SubscribePlayedAds(object _id, Action<object> _callback){
+            if(OnPlayedAds.ContainsKey(_id) == false){
+                OnPlayedAds.Add(_id, _callback);
+            }else{
+                OnPlayedAds[_id] += _callback;
+            }
+        }
+
+        private void callPlayedAdsCallback(object _id){
+            if(OnPlayedAds.ContainsKey(_id) == true){
+                if(OnPlayedAds[_id] != null){
+                    OnPlayedAds[_id](_id);
+                }
+            }
+        }
+        #endregion
+
         public override void Initialize()
         {
             if(isInit == true){
@@ -141,6 +160,7 @@ namespace BicUtil.Ads
                 
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
+                    callPlayedAdsCallback(_adsType);
                 } 
 
                 selectedInterstitialPlatform = -1;
@@ -192,6 +212,7 @@ namespace BicUtil.Ads
                 
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
+                    callPlayedAdsCallback(_adsType);
                 } 
 
                 selectedRewardBasedPlatform = -1;
