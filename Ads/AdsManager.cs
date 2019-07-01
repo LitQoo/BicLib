@@ -41,6 +41,15 @@ namespace BicUtil.Ads
                 }
             }
         }
+
+        private Dictionary<object, Func<bool>> isReadyInterstitialFunc = new Dictionary<object, Func<bool>>();
+        public void CustomReadyInterstitial(object _id, Func<bool> _callback){
+            if(isReadyInterstitialFunc.ContainsKey(_id) == false){
+                isReadyInterstitialFunc.Add(_id, _callback);
+            }else{
+                isReadyInterstitialFunc[_id] = _callback;
+            }
+        }
         #endregion
 
         public override void Initialize()
@@ -91,6 +100,12 @@ namespace BicUtil.Ads
         int selectedInterstitialPlatform = -1;
         public bool IsReadyInterstitial(object _adsType)
         {
+            if(isReadyInterstitialFunc.ContainsKey(_adsType) == true){
+                if(isReadyInterstitialFunc[_adsType]() == false){
+                    return false;
+                }
+            }
+
             if(passAdsList.Contains(_adsType) == true){
                 return true;
             }
