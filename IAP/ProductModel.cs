@@ -17,7 +17,6 @@ namespace BicUtil.Purchasing
         public EnumVariable<ProductType> ProductType = new EnumVariable<ProductType>();
         public EncryptedIntVariable PurchaseCount = new EncryptedIntVariable();
         public StringVariable Recipt = new StringVariable();
-        public EncryptedIntVariable Amount = new EncryptedIntVariable();
         public IDs StoreIds{
             get{
                 return new IDs(){{ Id.AsString, AppleAppStore.Name },{ Id.AsString,  GooglePlay.Name },};
@@ -36,7 +35,9 @@ namespace BicUtil.Purchasing
         #region InstantData
         public StringVariable CurrencyCode = new StringVariable();
         public StringVariable PriceString = new StringVariable();
+        public StringVariable Price = new StringVariable();
         public StringVariable Title = new StringVariable();
+        public EncryptedIntVariable Amount = new EncryptedIntVariable();
         #endregion
 
         #region LifeCycle

@@ -23,8 +23,7 @@ namespace BicUtil.Purchasing{
 
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
         public bool isLoadedProductTable = false;
-
-        public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, Action<IVariable> _valueChangedCallback)
+        public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback)
         {
             if(isLoadedProductTable == false){
 				productTable.SetStorage(FileStorage.GetInstance());
@@ -39,6 +38,11 @@ namespace BicUtil.Purchasing{
                 productTable.Add(_product);
             }
 
+            _product.Price.AsFloat = _defaultPrice;
+            _product.PriceString.AsString = _defaultPriceString;
+            _product.CurrencyCode.AsString = _defaultCurrentCode;
+            _product.Amount.AsInt = _amount;
+            _product.Title.AsString = _title;
             _product.ProductType.AsEnum = _productType;
 
             if(_valueChangedCallback != null){

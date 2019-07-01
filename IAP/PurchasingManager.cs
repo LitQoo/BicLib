@@ -16,8 +16,8 @@ namespace BicUtil.Purchasing{
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public bool isLoadedProductTable = false;
 
-		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, Action<IVariable> _valueChangedCallback = null){
-			if(isLoadedProductTable == false){
+		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
+        	if(isLoadedProductTable == false){
 				productTable.SetStorage(FileStorage.GetInstance());
 				productTable.Load(null, new FileStorageParameter("purchase"));
 				isLoadedProductTable = true; 
@@ -30,7 +30,12 @@ namespace BicUtil.Purchasing{
 				productTable.Add(_product);
 			}
 
-			_product.ProductType.AsEnum = _productType;
+            _product.Price.AsFloat = _defaultPrice;
+            _product.PriceString.AsString = _defaultPriceString;
+            _product.CurrencyCode.AsString = _defaultCurrentCode;
+            _product.Amount.AsInt = _amount;
+            _product.Title.AsString = _title;
+            _product.ProductType.AsEnum = _productType;
 
 			if(_valueChangedCallback != null){
 				_product.PurchaseCount.OnChangedValueActions += _valueChangedCallback;
@@ -198,6 +203,7 @@ namespace BicUtil.Purchasing{
 				if(_model != null){
 					_model.CurrencyCode.AsString = _product.metadata.isoCurrencyCode;
 					_model.PriceString.AsString = _product.metadata.localizedPriceString;
+					_model.Price.AsFloat = (float)_product.metadata.localizedPrice;
 					_model.Title.AsString = _product.metadata.localizedTitle;
 				}
 				
