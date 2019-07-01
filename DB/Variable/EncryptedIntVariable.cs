@@ -31,6 +31,7 @@ namespace BicDB.Variable
 		#region LifeCycle
 		public EncryptedIntVariable() : base(){
 			seed = Random.Next(int.MaxValue);
+			AsInt = 0;
 		}
 
 		public EncryptedIntVariable(int _value) : base(){
