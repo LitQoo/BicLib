@@ -19,7 +19,8 @@ namespace BicDB.Storage
 		public enum ResultCode
 		{
 			Success = 0,
-			FailedConvertJson = 1
+			FailedConvertJson = 1,
+			FileStream = 2
 		}
 
 		#region Singleton
@@ -93,6 +94,16 @@ namespace BicDB.Storage
 			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
 			int _hashCode = _json.GetHashCode();
 			var _encryptKey = encryptKey;
+			var _fileName = getFileName(_table.Name);
+
+			if(_json == string.Empty){
+				if (_callback != null) {
+					_callback(new Result((int)ResultCode.FailedConvertJson, GetPath(_fileName), _hashCode));
+				}
+
+				return;
+			}
+
 			if(encryptKeys.ContainsKey(_table.Name)){
 				_encryptKey = encryptKeys[_table.Name];
 			}
@@ -101,12 +112,17 @@ namespace BicDB.Storage
 			Debug.Log("[FileStorage] write " + _table.Name + "/" + _encryptKey);
 			#endif
 
-			var _fileName = getFileName(_table.Name);
-			FileStorage.Write(_json, _fileName, _encryptKey);
-			
-			if (_callback != null) {
-				_callback(new Result((int)ResultCode.Success, GetPath(_fileName), _hashCode));
+			try{
+				FileStorage.Write(_json, _fileName, _encryptKey);
+				if (_callback != null) {
+					_callback(new Result((int)ResultCode.Success, GetPath(_fileName), _hashCode));
+				}
+			}catch{
+				if (_callback != null) {
+					_callback(new Result((int)ResultCode.FileStream, GetPath(_fileName), _hashCode));
+				}
 			}
+
 		}
 
 		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
@@ -149,7 +165,18 @@ namespace BicDB.Storage
             int _hashCode = 0;
             int _counter = 0;
 
-            string _data = getFileDataWithPathList(_table.Name, _encryptKey);
+            string _data = null; 
+			
+			try{
+				_data = getFileDataWithPathList(_table.Name, _encryptKey);
+			}catch{
+				if (_callback != null)
+				{
+					_callback(new Result((int)ResultCode.FileStream, GetPath(_filename), _hashCode));
+				}
+
+				return;
+			}
 
             if (_data != null)
             {
@@ -164,7 +191,7 @@ namespace BicDB.Storage
                 {
                     JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
                 }
-                catch (Exception)
+                catch
                 {
                     _result.Code = (int)ResultCode.FailedConvertJson;
                     _result.Message = ResultCode.FailedConvertJson.ToString();
@@ -233,17 +260,20 @@ namespace BicDB.Storage
 			#if !WEB_BUILD
 
 			string _path = GetPath(_fileName);
-			System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
-			System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file);
 			
-			if(_key != string.Empty){
-				_streamWriter.WriteLine(AESEncrypt256(_data, _key));
-			}else{
-				_streamWriter.WriteLine(_data);
-			}
+			using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write)){
+				using(System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file)){
+					if(_key != string.Empty){
+						_streamWriter.Write(AESEncrypt256(_data, _key));
+					}else{
+						_streamWriter.Write(_data);
+					}
 
-			_streamWriter.Close();
-			_file.Close();
+					_streamWriter.Flush();
+					_streamWriter.Close();
+					_file.Close();
+				}
+			}
 
 
 			#else
@@ -258,19 +288,21 @@ namespace BicDB.Storage
 			
 			if (System.IO.File.Exists(_path))
 			{
-				System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-				System.IO.StreamReader _stream = new System.IO.StreamReader(_file);
 				string _data = null;
-				_data = _stream.ReadLine ();
-				_stream.Close();
-				_file.Close();
+
+				using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
+					using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
+						_data = _stream.ReadToEnd ();
+						_stream.Close();
+						_file.Close();
+					}
+				}
 
 				if(_key != string.Empty){
 					try{
 						var _result = AESDecrypt256(_data, _key);
 						return _result;
 					}catch{
-						Debug.Log("key = " + _key + "/ data = " + _data);
 						return _data;
 					}
 				}else{

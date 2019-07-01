@@ -259,8 +259,11 @@ namespace BicDB.Container
 						_tableInfo.SaveCount.AsInt++;
 						TableService.Save();
 					}else{
-						PlayerPrefs.SetString(TableService.TABLENAME, _result.Path);
-						PlayerPrefs.Save();
+						var _currentSavingPath = PlayerPrefs.GetString(TableService.TABLENAME, string.Empty);
+						if(_currentSavingPath != _result.Path){
+							PlayerPrefs.SetString(TableService.TABLENAME, _result.Path);
+							PlayerPrefs.Save();
+						}
 					}
 				}
 
