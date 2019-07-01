@@ -2,6 +2,7 @@
 using BicDB.Container;
 using BicDB.Variable;
 using UnityEngine.Purchasing;
+using System;
 
 namespace BicUtil.Purchasing
 {
@@ -14,11 +15,19 @@ namespace BicUtil.Purchasing
         public StringVariable Id = new StringVariable();
         public EnumVariable<PRODUCTENUM> IdType = new EnumVariable<PRODUCTENUM>();
         public EnumVariable<ProductType> ProductType = new EnumVariable<ProductType>();
-        public EncryptedIntVariable Value = new EncryptedIntVariable();
+        public EncryptedIntVariable PurchaseCount = new EncryptedIntVariable();
         public StringVariable Recipt = new StringVariable();
+        public EncryptedIntVariable Amount = new EncryptedIntVariable();
         public IDs StoreIds{
             get{
                 return new IDs(){{ Id.AsString, AppleAppStore.Name },{ Id.AsString,  GooglePlay.Name },};
+            }
+        }
+
+        [Obsolete]
+        public EncryptedIntVariable Value{
+            get{
+                return PurchaseCount;
             }
         }
 
@@ -35,11 +44,12 @@ namespace BicUtil.Purchasing
             init();
         }
 
-        public ProductModel(PRODUCTENUM _idType, string _id, ProductType _productType, int _value){
+        public ProductModel(PRODUCTENUM _idType, string _id, ProductType _productType, int _amount){
             Id.AsString = _id;
             IdType.AsEnum = _idType;
             ProductType.AsEnum = _productType;
-            Value.AsInt = _value;
+            PurchaseCount.AsInt = 0;
+            Amount.AsInt = _amount;
             Recipt.AsString = string.Empty;
 
             init();
@@ -48,7 +58,7 @@ namespace BicUtil.Purchasing
         private void init(){
             AddManagedColumn (KEY_PRIMARY, IdType);
             AddManagedColumn ("id", Id);
-            AddManagedColumn ("value", Value);
+            AddManagedColumn ("value", PurchaseCount);
             AddManagedColumn ("recipt", Recipt);
         }
         #endregion

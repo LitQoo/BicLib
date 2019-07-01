@@ -16,7 +16,7 @@ namespace BicUtil.Purchasing{
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public bool isLoadedProductTable = false;
 
-		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _defaultValue, Action<IVariable> _valueChangedCallback = null){
+		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, Action<IVariable> _valueChangedCallback = null){
 			if(isLoadedProductTable == false){
 				productTable.SetStorage(FileStorage.GetInstance());
 				productTable.Load(null, new FileStorageParameter("purchase"));
@@ -26,15 +26,15 @@ namespace BicUtil.Purchasing{
 			var _product = GetProduct(_idType);
 
 			if(_product == null){
-				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _defaultValue);
+				_product = new ProductModel<PRODUCTTYPE>(_idType, _id, _productType, _amount);
 				productTable.Add(_product);
 			}
 
 			_product.ProductType.AsEnum = _productType;
 
 			if(_valueChangedCallback != null){
-				_product.Value.OnChangedValueActions += _valueChangedCallback;
-				_product.Value.NotifyChanged();
+				_product.PurchaseCount.OnChangedValueActions += _valueChangedCallback;
+				_product.PurchaseCount.NotifyChanged();
 			}
 		}
 
@@ -249,11 +249,11 @@ namespace BicUtil.Purchasing{
             ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
             if (_productInfo.ProductType.AsEnum == ProductType.Consumable)
             {
-                _productInfo.Value.AsInt += 1;
+                _productInfo.PurchaseCount.AsInt += 1;
             }
             else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
             {
-                _productInfo.Value.AsInt = 1;
+                _productInfo.PurchaseCount.AsInt = 1;
             }
 
 			productTable.Save();
@@ -268,11 +268,11 @@ namespace BicUtil.Purchasing{
             ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
             if (_productInfo.ProductType.AsEnum == ProductType.Consumable)
             {
-                _productInfo.Value.AsInt -= 1;
+                _productInfo.PurchaseCount.AsInt -= 1;
             }
             else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
             {
-                _productInfo.Value.AsInt = 0;
+                _productInfo.PurchaseCount.AsInt = 0;
             }
 
 			productTable.Save();
