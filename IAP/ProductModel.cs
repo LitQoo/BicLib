@@ -16,7 +16,8 @@ namespace BicUtil.Purchasing
         public EnumVariable<PRODUCTENUM> IdType = new EnumVariable<PRODUCTENUM>();
         public EnumVariable<ProductType> ProductType = new EnumVariable<ProductType>();
         public EncryptedIntVariable PurchaseCount = new EncryptedIntVariable();
-        public StringVariable Recipt = new StringVariable();
+        public StringVariable LastRecipt = new StringVariable();
+        public ListContainer<StringVariable> ReciptList = new ListContainer<StringVariable>();
         public IDs StoreIds{
             get{
                 return new IDs(){{ Id.AsString, AppleAppStore.Name },{ Id.AsString,  GooglePlay.Name },};
@@ -51,7 +52,7 @@ namespace BicUtil.Purchasing
             ProductType.AsEnum = _productType;
             PurchaseCount.AsInt = 0;
             Amount.AsInt = _amount;
-            Recipt.AsString = string.Empty;
+            LastRecipt.AsString = string.Empty;
 
             init();
         }
@@ -60,7 +61,13 @@ namespace BicUtil.Purchasing
             AddManagedColumn (KEY_PRIMARY, IdType);
             AddManagedColumn ("id", Id);
             AddManagedColumn ("value", PurchaseCount);
-            AddManagedColumn ("recipt", Recipt);
+            AddManagedColumn ("recipt", LastRecipt);
+            AddManagedColumn ("reciptList", ReciptList);
+        }
+
+        public void AddRecipt(string _recipt){
+            ReciptList.Add(new StringVariable(_recipt));
+            LastRecipt.AsString = _recipt;
         }
         #endregion
     }
