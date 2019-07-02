@@ -68,9 +68,9 @@ namespace BicDB.Storage{
 			if (!string.IsNullOrEmpty(_data)) {
 				try{
 					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
-				}catch(SystemException){
+				}catch(Exception e){
 					_result.Code = (int)ResultCode.FailedConvertJson;
-					_result.Message = ResultCode.FailedConvertJson.ToString ();
+					_result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
 				}
 			}
 

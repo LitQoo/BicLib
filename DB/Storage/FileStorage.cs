@@ -98,7 +98,7 @@ namespace BicDB.Storage
 
 			if(_json == string.Empty){
 				if (_callback != null) {
-					_callback(new Result((int)ResultCode.FailedConvertJson, GetPath(_fileName), _hashCode));
+					_callback(new Result((int)ResultCode.FailedConvertJson, GetPath(_fileName), _hashCode, "string is empty"));
 				}
 
 				return;
@@ -191,10 +191,13 @@ namespace BicDB.Storage
                 {
                     JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
                 }
-                catch
+                catch(Exception _e)
                 {
-                    _result.Code = (int)ResultCode.FailedConvertJson;
-                    _result.Message = ResultCode.FailedConvertJson.ToString();
+					#if UNITY_EDITOR
+					Debug.LogError("[BicDB] Fail load " + _table.Name + "/" + _e.Message + "/" + _e.ToString());
+                    #endif
+					_result.Code = (int)ResultCode.FailedConvertJson;
+                    _result.Message = "FailedConvertJson some Error BuildTableContainer " + _e.Message;
                 }
             }
 
