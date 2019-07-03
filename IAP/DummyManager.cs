@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using BicDB;
 using BicDB.Container;
+using BicDB.Core;
 using BicDB.Storage;
 using BicDB.Variable;
 using UnityEngine.Purchasing;
@@ -74,6 +75,26 @@ namespace BicUtil.Purchasing{
         public void Save(Action<BicDB.Result> _callback = null, object _parameter = null)
         {
             productTable.Save(_callback, _parameter);
+        }
+
+        public void SetStorage(ITableStorage _storage)
+        {
+            productTable.SetStorage(_storage);
+        }
+
+        public void Load(Action<BicDB.Result> _callback = null, object _parameter = null)
+        {
+            productTable.Load(_callback, _parameter);
+        }
+
+        public void Pull(Action<BicDB.Result> _callback = null, object _parameter = null)
+        {
+            productTable.Load(_callback, _parameter);
+        }
+
+        public TableLoadData GetTableLoadData(){
+            this.productTable.SetStorage(FileStorage.GetInstance());
+            return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), null);
         }
     }
 }

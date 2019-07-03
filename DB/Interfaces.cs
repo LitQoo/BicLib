@@ -50,6 +50,12 @@ namespace BicDB
 			HashCode = _hashCode;
 			Path = _path;
 		}
+
+		public bool IsSuccess{
+			get{
+				return Code == 0;
+			}
+		}
 	}
 
 

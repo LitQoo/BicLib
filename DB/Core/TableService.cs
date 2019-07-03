@@ -100,65 +100,68 @@ namespace BicDB.Core
                 return;
             }
 
+            throw new SystemException("TableService Not Load");
+
+        }
+
+        static public void LoadData(Action<Result> _callback){
+            isInit = true;
+
             try{
                 currentVersion = Application.version;
             }catch(System.MissingMethodException _e){
                 currentVersion = "0";
-                return;
+            }
+            
+            tableInfo = new TableContainer<TableModel>(TABLENAME);
+            queryTable = new TableContainer<QueryModel>("qa");
+
+            var _loader = new TableLoader();
+            _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
+            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
+            _loader.Load(_callback, 10);
+        }
+
+        private static void setupSysTable()
+        {
+            if(tableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
+                lastVersion = tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
             }
 
-            isInit = true;
-            tableInfo = new TableContainer<TableModel>(TABLENAME);
-            tableInfo.SetStorage(BicDB.Storage.FileStorage.GetInstance());
+            if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                tableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
+            }
 
-            tableInfo.Load(_result=>{
-                if(tableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
-                    lastVersion = tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
-                }
-
-                if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
-                    tableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
-                }
-
-                if(!tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
-                    tableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
-                    tableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
-                    tableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
-                    tableInfo.Save(_tableInfoSaveResult=>{
-                        if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
-                            if(onSetup != null){
-                                onSetup();
-                            }
-
-                            isSetup = true;
+            if(!tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
+                tableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
+                tableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
+                tableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
+                tableInfo.Save(_tableInfoSaveResult=>{
+                    if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
+                        if(onSetup != null){
+                            onSetup();
                         }
-                    });
-                }else if(currentVersion != lastVersion){
-                    tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
-                    tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                    tableInfo.Save(_tableInfoSaveResult=>{
-                        if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
-                             if(onUpdate != null){
-                                onUpdate(lastVersion, currentVersion);
-                            }
 
-                            isUpdate = true;
+                        isSetup = true;
+                    }
+                });
+            }else if(currentVersion != lastVersion){
+                tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
+                tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
+                tableInfo.Save(_tableInfoSaveResult=>{
+                    if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
+                         if(onUpdate != null){
+                            onUpdate(lastVersion, currentVersion);
                         }
-                    });
 
-                }else{
-                    tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                    tableInfo.Save();
-                }
+                        isUpdate = true;
+                    }
+                });
 
-            }, new FileStorageParameter("filesystem"));
-
-            queryTable = new TableContainer<QueryModel>("qa");
-            queryTable.SetStorage(BicDB.Storage.FileStorage.GetInstance());
-            queryTable.Load(_result=>{
-
-            }, new FileStorageParameter("filesystem"));
-
+            }else{
+                tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
+                tableInfo.Save();
+            }
         }
 
         static public TableModel GetTableInfo(string _tableName, bool _createIfNotExsit = false){

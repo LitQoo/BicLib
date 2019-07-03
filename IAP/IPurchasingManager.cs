@@ -3,6 +3,8 @@ using UnityEngine.Purchasing;
 using BicDB.Container;
 using BicDB.Variable;
 using System;
+using BicDB.Storage;
+using BicDB.Core;
 
 namespace BicUtil.Purchasing{
     public enum PurchasingResult{
@@ -23,6 +25,7 @@ namespace BicUtil.Purchasing{
         void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback);
         void RestorePurchases(Action<bool> _callback);
         void Save(Action<BicDB.Result> _callback = null, object _parameter = null);
+        TableLoadData GetTableLoadData();
     }
 }
 #endif

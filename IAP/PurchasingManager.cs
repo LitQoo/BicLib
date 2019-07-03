@@ -10,19 +10,18 @@ using BicDB.Container;
 using System.Linq;
 using BicDB.Storage;
 using BicDB.Variable;
+using BicDB;
+using BicDB.Core;
 
 namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
-		public bool isLoadedProductTable = false;
-
+		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
-        	if(isLoadedProductTable == false){
-				productTable.SetStorage(FileStorage.GetInstance());
-				productTable.Load(null, new FileStorageParameter("purchase"));
-				isLoadedProductTable = true; 
+			if(isLoad == false){
+				throw new SystemException("Not Load PurchasingManager");
 			}
-
+			
 			var _product = GetProduct(_idType);
 
 			if(_product == null){
@@ -352,8 +351,6 @@ namespace BicUtil.Purchasing{
 			}
 		}
 
-		
-		
 		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 		{
 			var _product = getProduct(product.definition.id);
@@ -364,6 +361,13 @@ namespace BicUtil.Purchasing{
 			}
 			// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
 			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}",product.definition.storeSpecificId, failureReason));
+		}
+
+		public TableLoadData GetTableLoadData(){
+			this.productTable.SetStorage(FileStorage.GetInstance());
+			return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), ()=>{
+				isLoad = true;
+			});
 		}
     }
 }
