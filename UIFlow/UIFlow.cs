@@ -38,6 +38,11 @@ namespace BicUtil.UIFlow
 		}
 		#endregion
 
+		#region Event
+		public Action OnStartChangeUI = null;
+		public Action OnFinishChangeUI = null;
+		#endregion
+
 		private List<UIInfo> uiStack = new List<UIInfo> ();
 		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
@@ -143,16 +148,19 @@ namespace BicUtil.UIFlow
 				Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
 				#endif
 
-				if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
-					backAction = null;
-					currentUiInfo.UI.gameObject.SetActive(true);
-					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
-				}else{
-					if(uiStack.Count > 0){
-						backAction = null;
-						currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
+				if(uiStack.Count > 0){
+					if(_openMode == OpenMode.Change){
+						currentUiInfo.UI.gameObject.SetActive(true);
 					}
+
+					if(OnFinishChangeUI != null){
+						OnFinishChangeUI();
+					}
+
+					backAction = null;
+					currentUiInfo.UI.OnOpenedUI(_openFromUI, currentUiInfo.Parameter);
 				}
+
 			}, _parameter);
 		}
 
@@ -269,6 +277,10 @@ namespace BicUtil.UIFlow
 			};
 
 			Action _finishFunc = () => {
+				if(OnFinishChangeUI != null){
+					OnFinishChangeUI();
+				}
+
 				if(_closeUI != null){
 					_closeUI();	
 				}
@@ -279,6 +291,10 @@ namespace BicUtil.UIFlow
 
 				finishWait();
 			};
+
+			if(OnStartChangeUI != null){
+				OnStartChangeUI();
+			}
 
 			var _result = _ui.OnClosedUI (_fromUI, _finishFunc, _parameter);
 
@@ -304,7 +320,6 @@ namespace BicUtil.UIFlow
 		}
 
 		private void open(IUIFlowObject _ui, OpenMode _openMode, object _parameter, IUIFlowObject _fromUI = null){
-
 			IUIFlowObject _fromUIResult = _fromUI; 
 			if (_fromUIResult == null && uiStack.Count > 0) {
 				_fromUIResult = currentUiInfo.UI;
