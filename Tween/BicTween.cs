@@ -535,7 +535,7 @@ namespace BicUtil.Tween
 		}
 
 		public static TweenModel DelayOneFrame(TweenPool _pool = null){
-			return Delay(0.01f, _pool);
+			return Delay(0f);
 		}
 
 		
@@ -678,7 +678,7 @@ namespace BicUtil.Tween
 		Vector4 CurrentValue{get;}
 		GameObject TargetObject{get;}
 		object Data{get;set;}
-		float Rate {get;}
+		float Rate {get;set;}
 		List<int> ChildDataList{get;}
 		string StringData{get;}
 		Vector4 DiffValue{get;set;}

@@ -205,6 +205,8 @@ namespace BicUtil.Tween{
 						if(__model.destoryCount == TweenModel.DESTORY_READY_TO_RECYCLE){
 							__model.Clear();
 							__model.Id = NextId;
+							__model.Name = __model.Id.ToString();
+							__model.CreatedFrameCount = Time.frameCount;
 							__model.Play();
 							return __model;
 						}
@@ -217,6 +219,7 @@ namespace BicUtil.Tween{
 			_result.Clear();
 			_result.Id = NextId;
 			_result.Name = _result.Id.ToString();
+			_result.CreatedFrameCount = Time.frameCount;
 			TweenList.Add(_result);
 			_result.Play();
 			return _result;
@@ -249,6 +252,7 @@ namespace BicUtil.Tween{
 			}
 
 			int _lastPlayingIndex = -1;
+			int _frameCount = Time.frameCount;
 			if(MaxPlayingIndex >= 0){
 				for(int i = 0; i <= MaxPlayingIndex; i++){
 					var _tween = TweenList[i];
@@ -258,9 +262,14 @@ namespace BicUtil.Tween{
 						}else{
 							continue;
 						}
+						
 
 						if(_tween.Update == null){
 							_tween.SetUpdate();
+						}
+
+						if(_tween.CreatedFrameCount == _frameCount){
+							continue;
 						}
 						
 						if(_tween.Update != null){

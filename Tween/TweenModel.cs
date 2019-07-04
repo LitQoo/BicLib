@@ -25,6 +25,7 @@ namespace BicUtil.Tween
         public int PlayingIndex{get;set;}
         public bool IsPlaying{get;set;}
         public bool IsLockedComplete{get;set;}
+		public int CreatedFrameCount{get;set;}
 		public Action Update{get;set;}
 		public string StringData{get{ return stringData;} set{stringData = value;}}
         public bool IsDestroyed{get{ return destoryCount >= DESTORY_READY_TO_RECYCLE; }}
@@ -195,6 +196,7 @@ namespace BicUtil.Tween
 			Type = TweenType.None;
 			TargetObject = null;
 			IsLockedComplete = false;
+			CreatedFrameCount = 0;
 
 			if(this.childDataList != null){
 				this.childDataList.Clear();
@@ -234,6 +236,7 @@ namespace BicUtil.Tween
 			_tween.Time = this.Time;
 			_tween.stringData = this.stringData;
 			_tween.IsLockedComplete = this.IsLockedComplete;
+			_tween.CreatedFrameCount = this.CreatedFrameCount;
 			
 			#if UNITY_EDITOR
 			_tween.editor_targetPath = this.pool.GetTargetPath(_tween.targetObject);
