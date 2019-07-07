@@ -7,6 +7,7 @@ using BicDB.Container;
 using BicDB;
 using System;
 using BicUtil.Tween;
+using UnityEngine.Serialization;
 
 namespace BicUtil.TableView
 {
@@ -64,12 +65,26 @@ namespace BicUtil.TableView
             onClickedCellActions[_buttonName] = _action;
         }
 
-		public TableRow CreateTableRow(){
-			TableRow _row = GetReusableRow(tableRow.reuseIdentifier);
+		public TableRow CreateTableRow(string _reuseIdentifier = ""){
+			TableRow _row = GetReusableRow(_reuseIdentifier);
 
 			if (_row == null) {
-				_row = (TableRow)GameObject.Instantiate(tableRow);
-                _row.BindOnClickedEvent(onClickedCellActions);
+                if(string.IsNullOrEmpty(_reuseIdentifier) == false){
+                    for(int i = 0; i < tableRows.Count; i++){
+                        if(tableRows[i].ReuseIdentifier == _reuseIdentifier){
+                            _row = (TableRow)GameObject.Instantiate(tableRows[i]);
+                            break;
+                        }
+                    }
+                }else{
+                    _row = (TableRow)GameObject.Instantiate(tableRowDefault);
+                }
+
+                if(_row == null){
+                    throw new SystemException("[TableView] NotFound TableRow " + _reuseIdentifier);
+                }
+
+				_row.BindOnClickedEvent(onClickedCellActions);
 				_row.name = "RowInstance";
 				_row.gameObject.SetActive(true);
 			}
@@ -289,12 +304,15 @@ namespace BicUtil.TableView
         #endregion
 
         #region Private implementation
-
+        [FormerlySerializedAs("tableRow")]
 		[SerializeField]
-		private TableRow tableRow;
+		private TableRow tableRowDefault;
+        [SerializeField]
+        private List<TableRow> tableRows = new List<TableRow>();
+
         public int CellCountInRowDefault{
             get{
-                return tableRow.Cells.Count;
+                return tableRowDefault.Cells.Count;
             }
         }
         private ITableViewDataSource m_dataSource;
@@ -357,33 +375,25 @@ namespace BicUtil.TableView
 
         void Awake()
         {
-			m_isVertical = true;
+            m_isVertical = true;
             isEmpty = true;
-			m_scrollRect = GetComponent<EventControlledScrollRect>();
-			m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<VerticalLayoutGroup>();
-            
-			if(m_LayoutGroup == null) {
-				m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<HorizontalLayoutGroup>();
-				m_isVertical = false;
-			}
+            m_scrollRect = GetComponent<EventControlledScrollRect>();
+            m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<VerticalLayoutGroup>();
 
-			if(m_LayoutGroup == null) {
-				throw new System.Exception("m_verticalLayoutGroup is null");
-			}
+            if (m_LayoutGroup == null)
+            {
+                m_LayoutGroup = m_scrollRect.content.GetComponentInChildren<HorizontalLayoutGroup>();
+                m_isVertical = false;
+            }
 
-			m_rowHeight = 100;
-			
-            if (tableRow != null) {
-				tableRow.gameObject.SetActive(false);
+            if (m_LayoutGroup == null)
+            {
+                throw new System.Exception("m_verticalLayoutGroup is null");
+            }
 
-				if (m_isVertical) {
-					m_rowHeight = tableRow.GetComponent<RectTransform>().sizeDelta.y;
-				} else {
-					m_rowHeight = tableRow.GetComponent<RectTransform>().sizeDelta.x;
-				}
-			}
-            
-            tableRow.InitializeCells();
+
+            initRows();
+
             m_topPadding = CreateEmptyPaddingElement("TopPadding");
             m_topPadding.transform.SetParent(m_scrollRect.content, false);
             m_bottomPadding = CreateEmptyPaddingElement("Bottom");
@@ -395,7 +405,46 @@ namespace BicUtil.TableView
             m_reusableRowContainer.gameObject.SetActive(false);
             m_reusableRows = new Dictionary<string, LinkedList<TableRow>>();
         }
-        
+
+        private void initRows()
+        {
+            m_rowHeight = 100;
+            
+            if (tableRowDefault != null)
+            {
+                if (tableRows.Count == 0)
+                {
+                    tableRows.Add(tableRowDefault);
+                }
+            }
+
+
+            if (tableRows.Count > 0)
+            {
+                if (tableRowDefault == null)
+                {
+                    tableRowDefault = tableRows[0];
+                }
+
+                for (int i = 0; i < tableRows.Count; i++)
+                {
+                    var _row = tableRows[i];
+                    _row.gameObject.SetActive(false);
+                    _row.InitializeCells();
+                }
+
+
+                if (m_isVertical)
+                {
+                    m_rowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.y;
+                }
+                else
+                {
+                    m_rowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.x;
+                }
+            }
+        }
+
         void Update()
         {
             if (m_requiresReload) {
@@ -666,7 +715,7 @@ namespace BicUtil.TableView
         }
 
         private void StoreRowForReuse(TableRow _row) {
-            string reuseIdentifier = _row.reuseIdentifier;
+            string reuseIdentifier = _row.ReuseIdentifier;
             
             if (string.IsNullOrEmpty(reuseIdentifier)) {
                 GameObject.Destroy(_row.gameObject);

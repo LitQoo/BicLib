@@ -29,11 +29,8 @@ namespace BicUtil.TableView
 
 		[HideInInspector]
 		public List<TableCell> Cells = new List<TableCell>();
-        public virtual string reuseIdentifier { 
-			get { 
-				return "tableRow"; 
-			} 
-		}
+        [SerializeField]
+		public string ReuseIdentifier = "tableRow";
 
 		[HideInInspector]
 		public int RowIndex = -1;
