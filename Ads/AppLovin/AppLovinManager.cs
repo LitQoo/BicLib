@@ -289,9 +289,20 @@ namespace BicUtil.Ads{
             var _result = new Result((int)ResultCode.Success, string.Empty);
             int _counter = 0;
 
-            if(_data == _defultData){
-                //load by file?
-                Debug.Log("setup default");
+
+            try{
+                if(_data == _defultData){
+                    //load by file if exist
+                    var _dataFromFile = FileStorage.ReadByPath(FileStorage.GetPath("maxab_"+_table.Name), "abtestkey");
+                    if(string.IsNullOrEmpty(_dataFromFile) == false){
+                        _data = _dataFromFile;
+                    }
+                }else if(string.IsNullOrEmpty(_data) == false){
+                    //save to file
+                    FileStorage.Write(_data, "maxab_"+_table.Name, "abtestkey");
+                }
+            }catch{
+
             }
 
             if (!string.IsNullOrEmpty(_data))

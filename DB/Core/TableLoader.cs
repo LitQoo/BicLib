@@ -27,7 +27,7 @@ namespace BicDB.Core
                 //success
                 _callback(new Result(0, string.Empty));
             }else{
-                var _checkTween = BicTween.Interval(0.1f, _sec).SetCancelObject(_cancelObject);
+                var _checkTween = BicTween.Interval(0.1f, _sec * 10).SetCancelObject(_cancelObject);
                 _checkTween.SubscribeRepeat((_tween, _count)=>{
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry

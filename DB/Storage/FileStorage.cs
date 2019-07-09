@@ -327,6 +327,8 @@ namespace BicDB.Storage
 			if (string.IsNullOrEmpty(Input)) {
 				return string.Empty;
 			}
+			
+			key = key.PadRight(16, '_');
 
 			RijndaelManaged aes = new RijndaelManaged();
 			aes.KeySize = 256;
@@ -359,6 +361,8 @@ namespace BicDB.Storage
 			if (string.IsNullOrEmpty(Input)) {
 				return string.Empty;
 			}
+
+			key = key.PadRight(16, '_');
 
 			RijndaelManaged aes = new RijndaelManaged();
 			aes.KeySize = 256;
