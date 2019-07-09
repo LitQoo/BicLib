@@ -8,6 +8,7 @@ namespace BicDB.Core
 {
     public class TableLoader{
         private List<TableLoadData> tableList = new List<TableLoadData>();
+        private TweenCancelObject _cancelObject = new TweenCancelObject();
 
         public void AddTable(ITableStorageSuppoter _table, ITableStorage _storage, object _param, Action _successCallback = null){
             _table.SetStorage(_storage);
@@ -26,13 +27,14 @@ namespace BicDB.Core
                 //success
                 _callback(new Result(0, string.Empty));
             }else{
-                var _checkTween = BicTween.Interval(1f, _sec);
+                var _checkTween = BicTween.Interval(0.1f, _sec).SetCancelObject(_cancelObject);
                 _checkTween.SubscribeRepeat((_tween, _count)=>{
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry
                         loadTables();
                     }else if(leftCount == 0 && tableList.Count == 0){
                         //success
+                        _cancelObject.Cancel();
                         _callback(new Result(0, string.Empty));
                     }
                 }).SubscribeComplete(()=>{
