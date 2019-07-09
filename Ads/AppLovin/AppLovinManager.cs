@@ -2,6 +2,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BicDB;
+using BicDB.Container;
+using BicDB.Storage;
+using BicUtil.Json;
 using BicUtil.Tween;
 using UnityEngine;
 
@@ -14,12 +18,11 @@ namespace BicUtil.Ads{
 
         #region LifeCycle
         public AppLovinManager(string _sdkKey){
-            MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration sdkConfiguration) => {
-                Debug.Log("MaxSdk : " + sdkConfiguration.ConsentDialogState.ToString());
-            };
-
-            MaxSdk.SetSdkKey(_sdkKey);
-            MaxSdk.InitializeSdk();
+            
+            if(MaxSdk.IsInitialized() == false){
+                MaxSdk.SetSdkKey(_sdkKey);
+                MaxSdk.InitializeSdk();
+            }
 
             initializeRewardedAds();
             InitializeInterstitialAds();
@@ -207,6 +210,121 @@ namespace BicUtil.Ads{
             }
         }
         #endregion
+    }
+
+
+    public class MaxABTestStorage : ITableStorage {
+        public enum ResultCode
+        {
+            Success = 0,
+            FailedConvertJson = 1
+        }
+        #region static
+        static private ITableStorage instance = null;
+        static public ITableStorage GetInstance(){
+            if (instance == null) {
+                instance = new MaxABTestStorage();
+            }
+
+            return instance;
+        }
+        #endregion
+
+        #region IStorage
+        public string StorageType{get{ return "MaxABTestStorage"; }}
+
+        public void Save<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
+            if (_callback != null) {
+                _callback(new Result((int)ResultCode.Success, string.Empty));
+            }
+        }
+
+        public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
+        {
+            Save(_table, _callback);
+        }
+
+        public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
+        {
+            loadByMaxSdk(_table, _callback, _parameter);
+        }
+
+        public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
+            _table.Clear();
+            loadByMaxSdk(_table, _callback, _parameter);
+        }
+
+        private void loadByMaxSdk<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new()
+        {
+            string _sdkKey = string.Empty;
+            string _abTestKey = string.Empty;
+            string _defultData = string.Empty;
+            if (_parameter != null)
+            {
+                MaxABTestStorageParameter _param = _parameter as MaxABTestStorageParameter;
+                _sdkKey = _param.SdkKey;
+                _abTestKey = _param.ABTestKey;
+                _defultData = _param.DefaultData;
+            }
+
+            if (MaxSdk.IsInitialized() == true)
+            {
+                loadData(_table, _callback, _abTestKey, _defultData);
+            }
+            else
+            {   
+                MaxSdkCallbacks.OnSdkInitializedEvent += _config=>{
+                    loadData(_table, _callback, _abTestKey, _defultData);
+                };
+
+                MaxSdk.SetSdkKey(_sdkKey);
+                MaxSdk.InitializeSdk();
+            }
+
+        }
+
+        private static void loadData<T>(ITableContainer<T> _table, Action<Result> _callback, string _abTestKey, string _defultData) where T : IRecordContainer, new()
+        {
+            string _data = MaxSdk.VariableService.GetString(_abTestKey, _defultData);
+            var _result = new Result((int)ResultCode.Success, string.Empty);
+            int _counter = 0;
+
+            if(_data == _defultData){
+                //load by file?
+                Debug.Log("setup default");
+            }
+
+            if (!string.IsNullOrEmpty(_data))
+            {
+                try
+                {
+                    JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
+                }
+                catch (Exception e)
+                {
+                    _result.Code = (int)ResultCode.FailedConvertJson;
+                    _result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
+                }
+            }
+
+            if (_callback != null)
+            {
+                _callback(_result);
+            }
+        }
+        #endregion
+    }
+
+    public class MaxABTestStorageParameter{
+        public string SdkKey;
+        public string ABTestKey;
+        public string DefaultData;
+
+        public MaxABTestStorageParameter(string _sdkKey, string _abTestKey, string _defultData){
+            SdkKey = _sdkKey;
+            ABTestKey = _abTestKey;
+            DefaultData = _defultData;
+        }
     }
 }
 #endif
