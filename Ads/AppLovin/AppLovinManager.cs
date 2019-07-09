@@ -273,7 +273,9 @@ namespace BicUtil.Ads{
             }
             else
             {   
+                Debug.LogWarning("[pixaw] max init start");
                 MaxSdkCallbacks.OnSdkInitializedEvent += _config=>{
+                    Debug.LogWarning("[pixaw] OnSdkInitializedEvent " + _config);
                     loadData(_table, _callback, _abTestKey, _defultData);
                 };
 
