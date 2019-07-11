@@ -113,7 +113,10 @@ namespace BicDB.Storage
 			#endif
 
 			try{
-				FileStorage.Write(_json, _fileName, _encryptKey);
+				if(string.IsNullOrEmpty(_json) == false){
+					FileStorage.Write(_json, _fileName, _encryptKey);
+				}
+
 				if (_callback != null) {
 					_callback(new Result((int)ResultCode.Success, GetPath(_fileName), _hashCode));
 				}
@@ -327,7 +330,7 @@ namespace BicDB.Storage
 			if (string.IsNullOrEmpty(Input)) {
 				return string.Empty;
 			}
-			
+
 			key = key.PadRight(16, '_');
 
 			RijndaelManaged aes = new RijndaelManaged();
