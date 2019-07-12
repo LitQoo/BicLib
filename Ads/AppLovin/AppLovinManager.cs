@@ -279,6 +279,10 @@ namespace BicUtil.Ads{
                     loadData(_table, _callback, _abTestKey, _defultData);
                 };
 
+                MaxSdkCallbacks.OnVariablesUpdatedEvent += ()=>{
+                    Debug.LogWarning("[pixaw] OnVariablesUpdatedEvent " + MaxSdk.VariableService.GetString(_abTestKey, "not"));
+                };
+
                 MaxSdk.SetSdkKey(_sdkKey);
                 MaxSdk.InitializeSdk();
             }
