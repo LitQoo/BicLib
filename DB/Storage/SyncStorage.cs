@@ -82,7 +82,7 @@ namespace BicDB.Storage
 
 			var _result = new Result ((int)ResultCode.Success);
 			if(_param.Target != SyncStorageParameter.SyncTarget.WebStorageOnly){
-				string _data = FileStorage.Read(getFileName(_table.Name), getEncryptKey(_table));
+				string _data = FileStorage.ReadByPath(FileStorage.GetPath(getFileName(_table.Name)), getEncryptKey(_table));
 				int _counter = 0;
 
 				if (!string.IsNullOrEmpty (_data)) {

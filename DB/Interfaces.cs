@@ -44,7 +44,7 @@ namespace BicDB
 		public int HashCode = 0;
 		public string Path = "";
 
-		public Result(int _code, string _path, int _hashCode = 0, string _message = ""){
+		public Result(int _code, string _path = "", int _hashCode = 0, string _message = ""){
 			Code = _code;
 			Message = _message;
 			HashCode = _hashCode;
