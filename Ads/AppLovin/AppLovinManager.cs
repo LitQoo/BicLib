@@ -259,24 +259,26 @@ namespace BicUtil.Ads{
             string _sdkKey = string.Empty;
             string _abTestKey = string.Empty;
             string _defultData = string.Empty;
+            Func<string, string> _valueSetter = null;
             if (_parameter != null)
             {
                 MaxABTestStorageParameter _param = _parameter as MaxABTestStorageParameter;
                 _sdkKey = _param.SdkKey;
                 _abTestKey = _param.ABTestKey;
-                _defultData = _param.DefaultData;
+                _defultData = _param.DefaultValue;
+                _valueSetter = _param.ValueSetter;
             }
 
             if (MaxSdk.IsInitialized() == true)
             {
-                loadData(_table, _callback, _abTestKey, _defultData);
+                loadData(_table, _callback, _abTestKey, _defultData, _valueSetter);
             }
             else
             {   
                 Debug.LogWarning("[pixaw] max init start");
                 MaxSdkCallbacks.OnSdkInitializedEvent += _config=>{
                     Debug.LogWarning("[pixaw] OnSdkInitializedEvent " + _config.ConsentDialogState.ToString());
-                    loadData(_table, _callback, _abTestKey, _defultData);
+                    loadData(_table, _callback, _abTestKey, _defultData, _valueSetter);
                 };
 
                 MaxSdkCallbacks.OnVariablesUpdatedEvent += ()=>{
@@ -289,7 +291,7 @@ namespace BicUtil.Ads{
 
         }
 
-        private static void loadData<T>(ITableContainer<T> _table, Action<Result> _callback, string _abTestKey, string _defultData) where T : IRecordContainer, new()
+        private static void loadData<T>(ITableContainer<T> _table, Action<Result> _callback, string _abTestKey, string _defultData, Func<string, string> _valueSetter) where T : IRecordContainer, new()
         {
             string _data = MaxSdk.VariableService.GetString(_abTestKey, _defultData);
             var _result = new Result((int)ResultCode.Success, string.Empty);
@@ -311,11 +313,13 @@ namespace BicUtil.Ads{
 
             }
 
-            if (!string.IsNullOrEmpty(_data))
+            string _jsonData = _valueSetter(_data);
+
+            if (!string.IsNullOrEmpty(_jsonData))
             {
                 try
                 {
-                    JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
+                    JsonConvertor.GetInstance().BuildTableContainer(_table, ref _jsonData, ref _counter);
                 }
                 catch (Exception e)
                 {
@@ -335,12 +339,14 @@ namespace BicUtil.Ads{
     public class MaxABTestStorageParameter{
         public string SdkKey;
         public string ABTestKey;
-        public string DefaultData;
+        public string DefaultValue;
+        public Func<string, string> ValueSetter;
 
-        public MaxABTestStorageParameter(string _sdkKey, string _abTestKey, string _defultData){
+        public MaxABTestStorageParameter(string _sdkKey, string _abTestKey, string _defaultValue, Func<string, string> _valueSetter){
             SdkKey = _sdkKey;
             ABTestKey = _abTestKey;
-            DefaultData = _defultData;
+            DefaultValue = _defaultValue;
+            ValueSetter = _valueSetter;
         }
     }
 }
