@@ -342,16 +342,22 @@ namespace BicUtil.UIFlow
 			checkBackKey ();
 		}
 		#endif
+
+
+		public Func<bool> IsEnableBackKeyFunc = null;
 		private void checkBackKey(){
+			if(isWait == true){
+				return;
+			}
+
 			if(Input.GetKeyUp(KeyCode.Escape))
 			{
 				if (backAction != null) {
-					backAction ();
-					return;
-				}
+					if(IsEnableBackKeyFunc == null || IsEnableBackKeyFunc() == true){
+						backAction ();
+					}
 
-				if (uiStack.Count > 1) {
-					Back (CloseMode.Disable);
+					return;
 				}
 			}
 		}
