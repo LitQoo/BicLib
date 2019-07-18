@@ -12,7 +12,7 @@ namespace BicDB.Storage
 		void Pull(Action<Result> _callback = null, object _parameter = null);
 	}
 
-	public interface ITableStorageSuppoter : IStorageSuppoter{
+	public interface ITableStorageSuppoter : IStorageSuppoter, IRecordContainerParent{
 		void SetStorage(ITableStorage _storage);
 	}
 
