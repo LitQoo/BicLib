@@ -4,6 +4,7 @@ using UnityEngine;
 using BicUtil.SingletonBase;
 using System;
 using BicUtil.ClassInitializer;
+using BicDB.Variable;
 
 namespace BicUtil.UIFlow
 {
@@ -47,7 +48,7 @@ namespace BicUtil.UIFlow
 		private UIInfo reservationUI = null;
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private IUIFlowObject baseUi = null;
-		private bool isWait = false;
+		private BoolVariable isWait = new BoolVariable(false);
 
 		public void LoadScene(string _sceneName){
 			cleaningValriables();
@@ -61,7 +62,7 @@ namespace BicUtil.UIFlow
 
 		public bool IsMoving{
 			get{
-				return isWait;
+				return isWait.AsBool;
 			}
 		}
 
@@ -99,14 +100,16 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
-			if (isWait == true) {
+			if (isWait.AsBool == true) {
 				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation");
 				
-				if(reservationUI != null){
-					throw new System.Exception("[UIFLOW] did not reservation UI " + _ui.ToString());
-				}
+				// 예약 오픈 일단 정지?
+				// if(reservationUI != null){
+				// 	Debug.LogWarning("[UIFLOW] did not reservation UI " + _ui.ToString());
+				// 	return;
+				// }
 
-				reservationUI = new UIInfo(_ui, _openMode, _parameter);
+				// reservationUI = new UIInfo(_ui, _openMode, _parameter);
 				return;
 			}
 
@@ -122,7 +125,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
-			if (isWait == true) {
+			if (isWait.AsBool == true) {
 				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation");
 				return;
 			}
@@ -135,18 +138,13 @@ namespace BicUtil.UIFlow
 				_closeFromUI = uiStack [uiStack.Count - 2].UI;	
 			}
 
+			Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
 
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 
-				Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
-				
 				if(uiStack.Count > 0){
 					if(_openMode == OpenMode.Change){
 						currentUiInfo.UI.gameObject.SetActive(true);
-					}
-
-					if(OnFinishChangeUI != null){
-						OnFinishChangeUI();
 					}
 
 					backAction = null;
@@ -156,8 +154,25 @@ namespace BicUtil.UIFlow
 			}, _parameter);
 		}
 
+		private Action onFinishedChangeUIOnceCallback = null;
+		public void SubscribeOnceOnFinishedChangeUI(Action _callback){
+			if(isWait.AsBool == false){
+				if(_callback != null){
+					_callback();
+				}
+				return;
+			}
+
+			onFinishedChangeUIOnceCallback = _callback;
+		}
+
 		private void finishWait(){
-			isWait = false;
+			isWait.AsBool = false;
+			if(onFinishedChangeUIOnceCallback != null){
+				onFinishedChangeUIOnceCallback();
+				onFinishedChangeUIOnceCallback = null;
+			}
+
 			if(reservationUI != null){
 				var _reservationUI = reservationUI;
 				reservationUI = null;
@@ -191,7 +206,7 @@ namespace BicUtil.UIFlow
 
 			while (currentUiInfo.UI != _param.UI) {
 				Back (CloseMode.Disable);
-				while (isWait == true) {
+				while (isWait.AsBool == true) {
 					yield return new WaitForSeconds (0.1f);
 				}
 
@@ -212,7 +227,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Replace(string _objectName, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
-			if (isWait == true) {
+			if (isWait.AsBool == true) {
 				return;
 			}
 
@@ -235,7 +250,7 @@ namespace BicUtil.UIFlow
 		}
 		
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
-			if (isWait == true) {
+			if (isWait.AsBool == true) {
 				Debug.LogWarning("[UIFLOW] Failed Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ") Wating");
 				return;
 			}
@@ -254,7 +269,7 @@ namespace BicUtil.UIFlow
 		}
 
 		private void close(IUIFlowObject _ui, IUIFlowObject _fromUI, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
-			isWait = true;
+			isWait.AsBool = true;
 
 			Action _closeUI = () => closeUI(_ui, _closeMode);
 
@@ -336,7 +351,7 @@ namespace BicUtil.UIFlow
 
 		public Func<bool> IsEnableBackKeyFunc = null;
 		private void checkBackKey(){
-			if(isWait == true){
+			if(isWait.AsBool == true){
 				return;
 			}
 
