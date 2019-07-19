@@ -100,10 +100,8 @@ namespace BicUtil.UIFlow
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
 			if (isWait == true) {
-				#if UNITY_EDITOR
 				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation");
-				#endif
-
+				
 				if(reservationUI != null){
 					throw new System.Exception("[UIFLOW] did not reservation UI " + _ui.ToString());
 				}
@@ -112,10 +110,8 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
-			#if UNITY_EDITOR
 			Debug.Log("[UIFLOW] OPEN " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
-			#endif
-
+			
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 				close (currentUiInfo.UI, _ui, CloseMode.Disable, () => {
 					open (_ui, _openMode, _parameter);
@@ -127,9 +123,7 @@ namespace BicUtil.UIFlow
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
 			if (isWait == true) {
-				#if UNITY_EDITOR
 				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation");
-				#endif
 				return;
 			}
 
@@ -144,10 +138,8 @@ namespace BicUtil.UIFlow
 
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 
-				#if UNITY_EDITOR
 				Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
-				#endif
-
+				
 				if(uiStack.Count > 0){
 					if(_openMode == OpenMode.Change){
 						currentUiInfo.UI.gameObject.SetActive(true);
@@ -205,7 +197,7 @@ namespace BicUtil.UIFlow
 
 				_warnningCounter++;
 				if (_warnningCounter > 100) {
-					Debug.LogWarning ("waring UIFlow.BackTo");
+					Debug.LogWarning ("[UIFlow] warning UIFlow.BackTo");
 				}
 			}
 
@@ -249,10 +241,8 @@ namespace BicUtil.UIFlow
 			}
 
 
-			#if UNITY_EDITOR
 			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
-			#endif
-
+			
 			if (uiStack.Count > 0 && uiStack[uiStack.Count - 1].UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;
 				close (currentUiInfo.UI, _ui,_closeMode, () => {
