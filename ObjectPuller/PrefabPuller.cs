@@ -39,6 +39,10 @@ namespace BicUtil.ObjectPuller
 		}
 
 		public void PullingObject(T _object){
+			if(_object == null){
+				return;
+			}
+			
 			_object.ReadyPulling ();
 
 			if (pullingFunction != null) {
