@@ -119,7 +119,7 @@ namespace BicDB.Core
             var _loader = new TableLoader();
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
             _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
-            _loader.Load(_callback, 10);
+            _loader.Load(_callback, 3);
         }
 
         private static void setupSysTable()
