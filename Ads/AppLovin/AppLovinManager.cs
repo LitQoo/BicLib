@@ -271,6 +271,7 @@ namespace BicUtil.Ads{
 
             if (MaxSdk.IsInitialized() == true)
             {
+                Debug.LogWarning("[pixaw] max init already");
                 loadData(_table, _callback, _abTestKey, _defultData, _valueSetter);
             }
             else
@@ -278,6 +279,12 @@ namespace BicUtil.Ads{
                 Debug.LogWarning("[pixaw] max init start");
                 MaxSdkCallbacks.OnSdkInitializedEvent += _config=>{
                     Debug.LogWarning("[pixaw] OnSdkInitializedEvent " + _config.ConsentDialogState.ToString());
+                    
+                    if(isLoaded == true){
+                        return;
+                    }
+
+                    isLoaded = true;
                     loadData(_table, _callback, _abTestKey, _defultData, _valueSetter);
                 };
 
@@ -290,7 +297,8 @@ namespace BicUtil.Ads{
             }
 
         }
-
+        
+        private bool isLoaded = false;
         private static void loadData<T>(ITableContainer<T> _table, Action<Result> _callback, string _abTestKey, string _defultData, Func<string, string> _valueSetter) where T : IRecordContainer, new()
         {
             string _data = MaxSdk.VariableService.GetString(_abTestKey, _defultData);
