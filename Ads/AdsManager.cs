@@ -15,7 +15,6 @@ namespace BicUtil.Ads
         private Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
         private Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
         private List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
-        private List<object> passAdsList = new List<object>();
         public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
         private bool isInit = false;
 
@@ -25,21 +24,15 @@ namespace BicUtil.Ads
         #endregion
 
         #region Event
-        private Dictionary<object, Action<object>> OnPlayedAds = new Dictionary<object, Action<object>>();
-        public void SubscribePlayedAds(object _id, Action<object> _callback){
-            if(OnPlayedAds.ContainsKey(_id) == false){
-                OnPlayedAds.Add(_id, _callback);
-            }else{
-                OnPlayedAds[_id] += _callback;
-            }
+        private Action<object, AdsResult> OnAfterPlayedAdsCallback;
+        private Action<object> OnBeforePlayAdsCallback;
+        
+        public void SubscribeAfterPlayedAds(Action<object, AdsResult> _callback){
+            OnAfterPlayedAdsCallback += _callback;
         }
 
-        private void callPlayedAdsCallback(object _id){
-            if(OnPlayedAds.ContainsKey(_id) == true){
-                if(OnPlayedAds[_id] != null){
-                    OnPlayedAds[_id](_id);
-                }
-            }
+        public void SubscribeBeforePlayAds(Action<object> _callback){
+            OnBeforePlayAdsCallback += _callback;
         }
 
         private Dictionary<object, Func<bool>> isReadyInterstitialFunc = new Dictionary<object, Func<bool>>();
@@ -106,10 +99,6 @@ namespace BicUtil.Ads
                 }
             }
 
-            if(passAdsList.Contains(_adsType) == true){
-                return true;
-            }
-
             if(isPossiblePlayAds(_adsType) == false){
                 return false;
             }
@@ -128,10 +117,6 @@ namespace BicUtil.Ads
         int selectedRewardBasedPlatform = -1;
         public bool IsReadyRewardBased(object _adsType)
         {
-            if(passAdsList.Contains(_adsType) == true){
-                return true;
-            }
-
             if(isPossiblePlayAds(_adsType) == false){
                 return false;
             }
@@ -164,19 +149,16 @@ namespace BicUtil.Ads
         {
             IsShowingInterstital = true;
 
-            if(passAdsList.Contains(_adsType) == true){
-                IsShowingInterstital = false;
-                _callback(AdsResult.Finished);
-                return;
-            }
-
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
                 IsShowingInterstital = false;
                 
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
-                    callPlayedAdsCallback(_adsType);
                 } 
+
+                if(OnAfterPlayedAdsCallback != null){
+                    OnAfterPlayedAdsCallback(_adsType, _adsResult);
+                }
 
                 selectedInterstitialPlatform = -1;
                 _callback(_adsResult);
@@ -185,19 +167,30 @@ namespace BicUtil.Ads
             };
 
             if(selectedInterstitialPlatform >= 0){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsType);
+                }
+
                 adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsType, _func);
                 return;
             }
 
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyInterstitial(_adsType) == true){
-                    adsPlatforms[i].ShowInterstitial(_adsType, _func);
+                    if(OnBeforePlayAdsCallback != null){
+                        OnBeforePlayAdsCallback(_adsType);
+                    }
                     
+                    adsPlatforms[i].ShowInterstitial(_adsType, _func);
                     return;
                 }
             }
 
             if(defaultAdsData.ContainsKey(_adsType) == true){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsType);
+                }
+                
                 defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
             }else{
                 IsShowingInterstital = false;
@@ -210,11 +203,6 @@ namespace BicUtil.Ads
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
         {
             IsShowingRewardBased = true;
-            if(passAdsList.Contains(_adsType) == true){
-                IsShowingRewardBased = false;
-                _callback(AdsResult.Finished);
-                return;
-            }
 
             if(isPossiblePlayAds(_adsType) == false){
                 IsShowingRewardBased = false;
@@ -227,8 +215,11 @@ namespace BicUtil.Ads
                 
                 if(_adsResult != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsType);
-                    callPlayedAdsCallback(_adsType);
                 } 
+
+                if(OnAfterPlayedAdsCallback != null){
+                    OnAfterPlayedAdsCallback(_adsType, _adsResult);
+                }
 
                 selectedRewardBasedPlatform = -1;
                 _callback(_adsResult);
@@ -238,18 +229,30 @@ namespace BicUtil.Ads
 
 
             if(selectedRewardBasedPlatform >= 0){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsType);
+                }
+
                 adsPlatforms[selectedRewardBasedPlatform].ShowRewardBased(_adsType, _func);
                 return;
             }
             
             for(int i = 0; i < adsPlatforms.Count; i++){
                 if(adsPlatforms[i].IsReadyRewardBased(_adsType) == true){
+                    if(OnBeforePlayAdsCallback != null){
+                        OnBeforePlayAdsCallback(_adsType);
+                    }
+
                     adsPlatforms[i].ShowRewardBased(_adsType, _func);
                     return;
                 }
             }
 
             if(defaultAdsData.ContainsKey(_adsType) == true){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsType);
+                }
+
                 defaultAdsData[_adsType].ShowRewardBased(_adsType, _func);
             }else{
                 IsShowingRewardBased = false;
@@ -266,10 +269,6 @@ namespace BicUtil.Ads
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
         public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadAction){
-            if(passAdsList.Contains(_adsType) == true){
-                increaseCount(AdsStat.BANNER, AdsResult.Skipped);
-                return new DummyBanner();
-            }
 
             for(int i = 0; i < adsPlatforms.Count; i++)
             {
@@ -328,14 +327,6 @@ namespace BicUtil.Ads
                 var _item = bannerList.First(_row => _row.Value == _banner);
                 bannerList.Remove(_item.Key);
             }
-        }
-
-        public void SetPass(object _adsType){
-            if(passAdsList.Contains(_adsType) == false){
-                passAdsList.Add(_adsType);
-            }
-
-            GetBanner(_adsType).Destroy();
         }
 
         private AdsStat getStat(string _name){
