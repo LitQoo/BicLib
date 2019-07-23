@@ -359,6 +359,7 @@ namespace BicUtil.UIFlow
 			{
 				if (backAction != null) {
 					if(IsEnableBackKeyFunc == null || IsEnableBackKeyFunc() == true){
+						Debug.Log("[UIFlow] Touched BackKey");
 						backAction ();
 					}
 

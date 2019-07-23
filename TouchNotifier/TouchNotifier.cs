@@ -74,7 +74,6 @@ namespace BicUtil.TouchNotifier
 
 				if(Input.GetKeyUp(KeyCode.Escape))
 				{
-					Debug.Log("[TouchNotifier] Touched BackKey");
 					OnTouchBackKey.Invoke(Vector2.zero);
 					EventNotifyer.EventNotifyer.Notify(this, BUTTON_ESC);
 				}
