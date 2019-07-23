@@ -15,41 +15,41 @@ namespace BicUtil.Ads{
         }
 
 
-        public bool IsReadyBanner(object _adsType){
+        public bool IsReadyBanner(object _adsPlacement){
             return false;
         }
 
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
         {
             return null;
         }
 
-        public bool IsReadyInterstitial(object _adsType)
+        public bool IsReadyInterstitial(object _adsPlacement)
         {
             return IsReadyInterstitialReturn;
         }
 
-        public bool IsReadyRewardBased(object _adsType)
+        public bool IsReadyRewardBased(object _adsPlacement)
         {
             return IsReadyRewardBasedReturn;
         }
 
-        public void LoadInterstitial(object _adsType)
+        public void LoadInterstitial(object _adsPlacement)
         {
             
         }
 
-        public void LoadRewardBased(object _adsType)
+        public void LoadRewardBased(object _adsPlacement)
         {
             
         }
 
-        public void SetAdsSettingAndroidOnly(string _adsId, object _type)
+        public void SetAdsSettingAndroidOnly(string _adsId, object _adsPlacement)
         {
             
         }
 
-        public void SetAdsSettingIOSOnly(string _adsId, object _type)
+        public void SetAdsSettingIOSOnly(string _adsId, object _adsPlacement)
         {
             
         }
@@ -64,12 +64,12 @@ namespace BicUtil.Ads{
             
         }
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
             _callback(ShowInterstitialReturn);
         }
 
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
             _callback(ShowRewardBasedReturn);
         }

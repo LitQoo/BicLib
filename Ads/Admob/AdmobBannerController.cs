@@ -22,10 +22,10 @@ namespace BicUtil.Ads
         #endregion
 
         #region Logic
-        private object adsType;
+        private object adsPlacement;
         private Action<IAdsBanner> onLoadBannerAction;
-        public void Load(string _unitId, object _adsType, Action<IAdsBanner> _onLoadBannerAction){
-            adsType = _adsType;
+        public void Load(string _unitId, object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction){
+            adsPlacement = _adsPlacement;
             onLoadBannerAction = _onLoadBannerAction;
             bannerView = new BannerView(_unitId, AdSize.SmartBanner, AdPosition.Top);
             bannerView.OnAdFailedToLoad += reloadBanner;
@@ -44,7 +44,7 @@ namespace BicUtil.Ads
         private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
         {
             AdsManager.Instance.RemoveBanner(this);
-            AdsManager.Instance.CreateBanner(adsType, onLoadBannerAction);
+            AdsManager.Instance.CreateBanner(adsPlacement, onLoadBannerAction);
             Destroy(this.gameObject);
         }
         #endregion

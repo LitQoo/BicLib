@@ -22,36 +22,36 @@ namespace BicUtil.Ads
         #endregion
 
         #region set 
-        public void SetAdsSetting(string _id, object _adsType, string _prefabPath, int _wieght, Func<bool> _isReady){
-            var _ads = new LocalAdsInfo(_id, _adsType, _prefabPath, _wieght, _isReady);
+        public void SetAdsSetting(string _id, object _adsPlacement, string _prefabPath, int _wieght, Func<bool> _isReady){
+            var _ads = new LocalAdsInfo(_id, _adsPlacement, _prefabPath, _wieght, _isReady);
             adsData.Add(_ads);
         }
         #endregion
 
         #region IAdsPlatform
-        public bool IsReadyBanner(object _adsType){
-            var _ads = adsData.FirstOrDefault(_row=>_row.AdsType.ToString() == _adsType.ToString() && _row.IsReady() == true);
-            selectedAds[_adsType] = _ads;
+        public bool IsReadyBanner(object _adsPlacement){
+            var _ads = adsData.FirstOrDefault(_row=>_row.AdsPlacement.ToString() == _adsPlacement.ToString() && _row.IsReady() == true);
+            selectedAds[_adsPlacement] = _ads;
             return _ads != null;
         }
 
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
         {
-            var _ads = selectedAds[_adsType];
+            var _ads = selectedAds[_adsPlacement];
             
             if(_ads == null){
-                _ads = adsData.FirstOrDefault(_row=>_row.AdsType.ToString() == _adsType.ToString());
+                _ads = adsData.FirstOrDefault(_row=>_row.AdsPlacement.ToString() == _adsPlacement.ToString());
             }
 
             if(_ads != null){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<LocalBannerController>(_ads.PrefabPath));
                 _onLoadBannerAction(_banner);
 
-                var _nextAdsType = _adsType;
+                var _nextAdsPlacement = _adsPlacement;
                 var _nextOnLoadBannerAction = _onLoadBannerAction;
                 BicTween.Delay(BannerReloadTime).SetTargetObject(_banner.gameObject).SubscribeComplete(()=>{
                     _banner.Destroy();
-                    AdsManager.Instance.CreateBanner(_nextAdsType, _nextOnLoadBannerAction);
+                    AdsManager.Instance.CreateBanner(_nextAdsPlacement, _nextOnLoadBannerAction);
                 });
                 return _banner;
             }
@@ -61,25 +61,25 @@ namespace BicUtil.Ads
 
         private Dictionary<object, LocalAdsInfo> selectedAds = new Dictionary<object, LocalAdsInfo>();        
         
-        public bool IsReadyInterstitial(object _adsType)
+        public bool IsReadyInterstitial(object _adsPlacement)
         {
-            selectedAds[_adsType] = GetAds(_adsType);
+            selectedAds[_adsPlacement] = GetAds(_adsPlacement);
             
-            return selectedAds[_adsType] != null;
+            return selectedAds[_adsPlacement] != null;
         }
 
-        public bool IsReadyRewardBased(object _adsType)
+        public bool IsReadyRewardBased(object _adsPlacement)
         {
-            selectedAds[_adsType] = GetAds(_adsType);
+            selectedAds[_adsPlacement] = GetAds(_adsPlacement);
 
-            return selectedAds[_adsType] != null;
+            return selectedAds[_adsPlacement] != null;
         }
 
-        public void LoadInterstitial(object _adsType)
+        public void LoadInterstitial(object _adsPlacement)
         {
         }
 
-        public void LoadRewardBased(object _adsType)
+        public void LoadRewardBased(object _adsPlacement)
         {
         }
 
@@ -92,26 +92,26 @@ namespace BicUtil.Ads
             }
         }
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
-            showInterstitial(_adsType, _callback, 5);
+            showInterstitial(_adsPlacement, _callback, 5);
         }
 
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
-            showInterstitial(_adsType, _callback, 20);
+            showInterstitial(_adsPlacement, _callback, 20);
         }
 
-        private void showInterstitial(object _adsType, Action<AdsResult> _callback, int _time){
+        private void showInterstitial(object _adsPlacement, Action<AdsResult> _callback, int _time){
             LocalAdsInfo _ads = null;
             
-            if(selectedAds.ContainsKey(_adsType) == true){
-                _ads = selectedAds[_adsType];
-                selectedAds[_adsType] = null;
+            if(selectedAds.ContainsKey(_adsPlacement) == true){
+                _ads = selectedAds[_adsPlacement];
+                selectedAds[_adsPlacement] = null;
             }
             
             if(_ads == null){
-                _ads = GetAds(_adsType);
+                _ads = GetAds(_adsPlacement);
             }
 
             if(_ads != null){
@@ -139,8 +139,8 @@ namespace BicUtil.Ads
             _interstitial.Show();
         }
 
-        public LocalAdsInfo GetAds(object _adsType){
-           var _adsList = getAdsList(_adsType);
+        public LocalAdsInfo GetAds(object _adsPlacement){
+           var _adsList = getAdsList(_adsPlacement);
 
            if(_adsList.Count() <= 0){
                return null;
@@ -160,9 +160,9 @@ namespace BicUtil.Ads
            return _adsList.ElementAt(0);
         }
 
-        private List<LocalAdsInfo> getAdsList(object _adsType)
+        private List<LocalAdsInfo> getAdsList(object _adsPlacement)
         {
-            return adsData.Where(_row => _row.IsReady() == true && (_row.AdsType.ToString() == _adsType.ToString())).ToList();
+            return adsData.Where(_row => _row.IsReady() == true && (_row.AdsPlacement.ToString() == _adsPlacement.ToString())).ToList();
         }
         #endregion
     }
@@ -171,14 +171,14 @@ namespace BicUtil.Ads
 
     public class LocalAdsInfo{
         public string Id;
-        public object AdsType;
+        public object AdsPlacement;
         public string PrefabPath;
         public int ViewWeight;
         private Func<bool> isReady;
 
-        public LocalAdsInfo(string _id, object _type, string _prefabPath, int _weight, Func<bool> _isReady){
+        public LocalAdsInfo(string _id, object _adsPlacement, string _prefabPath, int _weight, Func<bool> _isReady){
             this.Id = _id;
-            this.AdsType = _type;
+            this.AdsPlacement = _adsPlacement;
             this.PrefabPath = _prefabPath;
             this.ViewWeight = _weight;
             this.isReady = _isReady;

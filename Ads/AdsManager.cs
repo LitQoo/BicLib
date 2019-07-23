@@ -24,14 +24,14 @@ namespace BicUtil.Ads
         #endregion
 
         #region Event
-        private Action<object, AdsResult> OnAfterPlayedAdsCallback;
-        private Action<object> OnBeforePlayAdsCallback;
+        private Action<object, AdsType, AdsResult> OnAfterPlayedAdsCallback;
+        private Action<object, AdsType> OnBeforePlayAdsCallback;
         
-        public void SubscribeAfterPlayedAds(Action<object, AdsResult> _callback){
+        public void SubscribeAfterPlayedAds(Action<object, AdsType, AdsResult> _callback){
             OnAfterPlayedAdsCallback += _callback;
         }
 
-        public void SubscribeBeforePlayAds(Action<object> _callback){
+        public void SubscribeBeforePlayAds(Action<object, AdsType> _callback){
             OnBeforePlayAdsCallback += _callback;
         }
 
@@ -61,50 +61,50 @@ namespace BicUtil.Ads
             return System.DateTime.Now.Ticks / TimeSpan.TicksPerSecond;
         }
 
-        private bool isPossiblePlayAds(object _type){
-            if(getTimestamp() - adsData[_type].LastPlayedAdsTime > adsData[_type].TimeInterval){
+        private bool isPossiblePlayAds(object _adsPlacement){
+            if(getTimestamp() - adsData[_adsPlacement].LastPlayedAdsTime > adsData[_adsPlacement].TimeInterval){
                 return true;
             }else{
                 return false;
             }
         }
 
-        public void UpdateLastPlayedAdsTime(object _type){
-            adsData[_type].LastPlayedAdsTime = getTimestamp();
+        public void UpdateLastPlayedAdsTime(object _adsPlacement){
+            adsData[_adsPlacement].LastPlayedAdsTime = getTimestamp();
         }
 
-        public void UpdateLastPlayedAdsTimeAll(){
+        public void UpdateLastPlayedAdsTimeAll(long _offsetSec = 0){
             foreach (var _item in adsData)
             {   
-                _item.Value.LastPlayedAdsTime = getTimestamp();
+                _item.Value.LastPlayedAdsTime = getTimestamp() + _offsetSec;
             }
         }
         #endregion
 
-        public void SetAdsSetting(object _type, int _playTimeInterval){
-            adsData[_type] = new AdsInfo(_type, _playTimeInterval);
+        public void SetAdsSetting(object _adsPlacement, int _playTimeInterval){
+            adsData[_adsPlacement] = new AdsInfo(_adsPlacement, _playTimeInterval);
         }
 
-        public void SetDefaultAds(object _type, IAdsPlatform _platform)
+        public void SetDefaultAds(object _adsPlacement, IAdsPlatform _platform)
         {
-            defaultAdsData[_type] = _platform;
+            defaultAdsData[_adsPlacement] = _platform;
         }
 
         int selectedInterstitialPlatform = -1;
-        public bool IsReadyInterstitial(object _adsType)
+        public bool IsReadyInterstitial(object _adsPlacement)
         {
-            if(isReadyInterstitialFunc.ContainsKey(_adsType) == true){
-                if(isReadyInterstitialFunc[_adsType]() == false){
+            if(isReadyInterstitialFunc.ContainsKey(_adsPlacement) == true){
+                if(isReadyInterstitialFunc[_adsPlacement]() == false){
                     return false;
                 }
             }
 
-            if(isPossiblePlayAds(_adsType) == false){
+            if(isPossiblePlayAds(_adsPlacement) == false){
                 return false;
             }
 
             for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyInterstitial(_adsType) == true){
+                if(adsPlatforms[i].IsReadyInterstitial(_adsPlacement) == true){
                     selectedInterstitialPlatform = i;
                     
                     return true;
@@ -115,14 +115,14 @@ namespace BicUtil.Ads
         }
 
         int selectedRewardBasedPlatform = -1;
-        public bool IsReadyRewardBased(object _adsType)
+        public bool IsReadyRewardBased(object _adsPlacement)
         {
-            if(isPossiblePlayAds(_adsType) == false){
+            if(isPossiblePlayAds(_adsPlacement) == false){
                 return false;
             }
 
             for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyRewardBased(_adsType) == true ){
+                if(adsPlatforms[i].IsReadyRewardBased(_adsPlacement) == true ){
                     selectedRewardBasedPlatform = i;
                     return true;
                 }
@@ -131,21 +131,21 @@ namespace BicUtil.Ads
             return false;
         }
 
-        public void LoadInterstitial(object _adsType)
+        public void LoadInterstitial(object _adsPlacement)
         {
             for(int i = 0; i < adsPlatforms.Count; i++){
-                adsPlatforms[i].LoadInterstitial(_adsType);
+                adsPlatforms[i].LoadInterstitial(_adsPlacement);
             }
         }
 
-        public void LoadRewardBased(object _adsType)
+        public void LoadRewardBased(object _adsPlacement)
         {
             for(int i = 0; i < adsPlatforms.Count; i++){
-                adsPlatforms[i].LoadRewardBased(_adsType);
+                adsPlatforms[i].LoadRewardBased(_adsPlacement);
             }
         }
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
             IsShowingInterstital = true;
 
@@ -153,11 +153,11 @@ namespace BicUtil.Ads
                 IsShowingInterstital = false;
                 
                 if(_adsResult != AdsResult.Failed){ 
-                    UpdateLastPlayedAdsTime(_adsType);
+                    UpdateLastPlayedAdsTime(_adsPlacement);
                 } 
 
                 if(OnAfterPlayedAdsCallback != null){
-                    OnAfterPlayedAdsCallback(_adsType, _adsResult);
+                    OnAfterPlayedAdsCallback(_adsPlacement, AdsType.Interstital, _adsResult);
                 }
 
                 selectedInterstitialPlatform = -1;
@@ -168,30 +168,30 @@ namespace BicUtil.Ads
 
             if(selectedInterstitialPlatform >= 0){
                 if(OnBeforePlayAdsCallback != null){
-                    OnBeforePlayAdsCallback(_adsType);
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
 
-                adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsType, _func);
+                adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsPlacement, _func);
                 return;
             }
 
             for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyInterstitial(_adsType) == true){
+                if(adsPlatforms[i].IsReadyInterstitial(_adsPlacement) == true){
                     if(OnBeforePlayAdsCallback != null){
-                        OnBeforePlayAdsCallback(_adsType);
+                        OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                     }
                     
-                    adsPlatforms[i].ShowInterstitial(_adsType, _func);
+                    adsPlatforms[i].ShowInterstitial(_adsPlacement, _func);
                     return;
                 }
             }
 
-            if(defaultAdsData.ContainsKey(_adsType) == true){
+            if(defaultAdsData.ContainsKey(_adsPlacement) == true){
                 if(OnBeforePlayAdsCallback != null){
-                    OnBeforePlayAdsCallback(_adsType);
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
                 
-                defaultAdsData[_adsType].ShowInterstitial(_adsType, _func);
+                defaultAdsData[_adsPlacement].ShowInterstitial(_adsPlacement, _func);
             }else{
                 IsShowingInterstital = false;
                 _callback(AdsResult.Failed);
@@ -200,11 +200,11 @@ namespace BicUtil.Ads
         }
         
 
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
             IsShowingRewardBased = true;
 
-            if(isPossiblePlayAds(_adsType) == false){
+            if(isPossiblePlayAds(_adsPlacement) == false){
                 IsShowingRewardBased = false;
                 _callback(AdsResult.Failed);
                 return;
@@ -214,11 +214,11 @@ namespace BicUtil.Ads
                 IsShowingRewardBased = false;
                 
                 if(_adsResult != AdsResult.Failed){ 
-                    UpdateLastPlayedAdsTime(_adsType);
+                    UpdateLastPlayedAdsTime(_adsPlacement);
                 } 
 
                 if(OnAfterPlayedAdsCallback != null){
-                    OnAfterPlayedAdsCallback(_adsType, _adsResult);
+                    OnAfterPlayedAdsCallback(_adsPlacement, AdsType.RewardBase, _adsResult);
                 }
 
                 selectedRewardBasedPlatform = -1;
@@ -230,30 +230,30 @@ namespace BicUtil.Ads
 
             if(selectedRewardBasedPlatform >= 0){
                 if(OnBeforePlayAdsCallback != null){
-                    OnBeforePlayAdsCallback(_adsType);
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
                 }
 
-                adsPlatforms[selectedRewardBasedPlatform].ShowRewardBased(_adsType, _func);
+                adsPlatforms[selectedRewardBasedPlatform].ShowRewardBased(_adsPlacement, _func);
                 return;
             }
             
             for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyRewardBased(_adsType) == true){
+                if(adsPlatforms[i].IsReadyRewardBased(_adsPlacement) == true){
                     if(OnBeforePlayAdsCallback != null){
-                        OnBeforePlayAdsCallback(_adsType);
+                        OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
                     }
 
-                    adsPlatforms[i].ShowRewardBased(_adsType, _func);
+                    adsPlatforms[i].ShowRewardBased(_adsPlacement, _func);
                     return;
                 }
             }
 
-            if(defaultAdsData.ContainsKey(_adsType) == true){
+            if(defaultAdsData.ContainsKey(_adsPlacement) == true){
                 if(OnBeforePlayAdsCallback != null){
-                    OnBeforePlayAdsCallback(_adsType);
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
                 }
 
-                defaultAdsData[_adsType].ShowRewardBased(_adsType, _func);
+                defaultAdsData[_adsPlacement].ShowRewardBased(_adsPlacement, _func);
             }else{
                 IsShowingRewardBased = false;
 
@@ -268,12 +268,12 @@ namespace BicUtil.Ads
 
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadAction){
+        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadAction){
 
             for(int i = 0; i < adsPlatforms.Count; i++)
             {
-                if(adsPlatforms[i].IsReadyBanner(_adsType) == true){
-                    var _banner = createBanner(_adsType, _onLoadAction, adsPlatforms[i]);
+                if(adsPlatforms[i].IsReadyBanner(_adsPlacement) == true){
+                    var _banner = createBanner(_adsPlacement, _onLoadAction, adsPlatforms[i]);
                     if(_banner != null){
 
                         increaseCount(AdsStat.BANNER, AdsResult.Finished);
@@ -282,8 +282,8 @@ namespace BicUtil.Ads
                 }
             }
 
-            if (defaultAdsData.ContainsKey(_adsType) == true){
-                var _banner = createBanner(_adsType, _onLoadAction, defaultAdsData[_adsType], true);
+            if (defaultAdsData.ContainsKey(_adsPlacement) == true){
+                var _banner = createBanner(_adsPlacement, _onLoadAction, defaultAdsData[_adsPlacement], true);
                 if(_banner != null){
                     increaseCount(AdsStat.BANNER, AdsResult.Finished);
                     return _banner;
@@ -295,17 +295,17 @@ namespace BicUtil.Ads
             return new DummyBanner();
         }
 
-        private IAdsBanner createBanner(object _adsType, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform, bool isForced = false)
+        private IAdsBanner createBanner(object _adsPlacement, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform, bool isForced = false)
         {
-            var _banner = _platform.CreateBanner(_adsType, _onLoadAction);
+            var _banner = _platform.CreateBanner(_adsPlacement, _onLoadAction);
             if (_banner != null)
             {
-                if (bannerList.ContainsKey(_adsType) == true)
+                if (bannerList.ContainsKey(_adsPlacement) == true)
                 {
-                    bannerList[_adsType].Destroy();
+                    bannerList[_adsPlacement].Destroy();
                 }
 
-                bannerList[_adsType] = _banner;
+                bannerList[_adsPlacement] = _banner;
                 return _banner;
             }
             else
@@ -314,9 +314,9 @@ namespace BicUtil.Ads
             }
         }
 
-        public IAdsBanner GetBanner(object _adsType){
-            if(bannerList.ContainsKey(_adsType)){
-                return bannerList[_adsType];
+        public IAdsBanner GetBanner(object _adsPlacement){
+            if(bannerList.ContainsKey(_adsPlacement)){
+                return bannerList[_adsPlacement];
             }
 
             return new DummyBanner();

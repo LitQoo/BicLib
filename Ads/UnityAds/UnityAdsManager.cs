@@ -13,7 +13,7 @@ namespace BicUtil.Ads{
         #endregion
         
         #region Logic
-        private void showAd(object _adsType, Action<AdsResult> _callback)
+        private void showAd(object _adsPlacement, Action<AdsResult> _callback)
         {
             var options = new ShowOptions { 
                 resultCallback = _result=>{ 
@@ -21,7 +21,7 @@ namespace BicUtil.Ads{
                 }
             };
 
-            Advertisement.Show(adsData[_adsType].PlatformId, options);
+            Advertisement.Show(adsData[_adsPlacement].PlatformId, options);
         }
 
         private AdsResult convert(ShowResult _result){
@@ -37,9 +37,9 @@ namespace BicUtil.Ads{
             return AdsResult.Failed;
         }
 
-        public void SetAdsSetting(string _unityAdsId, object _type){
+        public void SetAdsSetting(string _unityAdsId, object _adsPlacement){
             
-            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
+            adsData[_adsPlacement] = new AdsPlatformInfo(_unityAdsId, _adsPlacement);
         }
 
         public void SetPlatformIos(string _id){
@@ -54,56 +54,56 @@ namespace BicUtil.Ads{
             #endif
         }
 
-        public void SetAdsSettingAndroidOnly(string _unityAdsId, object _type)
+        public void SetAdsSettingAndroidOnly(string _unityAdsId, object _adsPlacement)
         {
             #if UNITY_ANDROID
-            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
+            adsData[_adsPlacement] = new AdsPlatformInfo(_unityAdsId, _adsPlacement);
             #endif
         }
 
-        public void SetAdsSettingIOSOnly(string _unityAdsId, object _type)
+        public void SetAdsSettingIOSOnly(string _unityAdsId, object _adsPlacement)
         {
             #if UNITY_IOS
-            adsData[_type] = new AdsPlatformInfo(_unityAdsId, _type);
+            adsData[_adsPlacement] = new AdsPlatformInfo(_unityAdsId, _adsPlacement);
             #endif
         }
 
-        public void LoadInterstitial(object _adsType)
+        public void LoadInterstitial(object _adsPlacement)
         {
             
         }
 
-        public bool IsReadyInterstitial(object _adsType)
+        public bool IsReadyInterstitial(object _adsPlacement)
         {
-            return Advertisement.IsReady(adsData[_adsType].PlatformId);
+            return Advertisement.IsReady(adsData[_adsPlacement].PlatformId);
         }
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
-            showAd(_adsType, _callback);
+            showAd(_adsPlacement, _callback);
         }
 
-        public void LoadRewardBased(object _adsType)
+        public void LoadRewardBased(object _adsPlacement)
         {
             
         }
 
-        public bool IsReadyRewardBased(object _adsType)
+        public bool IsReadyRewardBased(object _adsPlacement)
         {
-            return Advertisement.IsReady(adsData[_adsType].PlatformId);
+            return Advertisement.IsReady(adsData[_adsPlacement].PlatformId);
         }
 
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
-            showAd(_adsType, _callback);
+            showAd(_adsPlacement, _callback);
         }
 
-        public bool IsReadyBanner(object _adsType)
+        public bool IsReadyBanner(object _adsPlacement)
         {
             return false;
         }
 
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
         {
             return null;
         }

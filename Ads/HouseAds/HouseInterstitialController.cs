@@ -29,8 +29,8 @@ namespace BicUtil.Ads
         #endregion
 
         #region 
-        public void Load(object _adsType, HouseAdsModel _model, int _time){
-            houseBanner.Load(_adsType.ToString(), _model);
+        public void Load(object _adsPlacement, HouseAdsModel _model, int _time){
+            houseBanner.Load(_adsPlacement.ToString(), _model);
             closeButton.gameObject.SetActive(false);
             timeCountText.gameObject.SetActive(true);
             time = _time;

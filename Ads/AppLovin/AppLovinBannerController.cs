@@ -13,11 +13,11 @@ namespace BicUtil.Ads
         #endregion
 
         #region Logic
-        private object adsType;
+        private object adsPlacement;
         private string unitId;
-        public void Load(string _unitId, object _adsType){
+        public void Load(string _unitId, object _adsPlacement){
             unitId = _unitId;
-            adsType = _adsType;
+            adsPlacement = _adsPlacement;
             MaxSdk.CreateBanner(_unitId, MaxSdkBase.BannerPosition.TopCenter);
         }
         #endregion

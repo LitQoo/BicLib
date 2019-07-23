@@ -4,32 +4,32 @@ using UnityEngine;
 namespace BicUtil.Ads
 {
     public interface IAdsPlatform {
-        void LoadInterstitial(object _adsType);
-        bool IsReadyInterstitial(object _adsType);
-        void ShowInterstitial(object _adsType, Action<AdsResult> _callback);
+        void LoadInterstitial(object _adsPlacement);
+        bool IsReadyInterstitial(object _adsPlacement);
+        void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback);
 
-        void LoadRewardBased(object _adsType);
-        bool IsReadyRewardBased(object _adsType);
-        void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
+        void LoadRewardBased(object _adsPlacement);
+        bool IsReadyRewardBased(object _adsPlacement);
+        void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback);
         
-        bool IsReadyBanner(object _adsType);
-        IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction);
+        bool IsReadyBanner(object _adsPlacement);
+        IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction);
     }
 
     public interface IAdsManager
     {
-        void LoadInterstitial(object _adsType);
-        bool IsReadyInterstitial(object _adsType);
-        void ShowInterstitial(object _adsType, Action<AdsResult> _callback);
+        void LoadInterstitial(object _adsPlacement);
+        bool IsReadyInterstitial(object _adsPlacement);
+        void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback);
 
-        void LoadRewardBased(object _adsType);
-        bool IsReadyRewardBased(object _adsType);
-        void ShowRewardBased(object _adsType, Action<AdsResult> _callback);
+        void LoadRewardBased(object _adsPlacement);
+        bool IsReadyRewardBased(object _adsPlacement);
+        void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback);
 
-        void SetAdsSetting(object _type, int _playTimeInterval);
+        void SetAdsSetting(object _adsPlacement, int _playTimeInterval);
         void AddAdsPlatform(IAdsPlatform _platform);
-        IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction);
-        void RemoveBanner(IAdsBanner _adsType);
+        IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction);
+        void RemoveBanner(IAdsBanner _banner);
     }
 
     public interface IAdsBanner {
@@ -48,26 +48,31 @@ namespace BicUtil.Ads
         Failed
     }
 
+    public enum AdsType{
+        RewardBase,
+        Interstital,
+        Banner
+    }
 
     public class AdsPlatformInfo{
         public string PlatformId;
-        public object AdsType;
+        public object AdsPlacement;
         public object Data = null;
 
-        public AdsPlatformInfo(string _platformAdsId, object _type){
+        public AdsPlatformInfo(string _platformAdsId, object _adsPlacement){
             this.PlatformId = _platformAdsId;
-            this.AdsType = _type;
+            this.AdsPlacement = _adsPlacement;
         }
     }
 
     public class AdsInfo{
-        public object AdsType;
+        public object AdsPlacement;
         public int TimeInterval;
         public long LastPlayedAdsTime;
         public object Data = null;
 
-        public AdsInfo(object _type, int _playTimeInterval){
-            this.AdsType = _type;
+        public AdsInfo(object _adsPlacement, int _playTimeInterval){
+            this.AdsPlacement = _adsPlacement;
             this.TimeInterval = _playTimeInterval;
             this.LastPlayedAdsTime = getTimestamp();
         }
@@ -82,7 +87,7 @@ namespace BicUtil.Ads
 
         public bool IsPossiblePlay{
             get{
-                if(getTimestamp() - LastPlayedAdsTime > TimeInterval){
+                if(Mathf.Max(getTimestamp() - LastPlayedAdsTime, 0) >= TimeInterval){
                     return true;
                 }else{
                     return false;

@@ -114,23 +114,23 @@ namespace BicUtil.Ads
 			this.dataUrl = _url;
 		}
 
-		public void SetAdsSetting(string _platformId, object _type, string _prefabPath){
-			adsData[_type] = new AdsPlatformInfo(_platformId, _type);
-			adsData[_type].Data = _prefabPath;
+		public void SetAdsSetting(string _platformId, object _adsPlacement, string _prefabPath){
+			adsData[_adsPlacement] = new AdsPlatformInfo(_platformId, _adsPlacement);
+			adsData[_adsPlacement].Data = _prefabPath;
 		}
 
-        public void LoadInterstitial(object _adsType)
+        public void LoadInterstitial(object _adsPlacement)
         {
 			
 		}
 
-        public bool IsReadyInterstitial(object _adsType)
+        public bool IsReadyInterstitial(object _adsPlacement)
         {
-            return isReady(_adsType);
+            return isReady(_adsPlacement);
         }
 
-		private bool isReady(object _adsType){
-			if(adsData.ContainsKey(_adsType) == false){
+		private bool isReady(object _adsPlacement){
+			if(adsData.ContainsKey(_adsPlacement) == false){
 				return false;
 			}
 
@@ -139,7 +139,7 @@ namespace BicUtil.Ads
 				return false;
 			}
 
-			var _count = getAdsList(_adsType).Count();
+			var _count = getAdsList(_adsPlacement).Count();
 
 			if(_count > 0){
 				return true;
@@ -148,17 +148,17 @@ namespace BicUtil.Ads
 			}
 		}
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
-			showInterstitial(_adsType, _callback, 5);
+			showInterstitial(_adsPlacement, _callback, 5);
 			updateIsReadyByRandom();
         }
 
-		private void showInterstitial(object _adsType, Action<AdsResult> _callback, int _time){
-			if(adsData.ContainsKey(_adsType) == true){
-				string _prefabPath = adsData[_adsType].Data as string;
+		private void showInterstitial(object _adsPlacement, Action<AdsResult> _callback, int _time){
+			if(adsData.ContainsKey(_adsPlacement) == true){
+				string _prefabPath = adsData[_adsPlacement].Data as string;
 
-				var _ads = getHouseAds(_adsType);
+				var _ads = getHouseAds(_adsPlacement);
 
 				if(_ads != null){
 					var _interstitial = Instantiate(Resources.Load<HouseInterstitialController>(_prefabPath));
@@ -172,7 +172,7 @@ namespace BicUtil.Ads
 					_interstitial.transform.localScale = new Vector2(1f, 1f);
 					_interstitial.GetComponent<RectTransform>().offsetMin = new Vector2(0f, 0f);
 					_interstitial.GetComponent<RectTransform>().offsetMax = new Vector2(0f, 0f);
-					_interstitial.Load(_adsType, _ads, _time);
+					_interstitial.Load(_adsPlacement, _ads, _time);
 					_interstitial.Show();
 
 				}else{
@@ -183,36 +183,36 @@ namespace BicUtil.Ads
 			}
 		}
 
-        public void LoadRewardBased(object _adsType)
+        public void LoadRewardBased(object _adsPlacement)
         {
 			
         }
 
-        public bool IsReadyRewardBased(object _adsType)
+        public bool IsReadyRewardBased(object _adsPlacement)
         {
-            return isReady(_adsType);
+            return isReady(_adsPlacement);
         }
 
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
-			showInterstitial(_adsType, _callback, 20);
+			showInterstitial(_adsPlacement, _callback, 20);
 			updateIsReadyByRandom();
         }
 
 
-		public bool IsReadyBanner(object _adsType){
-			return adsData.ContainsKey(_adsType);
+		public bool IsReadyBanner(object _adsPlacement){
+			return adsData.ContainsKey(_adsPlacement);
 		}
 
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
         {
-            if(adsData.ContainsKey(_adsType) == true){
-				string _prefabPath = adsData[_adsType].Data as string;
-				var _ads = getHouseAds(_adsType);
+            if(adsData.ContainsKey(_adsPlacement) == true){
+				string _prefabPath = adsData[_adsPlacement].Data as string;
+				var _ads = getHouseAds(_adsPlacement);
 
 				if(_ads != null){
 					var _banner = Instantiate(Resources.Load<HouseBannerController>(_prefabPath));
-					_banner.Load(adsData[_adsType].AdsType.ToString(), _ads);
+					_banner.Load(adsData[_adsPlacement].AdsPlacement.ToString(), _ads);
 					_onLoadBannerAction(_banner);
 					updateIsReadyByRandom();
 					return _banner;
@@ -222,13 +222,13 @@ namespace BicUtil.Ads
 			return null;
         }
 
-		private HouseAdsModel getHouseAds(object _adsType){
-			if(adsData.ContainsKey(_adsType) == false){
+		private HouseAdsModel getHouseAds(object _adsPlacement){
+			if(adsData.ContainsKey(_adsPlacement) == false){
 				return null;
 			}
 
-			var _data = adsData[_adsType];
-			var _adsList = getAdsList(_adsType);
+			var _data = adsData[_adsPlacement];
+			var _adsList = getAdsList(_adsPlacement);
 			
 			if(_adsList.Count() <= 0){
 				return null;
@@ -248,9 +248,9 @@ namespace BicUtil.Ads
 			return _adsList.ElementAt(0);
 		}
 
-        private List<HouseAdsModel> getAdsList(object _adsType)
+        private List<HouseAdsModel> getAdsList(object _adsPlacement)
         {
-			var _id = adsData[_adsType].PlatformId;
+			var _id = adsData[_adsPlacement].PlatformId;
             return HouseAdsManager.Instance.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true)).ToList();
         }
     }
