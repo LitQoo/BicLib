@@ -101,7 +101,7 @@ namespace BicUtil.UIFlow
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
 			if (isWait.AsBool == true) {
-				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation");
+				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation, Param : " + (_parameter == null?"null":_parameter.ToString()));
 				
 				// 예약 오픈 일단 정지?
 				// if(reservationUI != null){
@@ -113,7 +113,7 @@ namespace BicUtil.UIFlow
 				return;
 			}
 
-			Debug.Log("[UIFLOW] OPEN " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
+			Debug.Log("[UIFLOW] OPEN " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() +", Param : " + (_parameter == null?"null":_parameter.ToString()) + ")");
 			
 			if (uiStack.Count > 0 && _openMode == OpenMode.Change) {
 				close (currentUiInfo.UI, _ui, CloseMode.Disable, () => {
@@ -126,7 +126,7 @@ namespace BicUtil.UIFlow
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
 			if (isWait.AsBool == true) {
-				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation");
+				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation, Param : " + (_parameter == null?"null":_parameter.ToString()));
 				return;
 			}
 
@@ -138,7 +138,7 @@ namespace BicUtil.UIFlow
 				_closeFromUI = uiStack [uiStack.Count - 2].UI;	
 			}
 
-			Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
+			Debug.Log("[UIFLOW] Back " + currentUiInfo.UI.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ", Param : " + (_parameter == null?"null":_parameter.ToString()) + ")");
 
 			close (currentUiInfo.UI, _closeFromUI, _closeMode, ()=>{
 
@@ -251,12 +251,12 @@ namespace BicUtil.UIFlow
 		
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
 			if (isWait.AsBool == true) {
-				Debug.LogWarning("[UIFLOW] Failed Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ") Wating");
+				Debug.LogWarning("[UIFLOW] Failed Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ") Wating, OpenParam : " + (_openParameter == null?"null":_openParameter.ToString()) + ",CloseParam : " + (_closeParameter == null?"null":_closeParameter.ToString()));
 				return;
 			}
 
 
-			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ")");
+			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + "), OpenParam : " + (_openParameter == null?"null":_openParameter.ToString()) + ",CloseParam : " + (_closeParameter == null?"null":_closeParameter.ToString()));
 			
 			if (uiStack.Count > 0 && uiStack[uiStack.Count - 1].UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;
