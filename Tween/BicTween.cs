@@ -228,8 +228,26 @@ namespace BicUtil.Tween
 			return MoveLocal(_object, _from, _to, _time, _pool);
 		}
 
+		public static TweenModel MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null){
+			var _time = Mathf.Min(Vector3.Distance(_from, _to) / _distancePerSecond, _maxTime);
+			return MoveLocal(_object, _from, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null){
+			return MoveLocalWithSpeedAndMaxTime(_object, _object.transform.localPosition, _to, _distancePerSecond, _maxTime, _pool);
+		}
+
 		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
 			return MoveLocalWithSpeed(_object, _object.transform.localPosition, _to, _distancePerSecond, _pool);
+		}
+
+		public static TweenModel MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null){
+			var _time = Mathf.Min(Vector3.Distance(_from, _to) / _distancePerSecond, _maxTime);
+			return MoveWorld(_object, _from, _to, _time, _pool);
+		}
+
+		public static TweenModel MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null){
+			return MoveWorldWithSpeedAndMaxTime(_object, _object.transform.position, _to, _distancePerSecond, _maxTime, _pool);
 		}
 
 		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null){
