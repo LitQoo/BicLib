@@ -62,7 +62,7 @@ namespace BicUtil.Ads
         }
 
         private bool isPossiblePlayAds(object _adsPlacement){
-            if(getTimestamp() - adsData[_adsPlacement].LastPlayedAdsTime > adsData[_adsPlacement].TimeInterval){
+            if(getTimestamp() - adsData[_adsPlacement].LastPlayedAdsTime > adsData[_adsPlacement].TimeInterval.AsInt){
                 return true;
             }else{
                 return false;
@@ -82,6 +82,10 @@ namespace BicUtil.Ads
         #endregion
 
         public void SetAdsSetting(object _adsPlacement, int _playTimeInterval){
+            adsData[_adsPlacement] = new AdsInfo(_adsPlacement, new IntVariable(_playTimeInterval));
+        }
+
+        public void SetAdsSetting(object _adsPlacement, IVariable _playTimeInterval){
             adsData[_adsPlacement] = new AdsInfo(_adsPlacement, _playTimeInterval);
         }
 

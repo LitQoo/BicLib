@@ -1,4 +1,5 @@
 using System;
+using BicDB.Variable;
 using UnityEngine;
 
 namespace BicUtil.Ads
@@ -67,11 +68,11 @@ namespace BicUtil.Ads
 
     public class AdsInfo{
         public object AdsPlacement;
-        public int TimeInterval;
+        public IVariable TimeInterval;
         public long LastPlayedAdsTime;
         public object Data = null;
 
-        public AdsInfo(object _adsPlacement, int _playTimeInterval){
+        public AdsInfo(object _adsPlacement, IVariable _playTimeInterval){
             this.AdsPlacement = _adsPlacement;
             this.TimeInterval = _playTimeInterval;
             this.LastPlayedAdsTime = getTimestamp();
@@ -87,7 +88,7 @@ namespace BicUtil.Ads
 
         public bool IsPossiblePlay{
             get{
-                if(Mathf.Max(getTimestamp() - LastPlayedAdsTime, 0) >= TimeInterval){
+                if(Mathf.Max(getTimestamp() - LastPlayedAdsTime, 0) >= TimeInterval.AsInt){
                     return true;
                 }else{
                     return false;
