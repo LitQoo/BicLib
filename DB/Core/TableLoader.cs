@@ -53,7 +53,7 @@ namespace BicDB.Core
                 _loadData.Table.Load(_result=>{
                     if(_result.Code != 0){
                         tableList.Add(_loadData);
-                        errorMasssage = _loadData.Table.Name + "/" + leftCount.ToString() + "/" + _result.Message;
+                        errorMasssage += _loadData.Table.Name + "/" + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
                     }else{
                         if(_loadData.SuccessCallback != null){
                             _loadData.SuccessCallback();
