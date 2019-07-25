@@ -16,6 +16,10 @@ namespace BicDB.Core
         }
 
         public void AddTable(TableLoadData _data){
+            if(_data.Table == null){
+                return;
+            }
+            
             tableList.Insert(0, _data);
         }
 
