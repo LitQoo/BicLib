@@ -283,12 +283,13 @@ namespace BicUtil.Tween
 		private int sequanceIndex = 0;
 		private void updateForSequance(){
 			
-			if(Data == null){
+			if(Rate == 0f){
 				setValuesByFunc();
-
 				if(OnStartCallback != null){
 					OnStartCallback();
 				}
+
+				Rate = 0.5f;
 
 				var _childList = GetChildList();
 				Data = _childList;
@@ -305,6 +306,7 @@ namespace BicUtil.Tween
 			
 			if(_list.Count <= sequanceIndex){
 				if(RepeatCount == CurrentRepeatCount){		
+					Rate = 1f;
 					complete();
 					Data = null;
 				}else{
@@ -330,12 +332,14 @@ namespace BicUtil.Tween
 		}
 
 		private void updateForSpawn(){
-			if(Data == null){
+			if(Rate == 0f){
 				setValuesByFunc();
 
 				if(OnStartCallback != null){
 					OnStartCallback();
 				}
+
+				Rate = 0.5f;
 
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
@@ -349,6 +353,7 @@ namespace BicUtil.Tween
 			
 			if(_list.Count == 0){
 				if(RepeatCount == CurrentRepeatCount){	
+					Rate = 1f;
 					complete();
 					Data = null;
 				}else{
@@ -494,14 +499,14 @@ namespace BicUtil.Tween
 		}
 
 		public void Skip(int _id){
-			if(_id != this.Id || this.IsDestroyed == true){
+			if(_id != this.Id || this.IsDestroyed == true || Rate == 1f){
 				return;
 			}
 
 			
 
 			if(IsGrouped == true){
-				if(this.Data == null && OnStartCallback != null){
+				if(this.Rate == 0f && OnStartCallback != null){
 					OnStartCallback();
 				}
 
@@ -514,6 +519,7 @@ namespace BicUtil.Tween
 					OnRepeatCallback(this, this.RepeatCount);
 				}
 
+				Rate = 1f;
 				complete();
 			}else{
 				if(Rate == 0f){
