@@ -223,9 +223,11 @@ namespace BicDB.Storage
 					Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
 					#endif
 
-					string _path = PlayerPrefs.GetString(TableService.TABLENAME);
-					if(_path != string.Empty){
-						_data = FileStorage.ReadByPath(_path, _encryptKey);
+					if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
+						string _path = PlayerPrefs.GetString(TableService.TABLENAME);
+						if(_path != string.Empty){
+							_data = FileStorage.ReadByPath(_path, _encryptKey);
+						}
 					}
 				}else{
 					#if UNITY_EDITOR
