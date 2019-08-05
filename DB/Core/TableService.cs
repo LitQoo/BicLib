@@ -15,6 +15,7 @@ namespace BicDB.Core
         private const string PROP_FIELD_SESSION_COUNT = "initCount";
         private const string PROP_FIELD_USER_ID = "userId";
         private const string PROP_FIELD_VERSION = "version";
+        private const string PROP_FIELD_INSTALL_VERSION = "installVersion";
         private const string PROP_FIELD_IS_SETUP = "isSetup";
         #region Const
         static public readonly string TABLENAME = "BICSYSTEM";
@@ -136,6 +137,7 @@ namespace BicDB.Core
                 tableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
                 tableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
                 tableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
+                tableInfo.Property.Add(PROP_FIELD_INSTALL_VERSION, new StringVariable(currentVersion));
                 tableInfo.Save(_tableInfoSaveResult=>{
                     if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                         if(onSetup != null){
