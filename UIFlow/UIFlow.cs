@@ -121,6 +121,7 @@ namespace BicUtil.UIFlow
 				}, _parameter, false);
 			} else {
 				open (_ui, _openMode, _parameter);
+				finishWait();
 			}
 		}
 
@@ -171,6 +172,10 @@ namespace BicUtil.UIFlow
 			if(onFinishedChangeUIOnceCallback != null){
 				onFinishedChangeUIOnceCallback();
 				onFinishedChangeUIOnceCallback = null;
+			}
+
+			if(OnFinishChangeUI != null){
+				OnFinishChangeUI();
 			}
 
 			if(reservationUI != null){
@@ -282,10 +287,6 @@ namespace BicUtil.UIFlow
 			};
 
 			Action _finishFunc = () => {
-				if(OnFinishChangeUI != null){
-					OnFinishChangeUI();
-				}
-
 				if(_closeUI != null){
 					_closeUI();	
 				}
