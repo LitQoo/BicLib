@@ -1,5 +1,6 @@
 
 using System;
+using UnityEngine;
 
 namespace BicUtil.Ads{
 
@@ -19,7 +20,7 @@ namespace BicUtil.Ads{
             return false;
         }
 
-        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
         {
             return null;
         }

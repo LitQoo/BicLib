@@ -35,7 +35,7 @@ namespace BicUtil.Ads
             return _ads != null;
         }
 
-        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
         {
             var _ads = selectedAds[_adsPlacement];
             
@@ -51,7 +51,7 @@ namespace BicUtil.Ads
                 var _nextOnLoadBannerAction = _onLoadBannerAction;
                 BicTween.Delay(BannerReloadTime).SetTargetObject(_banner.gameObject).SubscribeComplete(()=>{
                     _banner.Destroy();
-                    AdsManager.Instance.CreateBanner(_nextAdsPlacement, _nextOnLoadBannerAction);
+                    AdsManager.Instance.CreateBanner(_nextAdsPlacement, _backColor, _nextOnLoadBannerAction);
                 });
                 return _banner;
             }

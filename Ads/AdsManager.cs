@@ -274,12 +274,12 @@ namespace BicUtil.Ads
 
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
-        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadAction){
+        public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadAction){
 
             for(int i = 0; i < adsPlatforms.Count; i++)
             {
                 if(adsPlatforms[i].IsReadyBanner(_adsPlacement) == true){
-                    var _banner = createBanner(_adsPlacement, _onLoadAction, adsPlatforms[i]);
+                    var _banner = createBanner(_adsPlacement, _onLoadAction, adsPlatforms[i], _backColor);
                     if(_banner != null){
 
                         increaseCount(AdsStat.BANNER, AdsResult.Finished);
@@ -289,7 +289,7 @@ namespace BicUtil.Ads
             }
 
             if (defaultAdsData.ContainsKey(_adsPlacement) == true){
-                var _banner = createBanner(_adsPlacement, _onLoadAction, defaultAdsData[_adsPlacement], true);
+                var _banner = createBanner(_adsPlacement, _onLoadAction, defaultAdsData[_adsPlacement], _backColor, true);
                 if(_banner != null){
                     increaseCount(AdsStat.BANNER, AdsResult.Finished);
                     return _banner;
@@ -301,9 +301,9 @@ namespace BicUtil.Ads
             return new DummyBanner();
         }
 
-        private IAdsBanner createBanner(object _adsPlacement, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform, bool isForced = false)
+        private IAdsBanner createBanner(object _adsPlacement, Action<IAdsBanner> _onLoadAction, IAdsPlatform _platform, Color _backColor, bool isForced = false)
         {
-            var _banner = _platform.CreateBanner(_adsPlacement, _onLoadAction);
+            var _banner = _platform.CreateBanner(_adsPlacement, _backColor, _onLoadAction);
             if (_banner != null)
             {
                 if (bannerList.ContainsKey(_adsPlacement) == true)

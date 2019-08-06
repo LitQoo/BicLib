@@ -199,11 +199,11 @@ namespace BicUtil.Ads{
             return true;
         }
 
-        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
         {
             if(adsData.ContainsKey(_adsPlacement) == true){
                 var _banner = new AppLovinBannerController();
-                _banner.Load(adsData[_adsPlacement].PlatformId, _adsPlacement);
+                _banner.Load(adsData[_adsPlacement].PlatformId, _adsPlacement, _backColor);
                 return _banner;
             }else{
                 return null;

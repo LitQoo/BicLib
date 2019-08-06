@@ -15,10 +15,11 @@ namespace BicUtil.Ads
         #region Logic
         private object adsPlacement;
         private string unitId;
-        public void Load(string _unitId, object _adsPlacement){
+        public void Load(string _unitId, object _adsPlacement, Color _backColor){
             unitId = _unitId;
             adsPlacement = _adsPlacement;
             MaxSdk.CreateBanner(_unitId, MaxSdkBase.BannerPosition.TopCenter);
+            MaxSdk.SetBannerBackgroundColor(_unitId, _backColor);
         }
         #endregion
 

@@ -14,7 +14,7 @@ namespace BicUtil.Ads
         void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback);
         
         bool IsReadyBanner(object _adsPlacement);
-        IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction);
+        IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction);
     }
 
     public interface IAdsManager
@@ -29,7 +29,7 @@ namespace BicUtil.Ads
 
         void SetAdsSetting(object _adsPlacement, int _playTimeInterval);
         void AddAdsPlatform(IAdsPlatform _platform);
-        IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction);
+        IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction);
         void RemoveBanner(IAdsBanner _banner);
     }
 
