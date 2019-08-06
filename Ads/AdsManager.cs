@@ -155,10 +155,6 @@ namespace BicUtil.Ads
 
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
                 IsShowingInterstital = false;
-                
-                if(_adsResult != AdsResult.Failed){ 
-                    UpdateLastPlayedAdsTime(_adsPlacement);
-                } 
 
                 if(OnAfterPlayedAdsCallback != null){
                     OnAfterPlayedAdsCallback(_adsPlacement, AdsType.Interstital, _adsResult);
@@ -174,6 +170,8 @@ namespace BicUtil.Ads
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
+                
+                UpdateLastPlayedAdsTime(_adsPlacement);
 
                 adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsPlacement, _func);
                 return;
@@ -184,6 +182,8 @@ namespace BicUtil.Ads
                     if(OnBeforePlayAdsCallback != null){
                         OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                     }
+
+                    UpdateLastPlayedAdsTime(_adsPlacement);
                     
                     adsPlatforms[i].ShowInterstitial(_adsPlacement, _func);
                     return;
@@ -194,6 +194,8 @@ namespace BicUtil.Ads
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
+
+                UpdateLastPlayedAdsTime(_adsPlacement);
                 
                 defaultAdsData[_adsPlacement].ShowInterstitial(_adsPlacement, _func);
             }else{
