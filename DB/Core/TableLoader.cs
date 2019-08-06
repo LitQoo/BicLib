@@ -23,7 +23,7 @@ namespace BicDB.Core
             tableList.Insert(0, _data);
         }
 
-        public void Load(Action<Result> _callback, int _sec){
+        public void Load(Action<Result> _callback, int _waitTime){
 
             loadTables();
 
@@ -31,10 +31,11 @@ namespace BicDB.Core
                 //success
                 _callback(new Result(0, string.Empty));
             }else{
-                var _checkTween = BicTween.Interval(0.1f, _sec * 10).SetCancelObject(_cancelObject);
+                var _checkTween = BicTween.Interval(1f, _waitTime).SetCancelObject(_cancelObject);
                 _checkTween.SubscribeRepeat((_tween, _count)=>{
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry
+                        UnityEngine.Debug.Log("TableLoader Retry LoadTables, TableCount = " + tableList.Count.ToString());
                         loadTables();
                     }else if(leftCount == 0 && tableList.Count == 0){
                         //success
@@ -57,7 +58,7 @@ namespace BicDB.Core
                 _loadData.Table.Load(_result=>{
                     if(_result.Code != 0){
                         tableList.Add(_loadData);
-                        errorMasssage += _loadData.Table.Name + "/" + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
+                        errorMasssage += _loadData.Table.Name + "/ leftCount : " + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
                     }else{
                         if(_loadData.SuccessCallback != null){
                             _loadData.SuccessCallback();
