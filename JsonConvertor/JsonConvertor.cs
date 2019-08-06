@@ -202,7 +202,8 @@ namespace BicUtil.Json
 
 		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find {");
+				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
+				throw new SystemException("fail find { at BuildTableContainer");
 			}
 
 
@@ -350,7 +351,8 @@ namespace BicUtil.Json
 
         public void BuildDataStoreContainer<T>(IDataStoreContainer<T> _table, ref string _json, ref int _counter,  IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find {");
+				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
+				throw new SystemException("fail find { BuildDataStoreContainer");
 			}
 
 
@@ -631,7 +633,8 @@ namespace BicUtil.Json
 
 		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find { at ");
+				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
+				throw new SystemException("fail find { at BuildDictionaryContainer");
 			}
 
 			_dictionary.Clear();
@@ -673,7 +676,8 @@ namespace BicUtil.Json
 
 		public void BuildMutableDictionaryContainer(IMutableDictionaryContainer _dictionary, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				throw new SystemException("fail find { at ");
+				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
+				throw new SystemException("fail find { BuildMutableDictionaryContainer");
 			}
 
 			_dictionary.Clear();
@@ -712,6 +716,7 @@ namespace BicUtil.Json
 
 		public void BuildModelContainer(IRecordContainer _model, ref string _json, ref int _counter){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
+				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
 				throw new SystemException("fail find { at BuildModelContainer");
 			}
 
