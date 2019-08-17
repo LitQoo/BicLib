@@ -34,7 +34,11 @@ namespace BicUtil.UIFlow
 
 		public IUIFlowObject CurrentUI{
 			get{
-				return this.currentUiInfo.UI;
+				try{
+					return this.currentUiInfo.UI;
+				}catch{
+					return null;
+				}
 			}
 		}
 		#endregion
