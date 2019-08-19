@@ -174,7 +174,7 @@ namespace BicDB.Storage
 				_data = getFileDataWithPathList(_table.Name, _encryptKey);
 			}catch(SystemException _e){
 				Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
-				
+
 				if (_callback != null)
 				{
 					_callback(new Result((int)ResultCode.FileStream, GetPath(_filename), _hashCode));
@@ -221,21 +221,19 @@ namespace BicDB.Storage
             if (_data == null || _data == string.Empty)
             {
 				if(_tableName == TableService.TABLENAME){
-					#if UNITY_EDITOR
 					Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
-					#endif
-
+					
 					if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
 						string _path = PlayerPrefs.GetString(TableService.TABLENAME);
+						Debug.Log("PlayerPrefs table path = " + _path);
+						
 						if(_path != string.Empty){
 							_data = FileStorage.ReadByPath(_path, _encryptKey);
 						}
 					}
 				}else{
-					#if UNITY_EDITOR
 					Debug.Log("[BicDB] path by bicsystem.path");
-					#endif
-
+					
 					var _tableInfo = TableService.GetTableInfo(_tableName, false);
 					if (_tableInfo != null)
 					{
