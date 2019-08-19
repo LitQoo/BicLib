@@ -130,14 +130,14 @@ namespace BicDB.Core
             }
 
             if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
-                tableInfo.Property.Add(PROP_FIELD_USER_ID, new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString()));
+                tableInfo.Property[PROP_FIELD_USER_ID] = new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString());
             }
 
             if(!tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
-                tableInfo.Property.Add(PROP_FIELD_IS_SETUP, new BoolVariable(true));
-                tableInfo.Property.Add(PROP_FIELD_SESSION_COUNT, new IntVariable(1));
-                tableInfo.Property.Add(PROP_FIELD_VERSION, new StringVariable(currentVersion));
-                tableInfo.Property.Add(PROP_FIELD_INSTALL_VERSION, new StringVariable(currentVersion));
+                tableInfo.Property[PROP_FIELD_IS_SETUP] = new BoolVariable(true);
+                tableInfo.Property[PROP_FIELD_SESSION_COUNT] = new IntVariable(1);
+                tableInfo.Property[PROP_FIELD_VERSION] = new StringVariable(currentVersion);
+                tableInfo.Property[PROP_FIELD_INSTALL_VERSION] = new StringVariable(currentVersion);
                 tableInfo.Save(_tableInfoSaveResult=>{
                     if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
                         if(onSetup != null){

@@ -59,6 +59,13 @@ namespace BicDB.Core
                     if(_result.Code != 0){
                         tableList.Add(_loadData);
                         errorMasssage += _loadData.Table.Name + "/ leftCount : " + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
+                        
+                        try{
+                            var _string = FileStorage.ReadByPath(_loadData.Table.Name, FileStorage.GetInstance().GetEncryptKey(_loadData.Table.Name));
+                            errorMasssage += "/filestring : " + _string + "/";
+                        }catch(SystemException _e){
+                            errorMasssage += "/error readbypath " + _e.ToString() + "/";
+                        }
                     }else{
                         if(_loadData.SuccessCallback != null){
                             _loadData.SuccessCallback();

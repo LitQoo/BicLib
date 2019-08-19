@@ -94,7 +94,7 @@ namespace BicDB.Storage
 			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
 			int _hashCode = _json.GetHashCode();
 			var _encryptKey = encryptKey;
-			var _fileName = getFileName(_table.Name);
+			var _fileName = GetFileName(_table.Name);
 
 			if(_json == string.Empty){
 				if (_callback != null) {
@@ -164,7 +164,7 @@ namespace BicDB.Storage
             Debug.Log("[FileStorage] load " + _table.Name + "/" + _encryptKey);
 #endif
 
-            var _filename = getFileName(_table.Name);
+            var _filename = GetFileName(_table.Name);
             int _hashCode = 0;
             int _counter = 0;
 
@@ -172,7 +172,9 @@ namespace BicDB.Storage
 			
 			try{
 				_data = getFileDataWithPathList(_table.Name, _encryptKey);
-			}catch{
+			}catch(SystemException _e){
+				Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
+				
 				if (_callback != null)
 				{
 					_callback(new Result((int)ResultCode.FileStream, GetPath(_filename), _hashCode));
@@ -212,7 +214,7 @@ namespace BicDB.Storage
 
         private string getFileDataWithPathList(string _tableName, string _encryptKey)
         {
-			var _filename = getFileName(_tableName);
+			var _filename = GetFileName(_tableName);
 			
             string _data = FileStorage.ReadByPath(GetPath(_filename), _encryptKey);
 
@@ -253,7 +255,7 @@ namespace BicDB.Storage
             return _data;
         }
 
-        private string getFileName(string _tableName){
+        static public string GetFileName(string _tableName){
 			return FILE_NAME_PREFIX + _tableName;
 		}
 		#endregion
@@ -289,6 +291,10 @@ namespace BicDB.Storage
 			throw new System.Exception ("webbuild do not save to file");
 
 			#endif
+		}
+
+		static public string ReadByTableName(string _tableName, string _key){
+			return ReadByPath(GetPath(GetFileName(_tableName)), _key);
 		}
 
         static public string ReadByPath(string _path, string _key){
