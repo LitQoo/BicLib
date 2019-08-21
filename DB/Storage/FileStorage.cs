@@ -190,7 +190,7 @@ namespace BicDB.Storage
 
             var _result = new Result((int)ResultCode.Success, GetPath(_filename), _hashCode);
 
-            if (!string.IsNullOrEmpty(_data))
+            if (!string.IsNullOrEmpty(_data) && _data.Length > 10)
             {
                 try
                 {
