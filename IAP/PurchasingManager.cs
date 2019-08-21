@@ -192,6 +192,7 @@ namespace BicUtil.Purchasing{
 		
 		public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
 		{
+			Dictionary<string, string> _introductoryInfo = extensions.GetExtension<IAppleExtensions>().GetIntroductoryPriceDictionary();
 			// Purchasing has succeeded initializing. Collect our Purchasing references.
 			// Overall Purchasing system, configured with products for this application.
 			m_StoreController = controller;
@@ -205,6 +206,17 @@ namespace BicUtil.Purchasing{
 					_model.PriceString.AsString = _product.metadata.localizedPriceString;
 					_model.Price.AsFloat = (float)_product.metadata.localizedPrice;
 					_model.Title.AsString = _product.metadata.localizedTitle;
+
+					if(_model.ProductType.AsEnum == ProductType.Subscription){
+						string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
+						var _subscriptionManager = new SubscriptionManager(_product, _introJson);
+						var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
+						if(_subscriptionInfo.isSubscribed() != UnityEngine.Purchasing.Result.True || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
+							_model.PurchaseCount.AsInt = 0;
+						}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
+							_model.PurchaseCount.AsInt = 1;
+						}
+					}
 				}
 				
 				try{
@@ -260,7 +272,9 @@ namespace BicUtil.Purchasing{
             else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
             {
                 _productInfo.PurchaseCount.AsInt = 1;
-            }
+            }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
+				_productInfo.PurchaseCount.AsInt = 1;
+			}
 
 			productTable.Save();
         }
@@ -277,6 +291,10 @@ namespace BicUtil.Purchasing{
                 _productInfo.PurchaseCount.AsInt -= 1;
             }
             else if (_productInfo.ProductType.AsEnum == ProductType.NonConsumable)
+            {
+                _productInfo.PurchaseCount.AsInt = 0;
+            }
+            else if (_productInfo.ProductType.AsEnum == ProductType.Subscription)
             {
                 _productInfo.PurchaseCount.AsInt = 0;
             }
