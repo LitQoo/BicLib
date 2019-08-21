@@ -248,30 +248,6 @@ namespace BicUtil.TableView
             }
         }
 
-        public void test(float _scroll, float _offset){
-            var rect = m_scrollRect.transform.Find("Content").GetComponentInChildren<RectTransform>();
-            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, _scroll);
-            m_requiresRefresh = true;
-            return;
-            if (this.isEmpty) {
-                return;
-            }
-
-            _scroll = Mathf.Clamp(_scroll, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
-            if (m_scrollDistance != _scroll) {
-                m_scrollDistance = _scroll;
-                m_requiresRefresh = true;
-
-                float relativeScroll = _scroll / this.scrollableDistance;
-
-                if(m_isVertical) {
-                    m_scrollRect.verticalNormalizedPosition = 1 - relativeScroll;
-                } else {
-                    m_scrollRect.horizontalNormalizedPosition = relativeScroll;
-                }
-            }
-        }
-
         /// <summary>
         /// Get the y that the table would need to scroll to to have a certain row at the top
         /// </summary>
@@ -477,7 +453,7 @@ namespace BicUtil.TableView
 		bool isControlled = false;
 		private void isControlledTrue(){
 			isControlled = true;
-            scrollTweenCancelObject.Cancel();
+            scrollTracker.Cancel();
 		}
 
 		private void isControlledFalse(){
@@ -504,7 +480,7 @@ namespace BicUtil.TableView
 			lastScrollDistance = scrollDistance;
 		}
 
-        private TweenCancelObject scrollTweenCancelObject = new TweenCancelObject();
+        private TweenTracker scrollTracker = new TweenTracker();
 		private void magnetControl(float _gap){
              if(m_isVertical == true){
                     throw new System.NotImplementedException("not support magnet control for vertical table");
@@ -520,7 +496,7 @@ namespace BicUtil.TableView
                     var _speed = Mathf.Abs(_targetGap) / 100f;
                     BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
                         scrollDistance = _value.x;
-                    }).SetCancelObject(scrollTweenCancelObject);
+                    }).SetTracker(scrollTracker);
                     break;
                 }
 			}

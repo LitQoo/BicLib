@@ -81,7 +81,7 @@ namespace BicUtil.Purchasing{
 				buyCallback = null;
 			}
 			return;
-			#endif
+			#else
 
 			// If the stores throw an unexpected exception, use try..catch to protect my logic here.
 			try
@@ -114,7 +114,7 @@ namespace BicUtil.Purchasing{
 				}
 			}
 			// Complete the unexpected exception handling ...
-			catch (Exception e)
+			catch (Exception)
 			{
 				// ... by reporting any unexpected exception for later diagnosis.
 				if(buyCallback != null){
@@ -122,6 +122,7 @@ namespace BicUtil.Purchasing{
 					buyCallback = null;
 				}
 			}
+			#endif
 		}
 
 		// 애플로 출시할때는 이 코드를 추가해야하나봄??? 
@@ -230,7 +231,7 @@ namespace BicUtil.Purchasing{
 							}
 						}
 					}
-				}catch(Exception e){
+				}catch(Exception){
 					Debug.Log("not support product " + _product.definition.id);
 				}
 			}

@@ -536,13 +536,24 @@ namespace BicUtil.Tween
 			}
 		}
 
+		[Obsolete("Use Tracker")]
 		public TweenCancelObject CancelObject{
 			get{return new TweenCancelObject(this);}
 		}
 
+		[Obsolete("Use SetTracker")]
 		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
 			_cancelObject.SetTween(this);
 
+			return this;
+		}
+
+		public TweenTracker Tracker{
+			get{return new TweenTracker(this);}
+		}
+
+		public TweenModel SetTracker(TweenTracker _tracker){
+			_tracker.SetTween(this);
 			return this;
 		}
 

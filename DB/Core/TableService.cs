@@ -110,7 +110,7 @@ namespace BicDB.Core
 
             try{
                 currentVersion = Application.version;
-            }catch(System.MissingMethodException _e){
+            }catch(System.MissingMethodException){
                 currentVersion = "0";
             }
             

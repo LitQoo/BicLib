@@ -52,7 +52,7 @@ namespace BicUtil.ServerTime
                     // Exit the loop
                     break;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     /* Do Nothing...try the next server */
                 }

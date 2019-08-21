@@ -49,7 +49,8 @@ namespace BicUtil.Tween
 			timeline.onTimelineGUI = drawNods;
 			timeline.onPlay = preview;
 			timeline.onRecord = record;
-            SceneView.onSceneGUIDelegate += this.OnSceneGUI;
+            SceneView.duringSceneGui += this.OnSceneGUI;
+			
             selectedTweens.Clear();
             selectedGroupIndex = -1;
 			if(selectedGameObject == null){
@@ -60,7 +61,7 @@ namespace BicUtil.Tween
 
 		private void OnDisable()
 		{
-            SceneView.onSceneGUIDelegate -= this.OnSceneGUI;
+            SceneView.duringSceneGui -= this.OnSceneGUI;
 			EditorApplication.update -= EditorUpdate;
 			EditorApplication.update -= BicTween.UpdateDeltaTime;
 		}

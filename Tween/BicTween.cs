@@ -620,8 +620,13 @@ namespace BicUtil.Tween
 			return new MultiTween();
 		}
 
+		[Obsolete]
 		public static TweenCancelObject CancelObject(TweenModel _tween){
 			return new TweenCancelObject(_tween);
+		}
+
+		public static TweenTracker Tracker(TweenModel _tween){
+			return new TweenTracker(_tween);
 		}
 
 		public static void Cancel(GameObject _targetObject, TweenPool _pool = null){
@@ -862,8 +867,9 @@ namespace BicUtil.Tween
 	// // 		return _result;
 	// // 	}
 	// }
-
-	public class TweenCancelObject{
+	
+	
+	public class TweenTracker{
 		public TweenModel Tween = null;
 		public int Id = -1;
 
@@ -885,7 +891,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public TweenCancelObject(TweenModel _tween = null){
+		public TweenTracker(TweenModel _tween = null){
 			SetTween(_tween);
 		}
 
@@ -922,5 +928,11 @@ namespace BicUtil.Tween
 		}
 	}
 
-
+	[Obsolete]
+	public class TweenCancelObject : TweenTracker{
+		public TweenCancelObject(TweenModel _tween = null) : base(_tween){
+			
+		}
+	}
 }
+
