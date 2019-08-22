@@ -201,22 +201,19 @@ namespace BicUtil.Json
 		#region StringParser
 
 		public void BuildTableContainer<T>(ITableContainer<T> _table, ref string _json, ref int _counter, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
+			int _logCount = _counter;
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
-				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
+				Debug.Log("_counter = " + _counter.ToString() + "/ scount = " + _logCount.ToString() + "/ jsonLen = " + _json.Length.ToString() + " / json = " + _json);
+				Debug.Log("_json = " + _json.Substring(0, 100));
 				throw new SystemException("fail find { at BuildTableContainer");
 			}
-
-
-
 
 			string _dataFieldName = OPTION_DATA_FIELD_NAME_DEFAULT;
 			if (_option != null && _option.ContainsKey(OPTION_DATA_FIELD_NAME)) {
 				_dataFieldName = _option[OPTION_DATA_FIELD_NAME].AsVariable.AsString;
 			}
 
-
 			_counter++;
-
 
 			while(_counter < _json.Length){
 				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
