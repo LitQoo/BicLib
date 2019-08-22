@@ -15,10 +15,11 @@ namespace BicUtil.ServerTime
         NtpClient ntpClient = new NtpClient();
         
         public void Sync(){
-            Debug.Log("Sync ticks");
             if(isConnecting == true){
                 return;
             }
+
+            Debug.Log("Sync ticks");
 
             isAvailable = false;
             isConnecting = true;
