@@ -65,12 +65,13 @@ namespace BicDB.Core
                 return 0;
             }
 
-            if(tableInfo.Property.ContainsKey(PROP_FIELD_SESSION_COUNT) == false){
+            if(hasProperty(PROP_FIELD_SESSION_COUNT) == false){
                 return 0;
             }
             
-            return tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt;
+            return getIntProperty(PROP_FIELD_SESSION_COUNT);
         ;}} 
+
         static public string UserId{
             get{
                 Init();
@@ -79,11 +80,11 @@ namespace BicDB.Core
                     return "0";
                 }
 
-                if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
+                if(hasProperty(PROP_FIELD_USER_ID) == false){
                     return "0";
                 }
 
-                return tableInfo.Property[PROP_FIELD_USER_ID].AsVariable.AsString;
+                return getStringProperty(PROP_FIELD_USER_ID);
             }
         }
 
@@ -123,47 +124,102 @@ namespace BicDB.Core
             _loader.Load(_callback, 3);
         }
 
-        private static void setupSysTable()
+        private static void setStringProperty(string _key, string _value){
+            tableInfo.Property[_key] = new StringVariable(_value);
+            PlayerPrefs.SetString(_key, _value);
+        }
+
+        private static void setIntProperty(string _key, int _value){
+            tableInfo.Property[_key] = new IntVariable(_value);
+            PlayerPrefs.SetInt(_key, _value);
+        }
+
+        private static bool hasProperty(string _key){
+            if(tableInfo.Property.ContainsKey(_key) == false){
+                if(PlayerPrefs.HasKey(_key) == false){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static string getStringProperty(string _key){
+            try{
+                return tableInfo.Property[_key].AsVariable.AsString;
+            }catch{
+                return PlayerPrefs.GetString(_key);
+            }
+        }
+
+        private static int getIntProperty(string _key){
+            try{
+                return tableInfo.Property[_key].AsVariable.AsInt;
+            }catch{
+                return PlayerPrefs.GetInt(_key);
+            } 
+        }
+
+        private static void increaseProperty(string _key){
+            var _value = getIntProperty(_key);
+            _value++;
+
+            setIntProperty(_key, _value);
+        }
+
+        private static void saveProperty(Action<Result> _callback = null){
+            tableInfo.Save(_callback);
+            PlayerPrefs.Save();
+        }
+
+        private static bool setupSysTable(Result _result)
         {
-            if(tableInfo.Property.ContainsKey(PROP_FIELD_VERSION)){
-                lastVersion = tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString;
-            }
+            //if(_result.IsSuccess == true){
+                if(hasProperty(PROP_FIELD_VERSION)){
+                    lastVersion = getStringProperty(PROP_FIELD_VERSION);
+                }
 
-            if(tableInfo.Property.ContainsKey(PROP_FIELD_USER_ID) == false){
-                tableInfo.Property[PROP_FIELD_USER_ID] = new StringVariable(UnityEngine.Random.Range(0, int.MaxValue).ToString());
-            }
+                if(hasProperty(PROP_FIELD_USER_ID) == false){
+                    setStringProperty(PROP_FIELD_USER_ID, UnityEngine.Random.Range(0, int.MaxValue).ToString());
+                }
 
-            if(!tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP)){
-                tableInfo.Property[PROP_FIELD_IS_SETUP] = new BoolVariable(true);
-                tableInfo.Property[PROP_FIELD_SESSION_COUNT] = new IntVariable(1);
-                tableInfo.Property[PROP_FIELD_VERSION] = new StringVariable(currentVersion);
-                tableInfo.Property[PROP_FIELD_INSTALL_VERSION] = new StringVariable(currentVersion);
-                tableInfo.Save(_tableInfoSaveResult=>{
-                    if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
-                        if(onSetup != null){
-                            onSetup();
+                if(!hasProperty(PROP_FIELD_IS_SETUP)){
+                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    setStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
+                    setIntProperty(PROP_FIELD_SESSION_COUNT, 1);
+                    setStringProperty(PROP_FIELD_IS_SETUP, "true");
+
+                    saveProperty(_tableInfoSaveResult=>{
+                        if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
+                            if(onSetup != null){
+                                onSetup();
+                            }
+
+                            isSetup = true;
                         }
+                    });
+                }else if(currentVersion != lastVersion){
+                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    increaseProperty(PROP_FIELD_SESSION_COUNT);
+                    
+                    saveProperty(_tableInfoSaveResult=>{
+                        if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
+                            if(onUpdate != null){
+                                onUpdate(lastVersion, currentVersion);
+                            }
 
-                        isSetup = true;
-                    }
-                });
-            }else if(currentVersion != lastVersion){
-                tableInfo.Property[PROP_FIELD_VERSION].AsVariable.AsString = currentVersion;
-                tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                tableInfo.Save(_tableInfoSaveResult=>{
-                    if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
-                         if(onUpdate != null){
-                            onUpdate(lastVersion, currentVersion);
+                            isUpdate = true;
                         }
+                    });
 
-                        isUpdate = true;
-                    }
-                });
+                }else{
+                    increaseProperty(PROP_FIELD_SESSION_COUNT);
+                    saveProperty();
+                }
+           // }
 
-            }else{
-                tableInfo.Property[PROP_FIELD_SESSION_COUNT].AsVariable.AsInt++;
-                tableInfo.Save();
-            }
+            return true;
         }
 
         static public TableModel GetTableInfo(string _tableName, bool _createIfNotExsit = false){
@@ -180,7 +236,7 @@ namespace BicDB.Core
 
         static public bool HasProperty(string _key){
             Init();
-            return tableInfo.Property.ContainsKey(_key);
+            return hasProperty(_key);
         }
 
         static public void RemoveProperty(string _key){
@@ -188,23 +244,56 @@ namespace BicDB.Core
             tableInfo.Property.Remove(_key);
         }
 
+        static public string GetStringProperty(string _key, string _default){
+            if(hasProperty(_key) == false){
+                setStringProperty(_key, _default);
+                return _default;
+            }
+
+            return getStringProperty(_key);
+        }
+
+        static public int GetIntProperty(string _key, int _default){
+            if(hasProperty(_key) == false){
+                setIntProperty(_key, _default);
+                return _default;
+            }
+
+            return getIntProperty(_key);
+        }
+
         static public IVariable GetProperty(string _key, IVariable _defaultVariable){
             Init();
             
-            if(tableInfo.Property.ContainsKey(_key) == false){
+            if(hasProperty(_key) == false){
                 if(_defaultVariable != null){
-                    tableInfo.Property.Add(_key, _defaultVariable);
-                    tableInfo.Save();
+                    setStringProperty(_key, _defaultVariable.AsString);
+                    saveProperty();
                 }else{
                     return null;
                 }
             }
-
-            return tableInfo.Property[_key].AsVariable;
+            try{
+                return tableInfo.Property[_key].AsVariable;
+            }catch{
+                return new StringVariable(PlayerPrefs.GetString(_key));
+            }
         }
 
         static public void Save(){
             tableInfo.Save();
+        }
+
+        static public void BackupProperties(){
+            try{
+                PlayerPrefs.SetInt(PROP_FIELD_SESSION_COUNT, getIntProperty(PROP_FIELD_SESSION_COUNT));
+                PlayerPrefs.SetString(PROP_FIELD_USER_ID, getStringProperty(PROP_FIELD_USER_ID));
+                PlayerPrefs.SetString(PROP_FIELD_VERSION, getStringProperty(PROP_FIELD_VERSION));
+                PlayerPrefs.SetString(PROP_FIELD_INSTALL_VERSION, getStringProperty(PROP_FIELD_INSTALL_VERSION));
+                PlayerPrefs.SetString(PROP_FIELD_IS_SETUP, getStringProperty(PROP_FIELD_IS_SETUP));
+            }catch{
+
+            }
         }
         #endregion
 

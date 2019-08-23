@@ -10,9 +10,9 @@ namespace BicDB.Core
         private List<TableLoadData> tableList = new List<TableLoadData>();
         private TweenTracker loadTracker = new TweenTracker();
 
-        public void AddTable(ITableStorageSuppoter _table, ITableStorage _storage, object _param, Action _successCallback = null){
+        public void AddTable(ITableStorageSuppoter _table, ITableStorage _storage, object _param, Func<Result, bool> _passCallback = null){
             _table.SetStorage(_storage);
-            tableList.Insert(0, new TableLoadData(_table, _param, _successCallback));
+            tableList.Insert(0, new TableLoadData(_table, _param, _passCallback));
         }
 
         public void AddTable(TableLoadData _data){
@@ -56,7 +56,15 @@ namespace BicDB.Core
                 var _loadData = tableList[i];
                 tableList.RemoveAt(i);
                 _loadData.Table.Load(_result=>{
-                    if(_result.Code != 0){
+                    
+                    bool _isPass = false;
+                    if(_loadData.PassCallback == null && _result.Code == 0){
+                        _isPass = true;
+                    }else if(_loadData.PassCallback != null){
+                        _isPass = _loadData.PassCallback(_result);
+                    }
+                    
+                    if(_isPass == false){
                         tableList.Add(_loadData);
                         errorMasssage += _loadData.Table.Name + "/ leftCount : " + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
                         
@@ -65,10 +73,6 @@ namespace BicDB.Core
                             errorMasssage += "/filestring : " + _string + "/";
                         }catch(SystemException _e){
                             errorMasssage += "/error readbypath " + _e.ToString() + "/";
-                        }
-                    }else{
-                        if(_loadData.SuccessCallback != null){
-                            _loadData.SuccessCallback();
                         }
                     }
 
@@ -83,12 +87,12 @@ namespace BicDB.Core
     public struct TableLoadData{
         public ITableStorageSuppoter Table;
         public object Parameter;
-        public Action SuccessCallback;
+        public Func<Result, bool> PassCallback;
 
-        public TableLoadData(ITableStorageSuppoter _table, object _param, Action _successCallback = null){
+        public TableLoadData(ITableStorageSuppoter _table, object _param, Func<Result, bool> _passCallback = null){
             this.Table = _table;
             this.Parameter = _param;
-            this.SuccessCallback = _successCallback;
+            this.PassCallback = _passCallback;
         }
     }
 }

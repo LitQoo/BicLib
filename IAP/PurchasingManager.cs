@@ -385,8 +385,13 @@ namespace BicUtil.Purchasing{
 
 		public TableLoadData GetTableLoadData(){
 			this.productTable.SetStorage(FileStorage.GetInstance());
-			return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), ()=>{
-				isLoad = true;
+			return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), _result=>{
+				if(_result.IsSuccess == true){
+					isLoad = true;
+					return true;
+				}else{
+					return false;
+				}
 			});
 		}
     }
