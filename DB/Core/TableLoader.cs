@@ -85,7 +85,7 @@ namespace BicDB.Core
         public object Parameter;
         public Action SuccessCallback;
 
-        public TableLoadData(ITableStorageSuppoter _table, object _param, Action _successCallback){
+        public TableLoadData(ITableStorageSuppoter _table, object _param, Action _successCallback = null){
             this.Table = _table;
             this.Parameter = _param;
             this.SuccessCallback = _successCallback;
