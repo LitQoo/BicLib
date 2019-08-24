@@ -4,6 +4,7 @@ using UnityEngine;
 using BicUtil.SingletonBase;
 using System;
 using BicUtil.Tween;
+using BicUtil.Ads;
 
 namespace BicUtil.ServerTime
 {
@@ -74,7 +75,9 @@ namespace BicUtil.ServerTime
         private void OnApplicationPause(bool pauseStatus) {
             // server time 다시 동기화 할것. (마지막 로컬 타임과 1시간 이상 차이 날 경우)
             if(pauseStatus == false && isConnecting == false){
-                Sync();
+                if(AdsManager.Instance.IsShowingAds == false){
+                    Sync();
+                }
             }
         }
 
