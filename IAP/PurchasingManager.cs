@@ -211,29 +211,32 @@ namespace BicUtil.Purchasing{
 					_model.Price.AsFloat = (float)_product.metadata.localizedPrice;
 					_model.Title.AsString = _product.metadata.localizedTitle;
 					
-					//FIXME: completePurcahse 로 위치 옮겨야 할듯? 영수증 확인을 안하고 이음.
-					#if !UNITY_EDITOR
 					if(_model.ProductType.AsEnum == ProductType.Subscription){
-						try{
-							var _result = checkRecipt(_product.definition.id, _product.receipt);
-							if(_result == PurchasingResult.Complete){
-								string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
-								var _subscriptionManager = new SubscriptionManager(_product, _introJson);
-								var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
-								
-								if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.False || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
-									_model.PurchaseCount.AsInt = 0;
-								}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
-									_model.PurchaseCount.AsInt = 1;
-									SubscriptionInfo = _subscriptionInfo;
-									IsSubscribed.AsBool = true;
-								}
-							}
-						}catch(Exception){
-							_model.PurchaseCount.AsInt = 0;
+					#if UNITY_EDITOR
+						if(_model.PurchaseCount.AsInt > 0){
+							IsSubscribed.AsBool = true;
 						}
+					#else
+					try{
+						var _result = checkRecipt(_product.definition.id, _product.receipt);
+						if(_result == PurchasingResult.Complete){
+							string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
+							var _subscriptionManager = new SubscriptionManager(_product, _introJson);
+							var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
+							
+							if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.False || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
+								_model.PurchaseCount.AsInt = 0;
+							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
+								_model.PurchaseCount.AsInt = 1;
+								SubscriptionInfo = _subscriptionInfo;
+								IsSubscribed.AsBool = true;
+							}
+						}
+					}catch(Exception){
+						_model.PurchaseCount.AsInt = 0;
 					}
 					#endif
+					}
 				}
 				
 				// try{
