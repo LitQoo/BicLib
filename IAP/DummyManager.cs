@@ -22,6 +22,8 @@ namespace BicUtil.Purchasing{
             }
         } 
 
+        private BoolVariable isSubscribed = new BoolVariable(false);
+        public BoolVariable IsSubscribed{get{return isSubscribed;}}
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
         public bool isLoadedProductTable = false;
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback)

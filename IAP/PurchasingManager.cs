@@ -16,6 +16,9 @@ using BicDB.Core;
 namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
+		public SubscriptionInfo SubscriptionInfo = null;
+		private BoolVariable isSubscribed = new BoolVariable(false);
+		public BoolVariable IsSubscribed{get{return isSubscribed;}}
 		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
 			if(isLoad == false){
@@ -207,33 +210,47 @@ namespace BicUtil.Purchasing{
 					_model.PriceString.AsString = _product.metadata.localizedPriceString;
 					_model.Price.AsFloat = (float)_product.metadata.localizedPrice;
 					_model.Title.AsString = _product.metadata.localizedTitle;
-
+					
+					//FIXME: completePurcahse 로 위치 옮겨야 할듯? 영수증 확인을 안하고 이음.
+					#if !UNITY_EDITOR
 					if(_model.ProductType.AsEnum == ProductType.Subscription){
-						string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
-						var _subscriptionManager = new SubscriptionManager(_product, _introJson);
-						var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
-						if(_subscriptionInfo.isSubscribed() != UnityEngine.Purchasing.Result.True || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
-							_model.PurchaseCount.AsInt = 0;
-						}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
-							_model.PurchaseCount.AsInt = 1;
-						}
-					}
-				}
-				
-				try{
-					if(_product.hasReceipt){
-						if(buyCallback != null){
+						try{
 							var _result = checkRecipt(_product.definition.id, _product.receipt);
 							if(_result == PurchasingResult.Complete){
-								completePurchase(_product.definition.id);
-							}else if(_result == PurchasingResult.Refunded){
-								completeRefund(_product.definition.id);
+								string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
+								var _subscriptionManager = new SubscriptionManager(_product, _introJson);
+								var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
+								
+								if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.False || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
+									_model.PurchaseCount.AsInt = 0;
+								}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
+									_model.PurchaseCount.AsInt = 1;
+									SubscriptionInfo = _subscriptionInfo;
+									IsSubscribed.AsBool = true;
+								}
 							}
+						}catch(Exception){
+							_model.PurchaseCount.AsInt = 0;
 						}
 					}
-				}catch(Exception){
-					Debug.Log("not support product " + _product.definition.id);
+					#endif
 				}
+				
+				// try{
+				// 	if(_product.hasReceipt){
+				// 		//FIXME: 여긴 절대 실행되지 않는 구간인듯?
+				// 		if(buyCallback != null){
+				// 			var _result = checkRecipt(_product.definition.id, _product.receipt);
+				// 			if(_result == PurchasingResult.Complete){
+				// 				completePurchase(_product.definition.id);
+				// 			}else if(_result == PurchasingResult.Refunded){
+				// 				completeRefund(_product.definition.id);
+				// 			}
+				// 		}
+				// 	}
+				// }catch(Exception){
+				// 	Debug.Log("not support product " + _product.definition.id);
+				// }
 			}
 		}
 		
@@ -251,6 +268,7 @@ namespace BicUtil.Purchasing{
 			if(_result == PurchasingResult.Complete)
 			{
 				completePurchase(args.purchasedProduct.definition.id);
+
 			}else if(_result == PurchasingResult.Refunded){
 				completeRefund(args.purchasedProduct.definition.id);
 			}
@@ -275,7 +293,10 @@ namespace BicUtil.Purchasing{
                 _productInfo.PurchaseCount.AsInt = 1;
             }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
 				_productInfo.PurchaseCount.AsInt = 1;
+				IsSubscribed.AsBool = true;
 			}
+
+
 
 			productTable.Save();
         }
@@ -394,6 +415,26 @@ namespace BicUtil.Purchasing{
 				}
 			});
 		}
+
+		public void CheckIfSubscriptionIsActive(){
+			ConfigurationBuilder builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+			// Get a reference to IAppleConfiguration during IAP initialization.
+			IAppleConfiguration appleConfig = builder.Configure<IAppleConfiguration>();
+			if (!string.IsNullOrEmpty (appleConfig.appReceipt)) {
+				Debug.Log (appleConfig.appReceipt);
+	//            InstantiateDebugText (DebugInfoPanel, "APP Receipt Base64 " + appleConfig.appReceipt);
+				var receiptData = System.Convert.FromBase64String (appleConfig.appReceipt);
+	//            InstantiateDebugText (DebugInfoPanel, "receipt Data "+ receiptData);
+				AppleReceipt receipt = new AppleValidator (AppleTangle.Data ()).Validate (receiptData);
+				foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
+					Debug.Log ("PRODUCTID: " + productReceipt.productID);
+					Debug.Log ("PURCHASE DATE: " + productReceipt.purchaseDate);
+					Debug.Log ("EXPIRATION DATE: " + productReceipt.subscriptionExpirationDate);
+					Debug.Log ("CANCELDATE DATE: " + productReceipt.cancellationDate);
+					
+				}
+			}
+        }
     }
 }
 #endif
