@@ -62,10 +62,10 @@ namespace BicUtil.MVCSystem
 
 		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
-				_variable.OnChangedValueActions -= _func;
+				_variable.Unsubscribe(_func);
 			});
 
-			_variable.OnChangedValueActions += _func;
+			_variable.Subscribe(_func);
 
 			if (_needFirstCall == true) {
 				_func (_variable);
@@ -90,10 +90,10 @@ namespace BicUtil.MVCSystem
 			};
 			
 			bindRemoverList.Add (()=>{
-				_variable.OnChangedValueActions -= _func;
+				_variable.Unsubscribe(_func);
 			});
 
-			_variable.OnChangedValueActions += _func;
+			_variable.Subscribe(_func);
 
 			if(_needFirstCall == true){
 				_text.text = _variable.AsString;
@@ -106,10 +106,10 @@ namespace BicUtil.MVCSystem
 			};
 
 			bindRemoverList.Add (()=>{
-				_variable.OnChangedValueActions -= _func;
+				_variable.Unsubscribe(_func);
 			});
 
-			_variable.OnChangedValueActions += _func;
+			_variable.Subscribe(_func);
 
 			if(_needFirstCall == true){
 				_text.text = string.Format(_format, _variable.AsString);

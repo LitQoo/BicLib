@@ -52,6 +52,21 @@ namespace BicUtil.InfinityNumber
             OnChangedValueActions (this as IVariable);
         }
 
+        public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
+            OnChangedValueActions += _callback;
+            if(_needFirstCall == true){
+                OnChangedValueActions(this as IVariable);
+            }
+        }
+
+        public void Unsubscribe(Action<IVariable> _callback){
+            OnChangedValueActions -= _callback;
+        }
+
+        public void UnsubscribeAll(){
+            OnChangedValueActions = delegate{};
+        }
+
         public bool IsEqual(IVariable _variable){
             return VariableUtil.IsEqual(this as IVariable, _variable);
         }

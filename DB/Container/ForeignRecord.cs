@@ -16,8 +16,7 @@ namespace BicDB.Container
 			targetFieldName = _findFieldName;
 			findVariable = _findVariable;
 
-			findVariable.OnChangedValueActions += findRecord;
-			findRecord(findVariable);
+			findVariable.Subscribe(findRecord, true);
 		}
 
 		T Record{

@@ -114,11 +114,11 @@ namespace BicDB.Variable
 			IVariable _var = new  EnumVariable<TestEnum> (TestEnum.three);
 			int _changeValue = 1;
 
-			_var.OnChangedValueActions += (IVariable _changer) => {
+			_var.Subscribe((IVariable _changer) => {
 				if(_changer.AsFloat != _changeValue){
 					Assert.Fail();
 				}
-			};
+			});
 
 			_var.AsInt = _changeValue;
 

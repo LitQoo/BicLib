@@ -41,8 +41,7 @@ namespace BicUtil.Purchasing{
 			_product.Id.AsString = _id;
 
 			if(_valueChangedCallback != null){
-				_product.PurchaseCount.OnChangedValueActions += _valueChangedCallback;
-				_product.PurchaseCount.NotifyChanged();
+				_product.PurchaseCount.Subscribe(_valueChangedCallback, true);
 			}
 		}
 

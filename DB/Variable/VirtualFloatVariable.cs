@@ -27,7 +27,7 @@ namespace BicDB.Variable
 		}
 
 		public new void ClearNotifyAndBinding(){
-			base.ClearNotifyAndBinding ();
+			base.UnsubscribeAll();
 			Getter = null;
 			Setter = null;
 		}

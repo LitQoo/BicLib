@@ -7,8 +7,12 @@ namespace BicDB.Variable
 {
 
 	public interface IVariable : IDataBase, IBindRmover{
+		[Obsolete("use Subscribe")]
 		event Action<IVariable> OnChangedValueActions;
 
+		void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false);
+		void Unsubscribe(Action<IVariable> _callback);
+		void UnsubscribeAll();
 		void NotifyChanged();
 		void NotifyChanged(IVariable _value);
 
@@ -29,22 +33,49 @@ namespace BicDB.Variable
 	}
 
 	public class VariableBase{
-		public event Action<IVariable> OnChangedValueActions = delegate{};
+		[Obsolete("use Subscribe")]
+		public event Action<IVariable> OnChangedValueActions{
+			add{
+				onChangedValueActions += value;
+			}
+
+			remove{
+				onChangedValueActions -= value;
+			}
+		}
+		
+		private event Action<IVariable> onChangedValueActions = delegate{};
+
+		public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
+			onChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				onChangedValueActions(this as IVariable);
+			}
+		}
+		
+		public void Unsubscribe(Action<IVariable> _callback){
+			onChangedValueActions -= _callback;
+		}
+
+		public void UnsubscribeAll(){
+			onChangedValueActions = delegate{};
+		}
 
 		public void NotifyChanged(){
-			OnChangedValueActions (this as IVariable);
+			onChangedValueActions (this as IVariable);
 		}
 
 		public void NotifyChanged(IVariable _value){
-			OnChangedValueActions (this as IVariable);
+			onChangedValueActions (this as IVariable);
 		}
 
 		public bool IsEqual(IVariable _variable){
 			return VariableUtil.IsEqual(this as IVariable, _variable);
 		}
 
+		[Obsolete("use UnsubscribeALL")]
 		public void ClearNotifyAndBinding(){
-			OnChangedValueActions = delegate{};
+			onChangedValueActions = delegate{};
 		}
 	}
 
@@ -97,24 +128,24 @@ namespace BicDB.Variable
 		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable>[] _callback){
 			if (_member != null) {
 				for (int i = 0; i < _callback.Length; i++) {
-					_member.OnChangedValueActions -= _callback[i];
+					_member.Unsubscribe(_callback[i]);
 				}
 			}
 
 			_member = _value;
 			for (int i = 0; i < _callback.Length; i++) {
-				_member.OnChangedValueActions += _callback[i];
+				_member.Subscribe(_callback[i]);
 			}
 			_member.NotifyChanged();
 		}
 
 		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable> _callback){
 			if (_member != null) {
-				_member.OnChangedValueActions -= _callback;
+				_member.Unsubscribe(_callback);
 			}
 
 			_member = _value;
-			_member.OnChangedValueActions += _callback;
+			_member.Subscribe(_callback);
 			_member.NotifyChanged();
 		}
 

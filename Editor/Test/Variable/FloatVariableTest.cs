@@ -80,11 +80,11 @@ namespace BicDB.Variable
 			FloatVariable _var = new FloatVariable (3845.2f);
 			float _changeValue = 222;
 
-			_var.OnChangedValueActions += (IVariable _changer) => {
+			_var.Subscribe((IVariable _changer) => {
 				if(_changer.AsFloat != _changeValue){
 					Assert.Fail();
 				}
-			};
+			});
 
 			_var.AsFloat = _changeValue;
 

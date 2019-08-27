@@ -102,11 +102,14 @@ namespace BicDB.Core
                 return;
             }
 
+            #if UNITY_EDITOR
+            TableService.Load(_result=>{});
+            #endif
             throw new SystemException("TableService Not Load");
 
         }
 
-        static public void LoadData(Action<Result> _callback){
+        static public void Load(Action<Result> _callback){
             isInit = true;
 
             try{
