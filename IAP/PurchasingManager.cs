@@ -17,8 +17,8 @@ namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public SubscriptionInfo SubscriptionInfo = null;
-		private EnumVariable<SubscriptionState> isSubscribed = new EnumVariable<SubscriptionState>(Purchasing.SubscriptionState.Inactive);
-		public EnumVariable<SubscriptionState> SubscriptionState{get{return isSubscribed;}}
+		private EnumVariable<SubscriptionStateType> isSubscribed = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
+		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return isSubscribed;}}
 		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
 			if(isLoad == false){
@@ -200,7 +200,9 @@ namespace BicUtil.Purchasing{
 			m_StoreController = controller;
 			// Store specific subsystem, for accessing device-specific store features.
 			m_StoreExtensionProvider = extensions;
-
+			
+			SubscriptionState.AsEnum = SubscriptionStateType.Inactive;
+			
 			foreach(var _product in m_StoreController.products.all){
 				var _model = this.productTable.FirstOrDefault(_row=>_row.Id.AsString == _product.definition.id);
 				if(_model != null){
@@ -212,7 +214,7 @@ namespace BicUtil.Purchasing{
 					if(_model.ProductType.AsEnum == ProductType.Subscription){
 					#if UNITY_EDITOR
 						if(_model.PurchaseCount.AsInt > 0){
-                            SubscriptionState.AsEnum = Purchasing.SubscriptionState.Active;
+                            SubscriptionState.AsEnum = Purchasing.SubscriptionStateType.Active;
 						}
 					#else
 					try{
@@ -278,7 +280,7 @@ namespace BicUtil.Purchasing{
                 _productInfo.PurchaseCount.AsInt = 1;
             }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
 				_productInfo.PurchaseCount.AsInt = 1;
-                SubscriptionState.AsEnum = Purchasing.SubscriptionState.Active;
+                SubscriptionState.AsEnum = Purchasing.SubscriptionStateType.Active;
 			}
 
 
@@ -404,11 +406,11 @@ namespace BicUtil.Purchasing{
 
         private void checkSubscribeMaybe()
         {
-			this.isSubscribed.AsEnum = Purchasing.SubscriptionState.Inactive;
+			this.isSubscribed.AsEnum = Purchasing.SubscriptionStateType.Inactive;
             for(int i = 0; i < this.productTable.Count; i++){
 				var _product = this.productTable[i];
 				if(_product.ProductType.AsEnum == ProductType.Subscription && _product.PurchaseCount.AsInt > 0){
-					this.isSubscribed.AsEnum = Purchasing.SubscriptionState.Perhaps;
+					this.isSubscribed.AsEnum = Purchasing.SubscriptionStateType.Perhaps;
 				}
 			}
         }
@@ -434,7 +436,7 @@ namespace BicUtil.Purchasing{
         }
     }
 
-	public enum SubscriptionState{
+	public enum SubscriptionStateType{
 		Inactive,
 		Perhaps,
 		Active
