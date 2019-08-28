@@ -17,8 +17,8 @@ namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public SubscriptionInfo SubscriptionInfo = null;
-		private BoolVariable isSubscribed = new BoolVariable(false);
-		public BoolVariable IsSubscribed{get{return isSubscribed;}}
+		private EnumVariable<SubscriptionState> isSubscribed = new EnumVariable<SubscriptionState>(Purchasing.SubscriptionState.Inactive);
+		public EnumVariable<SubscriptionState> SubscriptionState{get{return isSubscribed;}}
 		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
 			if(isLoad == false){
@@ -62,7 +62,6 @@ namespace BicUtil.Purchasing{
 			// Create a builder, first passing in a suite of Unity provided stores.
 			var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
-			
 			foreach(var _product in productTable){
 				builder.AddProduct(_product.Id.AsString, _product.ProductType.AsEnum, _product.StoreIds);
 			}
@@ -213,7 +212,7 @@ namespace BicUtil.Purchasing{
 					if(_model.ProductType.AsEnum == ProductType.Subscription){
 					#if UNITY_EDITOR
 						if(_model.PurchaseCount.AsInt > 0){
-							IsSubscribed.AsBool = true;
+                            SubscriptionState.AsEnum = Purchasing.SubscriptionState.Active;
 						}
 					#else
 					try{
@@ -228,7 +227,7 @@ namespace BicUtil.Purchasing{
 							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
 								_model.PurchaseCount.AsInt = 1;
 								SubscriptionInfo = _subscriptionInfo;
-								IsSubscribed.AsBool = true;
+								IsSubscribed.AsEnum = SubscriptionState.Active;
 							}
 						}
 					}catch(Exception){
@@ -237,22 +236,6 @@ namespace BicUtil.Purchasing{
 					#endif
 					}
 				}
-				
-				// try{
-				// 	if(_product.hasReceipt){
-				// 		//FIXME: 여긴 절대 실행되지 않는 구간인듯?
-				// 		if(buyCallback != null){
-				// 			var _result = checkRecipt(_product.definition.id, _product.receipt);
-				// 			if(_result == PurchasingResult.Complete){
-				// 				completePurchase(_product.definition.id);
-				// 			}else if(_result == PurchasingResult.Refunded){
-				// 				completeRefund(_product.definition.id);
-				// 			}
-				// 		}
-				// 	}
-				// }catch(Exception){
-				// 	Debug.Log("not support product " + _product.definition.id);
-				// }
 			}
 		}
 		
@@ -295,7 +278,7 @@ namespace BicUtil.Purchasing{
                 _productInfo.PurchaseCount.AsInt = 1;
             }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
 				_productInfo.PurchaseCount.AsInt = 1;
-				IsSubscribed.AsBool = true;
+                SubscriptionState.AsEnum = Purchasing.SubscriptionState.Active;
 			}
 
 
@@ -411,6 +394,7 @@ namespace BicUtil.Purchasing{
 			return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), _result=>{
 				if(_result.IsSuccess == true){
 					isLoad = true;
+					checkSubscribeMaybe();
 					return true;
 				}else{
 					return false;
@@ -418,7 +402,18 @@ namespace BicUtil.Purchasing{
 			});
 		}
 
-		public void CheckIfSubscriptionIsActive(){
+        private void checkSubscribeMaybe()
+        {
+			this.isSubscribed.AsEnum = Purchasing.SubscriptionState.Inactive;
+            for(int i = 0; i < this.productTable.Count; i++){
+				var _product = this.productTable[i];
+				if(_product.ProductType.AsEnum == ProductType.Subscription && _product.PurchaseCount.AsInt > 0){
+					this.isSubscribed.AsEnum = Purchasing.SubscriptionState.Perhaps;
+				}
+			}
+        }
+
+        public void CheckIfSubscriptionIsActive(){
 			ConfigurationBuilder builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 			// Get a reference to IAppleConfiguration during IAP initialization.
 			IAppleConfiguration appleConfig = builder.Configure<IAppleConfiguration>();
@@ -438,5 +433,11 @@ namespace BicUtil.Purchasing{
 			}
         }
     }
+
+	public enum SubscriptionState{
+		Inactive,
+		Perhaps,
+		Active
+	}
 }
 #endif

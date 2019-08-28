@@ -30,14 +30,39 @@ namespace BicDB.Variable
 		#endregion
 
 		#region IEnumVariable
-		new public event Action<IEnumVariable<T>> OnChangedValueActions = delegate{};
+		private event Action<IEnumVariable<T>> onChangedValueActions = delegate{};
+		public new event Action<IEnumVariable<T>> OnChangedValueActions {
+			add{
+				onChangedValueActions += value;
+			}
+
+			remove{
+				onChangedValueActions -= value;
+			}
+		}
+
 		public OnChangedValueToDelegator<T> OnSetValueActions{ get; set; } 
 
 		public T AsEnum{ get{ return data; } set{ data = value; NotifyChanged ();}}
 
 		public new void NotifyChanged(){
 			OnSetValueActions[data]();
-			OnChangedValueActions (this as IEnumVariable<T>);
+			onChangedValueActions (this as IEnumVariable<T>);
+		}
+
+		public void Subscribe(Action<IEnumVariable<T>> _callback, bool _needFirstCall = false){
+			onChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				onChangedValueActions(this as IEnumVariable<T>);
+			}
+		}
+
+		public void Unsubscribe(Action<IEnumVariable<T>> _callback){
+			onChangedValueActions -= _callback;
+		}
+
+		public new void UnsubscribeAll(){
+			onChangedValueActions = delegate{};
 		}
 
 		#endregion

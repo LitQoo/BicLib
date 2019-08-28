@@ -21,9 +21,9 @@ namespace BicUtil.Purchasing{
                 return instance;
             }
         } 
-
-        private BoolVariable isSubscribed = new BoolVariable(false);
-        public BoolVariable IsSubscribed{get{return isSubscribed;}}
+        
+        private EnumVariable<SubscriptionState> isSubscribed = new EnumVariable<SubscriptionState>(Purchasing.SubscriptionState.Inactive);
+        public EnumVariable<SubscriptionState> SubscriptionState{get{return isSubscribed;}}
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
         public bool isLoadedProductTable = false;
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback)
