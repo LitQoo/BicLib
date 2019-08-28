@@ -26,7 +26,10 @@ namespace BicDB.Variable
 
 	public interface IEnumVariable<T> : IVariable where  T : struct
 	{
-		new event Action<IEnumVariable<T>> OnChangedValueActions;
+		void Subscribe(Action<IEnumVariable<T>> _callback, bool _needFirstCall = false);
+		void Unsubscribe(Action<IEnumVariable<T>> _callback);
+
+		// new event Action<IEnumVariable<T>> OnChangedValueActions;
 
 		OnChangedValueToDelegator<T> OnSetValueActions{ get; set;}
 		T AsEnum{ get; set; }

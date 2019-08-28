@@ -65,23 +65,15 @@ namespace BicUtil.MVCSystem
 				_variable.Unsubscribe(_func);
 			});
 
-			_variable.Subscribe(_func);
-
-			if (_needFirstCall == true) {
-				_func (_variable);
-			}
+			_variable.Subscribe(_func, _needFirstCall);
 		}
 
 		public void BindModelToController<U> (IEnumVariable<U> _variable, Action<IEnumVariable<U>> _func, bool _needFirstCall = false) where U : struct{
             bindRemoverList.Add (()=>{
-				_variable.OnChangedValueActions -= _func;
+				_variable.Unsubscribe(_func);
 			});
 
-			_variable.OnChangedValueActions += _func;
-
-			if (_needFirstCall == true) {
-				_func (_variable);
-			}
+			_variable.Subscribe(_func, _needFirstCall);
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){

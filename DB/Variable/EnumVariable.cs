@@ -7,8 +7,6 @@ namespace BicDB.Variable
 {
 	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
 	{
-
-
 		#region AsValue
 		virtual protected T data { get; set; }
 		public int AsInt{ get{ return (int)Enum.ToObject(typeof(T), data); } set{ data = (T)Enum.ToObject(typeof(T), value); NotifyChanged ();} }
@@ -31,6 +29,7 @@ namespace BicDB.Variable
 
 		#region IEnumVariable
 		private event Action<IEnumVariable<T>> onChangedValueActions = delegate{};
+		[Obsolete("use Subscribe")]
 		public new event Action<IEnumVariable<T>> OnChangedValueActions {
 			add{
 				onChangedValueActions += value;
