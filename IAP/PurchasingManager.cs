@@ -17,8 +17,8 @@ namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public SubscriptionInfo SubscriptionInfo = null;
-		private EnumVariable<SubscriptionStateType> isSubscribed = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
-		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return isSubscribed;}}
+		private EnumVariable<SubscriptionStateType> subscriptionState = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
+		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return subscriptionState;}}
 		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
 			if(isLoad == false){
@@ -229,7 +229,7 @@ namespace BicUtil.Purchasing{
 							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
 								_model.PurchaseCount.AsInt = 1;
 								SubscriptionInfo = _subscriptionInfo;
-								IsSubscribed.AsEnum = SubscriptionState.Active;
+								SubscriptionState.AsEnum = SubscriptionStateType.Active;
 							}
 						}
 					}catch(Exception){
@@ -406,11 +406,11 @@ namespace BicUtil.Purchasing{
 
         private void checkSubscribeMaybe()
         {
-			this.isSubscribed.AsEnum = Purchasing.SubscriptionStateType.Inactive;
+			this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Inactive;
             for(int i = 0; i < this.productTable.Count; i++){
 				var _product = this.productTable[i];
 				if(_product.ProductType.AsEnum == ProductType.Subscription && _product.PurchaseCount.AsInt > 0){
-					this.isSubscribed.AsEnum = Purchasing.SubscriptionStateType.Perhaps;
+					this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Perhaps;
 				}
 			}
         }
