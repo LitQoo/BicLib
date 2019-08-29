@@ -5,12 +5,14 @@ using BicUtil.SingletonBase;
 using System;
 using BicUtil.Tween;
 using BicUtil.Ads;
+using BicDB.Variable;
+
 
 namespace BicUtil.ServerTime
 {
     public class ServerTimeManager : MonoBehaviourHardBase<ServerTimeManager>
     {
-        bool isAvailable = false;
+        BoolVariable isAvailable = new BoolVariable(false);
         bool isConnecting = false;
         long timeDiff = 0;
         NtpClient ntpClient = new NtpClient();
@@ -22,10 +24,17 @@ namespace BicUtil.ServerTime
 
             Debug.Log("Sync ticks");
 
-            isAvailable = false;
+            isAvailable.AsBool = false;
             isConnecting = true;
             timeDiff = 0;
+
+            #if UNITY_EDITOR
+            BicTween.Delay(5f).SubscribeComplete(()=>{
+                setDiff(DateTime.Now);
+            });
+            #else
             InternetTime.GetTime(setTimeByInternet);
+            #endif
         }
 
         private void setTimeByInternet(bool _isSuccess, DateTime _dateTime){
@@ -67,7 +76,7 @@ namespace BicUtil.ServerTime
 
         private void setDiff(DateTime _serverTime){
             this.timeDiff = (_serverTime.ToLocalTime().Ticks - System.DateTime.Now.ToLocalTime().Ticks) / TimeSpan.TicksPerSecond;
-            isAvailable = true;
+            isAvailable.AsBool = true;
             isConnecting = false;
             Debug.Log("Server time = " + _serverTime.ToLocalTime().ToString() + "/ Local time = " + DateTime.Now.ToString());
         }
@@ -93,7 +102,7 @@ namespace BicUtil.ServerTime
             }
         }
 
-        public bool IsAvailable{
+        public BoolVariable IsAvailable{
             get{
                 return isAvailable;
             }
