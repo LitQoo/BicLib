@@ -218,21 +218,31 @@ namespace BicUtil.Purchasing{
 						}
 					#else
 					try{
+						Debug.Log("[pixaw] checkRecipt " + _product.definition.id);
+						Debug.Log("[pixaw] before PurchaseCount = " + _model.PurchaseCount.AsString);
 						var _result = checkRecipt(_product.definition.id, _product.receipt);
 						if(_result == PurchasingResult.Complete){
+							Debug.Log("[pixaw] checkRecipt PurchasingResult.Complete");
 							string _introJson = (_introductoryInfo == null || !_introductoryInfo.ContainsKey(_product.definition.storeSpecificId)) ? null : _introductoryInfo[_product.definition.storeSpecificId];
 							var _subscriptionManager = new SubscriptionManager(_product, _introJson);
 							var _subscriptionInfo = _subscriptionManager.getSubscriptionInfo();
 							
+							Debug.Log("[pixaw] _subscriptionInfo.isSubscribed() " + _subscriptionInfo.isSubscribed().ToString());
+							Debug.Log("[pixaw] _subscriptionInfo.isExpired() " + _subscriptionInfo.isExpired().ToString());
+							Debug.Log("[pixaw] _subscriptionInfo.getExpireDate() " + _subscriptionInfo.getExpireDate().ToString());
+
 							if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.False || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
 								_model.PurchaseCount.AsInt = 0;
+								Debug.Log("[pixaw] purchasing count = 0");
 							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
 								_model.PurchaseCount.AsInt = 1;
 								SubscriptionInfo = _subscriptionInfo;
 								SubscriptionState.AsEnum = SubscriptionStateType.Active;
+								Debug.Log("[pixaw] purchasing count = 1 Active");
 							}
 						}
 					}catch(Exception){
+						Debug.Log("[pixaw] checkRecipt fail exception");
 						_model.PurchaseCount.AsInt = 0;
 					}
 					#endif
@@ -270,7 +280,8 @@ namespace BicUtil.Purchasing{
 
         private void completePurchase(string _id)
         {
-            ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
+			ProductModel<PRODUCTTYPE> _productInfo = getProduct(_id);
+			Debug.Log("[pixaw] completePurchase " + _id + " / " + _productInfo.ProductType.AsString);
             if (_productInfo.ProductType.AsEnum == ProductType.Consumable)
             {
                 _productInfo.PurchaseCount.AsInt += 1;
@@ -279,11 +290,10 @@ namespace BicUtil.Purchasing{
             {
                 _productInfo.PurchaseCount.AsInt = 1;
             }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
+				Debug.Log("[pixaw] _productInfo.PurchaseCount.AsInt = 1");
 				_productInfo.PurchaseCount.AsInt = 1;
                 SubscriptionState.AsEnum = Purchasing.SubscriptionStateType.Active;
 			}
-
-
 
 			productTable.Save();
         }
@@ -327,14 +337,14 @@ namespace BicUtil.Purchasing{
 				// On Apple stores, receipts contain multiple products.
 				var result = validator.Validate(_recipt);
 				// For informational purposes, we list the receipt(s)
-				Debug.Log("Receipt is valid. Contents:");
+				Debug.Log("[pixaw] Receipt is valid. Contents:");
 				foreach (IPurchaseReceipt productReceipt in result) {
-					Debug.Log(productReceipt.productID);
-					Debug.Log(productReceipt.purchaseDate);
-					Debug.Log(productReceipt.transactionID);
+					Debug.Log("[pixaw]" + productReceipt.productID);
+					Debug.Log("[pixaw]" + productReceipt.purchaseDate);
+					Debug.Log("[pixaw]" + productReceipt.transactionID);
 				}
 			} catch (IAPSecurityException) {
-				Debug.Log("Invalid receipt, not unlocking content");
+				Debug.Log("[pixaw] Invalid receipt, not unlocking content");
 				_isValidPurchase = false;
 			}
 			// try  
@@ -406,11 +416,18 @@ namespace BicUtil.Purchasing{
 
         private void checkSubscribeMaybe()
         {
+
+			Debug.Log("[pixaw] checkSubscribeMaybe");
+
 			this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Inactive;
             for(int i = 0; i < this.productTable.Count; i++){
 				var _product = this.productTable[i];
+				Debug.Log("[pixaw] product id = " + _product.Id.AsString);
+				Debug.Log("[pixaw] product type = " + _product.ProductType.AsString);
+				Debug.Log("[pixaw] product purchasingCount = " + _product.PurchaseCount.AsString);
 				if(_product.ProductType.AsEnum == ProductType.Subscription && _product.PurchaseCount.AsInt > 0){
 					this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Perhaps;
+					Debug.Log("[pixaw] subscriptionState is perhaps");
 				}
 			}
         }
