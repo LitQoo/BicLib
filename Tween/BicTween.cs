@@ -479,6 +479,42 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time){
+			return BicTween.Value(0f, 6f, _time).SubscribeUpdate(_value=>{
+                if(_value.x < 1){
+                    _uigraphic.color = new Color(1f, 1f - _value.x, 0f);
+                }else if(_value.x < 2){
+                    _uigraphic.color = new Color(1f, 0f, _value.x - 1f);
+                }else if(_value.x < 3){
+                    _uigraphic.color = new Color(3f - _value.x, 0f, 1f);
+                }else if(_value.x < 4){
+                    _uigraphic.color = new Color(0f, _value.x - 3f, 1f);
+                }else if(_value.x < 5){
+                    _uigraphic.color = new Color(0f, 1f, 5f - _value.x);
+                }else{
+                    _uigraphic.color = new Color(_value.x - 5f, 1f, 0f);
+                }
+            });
+		}
+
+		public static TweenModel Rainbow(SpriteRenderer _sprite, float _time){
+			return BicTween.Value(0f, 6f, _time).SubscribeUpdate(_value=>{
+                if(_value.x < 1){
+                    _sprite.color = new Color(1f, 1f - _value.x, 0f);
+                }else if(_value.x < 2){
+                    _sprite.color = new Color(1f, 0f, _value.x - 1f);
+                }else if(_value.x < 3){
+                    _sprite.color = new Color(3f - _value.x, 0f, 1f);
+                }else if(_value.x < 4){
+                    _sprite.color = new Color(0f, _value.x - 3f, 1f);
+                }else if(_value.x < 5){
+                    _sprite.color = new Color(0f, 1f, 5f - _value.x);
+                }else{
+                    _sprite.color = new Color(_value.x - 5f, 1f, 0f);
+                }
+            });
+		}
+
 		public static TweenModel Size(RectTransform _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null){
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = _object.gameObject;
