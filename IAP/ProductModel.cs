@@ -63,6 +63,7 @@ namespace BicUtil.Purchasing
             AddManagedColumn ("value", PurchaseCount);
             AddManagedColumn ("recipt", LastRecipt);
             AddManagedColumn ("reciptList", ReciptList);
+            AddManagedColumn ("type", ProductType);
         }
 
         public void AddRecipt(string _recipt){
