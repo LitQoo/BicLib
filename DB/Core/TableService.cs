@@ -177,6 +177,8 @@ namespace BicDB.Core
 
         private static bool setupSysTable(Result _result)
         {
+                checkToSyncFileAndPrefs();
+
             //if(_result.IsSuccess == true){
                 if(hasProperty(PROP_FIELD_VERSION)){
                     lastVersion = getStringProperty(PROP_FIELD_VERSION);
@@ -223,6 +225,17 @@ namespace BicDB.Core
            // }
 
             return true;
+        }
+
+        private static void checkToSyncFileAndPrefs()
+        {
+            if(tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP) != PlayerPrefs.HasKey(PROP_FIELD_IS_SETUP)){
+                #if UNITY_EDITOR
+                Debug.LogError("[TableService] Sync warning, if you want uninstall, do Toos>Delete PlayerPrefs");
+                #else
+                Debug.LogWarning("[TableService] Sync warning tableinfo.containskey(is_setup) = " + tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP).ToString());
+                #endif
+            }
         }
 
         static public TableModel GetTableInfo(string _tableName, bool _createIfNotExsit = false){
