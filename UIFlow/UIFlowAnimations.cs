@@ -42,5 +42,10 @@ namespace BicUtil.UIFlow
 
 			return OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext;
 		}
+
+		static public TweenModel OpenScaleDown(GameObject _layer, float _startScale = 1.3f, float _animationTime = 0.15f){
+			_layer.transform.localScale = new Vector2(1.1f, 1.1f);
+			return BicTween.Scale(_layer, new Vector2(1.1f, 1.1f), Vector2.one, _animationTime);
+		}
 	}
 }
