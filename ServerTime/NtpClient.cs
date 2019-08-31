@@ -15,13 +15,15 @@ namespace BicUtil.ServerTime
         private Socket socket;
         private IPEndPoint ipEndPoint;
         private Action<bool, DateTime> callback;
+        private int timeout = 3;
 
-        public async void GetNetworkTime(string _ntpTimeServer, Action<bool, DateTime> _callback)
+        public async void GetNetworkTime(string _ntpTimeServer, int _timeout, Action<bool, DateTime> _callback)
         {
             Debug.Log("Connect to " + _ntpTimeServer);
             callback = _callback;
             //default Windows time server
             string ntpServer = _ntpTimeServer;
+            timeout = _timeout * 1000;
             
             try{
                 var addresses = await Dns.GetHostAddressesAsync(ntpServer);
@@ -46,7 +48,7 @@ namespace BicUtil.ServerTime
             if (e.SocketError == SocketError.Success)
             {
                 SocketAsyncEventArgs sArgsSend = new SocketAsyncEventArgs() { RemoteEndPoint = ipEndPoint };
-                socket.ReceiveTimeout = 3000;   
+                socket.ReceiveTimeout = timeout;   
 
                 sArgsSend.Completed += new EventHandler<SocketAsyncEventArgs>(onCompleteSend);
 

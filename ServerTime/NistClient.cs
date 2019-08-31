@@ -19,7 +19,7 @@ namespace BicUtil.ServerTime
             return new DateTime(1000, 1, 1); //to check if we have an online date or not.
         }
 
-        public async void GetNetworkTime(Action<bool, DateTime> _callback)
+        public async void GetNetworkTime(int _timeout, Action<bool, DateTime> _callback)
         {
             callback = _callback;
 
@@ -47,7 +47,7 @@ namespace BicUtil.ServerTime
                 try
                 {
                     Debug.Log("Connect " + servers[i]);
-                    date = await getDate(servers[i]);
+                    date = await getDate(servers[i], _timeout * 1000);
                     _isSuccess = true;
                     // Exit the loop
                     break;
@@ -61,9 +61,11 @@ namespace BicUtil.ServerTime
             callback(_isSuccess, date);
         }
 
-        private async Task<DateTime> getDate(string _server)
+        private async Task<DateTime> getDate(string _server, int _timeout)
         {
             var _tcpClient = new System.Net.Sockets.TcpClient();
+            _tcpClient.ReceiveTimeout = _timeout;
+            _tcpClient.SendTimeout = _timeout;
             await _tcpClient.ConnectAsync(_server, 13);
             var _stream = _tcpClient.GetStream();
         
