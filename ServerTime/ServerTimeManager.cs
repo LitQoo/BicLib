@@ -44,7 +44,7 @@ namespace BicUtil.ServerTime
                 InternetTime.GetTime(setTimeByInternet, timeout);
             });
             #else
-            InternetTime.GetTime(setTimeByInternet, internetTimeout);
+            InternetTime.GetTime(setTimeByInternet, timeout);
             #endif
         }
 
