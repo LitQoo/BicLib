@@ -284,7 +284,13 @@ namespace BicUtil.Json
 
                 for (int i = 0; i < fieldNames.Count; i++)
                 {
-					_model[fieldNames[i].AsString].BuildVariable(ref _json, ref _counter, this);
+					var _key = fieldNames[i].AsString;
+					
+					if(_model.ContainsKey(_key) == true){
+						_model[_key].BuildVariable(ref _json, ref _counter, this);
+					}else{
+						_model[_key] = BuildVariable(ref _json, ref _counter);
+					}
 
                     increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ");
                     if (_json[_counter] == ',')
