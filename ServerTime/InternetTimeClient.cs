@@ -8,11 +8,13 @@ public static class InternetTime
 {
     public static async void GetTime(Action<bool, DateTime> _callback, int _timeout = 3){
         var _pages = new string[]{
-            "https://www.google.com/robots.txt",
-            "http://www.microsoft.com/robots.txt",
-            "https://aws.amazon.com/robots.txt",
-            "https://www.tmall.com/robots.txt"
+            "http://www.microsoft.com/robots.txt"
         };
+        //     "https://www.google.com/robots.txt",
+        //     "https://www.microsoft.com/robots.txt",
+        //     "https://aws.amazon.com/robots.txt",
+        //     "https://www.tmall.com/robots.txt"
+        // };
 
         _pages.Shuffle();
 
