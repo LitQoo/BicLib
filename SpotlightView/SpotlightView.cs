@@ -35,6 +35,10 @@ namespace BicUtil
 			maskList [_maskIndex].rectTransform.localScale = new Vector2(1, 1);
 		}
 
+		public void SetEnableMask(int _number, bool _isEnabled){
+			maskList[_number].gameObject.SetActive(_isEnabled);
+		}
+
 		public void DisableAllMask(){
 			foreach (var _mask in maskList) {
 				_mask.gameObject.SetActive (false);
