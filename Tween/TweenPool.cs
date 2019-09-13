@@ -277,6 +277,7 @@ namespace BicUtil.Tween{
 						}
 					}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
 						_tween.destoryCount--;
+						_lastPlayingIndex = i;
 					}
 				}
 			}
