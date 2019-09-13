@@ -496,6 +496,7 @@ namespace BicUtil.Tween
 			}
 
 			this.Clear();
+			this.destoryCount = DESTORY_WAIT_3FRAME;
 		}
 
 		public void Skip(int _id){
