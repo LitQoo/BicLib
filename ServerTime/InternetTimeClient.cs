@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
+using BicUtil.CSharpExtensions;
 using UnityEngine;
 
 public static class InternetTime
