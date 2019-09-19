@@ -27,6 +27,10 @@ namespace BicDB.Variable
             this ["b"] = new FloatVariable (b);
 			this ["a"] = new FloatVariable (a);
 		}
+
+		public ColorVariable(Color _color) : this(_color.r, _color.g, _color.b, _color.a){
+			
+		}
 		#endregion
 
 		#region Member
