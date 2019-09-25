@@ -21,7 +21,7 @@ namespace BicUtil.CameraScaler
 		[SerializeField]
 		private HorizonalAlign horizonalAlign = HorizonalAlign.Center;
 		[SerializeField]
-		private RectTransform manageFullSizeRect;
+		private RectTransform[] manageFullSizeRect;
 		#endregion
 
 		#region LifeCycle
@@ -33,7 +33,7 @@ namespace BicUtil.CameraScaler
 
 		#region Logic
 		private void init(){
-			if(referenceTransform == manageFullSizeRect){
+			if(referenceTransform == manageFullSizeRect[0]){
 				Debug.LogWarning("[CameraScaler] Set referenceTransform != manageFullSizeRect");
 				return;
 			}
@@ -74,9 +74,11 @@ namespace BicUtil.CameraScaler
 
 				mainCamera.transform.position = new Vector3 (_xOffset, _yOffset, -10);
 
-				if(manageFullSizeRect != null){
+				if(manageFullSizeRect.Length > 0){
 					float _rate = referenceResolution.y / (float)Screen.height;
-					manageFullSizeRect.sizeDelta = new Vector2((float)Screen.safeArea.width * _rate, (float)Screen.safeArea.height * _rate) + manageFullSizeOffset;
+					for(int i = 0; i < manageFullSizeRect.Length; i++){
+						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * _rate, (float)Screen.safeArea.height * _rate) + manageFullSizeOffset;
+					}
 				}
 
 			//설정보다 길쭉할때
@@ -85,10 +87,13 @@ namespace BicUtil.CameraScaler
 				float _hSize = (float)Screen.height * _rate;
 				mainCamera.orthographicSize = _hSize / 2f;
 
-				if(manageFullSizeRect != null){
+				if(manageFullSizeRect.Length > 0){
 					var _rectRate = referenceResolution.x / (float)Screen.width;
-					manageFullSizeRect.sizeDelta = new Vector2((float)Screen.safeArea.width * _rectRate, (float)Screen.safeArea.height * _rectRate) + manageFullSizeOffset;
-					
+
+					for(int i = 0; i < manageFullSizeRect.Length; i++){
+						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * _rectRate, (float)Screen.safeArea.height * _rectRate) + manageFullSizeOffset;
+					}
+
 					float _yOffset = 0;
 					switch (verticalAlign) {
 					case VerticalAlign.Top:
@@ -119,8 +124,8 @@ namespace BicUtil.CameraScaler
 			#if UNITY_EDITOR
 			string _log = "[CameraScaler] Screen size change detected. " + Screen.safeArea.size.ToString();
 			_log += "\nmainCamera position to " + mainCamera.transform.position.ToString();
-			if(manageFullSizeRect != null){
-				_log += "\nmanageFullSizeRect to " + manageFullSizeRect.sizeDelta.ToString();
+			if(manageFullSizeRect.Length > 0){
+				_log += "\nmanageFullSizeRect to " + manageFullSizeRect[0].sizeDelta.ToString();
 				_log += "\noffset to " + manageFullSizeOffset.ToString();
 			}
 
