@@ -33,7 +33,7 @@ namespace BicUtil.CameraScaler
 
 		#region Logic
 		private void init(){
-			if(referenceTransform == manageFullSizeRect[0]){
+			if(manageFullSizeRect.Length > 0 && referenceTransform == manageFullSizeRect[0]){
 				Debug.LogWarning("[CameraScaler] Set referenceTransform != manageFullSizeRect");
 				return;
 			}
