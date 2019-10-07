@@ -29,6 +29,7 @@ namespace BicUtil.TouchNotifier
 
 		private void Update () {
 			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+			
 			if (Input.GetMouseButtonDown (0)) {
 				if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject () == false) {
 					startTouchPosition[0] = Camera.main.ScreenToWorldPoint (Input.mousePosition);
@@ -44,6 +45,32 @@ namespace BicUtil.TouchNotifier
 				Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 				if(startTouchPosition[0] != _position){
 					OnTouchMove.Invoke (startTouchPosition[0], _position, 0);
+				}
+			}
+
+			if(isTouchIn[0] == true){
+				if(Input.GetKeyDown(KeyCode.LeftControl) == true && isTouchIn[1] == false){
+					isTouchIn[1] = true;
+					startTouchPosition[1] = startTouchPosition[0] - new Vector2(100, 100);
+					OnTouchDown.Invoke (startTouchPosition[1], 1);
+				}else if(Input.GetKeyUp(KeyCode.LeftControl) == true && isTouchIn[1] == true){
+					isTouchIn[1] = false;
+					OnTouchUp.Invoke (startTouchPosition[1], startTouchPosition[1], 1);
+				}else if(isTouchIn[1] == true){
+					OnTouchMove.Invoke (startTouchPosition[1], startTouchPosition[1], 1);
+				}
+
+				if(Input.GetKeyDown(KeyCode.LeftShift) == true && isTouchIn[2] == false){
+					isTouchIn[2] = true;
+					startTouchPosition[2] = startTouchPosition[0] - new Vector2(50, 50);
+					OnTouchDown.Invoke (startTouchPosition[2], 1);
+				}else if(Input.GetKeyUp(KeyCode.LeftShift) == true && isTouchIn[2] == true){
+					isTouchIn[2] = false;
+					var _position = (Vector2)Camera.main.ScreenToWorldPoint (Input.mousePosition) - new Vector2(50, 50);
+					OnTouchUp.Invoke (startTouchPosition[2], _position, 1);
+				}else if(isTouchIn[2] == true){
+					var _position = (Vector2)Camera.main.ScreenToWorldPoint (Input.mousePosition) - new Vector2(50, 50);
+					OnTouchMove.Invoke (startTouchPosition[2], _position, 1);
 				}
 			}
 
@@ -84,6 +111,20 @@ namespace BicUtil.TouchNotifier
 
 		public bool IsIn(RectTransform _rectTransform, Vector2 _worldPosition){
 			return UnityEngine.RectTransformUtility.RectangleContainsScreenPoint(_rectTransform, _worldPosition);
+		}
+
+		public Vector2 GetTouch(int _touchIndex){
+			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+			Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+			return _position;
+			#else
+			try{
+				var _touch = Input.GetTouch(_touchIndex);
+				return Camera.main.ScreenToWorldPoint (_touch.position);
+			}catch{
+				return startTouchPosition[_touchIndex];
+			}
+			#endif
 		}
 		#endregion
 	}
