@@ -285,6 +285,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		//FIXME: FromLast시리즈 제거하고 그냥 MoveLocal 상대좌표이동 시리즈 내용을 수정하기 or 이건 유지하고 MoveLocal 상대좌표이동 시리즈 제거
 		public static TweenModel MoveLocalXWithSpeedFromLast(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null){
 			TweenModel _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
@@ -306,10 +307,28 @@ namespace BicUtil.Tween
 			TweenModel _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			var __to = _to;
+			//FIXME: LateSetValueFunc 제거하고 SubscribeStart 로 대체 가능 할 듯?
 			_tween.LateSetValueFunc = (_t)=>{
 				_tween.OriginValue = _object.transform.localPosition;
-				_tween.DiffValue = new Vector3(_to - _tween.OriginValue.x, 0f, 0f);
+				_tween.DiffValue = new Vector3(__to - _tween.OriginValue.x, 0f, 0f);
 			};
+			_tween.Time = _time;
+			_tween.Type = TweenType.MoveLocal;
+			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
+
+			return _tween;
+		}
+
+
+		public static TweenModel MoveLocalYFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null){
+
+			TweenModel _tween = CreateModel(_pool);
+			_tween.TargetObject = _object;
+			var __to = _to;
+			_tween.SubscribeStart(()=>{
+				_tween.OriginValue = _object.transform.localPosition;
+				_tween.DiffValue = new Vector3(0f, __to - _tween.OriginValue.y, 0f);
+			});
 			_tween.Time = _time;
 			_tween.Type = TweenType.MoveLocal;
 			_tween.UpdateFunc = UpdateFuncs.MoveLocal;
@@ -810,6 +829,18 @@ namespace BicUtil.Tween
 		
 		public void StartSequance(int _tag = 0){
 			addGroupTween(BicTween.Sequance());
+		}
+
+		public void Sequance(Action _sequance){
+			this.StartSequance();
+			_sequance();
+			this.EndSequance();
+		}
+
+		public void Spawn(Action _spawn){
+			this.StartSpwan();
+			_spawn();
+			this.EndSpawn();
 		}
 
 		public void EndSequance(int _tag = 0){
