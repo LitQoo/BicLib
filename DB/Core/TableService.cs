@@ -231,7 +231,7 @@ namespace BicDB.Core
         {
             if(tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP) != PlayerPrefs.HasKey(PROP_FIELD_IS_SETUP)){
                 #if UNITY_EDITOR
-                Debug.LogError("[TableService] Sync warning, if you want uninstall, do Toos>Delete PlayerPrefs");
+                Debug.LogError("[TableService] Sync warning, if you want uninstall, do Edit > Clear All PlayerPrefs");
                 #else
                 Debug.LogWarning("[TableService] Sync warning tableinfo.containskey(is_setup) = " + tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP).ToString());
                 #endif
