@@ -12,6 +12,8 @@ namespace BicUtil.ClassInitializer
 
 		#region LinkingObject
 		[SerializeField]
+		private Transform initObjectParent;
+		[SerializeField]
 		private List<ClassInitializerObjectInfo> initObjects;
 		private bool isDeinitialize = false;
 		#endregion
@@ -35,6 +37,18 @@ namespace BicUtil.ClassInitializer
 		#region logic
 		private void initialize(){
 			ClassInitializer.Instance = this;
+
+			if(initObjectParent != null){
+				var _initCount = initObjects.Count;
+				for(int i = 0; i < initObjectParent.childCount; i++){
+					var _child = initObjectParent.GetChild(i);
+					var _isExists = initObjects.Exists(_row=>_row.Target == _child.gameObject);
+					if(_isExists == false){
+						initObjects.Add(new ClassInitializerObjectInfo(_child.gameObject, _initCount + i));
+					}
+				}
+			}
+
 			var _orderedList = initObjects.OrderBy (_object => _object.Order);
 
 			foreach (var _item in _orderedList) {
@@ -77,5 +91,10 @@ namespace BicUtil.ClassInitializer
 	public class ClassInitializerObjectInfo{
 		public GameObject Target;
 		public int Order;
+
+		public ClassInitializerObjectInfo(GameObject _target, int _order){
+			this.Target = _target;
+			this.Order = _order;
+		}
 	}
 }

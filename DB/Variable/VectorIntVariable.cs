@@ -11,6 +11,17 @@ namespace BicDB.Variable
 	{
 		#region Event
 		public event Action<VectorIntVariable> OnChangedValueActions;
+
+		public void Subscribe(Action<VectorIntVariable> _callback, bool _needFirstCall = false){
+			OnChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				OnChangedValueActions(this);
+			}
+		}
+
+		public void Unsubscribe(Action<VectorIntVariable> _callback){
+			OnChangedValueActions -= _callback;
+		}
 		#endregion
 
 		#region LifeCycle

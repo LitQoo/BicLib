@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 namespace BicUtil.Tween
 {
+	//FIXME: rename tweenmodel -> tween
     [Serializable]
 	public class TweenModel : IEaseData, IUpdateData{       
 		#region Static
