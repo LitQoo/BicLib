@@ -260,8 +260,10 @@ namespace BicUtil.Purchasing{
 		
 		public void OnInitializeFailed(InitializationFailureReason error)
 		{
-			//FIXME: event 심기
-			//Analytics.Event("IAP Fail", new Dictionary<string, object>{{"reason", error}} );
+			BicUtil.Analytics.Analytics.Instance.Event("IAP_Init_Fail", new Dictionary<string, object>{
+				{"reason", error.ToString()}
+			});
+
 			// Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
 			Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
 		}
@@ -304,6 +306,13 @@ namespace BicUtil.Purchasing{
 			}
 
 			productTable.Save();
+
+			BicUtil.Analytics.Analytics.Instance.Event("IAP_Success", new Dictionary<string, object>{
+				{"id", _id},
+				{"currency", _productInfo.CurrencyCode.AsString},
+				{"revenue", _productInfo.Price.AsFloat},
+				{"title", _productInfo.Title.AsString}
+			});
         }
 
 		public void Save(Action<BicDB.Result> _callback = null, object _parameter = null){
@@ -325,6 +334,11 @@ namespace BicUtil.Purchasing{
             {
                 _productInfo.PurchaseCount.AsInt = 0;
             }
+
+
+			BicUtil.Analytics.Analytics.Instance.Event("IAP_Refund", new Dictionary<string, object>{
+				{"id", _id}
+			});
 
 			productTable.Save();
         }
@@ -400,13 +414,12 @@ namespace BicUtil.Purchasing{
 		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 		{
 			var _product = getProduct(product.definition.id);
+
+			BicUtil.Analytics.Analytics.Instance.Event("IAP_Fail", new Dictionary<string, object>{
+				{"reason", failureReason.ToString()},
+				{"id", product.definition.storeSpecificId}
+			});
 			
-
-
-			//FIXME: 이벤트 심고 failreason 정확히 전달하기
-			//Analytics.Event("IAP Fail", new Dictionary<string, object>{{"reason", error}} );
-
-			//BicUtil.Analytics.Analytics.Event("");
 			if(buyCallback != null){
 				buyCallback(PurchasingResult.Failed);
 				buyCallback = null;

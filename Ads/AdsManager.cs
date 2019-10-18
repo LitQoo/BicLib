@@ -10,7 +10,6 @@ namespace BicUtil.Ads
 {
     public class AdsManager : BicUtil.SingletonBase.SingletonBase<AdsManager>, IAdsManager
     {
-
         #region InstantData
         private Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
         private Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();

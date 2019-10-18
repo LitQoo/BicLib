@@ -16,11 +16,12 @@ namespace BicUtil.Core{
             new DefineData("Ads", "UnityAds", false, "BICUTIL_UNITYADS2"),
             new DefineData("Ads", "AppLovin", false, "BICUTIL_APPLOVIN"),
             new DefineData("Ads", "Admob", false, "BICUTIL_ADMOB"),
+            
+            new DefineData("BicTween", "UnityAnimation", false, "BICUTIL_UNITY_ANIMATOR"),
+            new DefineData("BicTween", "Spine", false, "BICUTIL_SPINE"),
 
             new DefineData("ETC", "Unity WWW", false, "BICUTIL_WWW"),
-            new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP"),
-            new DefineData("ETC", "UnityAnimation", false, "BICUTIL_UNITY_ANIMATOR"),
-            new DefineData("ETC", "Spine", false, "BICUTIL_SPINE")
+            new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP")
         };
 
         Vector2 scroll = new Vector2(0, 0);
