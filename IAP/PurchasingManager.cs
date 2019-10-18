@@ -12,6 +12,7 @@ using BicDB.Storage;
 using BicDB.Variable;
 using BicDB;
 using BicDB.Core;
+using BicUtil.Analytics;
 
 namespace BicUtil.Purchasing{
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct {
@@ -259,6 +260,8 @@ namespace BicUtil.Purchasing{
 		
 		public void OnInitializeFailed(InitializationFailureReason error)
 		{
+			//FIXME: event 심기
+			//Analytics.Event("IAP Fail", new Dictionary<string, object>{{"reason", error}} );
 			// Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
 			Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
 		}
@@ -398,6 +401,12 @@ namespace BicUtil.Purchasing{
 		{
 			var _product = getProduct(product.definition.id);
 			
+
+
+			//FIXME: 이벤트 심고 failreason 정확히 전달하기
+			//Analytics.Event("IAP Fail", new Dictionary<string, object>{{"reason", error}} );
+
+			//BicUtil.Analytics.Analytics.Event("");
 			if(buyCallback != null){
 				buyCallback(PurchasingResult.Failed);
 				buyCallback = null;

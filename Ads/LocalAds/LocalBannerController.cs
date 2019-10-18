@@ -41,7 +41,7 @@ namespace BicUtil.Ads
         }
 
         public void MoveToStore(string _iosId, string _androidId, string _campainName){
-            Analytics.CustomEvent("clickHouseAds", new Dictionary<string, object>
+            UnityEngine.Analytics.Analytics.CustomEvent("clickHouseAds", new Dictionary<string, object>
             {
                 { "type", "houseAds"  },
                 { "id", _androidId},

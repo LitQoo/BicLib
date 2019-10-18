@@ -20,7 +20,6 @@ namespace BicUtil.Core{
             new DefineData("ETC", "Unity WWW", false, "BICUTIL_WWW"),
             new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP"),
             new DefineData("ETC", "UnityAnimation", false, "BICUTIL_UNITY_ANIMATOR"),
-            new DefineData("ETC", "Spine", false, "BICUTIL_SPINE"),
             new DefineData("ETC", "Spine", false, "BICUTIL_SPINE")
         };
 

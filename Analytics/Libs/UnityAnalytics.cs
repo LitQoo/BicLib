@@ -1,0 +1,19 @@
+﻿#if BICUTIL_ANALYTICS_UNITY
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Analytics;
+
+namespace BicUtil.Analytics
+{
+    public class UnityAnalytics : IAnalyticsLib{
+        public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
+            if(_eventData == null){
+                UnityEngine.Analytics.Analytics.CustomEvent(_name);
+            }else{
+                UnityEngine.Analytics.Analytics.CustomEvent(_name, _eventData);
+            }
+        }
+    }
+}
+#endif
