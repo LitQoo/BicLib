@@ -7,12 +7,6 @@ using BicUtil.Tween;
 namespace BicUtil.UIFlow
 {
 	static public class UIFlowAnimations {
-		[Obsolete]
-		static public TweenModel OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f, Action _finishCallback = null){
-			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
-			return BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart).SubscribeComplete(_finishCallback);
-		}
-
 		static public TweenModel OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f){
 			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
 			return BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart);
