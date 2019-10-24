@@ -33,11 +33,12 @@ namespace BicUtil.Analytics
                     Debug.LogError("[Analytics] Analytics Lib is Not Added");
                 }
                 return;
-            #endif
+            #else
 
             for(int i = 0; i < libList.Count; i++){
                 libList[i].Event(_eventName, _eventData, _count);
             }
+            #endif
         }
     }
 
