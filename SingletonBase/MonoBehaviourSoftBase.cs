@@ -21,6 +21,10 @@ namespace BicUtil.SingletonBase
 
 				return instance;
 			}
+
+			protected set{
+				instance = value; 
+			}
 		}  
 
 		protected void Awake(){
