@@ -513,7 +513,7 @@ namespace BicUtil.Tween
                 }else{
                     _uigraphic.color = new Color(_value.x - 5f, 1f, 0f);
                 }
-            });
+            }).SetTargetObject(_uigraphic.gameObject);
 		}
 
 		public static TweenModel Rainbow(SpriteRenderer _sprite, float _time){
