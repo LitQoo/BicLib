@@ -563,6 +563,14 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel ShakeUpDown(GameObject _object, float _height, float _time, TweenPool _pool = null){
+			
+			var _currentPosition = _object.transform.localPosition;
+			return BicTween.Delay(_time).SubscribeUpdate(_value=>{
+				_object.transform.localPosition = _currentPosition + new Vector3(0, UnityEngine.Random.Range(-_height/2f, _height/2f));
+			});
+		}
+
 		public static TweenModel Rotate(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null){
 			return Rotate(_object, _object.transform.eulerAngles, _to, _time);
 		}
