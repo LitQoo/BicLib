@@ -25,6 +25,7 @@ namespace BicUtil.Purchasing{
         private EnumVariable<SubscriptionStateType> isSubscribed = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
         public EnumVariable<SubscriptionStateType> SubscriptionState{get{return isSubscribed;}}
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
+        public PRODUCTTYPE SubscriptionActiveID {get;set;}
         public bool isLoadedProductTable = false;
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback)
         {

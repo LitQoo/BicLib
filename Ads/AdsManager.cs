@@ -10,12 +10,11 @@ namespace BicUtil.Ads
 {
     public class AdsManager : BicUtil.SingletonBase.SingletonBase<AdsManager>, IAdsManager
     {
-
         #region InstantData
         private Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
         private Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
         private List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
-        public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
+        //public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
         private bool isInit = false;
 
         public bool IsShowingInterstital {get; private set;}
@@ -43,6 +42,11 @@ namespace BicUtil.Ads
                 isReadyInterstitialFunc[_id] = _callback;
             }
         }
+
+        internal void AddAdsPlatform()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         public override void Initialize()
@@ -52,8 +56,8 @@ namespace BicUtil.Ads
             }
 
             isInit = true;
-            AnalyticsTable.SetStorage(FileStorage.GetInstance());
-            AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
+            // AnalyticsTable.SetStorage(FileStorage.GetInstance());
+            // AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
         }
 
         #region Time
@@ -335,36 +339,36 @@ namespace BicUtil.Ads
             }
         }
 
-        private AdsStat getStat(string _name){
-            var _stat = AnalyticsTable.FirstOrDefault(_row=>_row.Name.AsString == _name);
-            if(_stat == null){
-                _stat = new AdsStat(_name);
-                AnalyticsTable.Add(_stat);
-            }
+        // private AdsStat getStat(string _name){
+        //     var _stat = AnalyticsTable.FirstOrDefault(_row=>_row.Name.AsString == _name);
+        //     if(_stat == null){
+        //         _stat = new AdsStat(_name);
+        //         AnalyticsTable.Add(_stat);
+        //     }
 
-            return _stat;
-        }
+        //     return _stat;
+        // }
 
         private void increaseCount(string _name, AdsResult _result){
-            var _stat = getStat(_name);
+            // var _stat = getStat(_name);
 
-            switch(_result){
-                case AdsResult.Cancel:
-                _stat.CancelCount.AsInt++;
-                break;
-                case AdsResult.Failed:
-                _stat.FailCount.AsInt++;
-                break;
-                case AdsResult.Finished:
-                _stat.FinishCount.AsInt++;
-                break;
-                case AdsResult.Skipped:
-                _stat.SkipCount.AsInt++;
-                break;
-                default:
-                _stat.OtherCount.AsInt++;
-                break;
-            }
+            // switch(_result){
+            //     case AdsResult.Cancel:
+            //     _stat.CancelCount.AsInt++;
+            //     break;
+            //     case AdsResult.Failed:
+            //     _stat.FailCount.AsInt++;
+            //     break;
+            //     case AdsResult.Finished:
+            //     _stat.FinishCount.AsInt++;
+            //     break;
+            //     case AdsResult.Skipped:
+            //     _stat.SkipCount.AsInt++;
+            //     break;
+            //     default:
+            //     _stat.OtherCount.AsInt++;
+            //     break;
+            // }
 
             //this.AnalyticsTable.Save();
         }

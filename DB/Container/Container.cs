@@ -66,6 +66,8 @@ namespace BicDB.Container
 		#region event
 		Action<T> OnAddedRowActions { get; set; }
 		Action<T> OnRemovedRowActions { get; set;}
+		Action OnChangeCountActions { get; set; }
+		Action<Result> OnSave { get; set; }
 
 		event Action OnSetup;
 		event Action<string, string> OnMigration;

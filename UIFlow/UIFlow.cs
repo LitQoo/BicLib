@@ -104,7 +104,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Enter(IUIFlowObject _ui, OpenMode _openMode, object _parameter = null){
-			if (isWait.AsBool == true) {
+			if (isWait.AsBool == true && isPassToCheckWait == false) {
 				Debug.Log("[UIFLOW] Failed OPEN " + _ui.ToString() + " because closing other UI, and Reservation, Param : " + (_parameter == null?"null":_parameter.ToString()));
 				
 				// 예약 오픈 일단 정지?
@@ -130,7 +130,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Back(CloseMode _closeMode, object _parameter = null){
-			if (isWait.AsBool == true) {
+			if (isWait.AsBool == true && isPassToCheckWait == false) {
 				Debug.Log("[UIFLOW] Failed Back because closing other UI, and Reservation, Param : " + (_parameter == null?"null":_parameter.ToString()));
 				return;
 			}
@@ -159,9 +159,16 @@ namespace BicUtil.UIFlow
 			}, _parameter);
 		}
 
+		bool isPassToCheckWait = false;
+		public void MultiMove(Action _func){
+			isPassToCheckWait = true;
+			_func();
+			isPassToCheckWait = false;
+		}
+
 		private Action onFinishedChangeUIOnceCallback = null;
 		public void SubscribeOnceOnFinishedChangeUI(Action _callback){
-			if(isWait.AsBool == false){
+			if(isWait.AsBool == false  && isPassToCheckWait == false){
 				if(_callback != null){
 					_callback();
 				}
@@ -236,7 +243,7 @@ namespace BicUtil.UIFlow
 		}
 
 		public void Replace(string _objectName, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
-			if (isWait.AsBool == true) {
+			if (isWait.AsBool == true && isPassToCheckWait == false) {
 				return;
 			}
 
@@ -259,7 +266,7 @@ namespace BicUtil.UIFlow
 		}
 		
 		public void Replace(IUIFlowObject _ui, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
-			if (isWait.AsBool == true) {
+			if (isWait.AsBool == true && isPassToCheckWait == false) {
 				Debug.LogWarning("[UIFLOW] Failed Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + ") Wating, OpenParam : " + (_openParameter == null?"null":_openParameter.ToString()) + ",CloseParam : " + (_closeParameter == null?"null":_closeParameter.ToString()));
 				return;
 			}

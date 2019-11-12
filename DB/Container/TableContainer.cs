@@ -55,10 +55,19 @@ namespace BicDB.Container
 		public virtual Action<T> OnAddedRowActions { get; set; }
 		public virtual Action<T> OnRemovedRowActions { get; set; }
 		public virtual Action OnChangeCountActions { get; set; }
+		public virtual Action<Result> OnSave { get; set; }
 
 		public event Action OnSetup;
 		public event Action<string, string> OnMigration;
 		public event Action OnHashCodeError;
+
+		public void SubscribeOnSave(Action<Result> _callback, bool _needFirstCall = false){
+			this.OnSave += _callback;
+			
+			if(_needFirstCall == true){
+				_callback(new Result(0));
+			}
+		}
 		#endregion
 
 		#region LifeCycle
@@ -269,6 +278,10 @@ namespace BicDB.Container
 
 				if(_callback !=null){
 					_callback(_result);
+				}
+
+				if(OnSave != null){
+					OnSave(_result);
 				}
 			}, _parameter);
 		}

@@ -24,6 +24,14 @@ namespace BicUtil.CameraScaler
 		private RectTransform[] manageFullSizeRect;
 		#endregion
 
+		#region Instant
+		public Vector2 ReferenceResolution{
+			get{
+				return this.referenceResolution;
+			}
+		}
+		#endregion
+
 		#region LifeCycle
 		private void Start(){
 			Instance = this;
