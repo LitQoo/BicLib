@@ -19,6 +19,7 @@ namespace BicUtil.Purchasing{
     public interface IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct
     {
         EnumVariable<SubscriptionStateType> SubscriptionState{get;}
+        PRODUCTTYPE SubscriptionActiveID {get;set;}
         ProductModel<PRODUCTTYPE> GetProduct(PRODUCTTYPE _idType);
 
         void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _callback);
