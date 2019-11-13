@@ -35,10 +35,11 @@ namespace BicUtil.TouchNotifier
             {
                 if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == false)
                 {
+
+					isTouchIn[0] = true;
                     startTouchPosition[0] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     OnTouchDown.Invoke(startTouchPosition[0], 0);
 
-                    isTouchIn[0] = true;
                 }
             }
             else if (Input.GetMouseButtonUp(0) && isTouchIn[0] == true)
@@ -65,9 +66,9 @@ namespace BicUtil.TouchNotifier
 					var _touch = Input.GetTouch(i);
 					if(_touch.phase == TouchPhase.Began){
 						if(UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject (i) == false){
+							isTouchIn[i] = true;
 							startTouchPosition[i] = Camera.main.ScreenToWorldPoint (_touch.position);
 							OnTouchDown.Invoke (startTouchPosition[i], i);
-							isTouchIn[i] = true;
 						}
 					} else if(_touch.phase == TouchPhase.Ended && isTouchIn[i] == true){
 						Vector2 _position = Camera.main.ScreenToWorldPoint (_touch.position);
@@ -100,8 +101,8 @@ namespace BicUtil.TouchNotifier
             }
             else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftControl) == false) && isTouchIn[1] == true)
             {
-                isTouchIn[1] = false;
                 OnTouchUp.Invoke(startTouchPosition[1], startTouchPosition[1], 1);
+				isTouchIn[1] = false;
             }
             else if (isTouchIn[1] == true)
             {
@@ -119,9 +120,9 @@ namespace BicUtil.TouchNotifier
             }
             else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftShift) == false) && isTouchIn[2] == true)
             {
-                isTouchIn[2] = false;
                 var _position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector2(50, 50);
                 OnTouchUp.Invoke(startTouchPosition[2], _position, 1);
+				isTouchIn[2] = false;
             }
             else if (isTouchIn[2] == true)
             {
@@ -158,7 +159,11 @@ namespace BicUtil.TouchNotifier
 
 		public int TouchCount{
 			get{
+			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+				return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0);
+			#else
 				return Input.touchCount;
+			#endif
 			}
 		}
 		#endregion
