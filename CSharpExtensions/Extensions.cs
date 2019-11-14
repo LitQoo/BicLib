@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace BicUtil.CSharpExtensions
 {
@@ -17,5 +18,17 @@ namespace BicUtil.CSharpExtensions
                list[n] = value;  
            }  
        }
+
+       public static Vector2Int ConvertToVector2Int(this Vector3 _vector){
+           return new Vector2Int((int)_vector.x, (int)_vector.y);
+       }
+
+       public static Vector2Int ConvertToVector2Int(this Vector2 _vector){
+           return new Vector2Int((int)_vector.x, (int)_vector.y);
+       }
+
+        public static Vector2 ConvertToVector2(this Vector2Int _vector){
+            return new Vector2(_vector.x, _vector.y);
+        }
    }
 }
