@@ -10,7 +10,33 @@ namespace BicDB.Variable
 	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover
 	{
 		#region Event
-		public event Action<ColorVariable> OnChangedValueActions;
+		private event Action<ColorVariable> onChangedValueActions = delegate{};
+
+		[Obsolete("use Subscribe")]
+		public event Action<ColorVariable> OnChangedValueActions{
+			add{
+				onChangedValueActions += value;
+			}
+
+			remove{
+				onChangedValueActions -= value;
+			}
+		}
+
+		public void Subscribe(Action<ColorVariable> _callback, bool _needFirstCall = false){
+			onChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				onChangedValueActions(this as ColorVariable);
+			}
+		}
+
+		public void Unsubscribe(Action<ColorVariable> _callback){
+			onChangedValueActions -= _callback;
+		}
+
+		public void UnsubscribeAll(){
+			onChangedValueActions = delegate{};
+		}
 		#endregion
 
 		#region LifeCycle
@@ -91,13 +117,13 @@ namespace BicDB.Variable
 
 		#region Logic
 		public void NotifyChanged(){
-			if (OnChangedValueActions != null) {
-				OnChangedValueActions (this);
+			if (onChangedValueActions != null) {
+				onChangedValueActions (this);
 			}
 		}
 
 		public void ClearNotifyAndBinding (){
-			OnChangedValueActions = null;
+			onChangedValueActions = null;
 		}
 		#endregion
 	}
