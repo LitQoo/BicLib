@@ -21,9 +21,49 @@ namespace BicDB.Container
 		}
 
 		#region IListContainer
-		public event Action<T> OnAddedValueActions = delegate{};
-		public event Action<T> OnRemvoedValueActions = delegate{};
-		public event Action OnClearedValueActions = delegate{};
+		public void SubscribeOnAdded(Action<T> _callback){
+			onAddedValueActions += _callback;
+		} 
+
+		public void UnsubscribeOnAdded(Action<T> _callback){
+			onAddedValueActions -= _callback;
+		}
+
+		public void SubscribeOnRemoved(Action<T> _callback){
+			onRemvoedValueActions += _callback;
+		} 
+
+		public void UnsubscribeOnRemoved(Action<T> _callback){
+			onRemvoedValueActions -= _callback;
+		}
+		
+		private event Action<T> onAddedValueActions = null;
+		private event Action<T> onRemvoedValueActions = null;
+
+		[Obsolete("use SubscribeOnAdded")]
+		public event Action<T> OnAddedValueActions {
+			add{
+				SubscribeOnAdded(value);
+			}
+
+			remove{
+				UnsubscribeOnAdded(value);
+			}
+		}
+	
+		[Obsolete("use SubscribeOnRemoved")]
+		public event Action<T> OnRemvoedValueActions {
+			add{
+				SubscribeOnRemoved(value);
+			}
+
+			remove{
+				UnsubscribeOnRemoved(value);
+			}
+		}
+
+
+		public event Action OnClearedValueActions = null;
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 		#endregion
 
@@ -58,25 +98,39 @@ namespace BicDB.Container
 		public void Insert(int _index, T _item)
 		{
 			data.Insert(_index, _item);
-			OnAddedValueActions(_item);
+			onAddedValueActions(_item);
 		}
 
 		public void RemoveAt(int _index)
 		{
-			OnRemvoedValueActions(data[_index]);
+			if(onRemvoedValueActions != null){
+				onRemvoedValueActions(data[_index]);
+			}
+
 			data.RemoveAt(_index);
 		}
 
 		public void Add(T _item)
 		{
 			data.Add(_item);
-			OnAddedValueActions(_item);
+			if(onAddedValueActions != null){
+				onAddedValueActions(_item);
+			}
 		}
 
 		public void Clear()
 		{
+			if(OnClearedValueActions != null){
+				OnClearedValueActions();
+			}
+
+			if(onRemvoedValueActions != null){
+				for(int i = 0; i < data.Count; i ++){
+					onRemvoedValueActions(data[i]);
+				}
+			}
+
 			data.Clear();
-			OnClearedValueActions();
 		}
 
 		public bool Contains(T _item)
@@ -91,7 +145,10 @@ namespace BicDB.Container
 
 		public bool Remove(T _item)
 		{
-			OnRemvoedValueActions(_item);
+			if(onRemvoedValueActions != null){
+				onRemvoedValueActions(_item);
+			}
+			
 			return data.Remove(_item);
 		}
 

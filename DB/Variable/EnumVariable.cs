@@ -52,7 +52,7 @@ namespace BicDB.Variable
 		public void Subscribe(Action<IEnumVariable<T>> _callback, bool _needFirstCall = false){
 			onChangedValueActions += _callback;
 			if(_needFirstCall == true){
-				onChangedValueActions(this as IEnumVariable<T>);
+				_callback(this as IEnumVariable<T>);
 			}
 		}
 

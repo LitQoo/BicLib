@@ -26,7 +26,7 @@ namespace BicDB.Variable
 		public void Subscribe(Action<ColorVariable> _callback, bool _needFirstCall = false){
 			onChangedValueActions += _callback;
 			if(_needFirstCall == true){
-				onChangedValueActions(this as ColorVariable);
+				_callback(this as ColorVariable);
 			}
 		}
 

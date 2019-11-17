@@ -15,7 +15,7 @@ namespace BicDB.Variable
 		public void Subscribe(Action<VectorIntVariable> _callback, bool _needFirstCall = false){
 			OnChangedValueActions += _callback;
 			if(_needFirstCall == true){
-				OnChangedValueActions(this);
+				_callback(this);
 			}
 		}
 

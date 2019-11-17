@@ -55,7 +55,7 @@ namespace BicUtil.InfinityNumber
         public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
             OnChangedValueActions += _callback;
             if(_needFirstCall == true){
-                OnChangedValueActions(this as IVariable);
+                _callback(this as IVariable);
             }
         }
 
