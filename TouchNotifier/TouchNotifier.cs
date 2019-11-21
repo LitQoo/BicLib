@@ -31,35 +31,10 @@ namespace BicUtil.TouchNotifier
         {
 #if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == false)
-                {
-
-					isTouchIn[0] = true;
-                    startTouchPosition[0] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    OnTouchDown.Invoke(startTouchPosition[0], 0);
-
-                }
-            }
-            else if (Input.GetMouseButtonUp(0) && isTouchIn[0] == true)
-            {
-                Vector2 _position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                OnTouchUp.Invoke(startTouchPosition[0], _position, 0);
-                isTouchIn[0] = false;
-            }
-            else if (isTouchIn[0] == true)
-            {
-                Vector2 _position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                if (startTouchPosition[0] != _position)
-                {
-                    OnTouchMove.Invoke(startTouchPosition[0], _position, 0);
-                }
-            }
-
+			checkTouch(Input.GetMouseButton(0), 0);
+			checkTouch(Input.GetMouseButton(1), 1);
             twoTouchScaleWithControlKey();
             twoTouchMoveWithShiftKey();
-
 #else
 			if(Input.touchCount > 0){
 				for(int i = 0; i < Input.touchCount; i++){
@@ -91,43 +66,71 @@ namespace BicUtil.TouchNotifier
             }
         }
 
+		private void checkTouch(bool _touchResponse, int _touchIndex){
+			if (_touchResponse == true && isTouchIn[_touchIndex] == false)
+            {
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == false)
+                {
+
+					isTouchIn[_touchIndex] = true;
+                    startTouchPosition[_touchIndex] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    OnTouchDown.Invoke(startTouchPosition[_touchIndex], _touchIndex);
+
+                }
+            }
+            else if (isTouchIn[_touchIndex] == true && _touchResponse == false)
+            {
+                Vector2 _position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                OnTouchUp.Invoke(startTouchPosition[_touchIndex], _position, _touchIndex);
+                isTouchIn[_touchIndex] = false;
+            }
+            else if (isTouchIn[_touchIndex] == true)
+            {
+                Vector2 _position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                if (startTouchPosition[_touchIndex] != _position)
+                {
+                    OnTouchMove.Invoke(startTouchPosition[_touchIndex], _position, _touchIndex);
+                }
+            }
+		}
+
         private void twoTouchScaleWithControlKey()
         {
-            if (isTouchIn[0] == true && Input.GetKey(KeyCode.LeftControl) == true && isTouchIn[1] == false)
+            if (isTouchIn[0] == true && Input.GetKey(KeyCode.LeftControl) == true && isTouchIn[3] == false)
             {
-                isTouchIn[1] = true;
-                startTouchPosition[1] = startTouchPosition[0] - new Vector2(100, 100);
-                OnTouchDown.Invoke(startTouchPosition[1], 1);
+                isTouchIn[3] = true;
+                startTouchPosition[3] = startTouchPosition[0] - new Vector2(100, 100);
+                OnTouchDown.Invoke(startTouchPosition[3], 1);
             }
-            else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftControl) == false) && isTouchIn[1] == true)
+            else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftControl) == false) && isTouchIn[3] == true)
             {
-                OnTouchUp.Invoke(startTouchPosition[1], startTouchPosition[1], 1);
-				isTouchIn[1] = false;
+                OnTouchUp.Invoke(startTouchPosition[3], startTouchPosition[3], 1);
+				isTouchIn[3] = false;
             }
-            else if (isTouchIn[1] == true)
+            else if (isTouchIn[3] == true)
             {
-                OnTouchMove.Invoke(startTouchPosition[1], startTouchPosition[1], 1);
+                OnTouchMove.Invoke(startTouchPosition[3], startTouchPosition[3], 1);
             }
         }
 
         private void twoTouchMoveWithShiftKey()
         {
-            if (isTouchIn[0] == true && Input.GetKey(KeyCode.LeftShift) == true && isTouchIn[2] == false)
+            if (isTouchIn[0] == true && Input.GetKey(KeyCode.LeftShift) == true && isTouchIn[4] == false)
             {
-                isTouchIn[2] = true;
-                startTouchPosition[2] = startTouchPosition[0] - new Vector2(50, 50);
-                OnTouchDown.Invoke(startTouchPosition[2], 1);
+                isTouchIn[4] = true;
+                startTouchPosition[4] = startTouchPosition[0] - new Vector2(50, 50);
+                OnTouchDown.Invoke(startTouchPosition[4], 1);
             }
-            else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftShift) == false) && isTouchIn[2] == true)
+            else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftShift) == false) && isTouchIn[4] == true)
             {
                 var _position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector2(50, 50);
-                OnTouchUp.Invoke(startTouchPosition[2], _position, 1);
-				isTouchIn[2] = false;
+                OnTouchUp.Invoke(startTouchPosition[4], _position, 1);
+				isTouchIn[4] = false;
             }
-            else if (isTouchIn[2] == true)
+            else if (isTouchIn[4] == true)
             {
                 var _position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector2(50, 50);
-                OnTouchMove.Invoke(startTouchPosition[2], _position, 1);
+                OnTouchMove.Invoke(startTouchPosition[4], _position, 1);
             }
         }
 
@@ -141,8 +144,13 @@ namespace BicUtil.TouchNotifier
 
 		public Vector2 GetTouch(int _touchIndex){
 			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
-			Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			return _position;
+			
+			if(isTouchIn[1] == true){
+				return Camera.main.ScreenToWorldPoint (Input.mousePosition) - new Vector3(100, 100);
+			}else{
+				Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+				return _position;
+			}
 			#else
 			try{
 				var _touch = Input.GetTouch(_touchIndex);
@@ -160,7 +168,7 @@ namespace BicUtil.TouchNotifier
 		public int TouchCount{
 			get{
 			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
-				return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0);
+				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
 				return Input.touchCount;
 			#endif
