@@ -6,6 +6,7 @@ using BicDB.Variable;
 using BicDB.Storage;
 using BicDB.Core;
 using UnityEngine;
+using BicUtil.Json;
 
 namespace BicDB.Container
 {
@@ -369,6 +370,14 @@ namespace BicDB.Container
 				this.Property[AUTO_INCREASE_NUMBER].AsVariable.AsInt++;
 				return _result;
 			}
+		}
+		#endregion
+
+		#region override
+		public override string ToString(){
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
 		}
 		#endregion
 	}
