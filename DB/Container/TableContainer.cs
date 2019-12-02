@@ -30,7 +30,7 @@ namespace BicDB.Container
 			} 
 		}
 
-		public MutableDictionaryContainer header = new MutableDictionaryContainer();
+		private MutableDictionaryContainer header = new MutableDictionaryContainer();
 		public MutableDictionaryContainer Header {get{ return header;}}
 
 		private MutableDictionaryContainer property = new MutableDictionaryContainer();
