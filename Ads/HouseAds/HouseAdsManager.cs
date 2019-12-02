@@ -204,9 +204,9 @@ namespace BicUtil.Ads
 			return adsData.ContainsKey(_adsPlacement);
 		}
 
-        public IAdsBanner CreateBanner(object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction)
-        {
-            if(adsData.ContainsKey(_adsPlacement) == true){
+		public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
+		{
+			if(adsData.ContainsKey(_adsPlacement) == true){
 				string _prefabPath = adsData[_adsPlacement].Data as string;
 				var _ads = getHouseAds(_adsPlacement);
 
@@ -220,7 +220,7 @@ namespace BicUtil.Ads
 			}
 
 			return null;
-        }
+		}
 
 		private HouseAdsModel getHouseAds(object _adsPlacement){
 			if(adsData.ContainsKey(_adsPlacement) == false){

@@ -6,6 +6,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using System.Runtime.CompilerServices;
 using BicUtil.Json;
+using UnityEngine.Networking;
 
 namespace BicDB.Storage
 {
@@ -22,15 +23,24 @@ namespace BicDB.Storage
 		}
 
 		#region singleton
-		private static ITableStorage instance = null;  
+		private static WebStorage instance = null;  
 		private static GameObject container;  
+		public static WebStorage Instance{
+			get{
+				if(instance == null){
+					GetInstance();
+				}
+
+				return instance;
+			}
+		}
 		public static ITableStorage GetInstance()  
 		{  
 			if(instance == null)  
 			{  
 				container = new GameObject();  
 				container.name = "BicDBWebStorage";  
-				instance = container.AddComponent(typeof(WebStorage)) as ITableStorage;  
+				instance = container.AddComponent(typeof(WebStorage)) as WebStorage;  
 				DontDestroyOnLoad(container);
 			}  
 
@@ -57,49 +67,68 @@ namespace BicDB.Storage
 		private Action<Result> loadCallback = null;
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
-			loadCallback = _callback;
-			StartCoroutine(getTextFromWWW(_table));
-
+			this.Pull(_table, _callback, _parameter);
 		}
 
 		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
 			loadCallback = _callback;
-			StartCoroutine(getTextFromWWW(_table));
-		}
 
-		private IEnumerator getTextFromWWW<T> (ITableContainer<T> _table) where T : IRecordContainer, new()
-		{
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
-			WWW www = new WWW((_table.Header[LOAD_URL_KEY] as IVariable).AsString);
-			yield return www;
-
-			var _result = new Result ((int)ResultCode.Success);
-			var _json = www.text;
-			int _counter = 0;
-			if (www.error != null)
-			{
-				_result.Code = (int)ResultCode.ErrorNetwork;
-				_result.Message = www.error;
-			}
-			else
-			{
-				try {
-					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
-				} catch (Exception) {
-					_result.Code = (int)ResultCode.FailedConvertJson;
-					_result.Message = ResultCode.FailedConvertJson.ToString ();
+			var _form = new WWWForm();
+			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
+			this.SendWebRequest(_request, _result=>{
+				var _storageResult = new Result ((int)ResultCode.Success);
+				var _webParam = _parameter as WebStorageParameter;
+				string _json = string.Empty;
+				if(_webParam != null && _webParam.RequestConvertor != null){
+					_json = _webParam.RequestConvertor(_result.downloadHandler.text);
+				}else{
+					_json = _result.downloadHandler.text;
 				}
-			}
 
-			if (loadCallback != null) {
-				loadCallback (_result);
-			}
+				int _counter = 0;
+				if (string.IsNullOrEmpty(_result.error) == false)
+				{
+					_storageResult.Code = (int)ResultCode.ErrorNetwork;
+					_storageResult.Message = _result.error;
+				}
+				else
+				{
+					try {
+						JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
+					} catch (Exception) {
+						_storageResult.Code = (int)ResultCode.FailedConvertJson;
+						_storageResult.Message = ResultCode.FailedConvertJson.ToString ();
+					}
+				}
+
+				if (loadCallback != null) {
+					loadCallback (_storageResult);
+				}
+			});
+		}
+
+		private IEnumerator sendWebRequestCoroutine(UnityWebRequest _request, Action<UnityWebRequest> _callback){
+			yield return _request.SendWebRequest();
+			_callback(_request);
+		}
+
+		public void SendWebRequest(UnityWebRequest _request, Action<UnityWebRequest> _callback){
+			StartCoroutine(this.sendWebRequestCoroutine(_request, _callback));
 		}
 		#endregion
 
+	}
+
+	public class WebStorageParameter{
+		public Func<string, string> RequestConvertor = null;
+
+		public WebStorageParameter(Func<string, string> _requestConvertor){
+			RequestConvertor = _requestConvertor;
+		}
 	}
 }
 #endif
