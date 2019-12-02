@@ -7,7 +7,8 @@ namespace BicDB.Variable
 	public class StringVariable : VariableBase, IVariable
 	{
 		#region AsValue
-		virtual protected string data { get; set; }
+		private string stringData = string.Empty;
+		virtual protected string data { get=>stringData; set{stringData = value;} }
 		public int AsInt{ get{ return Int32.Parse(AsString); } set{ AsString = value.ToString();} }
 		public string AsString{ get{ return data; } set{ data = value;  NotifyChanged ();} }
 		public float AsFloat{ get{ return  (float)Double.Parse(AsString); } set{ AsString = value.ToString();} }
