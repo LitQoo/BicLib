@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BicDB.Container;
@@ -130,17 +131,19 @@ namespace BicDB.Container
 				throw new Exception("[BicDB] Not Set PrimaryKey");
 			}
 
-			bool isFound = false;
-			foreach(T _row in rows){
-				if(_row[PrimaryKey].AsVariable.AsString == _item[PrimaryKey].AsVariable.AsString){
-					isFound = true;
-				}
+			if(this.Contains(_item) == true){
+				return;
 			}
 
-			if(isFound == false){
+			var _itemPrimaryValue = _item[PrimaryKey].AsVariable.AsString;
+			T _foundRow = rows.FirstOrDefault(_row=>_row[PrimaryKey].AsVariable.AsString == _itemPrimaryValue);
+
+			if(_foundRow == null){
 				this.Add(_item);
+			}else{
+				_foundRow.MergeCopyBy(_item);
 			}
-		}
+		}	
 
 		public void Clear()
 		{
@@ -150,8 +153,6 @@ namespace BicDB.Container
 					OnRemovedRowActions(_item);
 				}
 			}
-
-
 
 			rows.Clear();
 

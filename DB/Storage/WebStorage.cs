@@ -13,6 +13,7 @@ namespace BicDB.Storage
 	public class WebStorage : MonoBehaviour, ITableStorage {
 		#region Static
 		static public string LOAD_URL_KEY = "webstorageLoadURL";
+		static public string SEND_RECORD_URL = "sendRecordURL";
 		#endregion
 
 		public enum ResultCode
@@ -118,6 +119,50 @@ namespace BicDB.Storage
 
 		public void SendWebRequest(UnityWebRequest _request, Action<UnityWebRequest> _callback){
 			StartCoroutine(this.sendWebRequestCoroutine(_request, _callback));
+		}
+
+		public void SendRecord<T>(ITableContainer<T> _table, T _record, Action<Result> _callback) where T : IRecordContainer, new (){
+			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
+				throw new SystemException("Need to set PrimaryKey");
+			}
+
+			if (!_table.Header.ContainsKey (SEND_RECORD_URL)) {
+				throw new SystemException ("not found Header " + SEND_RECORD_URL);
+			}
+
+			var _form = new WWWForm();
+			_form.AddField("data", _record.ToString());
+			_form.AddField(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable.AsString);
+
+			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
+
+			WebStorage.Instance.SendWebRequest(_request, _result=>{
+				if(_result.isHttpError == true || _result.isNetworkError == true){
+					_callback(new Result((int)ResultCode.ErrorNetwork));
+					return;
+				}
+
+				var _resultRecord = new RecordContainer();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+				_resultRecord.AddManagedColumn(_table.PrimaryKey, new StringVariable());
+				if(_resultRecord.ParseJson(_result.downloadHandler.text) == true){
+					if(_resultRecord["result"].AsVariable.AsInt == 0){
+						if(string.IsNullOrEmpty(_record[_table.PrimaryKey].AsVariable.AsString) == true){
+							_record[_table.PrimaryKey].AsVariable.AsString = _resultRecord[_table.PrimaryKey].AsVariable.AsString;
+						}
+						
+						_table.AddWithoutDuplication(_record);
+						_callback(new Result((int)ResultCode.Success));
+						return;
+					}else{
+						_callback(new Result((int)ResultCode.ErrorNetwork));
+						return;
+					}
+				}else{
+					_callback(new Result((int)ResultCode.FailedConvertJson));
+					return;
+				}
+			});
 		}
 		#endregion
 

@@ -73,6 +73,10 @@ namespace BicDB.Container
 		event Action<string, string> OnMigration;
 		event Action OnHashCodeError;
 		#endregion
+
+		#region Logic
+		void AddWithoutDuplication(T _item);
+		#endregion
 	}
 
 	public interface IQueryTable : IStorageSuppoter{
