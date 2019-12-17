@@ -14,16 +14,11 @@ namespace BicUtil.Ads{
         #endregion
 
         #region Logic
-        private RewardBasedVideoAd rewardBasedVideo;
 
         public AdmobManager(){
             MobileAds.Initialize(_initState=>{
 
-            });
-
-            rewardBasedVideo = RewardBasedVideoAd.Instance;
-            rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
-            rewardBasedVideo.OnAdFailedToLoad += reloadRewardBased;
+            });   
         }
 
         public AdmobManager(string _androidAppId, string _iosAppId){
@@ -34,11 +29,6 @@ namespace BicUtil.Ads{
             #if UNITY_ANDROID
             MobileAds.Initialize(_androidAppId);
             #endif
-
-            rewardBasedVideo = RewardBasedVideoAd.Instance;
-            rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
-            rewardBasedVideo.OnAdFailedToLoad += reloadRewardBased;
-
         }
 
         public void SetAdsSettingIOSOnly(string _adsId, object[] _types){
@@ -124,65 +114,77 @@ namespace BicUtil.Ads{
         #endregion
 
         #region RewardBased
-        private void onRewardBasedAdClosed(object sender, EventArgs args){
-            if(lastPlayedAdType != null){
-                var _callback = adsData[lastPlayedAdType].Data as Action<AdsResult>;
-                
-                _callback(AdsResult.Finished);
-            }
-
-            reloadTime = 1;
-            lastPlayedAdType = null;
-
-            loadRewardBased(lastPlayedAdType, 0);
-        }
-
         public void LoadRewardBased(object _adsType){
-            if(lastPlayedAdType == null || lastPlayedAdType != _adsType){
-                loadRewardBased(_adsType, 0);
+            loadRewardBased(_adsType, 1);
+        }
+
+        public void loadRewardBased(object _adsType, int _time){
+            if(adsData[_adsType].Data == null){
+                RewardedAd _rewardedAd = new RewardedAd(adsData[_adsType].PlatformId);
+                AdRequest _request = new AdRequest.Builder().Build();
+                int __time = _time;
+                object __adsType = _adsType;
+
+                _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
+                    adsData[_adsType].Data = null;
+                    BicTween.Delay(1f).SubscribeComplete(()=>{
+                        loadRewardBased(__adsType, __time * 2);
+                    });
+                };
+
+                _rewardedAd.LoadAd(_request);
+                adsData[_adsType].Data = _rewardedAd;
             }
         }
 
-        object lastPlayedAdType = null;
+        private bool isSuccessRewarded = false;
         int reloadTime = 1;
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback){
-            lastPlayedAdType = _adsType;
-            adsData[_adsType].Data = _callback;
-            rewardBasedVideo.Show();
-        }
-
-        private void reloadRewardBased(object sender, AdFailedToLoadEventArgs e)
-        {
-            loadRewardBased(lastPlayedAdType, reloadTime * 2);
-        }
-
-        private void loadRewardBased(object _adsType, int _time){
+            RewardedAd _rewardedAd = adsData[_adsType].Data as RewardedAd;
             object __adsType = _adsType;
-            lastPlayedAdType = __adsType;
-            reloadTime = _time;
+            isSuccessRewarded = false;
+            _rewardedAd.OnUserEarnedReward += (_sender, _args)=>{
+                isSuccessRewarded = true;
+            };
 
-            if(_time == 0){
-                loadRewardBased(__adsType);
-            }else{
-                BicTween.Delay(_time).SubscribeComplete(()=>{
-                    loadRewardBased(__adsType);
-                });
-            }
+            _rewardedAd.OnAdClosed += (_sender, _args)=>{
+                if(adsData[__adsType].Data != null){
+                    adsData[__adsType].Data = null;
+                    BicTween.Delay(0.5f).SubscribeComplete(()=>{
+                        LoadRewardBased(__adsType);
+                    });
+
+                    if(_callback != null){
+                        if(isSuccessRewarded == true){
+                            _callback(AdsResult.Finished);
+                        }else{
+                            _callback(AdsResult.Skipped);
+                        }
+
+                        _callback = null;
+                    }
+                }
+            };
+
+            _rewardedAd.OnAdFailedToShow += (_sender, _args)=>{
+                if(_callback != null){
+                    _callback(AdsResult.Failed);
+                    _callback = null;
+                }
+            };
+
+            _rewardedAd.Show();
         }
 
-        private void loadRewardBased(object _adsType){
-            AdRequest request = new AdRequest.Builder().Build();
-            this.rewardBasedVideo.LoadAd(request, adsData[_adsType].PlatformId);
-        }
 
         public bool IsReadyRewardBased(object _adsType){
-            var _result =  this.rewardBasedVideo.IsLoaded();
-
-            if(_result == false){
-                LoadRewardBased(_adsType);
+            RewardedAd _rewardedAd = adsData[_adsType].Data as RewardedAd;
+            if(_rewardedAd != null && _rewardedAd.IsLoaded() == true){
+                return true;
             }
-
-            return _result;
+            
+            LoadRewardBased(_adsType);
+            return false;
         }
         #endregion
 
