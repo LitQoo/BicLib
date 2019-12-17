@@ -15,6 +15,17 @@ namespace BicUtil.Ads{
 
         #region Logic
         private RewardBasedVideoAd rewardBasedVideo;
+
+        public AdmobManager(){
+            MobileAds.Initialize(_initState=>{
+
+            });
+
+            rewardBasedVideo = RewardBasedVideoAd.Instance;
+            rewardBasedVideo.OnAdClosed += onRewardBasedAdClosed;
+            rewardBasedVideo.OnAdFailedToLoad += reloadRewardBased;
+        }
+
         public AdmobManager(string _androidAppId, string _iosAppId){
             #if UNITY_IOS
             MobileAds.Initialize(_iosAppId);
@@ -30,10 +41,23 @@ namespace BicUtil.Ads{
 
         }
 
+        public void SetAdsSettingIOSOnly(string _adsId, object[] _types){
+            for(int i = 0; i < _types.Length; i++){
+                SetAdsSettingIOSOnly(_adsId, _types[i]);
+            }
+        }
+
         public void SetAdsSettingIOSOnly(string _adsId, object _type){
             #if UNITY_IOS
             adsData[_type] = new AdsPlatformInfo(_adsId, _type);
             #endif
+        }
+
+
+        public void SetAdsSettingAndroidOnly(string _adsId, object[] _types){
+            for(int i = 0; i < _types.Length; i++){
+                SetAdsSettingAndroidOnly(_adsId, _types[i]);
+            }
         }
 
         public void SetAdsSettingAndroidOnly(string _adsId, object _type){
@@ -168,7 +192,7 @@ namespace BicUtil.Ads{
         public bool IsReadyBanner(object _adsType){
             return true;
         }
-        public IAdsBanner CreateBanner(object _adsType, Action<IAdsBanner> _onLoadBannerAction)
+        public IAdsBanner CreateBanner(object _adsType, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
         {
             if(adsData.ContainsKey(_adsType) == true){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));

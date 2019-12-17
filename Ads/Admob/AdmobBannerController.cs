@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 #if BICUTIL_ADMOB
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using BicUtil.Tween;
 using GoogleMobileAds.Api;
 
@@ -44,7 +42,7 @@ namespace BicUtil.Ads
         private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
         {
             AdsManager.Instance.RemoveBanner(this);
-            AdsManager.Instance.CreateBanner(adsPlacement, onLoadBannerAction);
+            AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
             Destroy(this.gameObject);
         }
         #endregion
