@@ -1,4 +1,4 @@
-﻿#if BICUTIL_WWW
+﻿#if BICUTIL_WWW_TEXTURE
 using System.Collections;
 using BicDB;
 using BicDB.Variable;

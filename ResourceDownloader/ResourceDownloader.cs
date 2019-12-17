@@ -1,8 +1,9 @@
-﻿#if BICUTIL_WWW
+﻿#if BICUTIL_WWW_TEXTURE
 using UnityEngine;
 using System.Collections;
 using System.IO;
 using System;
+using UnityEngine.Networking;
 
 namespace BicUtil.ResourceDownloader
 {
@@ -76,18 +77,18 @@ namespace BicUtil.ResourceDownloader
 		}
 
 		private IEnumerator getImageFromWWW(DownloadParam _param) {
+			
+			//Should enable Unity Web Request Texture in the package manager
+			UnityWebRequest www = UnityWebRequestTexture.GetTexture(_param.Url);
+			yield return www.SendWebRequest();
 
 			Texture2D _texture = new Texture2D(1,1);
-			WWW www = new WWW(_param.Url);
-			yield return www;
-
 			bool _isSuccess = false;
-
-			if (www.error != null) {
-				_isSuccess = false;
-			} else {
+			if(www.isNetworkError || www.isHttpError) {
+				
+			}else {
 				_isSuccess = true;
-				www.LoadImageIntoTexture (_texture);
+				_texture = ((DownloadHandlerTexture)www.downloadHandler).texture;
 			}
 
 			if (_param.Callback != null) {

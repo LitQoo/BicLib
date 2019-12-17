@@ -21,6 +21,7 @@ namespace BicUtil.Core{
             new DefineData("BicTween", "Spine", false, "BICUTIL_SPINE"),
 
             new DefineData("ETC", "Unity WWW", false, "BICUTIL_WWW"),
+            new DefineData("ETC", "Unity WWW TEXTURE", false, "BICUTIL_WWW_TEXTURE"),
             new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP")
         };
 

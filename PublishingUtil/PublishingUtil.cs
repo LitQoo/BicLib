@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System.Runtime.CompilerServices;
+using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using BicDB.Core;
 using BicDB.Variable;
 using UnityEngine;
@@ -92,5 +94,86 @@ namespace BicUtil.PublishingUtil{
 				return TableService.GetProperty("reviewCount", new IntVariable(0)).AsInt;
 			}
 		}
+
+		#region GDPR
+		private const string EU_QUERY_URL = "http://adservice.google.com/getconfig/pubvendors";
+
+		public static bool ShouldOpenGDPR{
+			get{
+				if(IsGDPRArea == false){
+					return false;
+				}
+
+				if(isAgreedGDPR.AsBool == true){
+					return false;
+				}
+
+				return true;
+			}
+		}
+
+		private static IVariable isAgreedGDPR = null;
+		public static bool IsAgreedGDPR{
+			get{
+				if(isAgreedGDPR == null){
+					isAgreedGDPR = TableService.GetProperty("isAgreedGDPR", new BoolVariable(false));
+				}
+
+				return isAgreedGDPR.AsBool;
+			}
+
+			set{
+				if(isAgreedGDPR == null){
+					isAgreedGDPR = TableService.GetProperty("isAgreedGDPR", new BoolVariable(false));
+				}
+
+				isAgreedGDPR.AsBool = value;
+				TableService.Save();
+			}
+		}
+
+		private static IVariable isGDPRArea = null;
+		public static bool IsGDPRArea{
+			get{
+				if(isGDPRArea == null){
+					isGDPRArea = TableService.GetProperty("isGDPRArea", new BoolVariable(false));
+					isGDPRArea.AsBool = checkingGdprArea();
+					TableService.Save();
+				}
+
+				return isGDPRArea.AsBool;
+			}
+		}
+
+		private static bool checkingGdprArea(){
+			bool _result = false;
+			
+			#if UNITY_EDITOR
+			return true;
+			#endif
+
+			try
+			{
+				using( WebClient webClient = new WebClient())
+				{
+					string response = webClient.DownloadString( EU_QUERY_URL );
+					int index = response.IndexOf( "is_request_in_eea_or_unknown\":" );
+					if( index < 0 )
+						_result = true;
+					else
+					{
+						index += 30;
+						_result = index >= response.Length || !response.Substring( index ).TrimStart().StartsWith( "false" );
+					}
+				}
+			}
+			catch
+			{
+				_result = true;
+			}
+
+			return _result;
+		}
+		#endregion
 	}
 }
