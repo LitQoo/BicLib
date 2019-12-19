@@ -98,12 +98,13 @@ namespace BicUtil.TouchNotifier
 
         private void touchProcess()
         {
-			if (Input.touchCount <= 0)
+			int _touchCount = Mathf.Min(Input.touchCount, isTouchIn.Length);
+			if (_touchCount <= 0)
 			{
 				return;
 			}
 
-            for (int i = 0; i < Input.touchCount; i++)
+            for (int i = 0; i < _touchCount; i++)
             {
                 var _touch = Input.GetTouch(i);
                 if (_touch.phase == TouchPhase.Began)
