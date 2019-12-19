@@ -25,7 +25,7 @@ namespace BicUtil.Ads
         public void Load(string _unitId, object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction){
             adsPlacement = _adsPlacement;
             onLoadBannerAction = _onLoadBannerAction;
-            bannerView = new BannerView(_unitId, AdSize.SmartBanner, AdPosition.Top);
+            bannerView = new BannerView(_unitId, AdSize.Banner, AdPosition.Top);
             bannerView.OnAdFailedToLoad += reloadBanner;
             bannerView.OnAdLoaded += onLoaded;
             AdRequest request = new AdRequest.Builder().Build();
