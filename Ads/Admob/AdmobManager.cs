@@ -155,21 +155,22 @@ namespace BicUtil.Ads{
                     });
 
                     if(_callback != null){
-                        if(isSuccessRewarded == true){
-                            BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Finished));
-                        }else{
-                            BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Skipped));
-                        }
-
+                        var __callback = _callback;
                         _callback = null;
+                        if(isSuccessRewarded == true){
+                            BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Finished));
+                        }else{
+                            BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Skipped));
+                        }
                     }
                 }
             };
 
             _rewardedAd.OnAdFailedToShow += (_sender, _args)=>{
                 if(_callback != null){
-                    BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Failed));
+                    var __callback = _callback;
                     _callback = null;
+                    BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Failed));
                 }
             };
 
