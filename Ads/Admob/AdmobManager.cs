@@ -81,7 +81,7 @@ namespace BicUtil.Ads{
                         LoadInterstitial(__adsType);
                     });
 
-                    _callback(AdsResult.Finished);
+                    BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Finished));
                 }
             };
 
@@ -156,9 +156,9 @@ namespace BicUtil.Ads{
 
                     if(_callback != null){
                         if(isSuccessRewarded == true){
-                            _callback(AdsResult.Finished);
+                            BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Finished));
                         }else{
-                            _callback(AdsResult.Skipped);
+                            BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Skipped));
                         }
 
                         _callback = null;
@@ -168,7 +168,7 @@ namespace BicUtil.Ads{
 
             _rewardedAd.OnAdFailedToShow += (_sender, _args)=>{
                 if(_callback != null){
-                    _callback(AdsResult.Failed);
+                    BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Failed));
                     _callback = null;
                 }
             };
