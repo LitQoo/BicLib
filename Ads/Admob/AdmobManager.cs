@@ -182,9 +182,12 @@ namespace BicUtil.Ads{
 
 
         public bool IsReadyRewardBased(object _adsType){
-            RewardedAd _rewardedAd = adsData[_adsType].Data as RewardedAd;
-            if(_rewardedAd != null && _rewardedAd.IsLoaded() == true){
-                return true;
+            var _adsId = adsData[_adsType].PlatformId;
+            if(rewardedAdLoader.ContainsKey(_adsId) == true){
+                RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
+                if(_rewardedAd != null && _rewardedAd.IsLoaded() == true){
+                    return true;
+                }
             }
             
             LoadRewardBased(_adsType);
