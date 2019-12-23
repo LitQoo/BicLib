@@ -114,54 +114,55 @@ namespace BicUtil.Ads{
         #endregion
 
         #region RewardBased
+        private Dictionary<string, RewardedAd> rewardedAdLoader = new Dictionary<string, RewardedAd>();
+
         public void LoadRewardBased(object _adsType){
-            loadRewardBased(_adsType, 1);
+            var _adsId = adsData[_adsType].PlatformId;
+            if(rewardedAdLoader.ContainsKey(_adsId) == false ){
+                rewardedAdLoader.Add(_adsId, null);
+            }
+
+            loadRewardBased(_adsId, 1);
         }
 
-        public void loadRewardBased(object _adsType, int _time){
-            if(adsData[_adsType].Data == null){
-                RewardedAd _rewardedAd = new RewardedAd(adsData[_adsType].PlatformId);
+        public void loadRewardBased(string _adsId, int _time){
+            if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
+                RewardedAd _rewardedAd = new RewardedAd(_adsId);
                 AdRequest _request = new AdRequest.Builder().Build();
                 int __time = _time;
-                object __adsType = _adsType;
+                string __adsId = _adsId;
 
                 _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
-                    adsData[_adsType].Data = null;
+                    rewardedAdLoader[_adsId] = null;
                     BicTween.Delay(1f).SubscribeComplete(()=>{
-                        loadRewardBased(__adsType, __time * 2);
+                        loadRewardBased(__adsId, __time * 2);
                     });
                 };
 
                 _rewardedAd.LoadAd(_request);
-                adsData[_adsType].Data = _rewardedAd;
+                rewardedAdLoader[_adsId] = _rewardedAd;
             }
         }
 
         private bool isSuccessRewarded = false;
         int reloadTime = 1;
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback){
-            RewardedAd _rewardedAd = adsData[_adsType].Data as RewardedAd;
+            var _adsId = adsData[_adsType].PlatformId;
+            RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
             object __adsType = _adsType;
             isSuccessRewarded = false;
             _rewardedAd.OnUserEarnedReward += (_sender, _args)=>{
                 isSuccessRewarded = true;
             };
-
+            
             _rewardedAd.OnAdClosed += (_sender, _args)=>{
-                if(adsData[__adsType].Data != null){
-                    adsData[__adsType].Data = null;
-                    BicTween.Delay(0.5f).SubscribeComplete(()=>{
-                        LoadRewardBased(__adsType);
-                    });
-
-                    if(_callback != null){
-                        var __callback = _callback;
-                        _callback = null;
-                        if(isSuccessRewarded == true){
-                            BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Finished));
-                        }else{
-                            BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Skipped));
-                        }
+                if(_callback != null){
+                    var __callback = _callback;
+                    _callback = null;
+                    if(isSuccessRewarded == true){
+                        BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Finished));
+                    }else{
+                        BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Skipped));
                     }
                 }
             };
@@ -175,6 +176,8 @@ namespace BicUtil.Ads{
             };
 
             _rewardedAd.Show();
+            rewardedAdLoader[_adsId] = null;
+            LoadRewardBased(__adsType);
         }
 
 
