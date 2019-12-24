@@ -93,17 +93,17 @@ namespace BicUtil.Ads{
             loadInterstitial(_adsType, 1);
         }
 
-        public void loadInterstitial(object _adsType, int _time){
+        public void loadInterstitial(object _adsType, float _time){
             if(adsData[_adsType].Data == null){
                 InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].PlatformId);
                 AdRequest _request = new AdRequest.Builder().Build();
-                int __time = _time;
+                float __time = _time;
                 object __adsType = _adsType;
                 _interstitial.OnAdFailedToLoad += (_sender, _args)=>{
                     _interstitial.Destroy();
                     adsData[_adsType].Data = null;
-                    BicTween.Delay(1f).SubscribeComplete(()=>{
-                        loadInterstitial(__adsType, __time * 2);
+                    BicTween.Delay(__time).SubscribeComplete(()=>{
+                        loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
                     });
                 };
 
@@ -125,17 +125,17 @@ namespace BicUtil.Ads{
             loadRewardBased(_adsId, 1);
         }
 
-        public void loadRewardBased(string _adsId, int _time){
+        public void loadRewardBased(string _adsId, float _time){
             if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
                 RewardedAd _rewardedAd = new RewardedAd(_adsId);
                 AdRequest _request = new AdRequest.Builder().Build();
-                int __time = _time;
+                float __time = _time;
                 string __adsId = _adsId;
 
                 _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
                     rewardedAdLoader[_adsId] = null;
-                    BicTween.Delay(1f).SubscribeComplete(()=>{
-                        loadRewardBased(__adsId, __time * 2);
+                    BicTween.Delay(__time).SubscribeComplete(()=>{
+                        loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
                     });
                 };
 

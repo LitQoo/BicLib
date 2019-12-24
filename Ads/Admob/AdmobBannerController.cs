@@ -7,7 +7,8 @@ using GoogleMobileAds.Api;
 namespace BicUtil.Ads
 {
     public class AdmobBannerController : MonoBehaviour, IAdsBanner
-    {
+    {   
+        private static float reloadTime = 1f; 
         #region InstantData
         private BannerView bannerView;
         #endregion
@@ -36,14 +37,23 @@ namespace BicUtil.Ads
 
         private void onLoaded(object sender, EventArgs e)
         {
+            reloadTime = 1f;
             onLoadBannerAction(this);
         }
 
         private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
         {
-            AdsManager.Instance.RemoveBanner(this);
-            AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
-            Destroy(this.gameObject);
+            reloadBanner();
+        }
+
+
+        private void reloadBanner(){
+            reloadTime = Mathf.Min(reloadTime * 2f, 600f);
+            BicTween.Delay(reloadTime).SubscribeComplete(()=>{
+                AdsManager.Instance.RemoveBanner(this);
+                AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
+                Destroy(this.gameObject);
+            });
         }
         #endregion
 
