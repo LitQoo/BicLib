@@ -74,7 +74,6 @@ namespace BicUtil.UIFlow
 			UIFlow.Instance.ClearRegisteredUI();
 			backAction = null;
 			uiStack.Clear();
-			reservationUI = null;
 
 			if(ClassInitializer.ClassInitializer.Instance != null){
 				ClassInitializer.ClassInitializer.Instance.Deinitialize();
@@ -124,6 +123,10 @@ namespace BicUtil.UIFlow
 					open (_ui, _openMode, _parameter);
 				}, _parameter, false);
 			} else {
+				isWait.AsBool = true;
+				if(OnStartChangeUI != null){
+					OnStartChangeUI();
+				}
 				open (_ui, _openMode, _parameter);
 				finishWait();
 			}
@@ -187,12 +190,6 @@ namespace BicUtil.UIFlow
 
 			if(OnFinishChangeUI != null){
 				OnFinishChangeUI();
-			}
-
-			if(reservationUI != null){
-				var _reservationUI = reservationUI;
-				reservationUI = null;
-				Enter(_reservationUI.UI, _reservationUI.OpenMode, _reservationUI.Parameter);
 			}
 		}
 
@@ -274,13 +271,19 @@ namespace BicUtil.UIFlow
 
 			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + "), OpenParam : " + (_openParameter == null?"null":_openParameter.ToString()) + ",CloseParam : " + (_closeParameter == null?"null":_closeParameter.ToString()));
 			
-			if (uiStack.Count > 0 && uiStack[uiStack.Count - 1].UI != baseUi) {
+			if (uiStack.Count > 0 && currentUiInfo.UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;
 				close (currentUiInfo.UI, _ui,_closeMode, () => {
 					open (_ui, _openMode, _openParameter, _currentUI);
 				}, _closeParameter);
 			} else {
+				isWait.AsBool = true;
+				if(OnStartChangeUI != null){
+					OnStartChangeUI();
+				}
+
 				open (_ui, _openMode, _openParameter);
+				finishWait();
 			}
 		}
 

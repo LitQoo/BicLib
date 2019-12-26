@@ -15,11 +15,11 @@ namespace BicUtil.UIFlow
 		GameObject gameObject { get; }
 	}
 
-	public enum OnCloseUIResult
+	public enum OnCloseUIResult //transitiontype
 	{
-		WaitForFinishCallback,
-		WaitForFinishCallbackAndFastDisplayNext,
-		DoNotWait
+		WaitForFinishCallback, // sequence
+		WaitForFinishCallbackAndFastDisplayNext, //spawn
+		DoNotWait //direct
 	}
 
 }
