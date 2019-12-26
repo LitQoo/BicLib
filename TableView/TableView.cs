@@ -165,6 +165,15 @@ namespace BicUtil.TableView
             return _result;
         }
 
+        public string PrintVisibleRows(){
+            var _string = "{";
+            foreach(var _value in m_visibleRows){
+                _string += _value.Key.ToString() + ":" + _value.Value.Cells.Count.ToString() + "/";
+            }
+            _string += "}";
+            return _string;
+        }
+
         /// <summary>
         /// Get the range of the currently visible rows
         /// </summary>
