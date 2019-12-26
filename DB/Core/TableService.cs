@@ -102,25 +102,31 @@ namespace BicDB.Core
                 return;
             }
 
-            #if UNITY_EDITOR
-            TableService.Load(_result=>{});
-            #endif
             throw new SystemException("TableService Not Load");
 
         }
 
-        static public void Load(Action<Result> _callback){
+        static public void init(){
+            if(isInit == true){
+                return;
+            }
+
             isInit = true;
 
+            tableInfo = new TableContainer<TableModel>(TABLENAME);
+            queryTable = new TableContainer<QueryModel>("qa");
+            
             try{
                 currentVersion = Application.version;
             }catch(System.MissingMethodException){
                 currentVersion = "0";
             }
-            
-            tableInfo = new TableContainer<TableModel>(TABLENAME);
-            queryTable = new TableContainer<QueryModel>("qa");
 
+        }
+
+        static public void Load(Action<Result> _callback){
+            init();
+            
             var _loader = new TableLoader();
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
             _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));

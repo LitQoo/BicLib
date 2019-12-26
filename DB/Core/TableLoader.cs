@@ -9,7 +9,7 @@ namespace BicDB.Core
     public class TableLoader{
         private List<TableLoadData> tableList = new List<TableLoadData>();
         private TweenTracker loadTracker = new TweenTracker();
-
+        private int tryTime = 0;
         public void AddTable(ITableStorageSuppoter _table, ITableStorage _storage, object _param, Func<Result, bool> _passCallback = null){
             _table.SetStorage(_storage);
             tableList.Insert(0, new TableLoadData(_table, _param, _passCallback));
@@ -33,6 +33,10 @@ namespace BicDB.Core
             }else{
                 var _checkTween = BicTween.Interval(1f, _waitTime).SetTracker(loadTracker);
                 _checkTween.SubscribeRepeat((_tween, _count)=>{
+                    if(tryTime > 3){
+                        return;
+                    }
+                    
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry
                         UnityEngine.Debug.Log("TableLoader Retry LoadTables, TableCount = " + tableList.Count.ToString());
@@ -50,6 +54,7 @@ namespace BicDB.Core
 
         private int leftCount = 0;
         private void loadTables(){
+            tryTime++;
             leftCount = tableList.Count;
             for(int i = tableList.Count - 1; i >= 0 ; i--){
                 var _index = i;
