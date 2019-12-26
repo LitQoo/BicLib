@@ -144,6 +144,20 @@ namespace BicUtil.MVCSystem
 				_func (_model, string.Empty);
 			}
 		}
+
+		public void BindModelToControllerOnAdd<T>(ListContainer<T> _list, Action<T> _func, bool _needFirstCall) where T : IDataBase, new(){
+			bindRemoverList.Add (()=>{
+				_list.UnsubscribeOnAdded(_func);
+			});
+
+			_list.SubscribeOnAdded(_func);
+
+			if (_needFirstCall == true) {
+				for(int i = 0; i < _list.Count; i++){
+					_func (_list[i]);
+				}
+			}
+		}
 		#endregion
 
 		#region Controller -> Model Binding
