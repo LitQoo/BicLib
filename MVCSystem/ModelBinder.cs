@@ -89,8 +89,9 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, string _format, bool _needFirstCall = false){
+			var __format = _format;
 			Action<IVariable> _func = (__variable)=>{
-				_text.text = __variable.AsString;
+				_text.text = string.Format(__format, __variable.AsString);
 			};
 
 			bindRemoverList.Add (()=>{
