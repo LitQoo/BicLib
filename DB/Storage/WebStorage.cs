@@ -121,7 +121,7 @@ namespace BicDB.Storage
 			StartCoroutine(this.sendWebRequestCoroutine(_request, _callback));
 		}
 
-		public void SendRecord<T>(ITableContainer<T> _table, T _record, Action<Result> _callback) where T : IRecordContainer, new (){
+		public void SendRecord<T>(ITableContainer<T> _table, T _record, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
 				throw new SystemException("Need to set PrimaryKey");
 			}
@@ -138,7 +138,9 @@ namespace BicDB.Storage
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 				if(_result.isHttpError == true || _result.isNetworkError == true){
-					_callback(new Result((int)ResultCode.ErrorNetwork));
+					if(_callback != null){
+						_callback(new Result((int)ResultCode.ErrorNetwork));
+					}
 					return;
 				}
 
@@ -152,14 +154,20 @@ namespace BicDB.Storage
 						}
 						
 						_table.AddWithoutDuplication(_record);
-						_callback(new Result((int)ResultCode.Success));
+						if(_callback != null){
+							_callback(new Result((int)ResultCode.Success));
+						}
 						return;
 					}else{
-						_callback(new Result((int)ResultCode.ErrorNetwork));
+						if(_callback != null){
+							_callback(new Result((int)ResultCode.ErrorNetwork));
+						}
 						return;
 					}
 				}else{
-					_callback(new Result((int)ResultCode.FailedConvertJson));
+					if(_callback != null){
+						_callback(new Result((int)ResultCode.FailedConvertJson));
+					}
 					return;
 				}
 			});
