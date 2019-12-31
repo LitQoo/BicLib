@@ -19,16 +19,28 @@ namespace BicUtil.CSharpExtensions
            }  
        }
 
-       public static Vector2Int ConvertToVector2Int(this Vector3 _vector){
-           return new Vector2Int((int)_vector.x, (int)_vector.y);
-       }
+        public static Vector2Int ConvertToVector2Int(this Vector3 _vector){
+            return new Vector2Int((int)_vector.x, (int)_vector.y);
+        }
 
-       public static Vector2Int ConvertToVector2Int(this Vector2 _vector){
-           return new Vector2Int((int)_vector.x, (int)_vector.y);
-       }
+        public static Vector2Int ConvertToVector2Int(this Vector2 _vector){
+            return new Vector2Int((int)_vector.x, (int)_vector.y);
+        }
 
         public static Vector2 ConvertToVector2(this Vector2Int _vector){
             return new Vector2(_vector.x, _vector.y);
+        }
+
+        public static Vector2Int ToVector2Int(this Vector3 _vector){
+            return ConvertToVector2Int(_vector);
+        }
+
+        public static Vector2Int ToVector2Int(this Vector2 _vector){
+            return ConvertToVector2Int(_vector);
+        }
+
+        public static Vector2 ToVector2(this Vector2Int _vector){
+            return ConvertToVector2(_vector);
         }
    }
 }
