@@ -271,20 +271,21 @@ namespace BicUtil.UIFlow
 
 			Debug.Log("[UIFLOW] Replace " + _ui.ToString() + "(mode:" + _openMode.ToString() + "stack:" +uiStack.Count.ToString() + "), OpenParam : " + (_openParameter == null?"null":_openParameter.ToString()) + ",CloseParam : " + (_closeParameter == null?"null":_closeParameter.ToString()));
 			
-			if (uiStack.Count > 0 && currentUiInfo.UI != baseUi) {
+			// if (uiStack.Count > 0 && currentUiInfo.UI != baseUi) {
 				var _currentUI = currentUiInfo.UI;
 				close (currentUiInfo.UI, _ui,_closeMode, () => {
 					open (_ui, _openMode, _openParameter, _currentUI);
 				}, _closeParameter);
-			} else {
-				isWait.AsBool = true;
-				if(OnStartChangeUI != null){
-					OnStartChangeUI();
-				}
+			// Replace 에선 이게 필요없는것 같아서 일단 주석처리
+			// } else {
+			// 	isWait.AsBool = true;
+			// 	if(OnStartChangeUI != null){
+			// 		OnStartChangeUI();
+			// 	}
 
-				open (_ui, _openMode, _openParameter);
-				finishWait();
-			}
+			// 	open (_ui, _openMode, _openParameter);
+			// 	finishWait();
+			// }
 		}
 
 		private void close(IUIFlowObject _ui, IUIFlowObject _fromUI, CloseMode _closeMode, Action _finishCallback, object _parameter, bool _needPop = true){
