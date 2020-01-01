@@ -7,6 +7,7 @@ using BicDB.Variable;
 using System.Runtime.CompilerServices;
 using BicUtil.Json;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 namespace BicDB.Storage
 {
@@ -78,11 +79,17 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
+			var _webParam = _parameter as WebStorageParameter;
 			var _form = new WWWForm();
+			if(_webParam != null && _webParam.Param != null){
+				foreach(var _value in _webParam.Param){
+					_form.AddField(_value.Key, _value.Value);
+				}
+			}
+
 			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
 			this.SendWebRequest(_request, _result=>{
 				var _storageResult = new Result ((int)ResultCode.Success);
-				var _webParam = _parameter as WebStorageParameter;
 				string _json = string.Empty;
 				if(_webParam != null && _webParam.RequestConvertor != null){
 					_json = _webParam.RequestConvertor(_result.downloadHandler.text);
@@ -122,6 +129,10 @@ namespace BicDB.Storage
 		}
 
 		public void SendRecord<T>(ITableContainer<T> _table, T _record, Action<Result> _callback = null) where T : IRecordContainer, new (){
+			SendRecord(_table, _record, null, _callback);
+		}
+
+		public void SendRecord<T>(ITableContainer<T> _table, T _record, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
 				throw new SystemException("Need to set PrimaryKey");
 			}
@@ -133,6 +144,12 @@ namespace BicDB.Storage
 			var _form = new WWWForm();
 			_form.AddField("data", _record.ToString());
 			_form.AddField(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable.AsString);
+			
+			if(_param != null){
+				foreach(var _value in _param){
+					_form.AddField(_value.Key, _value.Value);
+				}
+			}
 
 			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
 
@@ -178,9 +195,10 @@ namespace BicDB.Storage
 
 	public class WebStorageParameter{
 		public Func<string, string> RequestConvertor = null;
-
-		public WebStorageParameter(Func<string, string> _requestConvertor){
+		public Dictionary<string, string> Param = null;
+		public WebStorageParameter(Func<string, string> _requestConvertor, Dictionary<string, string> _param){
 			RequestConvertor = _requestConvertor;
+			Param = _param;
 		}
 	}
 }
