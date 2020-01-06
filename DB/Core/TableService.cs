@@ -191,7 +191,7 @@ namespace BicDB.Core
                 }
 
                 if(hasProperty(PROP_FIELD_USER_ID) == false){
-                    setStringProperty(PROP_FIELD_USER_ID, UnityEngine.Random.Range(0, int.MaxValue).ToString());
+                    setStringProperty(PROP_FIELD_USER_ID, Guid.NewGuid().ToString());
                 }
 
                 if(!hasProperty(PROP_FIELD_IS_SETUP)){
