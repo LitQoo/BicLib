@@ -11,17 +11,17 @@ namespace BicUtil.CameraScaler
 		#endregion
 		#region LinkingObject
 		[SerializeField]
-		private Camera mainCamera;
+		private Camera mainCamera = null;
 		[SerializeField]
-		private RectTransform referenceTransform;
+		private RectTransform referenceTransform = null;
 		[SerializeField]
-		private Vector2 referenceResolution;
+		private Vector2 referenceResolution = Vector2.zero;
 		[SerializeField]
 		private VerticalAlign verticalAlign = VerticalAlign.Center;
 		[SerializeField]
 		private HorizonalAlign horizonalAlign = HorizonalAlign.Center;
 		[SerializeField]
-		private RectTransform[] manageFullSizeRect;
+		private RectTransform[] manageFullSizeRect = null;
 		#endregion
 
 		#region Instant
