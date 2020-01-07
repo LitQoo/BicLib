@@ -113,6 +113,12 @@ namespace BicUtil.ServerTime
                 return this.Now.Ticks / TimeSpan.TicksPerSecond;
             }
         }
+
+        public int TimestampUnix{
+            get{
+                return (int)Math.Truncate((this.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+            }
+        }
     }
 
     public enum ServerTimeState
