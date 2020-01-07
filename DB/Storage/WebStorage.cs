@@ -66,14 +66,14 @@ namespace BicDB.Storage
 			}
 		}
 
-		private Action<Result> loadCallback = null;
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
 			this.Pull(_table, _callback, _parameter);
 		}
 
-		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
-			loadCallback = _callback;
+		public void Pull<T>(ITableContainer<T> _targetTable, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
+			var _loadCallback = _callback;
+			var _table = _targetTable;
 
 			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
@@ -113,8 +113,8 @@ namespace BicDB.Storage
 					}
 				}
 
-				if (loadCallback != null) {
-					loadCallback (_storageResult);
+				if (_loadCallback != null) {
+					_loadCallback (_storageResult);
 				}
 			});
 		}
@@ -132,7 +132,10 @@ namespace BicDB.Storage
 			SendRecord(_table, _record, null, _callback);
 		}
 
-		public void SendRecord<T>(ITableContainer<T> _table, T _record, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+		public void SendRecord<T>(ITableContainer<T> _targetTable, T _targetRecord, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+			var _resultCallback = _callback;
+			var _table = _targetTable;
+			var _record = _targetRecord;
 			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
 				throw new SystemException("Need to set PrimaryKey");
 			}
@@ -155,8 +158,8 @@ namespace BicDB.Storage
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 				if(_result.isHttpError == true || _result.isNetworkError == true){
-					if(_callback != null){
-						_callback(new Result((int)ResultCode.ErrorNetwork));
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.ErrorNetwork));
 					}
 					return;
 				}
@@ -171,19 +174,19 @@ namespace BicDB.Storage
 						}
 						
 						_table.AddWithoutDuplication(_record);
-						if(_callback != null){
-							_callback(new Result((int)ResultCode.Success));
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.Success));
 						}
 						return;
 					}else{
-						if(_callback != null){
-							_callback(new Result((int)ResultCode.ErrorNetwork));
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.ErrorNetwork));
 						}
 						return;
 					}
 				}else{
-					if(_callback != null){
-						_callback(new Result((int)ResultCode.FailedConvertJson));
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
 					}
 					return;
 				}
