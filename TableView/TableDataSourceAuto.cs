@@ -31,7 +31,7 @@ namespace BicUtil.TableView
 
 		public TableRow GetCellForRowInTableView(int _rowIndex)
 		{
-			var _tableRow = tableView.CreateTableRow(); // 셀 리턴
+			var _tableRow = tableView.CreateTableRow(tableView.defaultReusableRowId); // 셀 리턴
 			_tableRow.RowIndex = _rowIndex;
 			return _tableRow;
 		}

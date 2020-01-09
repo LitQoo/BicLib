@@ -65,7 +65,7 @@ namespace BicUtil.TableView
             onClickedCellActions[_buttonName] = _action;
         }
 
-		public TableRow CreateTableRow(string _reuseIdentifier = ""){
+		public TableRow CreateTableRow(string _reuseIdentifier){
 			TableRow _row = GetReusableRow(_reuseIdentifier);
 
 			if (_row == null) {
@@ -180,6 +180,8 @@ namespace BicUtil.TableView
         public Range visibleRowRange {
             get { return m_visibleRowRange; }
         }
+
+        public string defaultReusableRowId = "tableRow";
 
         /// <summary>
         /// Notify the table view that one of its rows changed size
