@@ -4,7 +4,7 @@ using System;
 
 namespace BicUtil.ObjectPuller
 {
-    public class PrefabPuller<T> where T : class, IPullingObject{
+    public class PrefabPuller<T> where T : class{
 
 		private List<T> objectList = new List<T>();
 		private Action<T> usingFunction = null;
@@ -43,7 +43,11 @@ namespace BicUtil.ObjectPuller
 				return;
 			}
 			
-			_object.ReadyPulling ();
+
+			var _pullingObject = _object as IPullingObject;
+			if(_pullingObject != null){
+				_pullingObject.ReadyPulling ();
+			}
 
 			if (pullingFunction != null) {
 				pullingFunction (_object);
@@ -61,7 +65,10 @@ namespace BicUtil.ObjectPuller
 				_result = copyPrefab ();
 			}
 
-			_result.ReadyUsing ();
+			var _pullingObject = _result as IPullingObject;
+			if(_pullingObject != null){
+				_pullingObject.ReadyUsing ();
+			}
 
 			if (usingFunction != null) {
 				usingFunction (_result);
