@@ -8,7 +8,7 @@ namespace BicUtil.Ads
 {
     public class AdmobBannerController : MonoBehaviour, IAdsBanner
     {   
-        private static float reloadTime = 1f; 
+        private static float reloadTime = 30f; 
         #region InstantData
         private BannerView bannerView;
         #endregion
@@ -37,7 +37,7 @@ namespace BicUtil.Ads
 
         private void onLoaded(object sender, EventArgs e)
         {
-            reloadTime = 1f;
+            reloadTime = 30f;
             onLoadBannerAction(this);
         }
 
