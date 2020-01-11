@@ -7,7 +7,9 @@ namespace BicUtil.TimeRefill{
     public class TimeRefillManager : MonoBehaviour
     {
         #region Field
+        [NonSerialized]
         public int MaxCount = 5;
+        [NonSerialized]
         public int RefillTime = 0;
         public int LeftRefillSecond{
             get{
@@ -19,7 +21,7 @@ namespace BicUtil.TimeRefill{
                 if(CurrentCount.AsInt >= MaxCount){
                     return string.Empty;
                 }
-                
+
                 var _time = this.LeftRefillSecond;
                 var _sec = _time % 60;
                 var _min = (_time / 60) % 60;
