@@ -35,6 +35,16 @@ namespace BicUtil.TimeRefill{
             }
         }
 
+        public bool IsMax{
+            get{
+                if(CurrentCount.AsInt >= MaxCount){
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
         public FloatVariable FillRate = new FloatVariable();
         public IVariable LastTimestamp{get;set;}
         public IVariable CurrentCount{get;set;}
