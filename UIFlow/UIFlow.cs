@@ -20,8 +20,8 @@ namespace BicUtil.UIFlow
 			return uiObjects[_type];
 		}
 
-		public IUIFlowObject GetUI<UIClass>(){
-			return GetUI(typeof(UIClass));
+		public UIClass GetUI<UIClass>(){
+			return (UIClass)GetUI(typeof(UIClass));
 		}
 
 		public void ClearRegisteredUI(){
