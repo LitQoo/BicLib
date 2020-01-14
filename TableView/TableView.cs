@@ -243,7 +243,10 @@ namespace BicUtil.TableView
                     return;
                 }
 
-                value = Mathf.Clamp(value, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
+                if(m_scrollRect.movementType != ScrollRect.MovementType.Unrestricted){
+                    value = Mathf.Clamp(value, 0, GetScrollYForRow(m_rowSizes.Length - 1, true));
+                }
+
                 if (m_scrollDistance != value) {
                     m_scrollDistance = value;
                     m_requiresRefresh = true;
@@ -475,43 +478,77 @@ namespace BicUtil.TableView
 		#region MangetControl
 		[SerializeField]
 		private bool centerPositionMagnet = false;
-		float lastScrollDistance = 0;
+        [SerializeField]
+        private float magnetSpeed = 1000;
 
 		private void checkEnableMagnet(){
 			if (isControlled == false) {
-				if (scrollDistance >= 0 && scrollDistance <= scrollableDistance) {
-					float _gap = lastScrollDistance - scrollDistance;
-					if (Mathf.Abs (_gap) < 4f) {
-						magnetControl (_gap);
-						isControlled = true;
-					}
-				}
+                    isControlled = true;
+                    magnetControl ();
 			}
-
-			lastScrollDistance = scrollDistance;
 		}
 
         private TweenTracker scrollTracker = new TweenTracker();
-		private void magnetControl(float _gap){
-             if(m_isVertical == true){
-                    throw new System.NotImplementedException("not support magnet control for vertical table");
-             }
+		private void magnetControl(){
+            if(m_isVertical == true){
+                throw new System.NotImplementedException("not support magnet control for vertical table");
+            }
 
+            if(m_visibleRows.Count <= 0){
+                BicTween.DelayOneFrame().SubscribeComplete(()=>{
+                    BicTween.DelayOneFrame().SubscribeComplete(()=>{
+                    isControlled = false;
+                    });
+                });
+                return;
+            }
+
+            float _targetPosition = 0f;
+            float _speed = 1f;
 			var _centerPosition = m_scrollRect.transform.position;
+            bool _isFind = false;
+            var _selectedRowIndex = -1;
 			foreach (var _row in m_visibleRows) {
-				var _rowPosition = _row.Value.transform.position;
+                var _rowPosition = _row.Value.transform.position;
 				var _rowHalfSize = m_rowSizes [_row.Key] / 2f;
+                
                 if (_rowPosition.x + _rowHalfSize > _centerPosition.x && _rowPosition.x - _rowHalfSize <= _centerPosition.x) {
-                    var _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
-                    float _targetGap = _targetPosition - scrollDistance;
-                    var _speed = Mathf.Abs(_targetGap) / 100f;
-                    BicTween.Value (scrollDistance, _targetPosition, _speed).SetEase(EaseType.OutBack).SubscribeUpdate(_value => {
-                        scrollDistance = _value.x;
-                    }).SetTracker(scrollTracker);
+                    _selectedRowIndex = _row.Key;
+                    _targetPosition = scrollDistance - (_centerPosition.x - _rowPosition.x);
+                    _isFind = true;
                     break;
                 }
 			}
+
+            if(_isFind == false){
+                if(this.scrollDistance <= 0){
+                    _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[0].transform.position.x);
+                    _selectedRowIndex = 0;
+                }else{
+                    _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[m_rowSizes.Length - 1].transform.position.x);
+                    _selectedRowIndex = m_rowSizes.Length - 1;
+                }
+            }
+
+            float _targetGap = _targetPosition - scrollDistance;
+            _speed = Mathf.Abs(_targetGap) / magnetSpeed;
+            var _tween = BicTween.Value (scrollDistance, _targetPosition, _speed).SubscribeUpdate(_value => {
+                scrollDistance = _value.x;
+            }).SetTracker(scrollTracker).SubscribeComplete(()=>{
+                OnMargnetControl(_selectedRowIndex);
+            });
+
+            switch(this.m_scrollRect.movementType){
+                case ScrollRect.MovementType.Elastic:
+                    _tween.SetEase(EaseType.OutBack);
+                break;
+                default:
+
+                break;
+            }
 		}
+
+        public Action<int> OnMargnetControl = null;
 		#endregion
         
         private Range CalculateCurrentVisibleRowRange()
