@@ -13,11 +13,18 @@ namespace BicUtil.ObjectPuller
 
 		public PrefabPuller(int _readyObjectCount, string _prefabPath, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
 			this.prefab = Resources.Load(_prefabPath);
+			this.createFunc = copyPrefab;
 			createReadyObject(_readyObjectCount);
 		}
 
 		public PrefabPuller(int _readyObjectCount, UnityEngine.Object _prefab, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
 			this.prefab = _prefab;
+			this.createFunc = copyPrefab;
+			createReadyObject(_readyObjectCount);
+		}
+
+		public PrefabPuller(int _readyObjectCount, Func<T> _createFunc, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
+			this.createFunc = _createFunc;
 			createReadyObject(_readyObjectCount);
 		}
 
@@ -28,7 +35,7 @@ namespace BicUtil.ObjectPuller
 
 		private void createReadyObject(int _readyObjectCount){
 			for (int i = 0; i < _readyObjectCount; i++) {
-				var _object = copyPrefab ();
+				var _object = createFunc ();
 				PullingObject (_object);
 			}
 		}
@@ -37,6 +44,8 @@ namespace BicUtil.ObjectPuller
 			GameObject _object = MonoBehaviour.Instantiate (prefab) as GameObject;
 			return _object.GetComponent<T>();
 		}
+
+		private Func<T> createFunc = null;
 
 		public void PullingObject(T _object){
 			if(_object == null){
@@ -62,7 +71,7 @@ namespace BicUtil.ObjectPuller
 				_result = objectList [0];
 				objectList.RemoveAt (0);
 			} else {
-				_result = copyPrefab ();
+				_result = createFunc ();
 			}
 
 			var _pullingObject = _result as IPullingObject;
