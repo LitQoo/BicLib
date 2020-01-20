@@ -24,6 +24,14 @@ namespace BicUtil.MVCSystem
 		#endregion
 
 		#region Model -> Controller Binding
+		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (()=>{
+				_variable.Unsubscribe(_func);
+			});
+
+			_variable.Subscribe(_func, _needFirstCall);
+		}
+
 		public void BindModelToController (VectorVariable _variable, Action<VectorVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.OnChangedValueActions -= _func;
@@ -49,14 +57,6 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (ColorVariable _variable, Action<ColorVariable> _func, bool _needFirstCall = false){
-			bindRemoverList.Add (()=>{
-				_variable.Unsubscribe(_func);
-			});
-
-			_variable.Subscribe(_func, _needFirstCall);
-		}
-
-		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.Unsubscribe(_func);
 			});
