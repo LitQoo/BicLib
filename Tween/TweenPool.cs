@@ -318,5 +318,18 @@ namespace BicUtil.Tween{
 				}
 			}
 		}
-  }
+
+		#region List
+		public Dictionary<string, TweenTracker> trackers = new Dictionary<string, TweenTracker>();
+		public TweenTracker GetTracker(string _id){
+			if(this.trackers.ContainsKey(_id) == false){
+				var _tracker = new TweenTracker();
+				this.trackers[_id] = _tracker;
+				return _tracker;
+			}else{
+				return this.trackers[_id];
+			}
+		}
+		#endregion
+  	}
 }

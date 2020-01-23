@@ -735,6 +735,14 @@ namespace BicUtil.Tween
 			return _result;
 		}
 
+		public static TweenTracker GetTracker(string _id, TweenPool _pool = null){
+			if(_pool != null){
+				return _pool.GetTracker(_id);
+			}else{
+				return DefaultPool.GetTracker(_id);
+			}
+		}
+
 
 		// public static List<Vector3> GetPathFortween(List<int> chidDataList){
 

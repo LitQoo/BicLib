@@ -538,27 +538,6 @@ namespace BicUtil.Tween
 			}
 		}
 
-		[Obsolete("Use Tracker")]
-		public TweenCancelObject CancelObject{
-			get{return new TweenCancelObject(this);}
-		}
-
-		[Obsolete("Use SetTracker")]
-		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
-			_cancelObject.SetTween(this);
-
-			return this;
-		}
-
-		public TweenTracker Tracker{
-			get{return new TweenTracker(this);}
-		}
-
-		public TweenModel SetTracker(TweenTracker _tracker){
-			_tracker.SetTween(this);
-			return this;
-		}
-
 		public TweenModel SubscribeStart(Action _callback, bool _clearSubscribe = false){
 			if(_clearSubscribe == true){
 				ClearSubscribeStart();
@@ -688,6 +667,35 @@ namespace BicUtil.Tween
 			TargetObject = _target;
 			return this;
 		}
+
+		#region Tracker
+		[Obsolete("Use Tracker")]
+		public TweenCancelObject CancelObject{
+			get{return new TweenCancelObject(this);}
+		}
+
+		[Obsolete("Use SetTracker")]
+		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
+			_cancelObject.SetTween(this);
+
+			return this;
+		}
+
+		public TweenTracker Tracker{
+			get{return new TweenTracker(this);}
+		}
+
+		public TweenModel SetTracker(TweenTracker _tracker){
+			_tracker.SetTween(this);
+			return this;
+		}
+
+		public TweenModel SetTracker(string _id){
+			var _tracker = this.pool.GetTracker(_id);
+			this.SetTracker(_tracker);
+			return this;
+		}
+		#endregion
 
         #if UNITY_EDITOR
         [NonSerialized]
