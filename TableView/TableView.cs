@@ -484,12 +484,12 @@ namespace BicUtil.TableView
 		private void checkEnableMagnet(){
 			if (isControlled == false) {
                     isControlled = true;
-                    magnetControl ();
+                    MagnetControl ();
 			}
 		}
 
         private TweenTracker scrollTracker = new TweenTracker();
-		private void magnetControl(){
+		public void MagnetControl(){
             if(m_isVertical == true){
                 throw new System.NotImplementedException("not support magnet control for vertical table");
             }
