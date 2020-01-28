@@ -23,24 +23,50 @@ namespace BicDB.Container
 		#endregion
 
 		#region IObjectContainer
-		public event Action<IObjectContainer<T>> OnChangedValueActions = delegate{};
+		private event Action<IObjectContainer<T>> onChangedValueActions = delegate{};
+
+		[Obsolete("use Subscribe")]
+		public event Action<IObjectContainer<T>> OnChangedValueActions{
+			add{
+				onChangedValueActions += value;
+			}
+
+			remove{
+				onChangedValueActions -= value;
+			}
+		}
 
 		public T AsObject{
 			get{ return data; }
 			set{ data = value; NotifyChanged (); }
 		}
 
+		public void Subscribe(Action<IObjectContainer<T>> _callback, bool _needFirstCall = false){
+			onChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				_callback(this as IObjectContainer<T>);
+			}
+		}
+
+		public void Unsubscribe(Action<IObjectContainer<T>> _callback){
+			onChangedValueActions -= _callback;
+		}
+
+		public void UnsubscribeAll(){
+			onChangedValueActions = delegate{};
+		}
+
 		public void NotifyChanged(){
-			OnChangedValueActions (this);
+			onChangedValueActions (this);
 		}
 
 
 		public void NotifyChanged(ObjectContainer<T> _objectContainer){
-			OnChangedValueActions (this);
+			onChangedValueActions (this);
 		}
 
 		public void ClearNotifyAndBinding(){
-			OnChangedValueActions = delegate {};
+			onChangedValueActions = delegate {};
 		}
 		#endregion
 
