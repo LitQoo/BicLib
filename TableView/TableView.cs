@@ -521,12 +521,17 @@ namespace BicUtil.TableView
 			}
 
             if(_isFind == false){
-                if(this.scrollDistance <= 0){
-                    _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[0].transform.position.x);
-                    _selectedRowIndex = 0;
-                }else{
-                    _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[m_rowSizes.Length - 1].transform.position.x);
-                    _selectedRowIndex = m_rowSizes.Length - 1;
+                try{
+                    if(this.scrollDistance <= 0){
+                        _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[0].transform.position.x);
+                        _selectedRowIndex = 0;
+                    }else{
+                        _targetPosition = scrollDistance - (_centerPosition.x - m_visibleRows[m_rowSizes.Length - 1].transform.position.x);
+                        _selectedRowIndex = m_rowSizes.Length - 1;
+                    }
+                }catch{
+                    Debug.LogWarning("[TableView] MagnetControl error");
+                    return;
                 }
             }
 

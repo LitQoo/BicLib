@@ -21,7 +21,8 @@ namespace BicDB.Storage
 		{
 			Success = 0,
 			FailedConvertJson = 1,
-			ErrorNetwork = 2
+			ErrorNetwork = 2,
+			Crypto = 3
 		}
 
 		#region singleton
@@ -80,12 +81,16 @@ namespace BicDB.Storage
 			}
 
 			var _webParam = _parameter as WebStorageParameter;
-			var _form = new WWWForm();
+			var _formData = new RecordContainer();
+
 			if(_webParam != null && _webParam.Param != null){
 				foreach(var _value in _webParam.Param){
-					_form.AddField(_value.Key, _value.Value);
+					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
 				}
 			}
+
+			var _form = new WWWForm();
+			_form.AddField("data", BicUtil.Crypto.AES256.Encrypt(_formData.ToString()));
 
 			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
 			this.SendWebRequest(_request, _result=>{
@@ -105,6 +110,16 @@ namespace BicDB.Storage
 				}
 				else
 				{
+					try{
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}catch{
+						if(_loadCallback != null){
+							_storageResult.Code = (int)ResultCode.Crypto;
+							_loadCallback(_storageResult);
+						}
+						return;
+					}
+
 					try {
 						JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
 					} catch (Exception) {
@@ -120,7 +135,7 @@ namespace BicDB.Storage
 		}
 
 		private IEnumerator sendWebRequestCoroutine(UnityWebRequest _request, Action<UnityWebRequest> _callback){
-			yield return _request.SendWebRequest();
+			yield return _request.SendWebRequest();	
 			_callback(_request);
 		}
 
@@ -144,15 +159,18 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + SEND_RECORD_URL);
 			}
 
-			var _form = new WWWForm();
-			_form.AddField("data", _record.ToString());
-			_form.AddField(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable.AsString);
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("data", _record);
+			_formData.AddManagedColumn(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable);
 			
 			if(_param != null){
 				foreach(var _value in _param){
-					_form.AddField(_value.Key, _value.Value);
+					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
 				}
 			}
+
+			var _form = new WWWForm();
+			_form.AddField("data", BicUtil.Crypto.AES256.Encrypt(_formData.ToString()));
 
 			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
 
@@ -164,10 +182,20 @@ namespace BicDB.Storage
 					return;
 				}
 
+				string _json = "";
+				try{
+					_json = BicUtil.Crypto.AES256.Decrypt(_result.downloadHandler.text);
+				}catch{
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.Crypto));
+					}
+				}
+
 				var _resultRecord = new RecordContainer();
 				_resultRecord.AddManagedColumn("result", new IntVariable());
 				_resultRecord.AddManagedColumn(_table.PrimaryKey, new StringVariable());
-				if(_resultRecord.ParseJson(_result.downloadHandler.text) == true){
+
+				if(_resultRecord.ParseJson(_json) == true){
 					if(_resultRecord["result"].AsVariable.AsInt == 0){
 						if(string.IsNullOrEmpty(_record[_table.PrimaryKey].AsVariable.AsString) == true){
 							_record[_table.PrimaryKey].AsVariable.AsString = _resultRecord[_table.PrimaryKey].AsVariable.AsString;
