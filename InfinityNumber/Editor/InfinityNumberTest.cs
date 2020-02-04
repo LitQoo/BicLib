@@ -47,10 +47,9 @@ namespace BicUtil.InfinityNumber
 				var _gold = new InfinityNumber(1000, 0);
 
 				_gold.Add(1000, 0);
-
 				Assert.AreEqual(_gold.Quantity, 2000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "2K");
+				Assert.AreEqual(_gold.ToString(), "2 K");
 				testNo++;
 			}
 
@@ -61,7 +60,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1.001M");
+				Assert.AreEqual(_gold.ToString(), "1.001 M");
 				testNo++;
 			}
 
@@ -72,7 +71,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1.001B");
+				Assert.AreEqual(_gold.ToString(), "1.001 B");
 				testNo++;
 			}
 		}
@@ -88,7 +87,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 2000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "2K");
+				Assert.AreEqual(_gold.ToString(), "2 K");
 				testNo++;
 			}
 
@@ -99,7 +98,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1.001M");
+				Assert.AreEqual(_gold.ToString(), "1.001 M");
 				testNo++;
 			}
 
@@ -110,7 +109,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1001, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1.001B");
+				Assert.AreEqual(_gold.ToString(), "1.001 B");
 				testNo++;
 			}
 		}
@@ -136,7 +135,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 999000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "999K");
+				Assert.AreEqual(_gold.ToString(), "999 K");
 				testNo++;
 			}
 
@@ -147,14 +146,14 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, -999000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "-999M");
+				Assert.AreEqual(_gold.ToString(), "-999 M");
 				testNo++;
 			}
 
 			{
 				var _gold = new InfinityNumber(-2001, 1);
 
-				Assert.AreEqual(_gold.ToString(), "-2.001M");
+				Assert.AreEqual(_gold.ToString(), "-2.001 M");
 				testNo++;
 			}
 		}
@@ -179,7 +178,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 999000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "999K");
+				Assert.AreEqual(_gold.ToString(), "999 K");
 				testNo++;
 			}
 
@@ -190,7 +189,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, -999000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "-999M");
+				Assert.AreEqual(_gold.ToString(), "-999 M");
 				testNo++;
 			}
 		}
@@ -206,7 +205,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 1, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1M");
+				Assert.AreEqual(_gold.ToString(), "1 M");
 				testNo++;
 			}
 
@@ -217,7 +216,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 1000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "1B");
+				Assert.AreEqual(_gold.ToString(), "1 B");
 				testNo++;
 			}
 
@@ -228,7 +227,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 2003, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 4, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "2.003bb");
+				Assert.AreEqual(_gold.ToString(), "2.003 bb");
 				testNo++;
 			}
 		}
@@ -243,7 +242,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 3500, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "3.500K");
+				Assert.AreEqual(_gold.ToString(), "3.500 K");
 				testNo++;
 			}
 
@@ -254,7 +253,29 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 10000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "10K");
+				Assert.AreEqual(_gold.ToString(), "10 K");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityNumber(1000, 1);
+
+				_gold.Multiply(-0.01f);
+
+				Assert.AreEqual(_gold.Quantity, -10000, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "-10 K");
+				testNo++;
+			}
+
+			{
+				var _gold = new InfinityNumber(-1000, 1);
+
+				_gold.Multiply(-0.01f);
+
+				Assert.AreEqual(_gold.Quantity, 10000, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
+				Assert.AreEqual(_gold.ToString(), "10 K");
 				testNo++;
 			}
 
@@ -265,7 +286,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 4002, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "4.002B");
+				Assert.AreEqual(_gold.ToString(), "4.002 B");
 				testNo++;
 			}
 
@@ -276,7 +297,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 18008, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 4, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "18.008bb");
+				Assert.AreEqual(_gold.ToString(), "18.008 bb");
 				testNo++;
 			}
 
@@ -302,7 +323,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 3500, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "3.500K");
+				Assert.AreEqual(_gold.ToString(), "3.500 K");
 				testNo++;
 			}
 
@@ -313,7 +334,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 10000, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 0, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "10K");
+				Assert.AreEqual(_gold.ToString(), "10 K");
 				testNo++;
 			}
 
@@ -324,7 +345,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 4002, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "4.002B");
+				Assert.AreEqual(_gold.ToString(), "4.002 B");
 				testNo++;
 			}
 
@@ -335,7 +356,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 18008, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 4, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "18.008bb");
+				Assert.AreEqual(_gold.ToString(), "18.008 bb");
 				testNo++;
 			}
 
@@ -346,7 +367,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, 100100, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "100.100B");
+				Assert.AreEqual(_gold.ToString(), "100.100 B");
 				testNo++;
 			}
 
@@ -357,7 +378,7 @@ namespace BicUtil.InfinityNumber
 
 				Assert.AreEqual(_gold.Quantity, -100100, "test" + testNo.ToString());
 				Assert.AreEqual(_gold.Unit, 2, "test" + testNo.ToString());
-				Assert.AreEqual(_gold.ToString(), "-100.100B");
+				Assert.AreEqual(_gold.ToString(), "-100.100 B");
 				testNo++;
 			}
 		}

@@ -21,37 +21,37 @@ namespace BicUtil.InfinityNumber
             return UnitStrings[_unit];
         }
 
-        static public InfinityNumberData StringToInfinityNumberData(string _moneyString, char _splitChar = ' '){
-            if(_moneyString.Contains(_splitChar.ToString()) == true){
-                var _moneyStrings = _moneyString.Split(_splitChar);
+        static public InfinityNumberData StringToInfinityNumberData(string _numberString, char _splitChar = ' '){
+            if(_numberString.Contains(_splitChar.ToString()) == true){
+                var _numberStrings = _numberString.Split(_splitChar);
                 int _unit = 0;
                 for(int i = 0; i < UnitStrings.Length; i++){
-                    if(UnitStrings[i] == _moneyStrings[1]){
+                    if(UnitStrings[i] == _numberStrings[1]){
                         _unit = i;
                         break;
                     }
                 }
 
-                if(_moneyStrings[0].Contains(".") == true){
-                    var _moneyStrings2 = _moneyStrings[0].Split('.');
-                    var _quantity = Int32.Parse(_moneyStrings2[0]) * 1000;
+                if(_numberStrings[0].Contains(".") == true){
+                    var _numberStrings2 = _numberStrings[0].Split('.');
+                    var _quantity = Int32.Parse(_numberStrings2[0]) * 1000;
                     if(_quantity > 0){
-                        _quantity += Int32.Parse(_moneyStrings2[1]);
+                        _quantity += Int32.Parse(_numberStrings2[1]);
                     }else{
-                        _quantity -= Int32.Parse(_moneyStrings2[1]);
+                        _quantity -= Int32.Parse(_numberStrings2[1]);
                     }
                     return new InfinityNumberData(_quantity, _unit - 1);
                 }else{
-                    return new InfinityNumberData(Int32.Parse(_moneyStrings[0]), _unit);
+                    return new InfinityNumberData(Int32.Parse(_numberStrings[0]), _unit);
                 }
             }else{
-                return new InfinityNumberData(Int32.Parse(_moneyString), 0);
+                return new InfinityNumberData(Int32.Parse(_numberString), 0);
             }
         }
 
-        public static int GetQuantityAtUnit(InfinityNumber _money, int _unit){
-            var _unitDiff = _money.Unit - _unit;
-            var _quantity = _money.Quantity;
+        public static int GetQuantityAtUnit(InfinityNumber _number, int _unit){
+            var _unitDiff = _number.Unit - _unit;
+            var _quantity = _number.Quantity;
 
             if(_unitDiff == 0){
                 return _quantity;
@@ -70,9 +70,8 @@ namespace BicUtil.InfinityNumber
 
         public static bool operator >(InfinityNumber c1, InfinityNumber c2)
         {   
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-            if(c1.Quantity > _quantity){
+            var _sub = (c1 - c2);
+            if(_sub.Quantity > 0){
                 return true;
             }else{
                 return false;
@@ -81,9 +80,8 @@ namespace BicUtil.InfinityNumber
 
         public static bool operator <(InfinityNumber c1, InfinityNumber c2)
         {
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-            if(c1.Quantity < _quantity){
+            var _sub = (c2 - c1);
+            if(_sub.Quantity > 0){
                 return true;
             }else{
                 return false;
@@ -92,9 +90,8 @@ namespace BicUtil.InfinityNumber
 
         public static bool operator >=(InfinityNumber c1, InfinityNumber c2)
         {
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-            if(c1.Quantity >= _quantity){
+            var _sub = (c1 - c2);
+            if(_sub.Quantity >= 0){
                 return true;
             }else{
                 return false;
@@ -103,9 +100,8 @@ namespace BicUtil.InfinityNumber
 
         public static bool operator <=(InfinityNumber c1, InfinityNumber c2)
         {
-            var _quantity = GetQuantityAtUnit(c2, c1.Unit);
-
-            if(c1.Quantity <= _quantity){
+            var _sub = (c2 - c1);
+            if(_sub.Quantity >= 0){
                 return true;
             }else{
                 return false;
@@ -129,6 +125,20 @@ namespace BicUtil.InfinityNumber
             }
 
             return _quantity;
+        }
+
+        public static InfinityNumber operator * (InfinityNumber c1, float c2)
+        {
+            InfinityNumber _result = new InfinityNumber(c1.Quantity, c1.Unit);
+            _result.Multiply(c2);
+            return _result;
+        }
+
+        public static InfinityNumber operator / (InfinityNumber c1, float c2)
+        {
+            InfinityNumber _result = new InfinityNumber(c1.Quantity, c1.Unit);
+            _result.Multiply(1f / c2);
+            return _result;
         }
 
         public static InfinityNumber operator - (InfinityNumber c1, InfinityNumber c2)
@@ -158,9 +168,9 @@ namespace BicUtil.InfinityNumber
         #endregion
 
         #region LifeCycle
-        public InfinityNumber(string _moneyString){
+        public InfinityNumber(string _numberString){
             seed = EncryptedIntVariable.Random.Next(int.MaxValue);
-            SetByString(_moneyString);
+            SetByString(_numberString);
         }
 
         public InfinityNumber(int _quantity, int _unit){
@@ -179,10 +189,10 @@ namespace BicUtil.InfinityNumber
         }
 
         public override string ToString(){
-            return GetMoneyString(string.Empty);
+            return GetNumberString();
         }
 
-        public string GetMoneyString(string _splitString = ""){
+        public string GetNumberString(char _splitString = ' '){
             StringBuilder _result = new StringBuilder(); 
             if(Quantity >= 1000 || Quantity <= -1000){
                  
@@ -219,8 +229,8 @@ namespace BicUtil.InfinityNumber
         }
 
         
-        public void SetByString(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
+        public void SetByString(string _numberString, char _splitChar = ' '){
+            var _data = StringToInfinityNumberData(_numberString, _splitChar);
             this.Set(_data.Quantity, _data.Unit);
         }
 
@@ -247,26 +257,26 @@ namespace BicUtil.InfinityNumber
             adjustmentUnit();
         }
 
-        public void Add(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
+        public void Add(string _numberString, char _splitChar = ' '){
+            var _data = StringToInfinityNumberData(_numberString, _splitChar);
             this.Add(_data.Quantity, _data.Unit);
         }
         
-        public void Add(InfinityNumber _subMoney){
-            this.Add(_subMoney.Quantity, _subMoney.Unit);
+        public void Add(InfinityNumber _subNumber){
+            this.Add(_subNumber.Quantity, _subNumber.Unit);
         }
 
         public void Sub(int _quantity, int _unit){
             Add(_quantity * -1, _unit);
         }
 
-        public void Sub(string _moneyString, char _splitChar = ' '){
-            var _data = StringToInfinityNumberData(_moneyString, _splitChar);
+        public void Sub(string _numberString, char _splitChar = ' '){
+            var _data = StringToInfinityNumberData(_numberString, _splitChar);
             this.Sub(_data.Quantity, _data.Unit);
         }
 
-        public void Sub(InfinityNumber _subMoney){
-            this.Sub(_subMoney.Quantity, _subMoney.Unit);
+        public void Sub(InfinityNumber _subNumber){
+            this.Sub(_subNumber.Quantity, _subNumber.Unit);
         }
 
 
@@ -276,8 +286,16 @@ namespace BicUtil.InfinityNumber
             adjustmentUnit();
         }
 
+        public void Divide(int _quantity, int _unit){
+            Quantity /= _quantity;
+            Unit -= unit;
+        }
+
         public void Multiply(float _rate){
             int _unit = 0;
+
+            float _isMinus = _rate < 0 ? -1f : 1f;
+            _rate = Mathf.Abs(_rate);
 
             if(_rate == 0){
                 Quantity = 0;
@@ -297,9 +315,17 @@ namespace BicUtil.InfinityNumber
                 }
             }
             
-            Quantity = (int)(Quantity * _rate);
+            Quantity = (int)(Quantity * _rate * _isMinus);
             Unit += _unit;
             adjustmentUnit();
+        }
+
+        public void Divide(float _rate){
+            if(_rate == 0){
+                throw new DivideByZeroException();
+            }
+
+            this.Multiply(1f / _rate);
         }
 
         protected virtual void adjustmentUnit(){

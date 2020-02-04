@@ -13,11 +13,11 @@ namespace BicUtil.InfinityNumber
         }
 
         #region AsValue
-		public int AsInt{ get{ return Int32.Parse(AsString); } set{ AsString = value.ToString();} }
-		public string AsString{ get{ return this.GetMoneyString(" "); } set{ SetByString(value, ' ');  NotifyChanged ();} }
-		public float AsFloat{ get{ return  (float)Double.Parse(AsString); } set{ AsString = value.ToString();} }
-		public bool AsBool{ get{ return AsString.ToLower()== "true" ? true : false; } set{ AsString = (value ? "true" : "false") ;} }
-		public DataType Type { get { return DataType.Object; }}
+		public int AsInt{ get{ throw new SystemException("Not Support"); } set{ throw new SystemException("Not Support"); } }
+        public string AsString{ get{ return this.GetNumberString(); } set{ this.SetByString(value);  NotifyChanged ();} }
+        public float AsFloat{ get{ throw new SystemException("Not Support"); } set{ throw new SystemException("Not Support"); } }
+        public bool AsBool{ get{ throw new SystemException("Not Support"); } set{ throw new SystemException("Not Support");} }
+        public DataType Type { get { return DataType.String; }}
 		#endregion
         
         #region IDataBase
@@ -45,11 +45,15 @@ namespace BicUtil.InfinityNumber
         public event Action<IVariable> OnChangedValueActions = delegate{};
 
         public void NotifyChanged(){
-            OnChangedValueActions (this as IVariable);
+            if(isTurnOffNotify == false){
+                OnChangedValueActions (this as IVariable);
+            }
         }
 
         public void NotifyChanged(IVariable _value){
-            OnChangedValueActions (this as IVariable);
+            if(isTurnOffNotify == false){
+                OnChangedValueActions (this as IVariable);
+            }
         }
 
         public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
@@ -78,6 +82,13 @@ namespace BicUtil.InfinityNumber
         protected override void adjustmentUnit(){
             base.adjustmentUnit();
             NotifyChanged();
+        }
+
+        private bool isTurnOffNotify = false;
+        public void SetWithoutNotify(Action _action){
+            isTurnOffNotify = true;
+            _action();
+            isTurnOffNotify = false;
         }
         #endregion
     }

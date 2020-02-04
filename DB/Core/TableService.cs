@@ -103,7 +103,6 @@ namespace BicDB.Core
             }
 
             throw new SystemException("TableService Not Load");
-
         }
 
         static public void init(){

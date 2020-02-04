@@ -14,6 +14,10 @@ namespace BicDB.Container
 {
 	[TestFixture]
 	public class TableTest {
+		public TableTest(){
+			TableService.Load(_result=>{});
+		}
+
 		[Test]
 		public void GetRowSizeTest(){
 			var _table = new TableContainer<RecordContainer>("tablename");
