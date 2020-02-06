@@ -15,6 +15,7 @@ namespace BicDB.Storage
 		#region Static
 		static public string LOAD_URL_KEY = "webstorageLoadURL";
 		static public string SEND_RECORD_URL = "sendRecordURL";
+		static public string ENCRYPT = "encrypt";
 		#endregion
 
 		public enum ResultCode
@@ -80,6 +81,10 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + LOAD_URL_KEY);
 			}
 
+			if (!_table.Header.ContainsKey (ENCRYPT)) {
+				throw new SystemException ("not found Header " + ENCRYPT);
+			}
+
 			var _webParam = _parameter as WebStorageParameter;
 			var _formData = new RecordContainer();
 
@@ -90,17 +95,17 @@ namespace BicDB.Storage
 			}
 
 			var _form = new WWWForm();
-			_form.AddField("data", BicUtil.Crypto.AES256.Encrypt(_formData.ToString()));
+			var _formDataString = _formData.ToString();
+			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+			}
+			_form.AddField("data", _formDataString);
 
 			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
 			this.SendWebRequest(_request, _result=>{
 				var _storageResult = new Result ((int)ResultCode.Success);
-				string _json = string.Empty;
-				if(_webParam != null && _webParam.RequestConvertor != null){
-					_json = _webParam.RequestConvertor(_result.downloadHandler.text);
-				}else{
-					_json = _result.downloadHandler.text;
-				}
+				string _json = _result.downloadHandler.text;
+				
 
 				int _counter = 0;
 				if (string.IsNullOrEmpty(_result.error) == false)
@@ -111,13 +116,19 @@ namespace BicDB.Storage
 				else
 				{
 					try{
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+						if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+							_json = BicUtil.Crypto.AES256.Decrypt(_json);
+						}
 					}catch{
 						if(_loadCallback != null){
 							_storageResult.Code = (int)ResultCode.Crypto;
 							_loadCallback(_storageResult);
 						}
 						return;
+					}
+
+					if(_webParam != null && _webParam.RequestConvertor != null){
+						_json = _webParam.RequestConvertor(_json);
 					}
 
 					try {
@@ -159,6 +170,10 @@ namespace BicDB.Storage
 				throw new SystemException ("not found Header " + SEND_RECORD_URL);
 			}
 
+			if (!_table.Header.ContainsKey (ENCRYPT)) {
+				throw new SystemException ("not found Header " + ENCRYPT);
+			}
+
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
 			_formData.AddManagedColumn(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable);
@@ -170,7 +185,11 @@ namespace BicDB.Storage
 			}
 
 			var _form = new WWWForm();
-			_form.AddField("data", BicUtil.Crypto.AES256.Encrypt(_formData.ToString()));
+			var _formDataString = _formData.ToString();
+			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+			}
+			_form.AddField("data", _formDataString);
 
 			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
 
@@ -182,9 +201,11 @@ namespace BicDB.Storage
 					return;
 				}
 
-				string _json = "";
+				string _json = _result.downloadHandler.text;
 				try{
-					_json = BicUtil.Crypto.AES256.Decrypt(_result.downloadHandler.text);
+					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}
 				}catch{
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.Crypto));
