@@ -16,6 +16,8 @@ namespace BicUtil.Ads
         #region LifeCycle
         private void OnDestroy() {
             AdsManager.Instance.RemoveBanner(this);
+            bannerView.OnAdLoaded -= onLoaded;
+            bannerView.OnAdFailedToLoad -= reloadBanner;
             bannerView.Destroy();
         }
         #endregion
@@ -50,7 +52,6 @@ namespace BicUtil.Ads
         private void reloadBanner(){
             reloadTime = Mathf.Min(reloadTime * 2f, 600f);
             BicTween.Delay(reloadTime).SubscribeComplete(()=>{
-                AdsManager.Instance.RemoveBanner(this);
                 AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
                 Destroy(this.gameObject);
             });
