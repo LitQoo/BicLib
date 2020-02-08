@@ -19,35 +19,16 @@ namespace BicUtil.Analytics
             }
         } 
 
-        private bool isCheckInit = false;
-        private bool isInit = false;
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
-            if(isCheckInit == false){
-                checkInit();
-            }
-
-            if(isInit == true){
+            if(Firebase.FirebaseApp.CheckDependencies() == Firebase.DependencyStatus.Available){
                 RetrySavedEvent();
                 sendEvent(_name, _value, _eventData);
             }else{
                 savedEvent.Add(new SavedEvent(_name, _eventData, _value));
                 needRetryEvent = true;
             }
-        }
-
-        private void checkInit()
-        {
-            isCheckInit = true;
-            Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(_task=>{
-                var dependencyStatus = _task.Result;
-                if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                    isInit = true;
-                }else{
-                    isInit = false;
-                }
-            });
         }
 
         public void RetrySavedEvent(){
