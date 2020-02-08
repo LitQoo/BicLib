@@ -22,7 +22,15 @@ namespace BicUtil.Analytics
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
-            if(Firebase.FirebaseApp.CheckDependencies() == Firebase.DependencyStatus.Available){
+            var _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
+
+            try{
+                _isAvailable = Firebase.FirebaseApp.CheckDependencies();
+            }catch{
+                _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
+            }
+            
+            if(_isAvailable == Firebase.DependencyStatus.Available){
                 RetrySavedEvent();
                 sendEvent(_name, _value, _eventData);
             }else{
