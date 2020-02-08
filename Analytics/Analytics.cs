@@ -18,6 +18,10 @@ namespace BicUtil.Analytics
             this.addService(new FBAnalytics());
             #endif
 
+            #if BICUTIL_ANALYTICS_FIREBASE
+            this.addService(new FirebaseAnalytics());
+            #endif
+
             #if BICUTIL_ANALYTICS_UNITY
             this.addService(new UnityAnalytics());
             #endif
