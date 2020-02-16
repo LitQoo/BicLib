@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Variable;
 
@@ -10,6 +11,7 @@ namespace BicDB.Storage
 		void Save(Action<Result> _callback = null, object _parameter = null);
 		void Load(Action<Result> _callback = null, object _parameter = null);
 		void Pull(Action<Result> _callback = null, object _parameter = null);
+		Task<Result> LoadAsync(object _parameter);
 	}
 
 	public interface ITableStorageSuppoter : IStorageSuppoter, IRecordContainerParent{
@@ -54,6 +56,7 @@ namespace BicDB.Storage
 		void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null)  where T : IRecordContainer, new();
 		void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new();
 		void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new();
+		Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new();
 	}
 
 	public interface IDataStoreStorage

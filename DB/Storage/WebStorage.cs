@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using BicUtil.Json;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BicDB.Storage
 {
@@ -71,6 +72,13 @@ namespace BicDB.Storage
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
 			this.Pull(_table, _callback, _parameter);
+		}
+
+		public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+		{
+			throw new NotImplementedException();
+			// _table.Clear();
+			//  this.PullAsync(_table, _callback, _parameter);
 		}
 
 		public void Pull<T>(ITableContainer<T> _targetTable, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
@@ -241,9 +249,9 @@ namespace BicDB.Storage
 				}
 			});
 		}
-		#endregion
+        #endregion
 
-	}
+    }
 
 	public class WebStorageParameter{
 		public Func<string, string> RequestConvertor = null;

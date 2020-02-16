@@ -8,6 +8,7 @@ using System;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using BicUtil.Json;
+using System.Threading.Tasks;
 
 namespace BicDB.Core
 {
@@ -130,6 +131,16 @@ namespace BicDB.Core
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
             _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
             _loader.Load(_callback, 3);
+        }
+
+        static public async Task<Result> LoadAsync(){
+            init();
+
+            var _loader = new TableLoader();
+            _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
+            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
+            var _result = await _loader.LoadAsync(3);
+            return _result;
         }
 
         private static void setStringProperty(string _key, string _value){

@@ -7,6 +7,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using BicUtil.Json;
 using UnityEngine.Networking;
+using System.Threading.Tasks;
 
 namespace BicDB.Storage
 {
@@ -59,7 +60,7 @@ namespace BicDB.Storage
 
 			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 			string _json = JsonConvertor.GetInstance().ToFormattedString(_table);
-			FileStorage.Write(_json, getFileName(_table.Name), getEncryptKey(_table));
+			FileStorageUtil.Write(_json, getFileName(_table.Name), getEncryptKey(_table));
 
 			if (_callback != null) {
 				_callback(new Result((int)ResultCode.Success));
@@ -82,7 +83,7 @@ namespace BicDB.Storage
 
 			var _result = new Result ((int)ResultCode.Success);
 			if(_param.Target != SyncStorageParameter.SyncTarget.WebStorageOnly){
-				string _data = FileStorage.ReadByPath(FileStorage.GetPath(getFileName(_table.Name)), getEncryptKey(_table));
+				string _data = FileStorageUtil.ReadAndDecrypt(FileStorageUtil.GetPath(getFileName(_table.Name)), getEncryptKey(_table));
 				int _counter = 0;
 
 				if (!string.IsNullOrEmpty (_data)) {
@@ -152,8 +153,13 @@ namespace BicDB.Storage
 				loadCallback (_result);
 			}
 		}
-		#endregion
-	}
+
+        public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 
 
 	public class SyncStorageParameter{

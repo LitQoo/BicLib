@@ -5,6 +5,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using System.Security.Cryptography;
 using BicDB.Storage;
+using System.Threading.Tasks;
 
 namespace BicDB.Container
 {
@@ -210,6 +211,10 @@ namespace BicDB.Container
 
 		public void Load(Action<Result> _callback = null, object _parameter = null){
 			storage.Load(this, _callback, _parameter);
+		}
+
+		public Task<Result> LoadAsync(object _parameter = null){
+			throw new NotImplementedException();
 		}
 
 		public void Pull(Action<Result> _callback = null, object _parameter = null){

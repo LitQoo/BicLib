@@ -1,7 +1,10 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BicDB.Storage;
+using BicDB.Variable;
 using BicUtil.Tween;
 
 namespace BicDB.Core
@@ -74,7 +77,7 @@ namespace BicDB.Core
                         errorMasssage += _loadData.Table.Name + "/ leftCount : " + leftCount.ToString() + "/" + _result.Message + "/" + _result.Code.ToString() +"\n";
                         
                         try{
-                            var _string = FileStorage.ReadByPath(_loadData.Table.Name, FileStorage.GetInstance().GetEncryptKey(_loadData.Table.Name));
+                            var _string = FileStorageUtil.ReadAndDecrypt(_loadData.Table.Name, FileStorage.GetInstance().GetEncryptKey(_loadData.Table.Name));
                             errorMasssage += "/filestring : " + _string + "/";
                         }catch(SystemException _e){
                             errorMasssage += "/error readbypath " + _e.ToString() + "/";
@@ -87,17 +90,52 @@ namespace BicDB.Core
         }
 
         private string errorMasssage = "";
+
+
+        public async Task<BicDB.Result> LoadAsync(int _retryCount){
+            int loadCount = 0;
+            List<Task<BicDB.Result>> _taskList = new List<Task<BicDB.Result>>();
+            for(int i = 0; i < tableList.Count; i++){
+                var _param = tableList[i].Parameter;
+                var _task = tableList[i].Table.LoadAsync(_param); 
+                tableList[i].TaskId.AsInt = _task.Id;
+                _taskList.Add(_task);
+            }
+
+            while(true){
+                var _result = await Task.WhenAll(_taskList.ToArray());
+                for(int i = _taskList.Count - 1; i >= 0; i--){
+                    var _tableInfo = tableList.FirstOrDefault(_row=>_row.TaskId.AsInt==_taskList[i].Id);
+                    var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : true;
+
+                    if(_result[i].IsSuccess == true && _isComplete == true){
+                        _taskList.RemoveAt(i);
+                    }
+                }
+
+                if(_taskList.Count == 0){
+                    return new BicDB.Result(0);
+                }else{
+                    loadCount++;
+                    if(loadCount > _retryCount){
+                        return new BicDB.Result(1);
+                    }
+                }
+            }
+        }
     }
 
     public struct TableLoadData{
         public ITableStorageSuppoter Table;
         public object Parameter;
         public Func<Result, bool> PassCallback;
+        public IntVariable TaskId;
 
         public TableLoadData(ITableStorageSuppoter _table, object _param, Func<Result, bool> _passCallback = null){
             this.Table = _table;
             this.Parameter = _param;
             this.PassCallback = _passCallback;
+            this.TaskId = new IntVariable(-1);
         }
     }
 }

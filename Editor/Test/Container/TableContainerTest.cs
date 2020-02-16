@@ -9,6 +9,7 @@ using BicDB.Variable;
 using System.Linq;
 using BicDB.Storage;
 using BicDB.Core;
+using System.Threading.Tasks;
 
 namespace BicDB.Container
 {
@@ -384,6 +385,11 @@ namespace BicDB.Container
 				if(_callback != null){
 					_callback(new Result(0, string.Empty, 0));
 				} 
+            }
+
+            public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+            {
+                throw new NotImplementedException();
             }
 
             public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new()

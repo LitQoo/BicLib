@@ -8,6 +8,7 @@ using BicDB.Storage;
 using BicDB.Core;
 using UnityEngine;
 using BicUtil.Json;
+using System.Threading.Tasks;
 
 namespace BicDB.Container
 {
@@ -351,6 +352,11 @@ namespace BicDB.Container
 				storage.Push(this, _callback);
 				commitRows.Clear();
 			}
+		}
+
+		public async Task<Result> LoadAsync(object _parameter = null){
+			var _result = await storage.LoadAsync(this, _parameter);
+			return _result;
 		}
 
         public IRecordContainer RecordAt(int _index)
