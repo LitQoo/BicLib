@@ -139,34 +139,12 @@ namespace BicDB.Storage{
 			
 			TextAsset tText = Resources.Load<TextAsset>(_filePath);
 
-			
 			return tText.text;
 			#endif 
 		}
 
 		public async Task<string> ReadAssetAsync(string _filePath){
-			#if UNITY_EDITOR
-			string _path = Application.dataPath + "/Resources/" + _filePath;
-
-			if (File.Exists(_path))
-			{
-				var _result = await FileStorageUtil.ReadFileAsync(_path);
-				return _result;
-			}
-			else
-			{
-				Debug.Log("not found json file Resources/" + _filePath);
-				return null;
-			}
-			#else
-			if(_filePath.Contains(".")){
-				_filePath = _filePath.Split('.')[0];
-			}
-
-			TextAsset tText = Resources.LoadAsync<TextAsset>(_filePath);
-
-			return tText.text;
-			#endif 
+			return ReadAsset(_filePath);
 		}
 
 
