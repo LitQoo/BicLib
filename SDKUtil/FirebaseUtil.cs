@@ -45,7 +45,7 @@ namespace BicUtil.SDKUtil
             Log(_log);
 
             if(_constants.ContainsKey("ab_group") == true){
-                BicUtil.Analytics.Analytics.Instance.Event("ABGroup", new Dictionary<string, object> {
+                BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
                     {
                         "GroupName",
                         _constants["ab_group"].AsVariable.AsString
@@ -63,7 +63,7 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             var _result = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
             Log("firebase init complete "+ _result.ToString());
-            BicUtil.Analytics.Analytics.Instance.Event("FirebaseInit", new Dictionary<string, object> {
+            BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                 {
                     "Result",
                     _result.ToString()
@@ -82,7 +82,7 @@ namespace BicUtil.SDKUtil
                 try{
                     _eventName = _eventName + SceneManager.GetActiveScene().name;
                     Debug.Log(_eventName);
-                    BicUtil.Analytics.Analytics.Instance.Event(_eventName, new Dictionary<string, object> {
+                    BicUtil.Analytics.Analytics.Event(_eventName, new Dictionary<string, object> {
                         {
                             "Result",
                             "Success"
@@ -210,14 +210,14 @@ namespace BicUtil.SDKUtil
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                BicUtil.Analytics.Analytics.Instance.Event("FirebaseInit", new Dictionary<string, object> {
+                BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
                         "Result",
                         "Success"
                     }
                 });
             } else {
-                BicUtil.Analytics.Analytics.Instance.Event("FirebaseInit", new Dictionary<string, object> {
+                BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
                         "Result",
                         "Fail"

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Runtime.CompilerServices;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace BicUtil.Analytics
             libList.Add(_lib);
         }
 
-        public void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
+        private void sendEvent(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
             #if UNITY_EDITOR
                 if(libList.Count <= 0){
                     Debug.LogError("[Analytics] Analytics Lib is Not Added");
@@ -44,6 +45,11 @@ namespace BicUtil.Analytics
             }
             #endif
         }
+
+        static public void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
+            Instance.sendEvent(_eventName, _eventData, _count);
+        }
+
     }
 
     public interface IAnalyticsLib{

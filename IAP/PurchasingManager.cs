@@ -263,7 +263,7 @@ namespace BicUtil.Purchasing{
 		
 		public void OnInitializeFailed(InitializationFailureReason error)
 		{
-			BicUtil.Analytics.Analytics.Instance.Event("IAP_Init_Fail", new Dictionary<string, object>{
+			BicUtil.Analytics.Analytics.Event("IAP_Init_Fail", new Dictionary<string, object>{
 				{"reason", error.ToString()}
 			});
 
@@ -311,7 +311,7 @@ namespace BicUtil.Purchasing{
 
 			productTable.Save();
 
-			BicUtil.Analytics.Analytics.Instance.Event("IAP_Success", new Dictionary<string, object>{
+			BicUtil.Analytics.Analytics.Event("IAP_Success", new Dictionary<string, object>{
 				{"id", _id},
 				{"currency", _productInfo.CurrencyCode.AsString},
 				{"revenue", _productInfo.Price.AsFloat},
@@ -340,7 +340,7 @@ namespace BicUtil.Purchasing{
             }
 
 
-			BicUtil.Analytics.Analytics.Instance.Event("IAP_Refund", new Dictionary<string, object>{
+			BicUtil.Analytics.Analytics.Event("IAP_Refund", new Dictionary<string, object>{
 				{"id", _id}
 			});
 
@@ -419,7 +419,7 @@ namespace BicUtil.Purchasing{
 		{
 			var _product = getProduct(product.definition.id);
 
-			BicUtil.Analytics.Analytics.Instance.Event("IAP_Fail", new Dictionary<string, object>{
+			BicUtil.Analytics.Analytics.Event("IAP_Fail", new Dictionary<string, object>{
 				{"reason", failureReason.ToString()},
 				{"id", product.definition.storeSpecificId}
 			});

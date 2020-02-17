@@ -22,7 +22,7 @@ namespace BicUtil.Splash
 
                 }
 
-                BicUtil.Analytics.Analytics.Instance.Event("Install", new Dictionary<string, object>{
+                BicUtil.Analytics.Analytics.Event("Install", new Dictionary<string, object>{
                     {"version", _version}
                 });
 
@@ -30,7 +30,7 @@ namespace BicUtil.Splash
             };
 
             TableService.OnUpdate += (_lastVersion, _currentVersion)=>{
-                BicUtil.Analytics.Analytics.Instance.Event("Update", new Dictionary<string, object>{
+                BicUtil.Analytics.Analytics.Event("Update", new Dictionary<string, object>{
                     {"from", _lastVersion},
                     {"to", _currentVersion}
                 });
