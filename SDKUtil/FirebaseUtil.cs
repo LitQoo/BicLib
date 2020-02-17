@@ -52,7 +52,10 @@ namespace BicUtil.SDKUtil
                     }
                 });
                 
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
+                if(_constants["ab_group"].AsVariable.AsString != "default" && _constants["ab_group"].AsVariable.AsString != "none"){
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
+                }
+                
             }else{
                 #if UNITY_EDITOR
                 Debug.LogError("[ABTest] Add 'ab_group' value in Constant");
