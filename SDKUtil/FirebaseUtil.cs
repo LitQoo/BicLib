@@ -29,14 +29,20 @@ namespace BicUtil.SDKUtil
         }
 
         static private void updateConstant(IRecordContainer _constants){
-            Log("updateConstant");
+            Log("updateConstant start");
+            string _log = "updateConstant\n";
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
-                    _value.Value.AsVariable.AsString = _stringValue;
-                    Log("updateConstant " + _value.Key + "="+ _value.Value.AsVariable.AsString);
+                    try{
+                        _value.Value.AsVariable.AsString = _stringValue;
+                        _log += _value.Key + "="+ _value.Value.AsVariable.AsString + "\n";
+                    }catch{
+                        Log("updateConstant error " + _value.Key);
+                    }
                 }
             }
+            Log(_log);
 
             if(_constants.ContainsKey("ab_group") == true){
                 BicUtil.Analytics.Analytics.Instance.Event("ABGroup", new Dictionary<string, object> {
