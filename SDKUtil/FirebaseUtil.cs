@@ -51,6 +51,8 @@ namespace BicUtil.SDKUtil
                         _constants["ab_group"].AsVariable.AsString
                     }
                 });
+                
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
             }else{
                 #if UNITY_EDITOR
                 Debug.LogError("[ABTest] Add 'ab_group' value in Constant");
@@ -70,6 +72,10 @@ namespace BicUtil.SDKUtil
                 }
             });
 
+            if(TableService.IsSetup == true){
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", Application.version);
+            }
+            
             if (_result == Firebase.DependencyStatus.Available) {
                 
                 var _eventName = "";
