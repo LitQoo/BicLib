@@ -30,19 +30,16 @@ namespace BicUtil.SDKUtil
 
         static private void updateConstant(IRecordContainer _constants){
             Log("updateConstant start");
-            string _log = "updateConstant\n";
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
-                        _log += _value.Key + "="+ _value.Value.AsVariable.AsString + "\n";
                     }catch{
                         Log("updateConstant error " + _value.Key);
                     }
                 }
             }
-            Log(_log);
 
             if(_constants.ContainsKey("ab_group") == true){
                 BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
@@ -140,6 +137,10 @@ namespace BicUtil.SDKUtil
             var _asyncTask = Task.Run(async ()=>{
                 Debug.Log("FirebaseRemoteConfig FetchAsync");
                 var _reloadTime = TimeSpan.FromDays(1);
+                if(TableService.IsUpdate == true){
+                    _reloadTime = TimeSpan.Zero;
+                }
+                
                 #if UNITY_EDITOR
                     Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
                     _reloadTime = TimeSpan.Zero;
