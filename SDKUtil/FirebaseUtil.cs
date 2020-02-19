@@ -29,7 +29,6 @@ namespace BicUtil.SDKUtil
         }
 
         static private void updateConstant(IRecordContainer _constants){
-            Log("updateConstant start");
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
@@ -49,10 +48,7 @@ namespace BicUtil.SDKUtil
                     }
                 });
                 
-                if(_constants["ab_group"].AsVariable.AsString != "default" && _constants["ab_group"].AsVariable.AsString != "none"){
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
-                }
-                
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
             }else{
                 #if UNITY_EDITOR
                 Debug.LogError("[ABTest] Add 'ab_group' value in Constant");
@@ -135,7 +131,6 @@ namespace BicUtil.SDKUtil
             Debug.Log("FirebaseRemoteConfig Start");
 
             var _asyncTask = Task.Run(async ()=>{
-                Debug.Log("FirebaseRemoteConfig FetchAsync");
                 var _reloadTime = TimeSpan.FromDays(1);
                 if(TableService.IsUpdate == true){
                     _reloadTime = TimeSpan.Zero;
@@ -147,9 +142,7 @@ namespace BicUtil.SDKUtil
                 #endif
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime); 
                 await _fetchTask.ContinueWith(FetchComplete);
-                Debug.Log("FirebaseRemoteConfig ActivateFetched");
                 var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched(); 
-                Debug.Log("FirebaseRemoteConfig updateConstant " + _isFetched.ToString());
                 updateConstant(_constants);
                 return new BicDB.Result(0);
             });
