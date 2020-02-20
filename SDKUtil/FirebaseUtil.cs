@@ -39,7 +39,7 @@ namespace BicUtil.SDKUtil
                     }
                 }
             }
-
+            
             if(_constants.ContainsKey("ab_group") == true){
                 BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
                     {
@@ -47,7 +47,7 @@ namespace BicUtil.SDKUtil
                         _constants["ab_group"].AsVariable.AsString
                     }
                 });
-                
+
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
             }else{
                 #if UNITY_EDITOR
@@ -70,30 +70,6 @@ namespace BicUtil.SDKUtil
 
             if(TableService.IsSetup == true){
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", Application.version);
-            }
-            
-            if (_result == Firebase.DependencyStatus.Available) {
-                
-                var _eventName = "";
-                if(TableService.IsSetup == true){
-                    _eventName = "InitRemoteConfigOn";
-                }else{
-                    _eventName = "OldUserRemoteConfigOn";
-                }
-
-                try{
-                    _eventName = _eventName + SceneManager.GetActiveScene().name;
-                    Debug.Log(_eventName);
-                    BicUtil.Analytics.Analytics.Event(_eventName, new Dictionary<string, object> {
-                        {
-                            "Result",
-                            "Success"
-                        }
-                    });
-                }catch(Exception _e){
-                    Log("send InitRemoteConfigOn error");
-                    Firebase.Crashlytics.Crashlytics.LogException(_e);
-                }
             }
 
             if(_result == Firebase.DependencyStatus.Available){
@@ -130,19 +106,23 @@ namespace BicUtil.SDKUtil
             
             Debug.Log("FirebaseRemoteConfig Start");
 
-            var _asyncTask = Task.Run(async ()=>{
+            var _asyncTask = Task.Run(async ()=>
+            {
                 var _reloadTime = TimeSpan.FromDays(1);
-                if(TableService.IsUpdate == true){
+                if (TableService.IsUpdate == true)
+                {
                     _reloadTime = TimeSpan.Zero;
                 }
-                
-                #if UNITY_EDITOR
-                    Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
-                    _reloadTime = TimeSpan.Zero;
-                #endif
-                var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime); 
+
+#if UNITY_EDITOR
+                Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
+                _reloadTime = TimeSpan.Zero;
+#endif
+                var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
-                var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched(); 
+                var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
+                sendActiveABTestEvent();
+                await Task.Delay(10);
                 updateConstant(_constants);
                 return new BicDB.Result(0);
             });
@@ -153,6 +133,42 @@ namespace BicUtil.SDKUtil
             });
 
             await Task.WhenAny(_asyncTask, _timeoutTask);
+        }
+
+        private static void sendActiveABTestEvent()
+        {
+            var _eventName = "";
+            if (TableService.IsSetup == true)
+            {
+                _eventName = "InitRemoteConfigOn";
+                BicUtil.Analytics.Analytics.Event("InitRemoteConfigNewUser", new Dictionary<string, object> {
+                        {
+                            "Result",
+                            "Success"
+                        }
+                    });
+            }
+            else
+            {
+                _eventName = "OldUserRemoteConfigOn";
+            }
+
+            try
+            {
+                _eventName = _eventName + SceneManager.GetActiveScene().name;
+                Debug.Log(_eventName);
+                BicUtil.Analytics.Analytics.Event(_eventName, new Dictionary<string, object> {
+                        {
+                            "Result",
+                            "Success"
+                        }
+                });
+            }
+            catch (Exception _e)
+            {
+                Log("send InitRemoteConfigOn error");
+                Firebase.Crashlytics.Crashlytics.LogException(_e);
+            }
         }
 
         static private void FetchComplete(Task fetchTask)
