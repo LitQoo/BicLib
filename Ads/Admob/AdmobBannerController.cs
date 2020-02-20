@@ -52,8 +52,28 @@ namespace BicUtil.Ads
         private void reloadBanner(){
             reloadTime = Mathf.Min(reloadTime * 2f, 600f);
             BicTween.Delay(reloadTime).SubscribeComplete(()=>{
-                AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
-                Destroy(this.gameObject);
+                var _log = "reload time is " + reloadTime.ToString();
+                try{
+                    if(adsPlacement == null){
+                        _log += "/adsPlacement is null";
+                    }
+
+                    if(AdsManager.Instance == null){
+                        _log += "/AdsManager.Instance is null";
+                    }
+
+                    if(this.gameObject == null){
+                        _log += "/this.gameobejct is null";
+                    }
+
+                    AdsManager.Instance.CreateBanner(adsPlacement, Color.black, onLoadBannerAction);
+                    _log += "/2";
+                    Destroy(this.gameObject);
+                    _log += "/3";
+                }catch(SystemException _e){
+                    Debug.Log(_log);
+                    throw new SystemException(_log);
+                }
             });
         }
         #endregion

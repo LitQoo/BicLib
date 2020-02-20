@@ -76,7 +76,7 @@ namespace BicUtil.Ads
 			string _appID = model.AppId.AsString;
 			string _campainName = campaignName;
 			
-			BicUtil.Analytics.Analytics.Instance.Event("clickHouseAds", new Dictionary<string, object>
+			BicUtil.Analytics.Analytics.Event("clickHouseAds", new Dictionary<string, object>
 			{
 				{ "type", "houseAds"  },
 				{ "id", _appID},
