@@ -30,15 +30,15 @@ namespace BicDB.Container
 		}
 
 		public void SubscribeOnRemoved(Action<T> _callback){
-			onRemvoedValueActions += _callback;
+			onRemovedValueActions += _callback;
 		} 
 
 		public void UnsubscribeOnRemoved(Action<T> _callback){
-			onRemvoedValueActions -= _callback;
+			onRemovedValueActions -= _callback;
 		}
 		
 		private event Action<T> onAddedValueActions = null;
-		private event Action<T> onRemvoedValueActions = null;
+		private event Action<T> onRemovedValueActions = null;
 
 		[Obsolete("use SubscribeOnAdded")]
 		public event Action<T> OnAddedValueActions {
@@ -103,11 +103,17 @@ namespace BicDB.Container
 
 		public void RemoveAt(int _index)
 		{
-			if(onRemvoedValueActions != null){
-				onRemvoedValueActions(data[_index]);
+
+			var _target = data[_index]; 
+			if(onRemovedValueActions != null){
+				UnityEngine.Debug.LogWarning("[ListContainer] onRemvoedValueActions 순서변경에 따른 이펙트 확인!!");
 			}
 
 			data.RemoveAt(_index);
+
+			if(onRemovedValueActions != null){
+				onRemovedValueActions(_target);
+			}
 		}
 
 		public void Add(T _item)
@@ -124,9 +130,9 @@ namespace BicDB.Container
 				OnClearedValueActions();
 			}
 
-			if(onRemvoedValueActions != null){
+			if(onRemovedValueActions != null){
 				for(int i = 0; i < data.Count; i ++){
-					onRemvoedValueActions(data[i]);
+					onRemovedValueActions(data[i]);
 				}
 			}
 
@@ -145,8 +151,8 @@ namespace BicDB.Container
 
 		public bool Remove(T _item)
 		{
-			if(onRemvoedValueActions != null){
-				onRemvoedValueActions(_item);
+			if(onRemovedValueActions != null){
+				onRemovedValueActions(_item);
 			}
 			
 			return data.Remove(_item);

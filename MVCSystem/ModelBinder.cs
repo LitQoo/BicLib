@@ -159,6 +159,14 @@ namespace BicUtil.MVCSystem
 				}
 			}
 		}
+
+		public void BindModelToControllerOnRemove<T>(ListContainer<T> _list, Action<T> _func) where T : IDataBase, new(){
+			bindRemoverList.Add (()=>{
+				_list.UnsubscribeOnRemoved(_func);
+			});
+
+			_list.SubscribeOnRemoved(_func);
+		}
 		#endregion
 
 		#region Controller -> Model Binding
