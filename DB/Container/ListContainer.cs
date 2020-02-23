@@ -6,6 +6,7 @@ using BicDB.Storage;
 using BicDB.Container;
 using BicDB.Variable;
 using System.Collections;
+using UnityEngine;
 
 namespace BicDB.Container
 {
@@ -126,17 +127,18 @@ namespace BicDB.Container
 
 		public void Clear()
 		{
-			if(OnClearedValueActions != null){
-				OnClearedValueActions();
-			}
-
 			if(onRemovedValueActions != null){
+				Debug.LogWarning("[BicDB] 콜백순서 확인 필요");
 				for(int i = 0; i < data.Count; i ++){
 					onRemovedValueActions(data[i]);
 				}
 			}
 
 			data.Clear();
+			
+			if(OnClearedValueActions != null){
+				OnClearedValueActions();
+			}
 		}
 
 		public bool Contains(T _item)
@@ -150,12 +152,14 @@ namespace BicDB.Container
 		}
 
 		public bool Remove(T _item)
-		{
-			if(onRemovedValueActions != null){
+		{	
+			var _result = data.Remove(_item);
+
+			if(onRemovedValueActions != null && _result == true){
 				onRemovedValueActions(_item);
 			}
-			
-			return data.Remove(_item);
+
+			return _result;
 		}
 
 		public IEnumerator<T> GetEnumerator()
