@@ -32,11 +32,15 @@ namespace BicUtil.Analytics
 
         public void RetrySavedEvent(){
             if(needRetryEvent == true){
-                foreach(var _savedData in savedEvent){
-                    FB.LogAppEvent(_savedData.Name, _savedData.Value, _savedData.EventData);
-                }
+                try{
+                    foreach(var _savedData in savedEvent){
+                        FB.LogAppEvent(_savedData.Name, _savedData.Value, _savedData.EventData);
+                    }
 
-                savedEvent.Clear();
+                    savedEvent.Clear();
+                }catch{
+
+                }
                 needRetryEvent = false;
             }
         }
