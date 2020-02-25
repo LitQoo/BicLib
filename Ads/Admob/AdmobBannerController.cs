@@ -15,6 +15,7 @@ namespace BicUtil.Ads
 
         #region LifeCycle
         private void OnDestroy() {
+            BicTween.Cancel(this.gameObject);
             AdsManager.Instance.RemoveBanner(this);
             bannerView.OnAdLoaded -= onLoaded;
             bannerView.OnAdFailedToLoad -= reloadBanner;
@@ -34,7 +35,7 @@ namespace BicUtil.Ads
             AdRequest request = new AdRequest.Builder().Build();
             BicTween.Delay(0.1f).SubscribeComplete(()=>{
                 bannerView.LoadAd(request);
-            });
+            }).SetTargetObject(this.gameObject);
         }
 
         private void onLoaded(object sender, EventArgs e)
@@ -74,7 +75,7 @@ namespace BicUtil.Ads
                     Debug.Log(_log);
                     throw new SystemException(_log);
                 }
-            });
+            }).SetTargetObject(this.gameObject);
         }
         #endregion
 
