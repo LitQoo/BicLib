@@ -330,6 +330,10 @@ namespace BicUtil.Tween
 					}
 				}
 			}
+
+			if(OnUpdateCallback != null){
+				OnUpdateCallback(CurrentValue);
+			}
 		}
 
 		private void updateForSpawn(){
@@ -349,6 +353,7 @@ namespace BicUtil.Tween
 				
 				Data = _childList;
 			}
+
 
 			var _list = Data as List<TweenModel>;
 			
@@ -374,6 +379,10 @@ namespace BicUtil.Tween
 				if(_list[i].IsPlaying == false){	
 					_list.RemoveAt(i);
 				}
+			}
+
+			if(OnUpdateCallback != null){
+				OnUpdateCallback(CurrentValue);
 			}
 		}
 
