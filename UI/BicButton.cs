@@ -5,6 +5,7 @@ using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static BicUtil.UI.Button;
 
 namespace BicUtil.UI{
     [RequireComponent(typeof(UnityEngine.UI.Button))]
@@ -20,7 +21,7 @@ namespace BicUtil.UI{
         [SerializeField]
         private Button button;
         [SerializeField]
-        private float onClickScaleUpRate = 1.2f;
+        private float onClickScaleUpRate = 1.1f;
         [SerializeField]
         private float onClickScaleDownTime = 0.1f;
         [SerializeField]
@@ -90,4 +91,5 @@ namespace BicUtil.UI{
         }
         #endregion
     }
+
 }
