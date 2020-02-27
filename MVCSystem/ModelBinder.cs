@@ -167,6 +167,20 @@ namespace BicUtil.MVCSystem
 
 			_list.SubscribeOnRemoved(_func);
 		}
+
+		public void BindModelToControllerOnChangedElementForAll<T>(ListContainer<T> _list, Action<int, T> _func, bool _needFirstCall) where T : IDataBase, new(){
+			bindRemoverList.Add (()=>{
+				_list.UnsubscribeOnChangedElementForAll(_func);
+			});
+
+			_list.SubscribeOnChangedElementForAll(_func);
+
+			if (_needFirstCall == true) {
+				for(int i = 0; i < _list.Count; i++){
+					_func (i, _list[i]);
+				}
+			}
+		}
 		#endregion
 
 		#region Controller -> Model Binding

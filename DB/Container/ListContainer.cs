@@ -37,6 +37,14 @@ namespace BicDB.Container
 		public void UnsubscribeOnRemoved(Action<T> _callback){
 			onRemovedValueActions -= _callback;
 		}
+
+		public void SubscribeOnChangedElementForAll(Action<int, T> _callback){
+			OnChangedElementActions.OnChangedElementActionsAll += _callback;
+		}
+		
+		public void UnsubscribeOnChangedElementForAll(Action<int, T> _callback){
+			OnChangedElementActions.OnChangedElementActionsAll -= _callback;
+		}
 		
 		private event Action<T> onAddedValueActions = null;
 		private event Action<T> onRemovedValueActions = null;

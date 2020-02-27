@@ -101,11 +101,16 @@ namespace BicDB.Variable
 	}
 
 
-	public class OnChangedElementDelegator<T, U>{
-		private Dictionary<T, Action<int, U>> onChangedElementActions = new Dictionary<T, Action<int, U>>();
+	public class OnChangedElementDelegator<KEYTYPE, VALUETYPE>{
+		private Dictionary<KEYTYPE, Action<KEYTYPE, VALUETYPE>> onChangedElementActions = new Dictionary<KEYTYPE, Action<KEYTYPE, VALUETYPE>>();
+		public Action<KEYTYPE, VALUETYPE> OnChangedElementActionsAll = null;
 
-		public Action<int, U> this[T _index]{
+		public Action<KEYTYPE, VALUETYPE> this[KEYTYPE _index]{
 			get{
+				if(OnChangedElementActionsAll != null){
+					return OnChangedElementActionsAll;
+				}
+
 				if (!onChangedElementActions.ContainsKey(_index)) {
 					onChangedElementActions[_index] = delegate {};
 				}
@@ -116,6 +121,14 @@ namespace BicDB.Variable
 			set{ 
 				onChangedElementActions[_index] = value;
 			}
+		}
+		
+		public OnChangedElementDelegator(){
+
+		}
+		
+		public OnChangedElementDelegator(Action<KEYTYPE, VALUETYPE> _callbackForAll){
+			OnChangedElementActionsAll = _callbackForAll;
 		}
 	}
 
