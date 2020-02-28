@@ -59,4 +59,13 @@ namespace BicDB.Variable
 		}
 		#endregion
 	}
+
+	public class FloatVariableWithSetter : FloatVariable{
+		new public float AsFloat{ get{ return data; } set{ data = Setter(value); NotifyChanged ();} }
+		public Func<float, float> Setter{get;set;} = null;
+		public FloatVariableWithSetter(Func<float, float> _setter, float _value = 0f) : base(_value){
+			this.Setter = _setter;
+			AsFloat = _value;
+		}
+	}
 }
