@@ -25,12 +25,22 @@ namespace BicUtil.TouchNotifier
 		public TouchEventWithStartingPosition OnTouchUp = new TouchEventWithStartingPosition();
 		private Vector2[] startTouchPosition = new Vector2[10]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
 
+        [SerializeField]
 		private bool[] isTouchIn = new bool[10]{false, false, false, false, false,false, false, false, false, false};
 
 		private void Update ()
         {
-            #if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
-			checkTouch(Input.GetMouseButton(0), 0);
+            #if UNITY_EDITOR
+            if(UnityEditor.EditorApplication.isRemoteConnected == true){
+                touchProcess();
+            }else{
+                checkTouch(Input.GetMouseButton(0), 0);
+                checkTouch(Input.GetMouseButton(1), 1);
+                twoTouchScaleWithControlKey();
+                twoTouchMoveWithShiftKey();
+            }
+            #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+            checkTouch(Input.GetMouseButton(0), 0);
 			checkTouch(Input.GetMouseButton(1), 1);
 			twoTouchScaleWithControlKey();
 			twoTouchMoveWithShiftKey();
@@ -52,22 +62,39 @@ namespace BicUtil.TouchNotifier
 		}
 
 		public Vector2 GetTouch(int _touchIndex){
-			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
-			
-			if(isTouchIn[1] == true){
-				return Camera.main.ScreenToWorldPoint (Input.mousePosition) - new Vector3(100, 100);
-			}else{
-				Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-				return _position;
-			}
-			#else
-			try{
-				var _touch = Input.GetTouch(_touchIndex);
-				return Camera.main.ScreenToWorldPoint (_touch.position);
-			}catch{
-				return startTouchPosition[_touchIndex];
-			}
-			#endif
+			#if UNITY_EDITOR
+                bool _useGetTouch = false;
+
+                if(UnityEditor.EditorApplication.isRemoteConnected == true){
+                    _useGetTouch = true;
+                }
+            #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+                bool _useGetTouch = false;
+            #else
+                bool _useGetTouch = true;
+            #endif
+
+            if(_useGetTouch == false){
+                if(isTouchIn[1] == true){
+                    return Camera.main.ScreenToWorldPoint (Input.mousePosition) - new Vector3(100, 100);
+                }else{
+                    Vector2 _position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+                    return _position;
+                }
+            }else{
+                try{
+                    for(int i = 0; i < Input.touchCount; i++){
+                        var _touch = Input.GetTouch(i);
+                        if(_touch.fingerId == _touchIndex){
+                            return Camera.main.ScreenToWorldPoint (_touch.position);
+                        }
+                    }
+
+                    return startTouchPosition[_touchIndex];
+                }catch{
+                    return startTouchPosition[_touchIndex];
+                }
+            }
 		}
 
 		public bool IsEnableTouch(int _touchIndex){
@@ -85,7 +112,15 @@ namespace BicUtil.TouchNotifier
 
 		public int TouchCount{
 			get{
-			#if UNITY_EDITOR || UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
+                return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
+
+			#if UNITY_EDITOR 
+                if(UnityEditor.EditorApplication.isRemoteConnected == true){
+                    return Input.touchCount;
+                }else{
+                    return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
+                }
+            #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
 				return Input.touchCount;
@@ -95,56 +130,61 @@ namespace BicUtil.TouchNotifier
 		#endregion
 
 		#region Mobile 
-
+        Action touchUpNotify = null;
         private void touchProcess()
         {
-			int _touchCount = Mathf.Min(Input.touchCount, isTouchIn.Length);
-			if (_touchCount <= 0)
-			{
-				return;
-			}
-
+			int _touchCount = Input.touchCount;
+            
+            touchUpNotify = null;
             for (int i = 0; i < _touchCount; i++)
             {
+                
                 var _touch = Input.GetTouch(i);
+                var _index = _touch.fingerId;
+
                 if (_touch.phase == TouchPhase.Began)
                 {
-                    notifyOnTouchDown(i, _touch);
+                    notifyOnTouchDown(_touch.fingerId, _touch);
                 }
-                else if (_touch.phase == TouchPhase.Ended && isTouchIn[i] == true)
+                else if (_touch.phase == TouchPhase.Ended && isTouchIn[_index] == true)
                 {
-                    notifyOnTouchUp(i, _touch);
+                    isTouchIn[_index] = false;
+                    int _i = _index;
+                    touchUpNotify += ()=>notifyOnTouchUp(_i, _touch);
                 }
-                else if (isTouchIn[i] == true)
+                else if (isTouchIn[_index] == true)
                 {
-                    notifyOnTouchMove(i, _touch);
+                    notifyOnTouchMove(_index, _touch);
                 }
+            }
+
+            if(touchUpNotify != null){
+                touchUpNotify();
             }
         }
 
-        private void notifyOnTouchMove(int i, Touch _touch)
+        private void notifyOnTouchMove(int _index, Touch _touch)
         {
             Vector2 _position = Camera.main.ScreenToWorldPoint(_touch.position);
-            if (_position != startTouchPosition[i])
+            if (_position != startTouchPosition[_index])
             {
-                OnTouchMove.Invoke(startTouchPosition[i], _position, i);
+                OnTouchMove.Invoke(startTouchPosition[_index], _position, _index);
             }
         }
 
-        private void notifyOnTouchUp(int i, Touch _touch)
+        private void notifyOnTouchUp(int _index, Touch _touch)
         {
             Vector2 _position = Camera.main.ScreenToWorldPoint(_touch.position);
-            OnTouchUp.Invoke(startTouchPosition[i], _position, i);
-            isTouchIn[i] = false;
+            OnTouchUp.Invoke(startTouchPosition[_index], _position, _index);
         }
 
-        private void notifyOnTouchDown(int i, Touch _touch)
+        private void notifyOnTouchDown(int _index, Touch _touch)
         {
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(i) == false)
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(_index) == false)
             {
-                isTouchIn[i] = true;
-                startTouchPosition[i] = Camera.main.ScreenToWorldPoint(_touch.position);
-                OnTouchDown.Invoke(startTouchPosition[i], i);
+                isTouchIn[_index] = true;
+                startTouchPosition[_index] = Camera.main.ScreenToWorldPoint(_touch.position);
+                OnTouchDown.Invoke(startTouchPosition[_index], _index);
             }
         }
 		#endregion
@@ -165,8 +205,8 @@ namespace BicUtil.TouchNotifier
             else if (isTouchIn[_touchIndex] == true && _touchResponse == false)
             {
                 Vector2 _position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                OnTouchUp.Invoke(startTouchPosition[_touchIndex], _position, _touchIndex);
                 isTouchIn[_touchIndex] = false;
+                OnTouchUp.Invoke(startTouchPosition[_touchIndex], _position, _touchIndex);
             }
             else if (isTouchIn[_touchIndex] == true)
             {
@@ -188,8 +228,8 @@ namespace BicUtil.TouchNotifier
             }
             else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftControl) == false) && isTouchIn[3] == true)
             {
-                OnTouchUp.Invoke(startTouchPosition[3], startTouchPosition[3], 1);
 				isTouchIn[3] = false;
+                OnTouchUp.Invoke(startTouchPosition[3], startTouchPosition[3], 1);
             }
             else if (isTouchIn[3] == true)
             {
@@ -207,9 +247,9 @@ namespace BicUtil.TouchNotifier
             }
             else if ((isTouchIn[0] == false || Input.GetKey(KeyCode.LeftShift) == false) && isTouchIn[4] == true)
             {
+                isTouchIn[4] = false;
                 var _position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - new Vector2(50, 50);
                 OnTouchUp.Invoke(startTouchPosition[4], _position, 1);
-				isTouchIn[4] = false;
             }
             else if (isTouchIn[4] == true)
             {
