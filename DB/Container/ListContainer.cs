@@ -115,7 +115,9 @@ namespace BicDB.Container
 
 			var _target = data[_index]; 
 			if(onRemovedValueActions != null){
+				#if UNITY_EDITOR
 				UnityEngine.Debug.LogWarning("[ListContainer] onRemvoedValueActions 순서변경에 따른 이펙트 확인!!");
+				#endif
 			}
 
 			data.RemoveAt(_index);
