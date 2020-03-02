@@ -114,16 +114,19 @@ namespace BicUtil.SDKUtil
                     _reloadTime = TimeSpan.Zero;
                 }
 
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
                 _reloadTime = TimeSpan.Zero;
-#endif
+                #endif
+
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
                 var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
+                await Task.Delay(20);
+                #if !UNITY_EDITOR
                 sendActiveABTestEvent();
-                await Task.Delay(10);
                 updateConstant(_constants);
+                #endif
                 return new BicDB.Result(0);
             });
 
