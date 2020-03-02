@@ -153,6 +153,14 @@ namespace BicUtil.Ads
             }
         }
 
+        public void ShowInterstitialIfReady(object _adsPlacement, Action<AdsResult> _nextAction){
+            if(IsReadyInterstitial(_adsPlacement) == true){
+                ShowInterstitial(_adsPlacement, _nextAction);
+            }else{
+                _nextAction(AdsResult.Failed);
+            }
+        }
+
         public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
         {
             IsShowingInterstital = true;
