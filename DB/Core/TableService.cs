@@ -194,7 +194,12 @@ namespace BicDB.Core
         private static bool setupSysTable(Result _result)
         {
                 checkToSyncFileAndPrefs();
+                Debug.Log("tableinfo load " + _result.Code.ToString());
+                try{
+                    Debug.Log("tableinfo is " + tableInfo.ToString());
+                }catch{
 
+                }
             //if(_result.IsSuccess == true){
                 if(hasProperty(PROP_FIELD_VERSION)){
                     lastVersion = getStringProperty(PROP_FIELD_VERSION);
@@ -314,6 +319,7 @@ namespace BicDB.Core
 
         static public void Save(){
             tableInfo.Save();
+            PlayerPrefs.Save();
         }
 
         static public void BackupProperties(){
