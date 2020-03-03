@@ -57,7 +57,7 @@ namespace BicUtil.SDKUtil
             var _result = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
 
             if(_result == Firebase.DependencyStatus.Available){
-                Application.logMessageReceivedThreaded += log;
+                Application.logMessageReceived += log;
             }
 
             Debug.Log("firebase init complete "+ _result.ToString());
@@ -232,7 +232,7 @@ namespace BicUtil.SDKUtil
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                Application.logMessageReceivedThreaded += log;
+                Application.logMessageReceived += log;
 
                 BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
