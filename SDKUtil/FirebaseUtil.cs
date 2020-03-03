@@ -13,13 +13,8 @@ namespace BicUtil.SDKUtil
     public static class FirebaseUtil
     {
         #region FireBase
-        static public void Log(string _message){
-            UnityEngine.Debug.Log(_message);
-            Firebase.Crashlytics.Crashlytics.Log(_message);
-        }
-
         static private void setRemoteConfigDefaultValue(IRecordContainer _constants){
-            Log("setRemoteConfigDefaultValue");
+            Debug.Log("setRemoteConfigDefaultValue");
             var _default = new Dictionary<string, object>();
             foreach(var _value in _constants){
                 _default.Add(_value.Key, _value.Value.AsVariable.AsString);
@@ -35,7 +30,7 @@ namespace BicUtil.SDKUtil
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
                     }catch{
-                        Log("updateConstant error " + _value.Key);
+                        Debug.Log("updateConstant error " + _value.Key);
                     }
                 }
             }
@@ -60,7 +55,12 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             var _result = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
-            Log("firebase init complete "+ _result.ToString());
+
+            if(_result == Firebase.DependencyStatus.Available){
+                Application.logMessageReceivedThreaded += log;
+            }
+
+            Debug.Log("firebase init complete "+ _result.ToString());
             BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                 {
                     "Result",
@@ -93,10 +93,10 @@ namespace BicUtil.SDKUtil
                     return new BicDB.Result(1);
                 }
             }else if(_result == _timeoutTask){
-                Log("firebase init timeout");
+                Debug.Log("firebase init timeout");
                 return new BicDB.Result(2);
             }else{
-                Log("firebase init known");
+                Debug.Log("firebase init known");
                 return new BicDB.Result(3);
             }
         }
@@ -169,7 +169,7 @@ namespace BicUtil.SDKUtil
             }
             catch (Exception _e)
             {
-                Log("send InitRemoteConfigOn error");
+                Debug.Log("send InitRemoteConfigOn error");
                 Firebase.Crashlytics.Crashlytics.LogException(_e);
             }
         }
@@ -232,6 +232,8 @@ namespace BicUtil.SDKUtil
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
+                Application.logMessageReceivedThreaded += log;
+
                 BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
                         "Result",
@@ -247,6 +249,11 @@ namespace BicUtil.SDKUtil
                 });
             }
             });
+        }
+
+        private static void log(string _condition, string _stackTrace, LogType _type)
+        {
+            Firebase.Crashlytics.Crashlytics.Log(_condition + "\n[stack]" + _stackTrace + "\n[type]" + _type.ToString());
         }
         #endregion
 

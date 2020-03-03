@@ -23,7 +23,13 @@ namespace BicUtil.Analytics
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             if(FB.IsInitialized == true){
                 RetrySavedEvent();
-                FB.LogAppEvent(_name, _value, _eventData);
+                
+                try{
+                    Debug.Log("FBLog " + _name);
+                    FB.LogAppEvent(_name, _value, _eventData);
+                }catch{
+                    Debug.Log("LogAppEvent Error " + _name);
+                }
             }else{
                 savedEvent.Add(new SavedEvent(_name, _eventData, _value));
                 needRetryEvent = true;
@@ -34,12 +40,13 @@ namespace BicUtil.Analytics
             if(needRetryEvent == true){
                 try{
                     foreach(var _savedData in savedEvent){
+                        Debug.Log("RetrySavedEvent FBLog " + _savedData.Name);
                         FB.LogAppEvent(_savedData.Name, _savedData.Value, _savedData.EventData);
                     }
 
                     savedEvent.Clear();
                 }catch{
-
+                    Debug.Log("RetrySavedEvent Error ");
                 }
                 needRetryEvent = false;
             }
