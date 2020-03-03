@@ -141,7 +141,7 @@ namespace BicUtil.TouchNotifier
                 
                 var _touch = Input.GetTouch(i);
                 var _index = _touch.fingerId;
-
+                
                 if (_touch.phase == TouchPhase.Began)
                 {
                     notifyOnTouchDown(_touch.fingerId, _touch);
@@ -180,11 +180,16 @@ namespace BicUtil.TouchNotifier
 
         private void notifyOnTouchDown(int _index, Touch _touch)
         {
+            try{
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(_index) == false)
             {
                 isTouchIn[_index] = true;
                 startTouchPosition[_index] = Camera.main.ScreenToWorldPoint(_touch.position);
                 OnTouchDown.Invoke(startTouchPosition[_index], _index);
+            }
+            }catch(SystemException _e){
+                Debug.Log("notifyOnTouchDown fingerid = " + _index);
+                throw _e;
             }
         }
 		#endregion
