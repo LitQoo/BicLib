@@ -224,9 +224,9 @@ namespace BicUtil.TableView
         public float scrollableDistance {
             get {
 				if(m_isVertical) {
-					return m_scrollRect.content.rect.height - (this.transform as RectTransform).rect.height;
+					return Mathf.Max(0, m_scrollRect.content.rect.height - (this.transform as RectTransform).rect.height);
 				} else {
-					return m_scrollRect.content.rect.width - (this.transform as RectTransform).rect.width;
+					return Mathf.Max(0, m_scrollRect.content.rect.width - (this.transform as RectTransform).rect.width);
 				}
             }
         }
