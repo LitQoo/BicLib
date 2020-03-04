@@ -23,10 +23,10 @@ namespace BicUtil.TouchNotifier
 		public TouchEvent OnTouchDown = new TouchEvent();
 		public TouchEventWithStartingPosition OnTouchMove = new TouchEventWithStartingPosition();
 		public TouchEventWithStartingPosition OnTouchUp = new TouchEventWithStartingPosition();
-		private Vector2[] startTouchPosition = new Vector2[10]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
+		private Vector2[] startTouchPosition = new Vector2[20]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
 
         [SerializeField]
-		private bool[] isTouchIn = new bool[10]{false, false, false, false, false,false, false, false, false, false};
+		private bool[] isTouchIn = new bool[20]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
 
 		private void Update ()
         {
