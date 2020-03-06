@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -27,6 +28,7 @@ namespace BicUtil.Tween
         public bool IsPlaying{get;set;}
         public bool IsLockedComplete{get;set;}
 		public int CreatedFrameCount{get;set;}
+		public string CallerInfo{get;set;}
 		public Action Update{get;set;}
 		public string StringData{get{ return stringData;} set{stringData = value;}}
         public bool IsDestroyed{get{ return destoryCount >= DESTORY_READY_TO_RECYCLE; }}
@@ -198,6 +200,7 @@ namespace BicUtil.Tween
 			TargetObject = null;
 			IsLockedComplete = false;
 			CreatedFrameCount = 0;
+			CallerInfo = string.Empty;
 
 			if(this.childDataList != null){
 				this.childDataList.Clear();
@@ -238,6 +241,7 @@ namespace BicUtil.Tween
 			_tween.stringData = this.stringData;
 			_tween.IsLockedComplete = this.IsLockedComplete;
 			_tween.CreatedFrameCount = this.CreatedFrameCount;
+			_tween.CallerInfo = this.CallerInfo + "(copy)";
 			
 			#if UNITY_EDITOR
 			_tween.editor_targetPath = this.pool.GetTargetPath(_tween.targetObject);
@@ -593,6 +597,14 @@ namespace BicUtil.Tween
 
 		public TweenModel SetEase(EaseType _easeType){
 			EaseType = _easeType;
+			return this;
+		}
+
+		public TweenModel SetCaller(
+			[CallerMemberName] string _memberName = "",
+			[CallerFilePath] string _sourceFilePath = "",
+			[CallerLineNumber] int _sourceLineNumber = 0){
+			CallerInfo = _memberName + "," + _sourceFilePath + "," + _sourceLineNumber.ToString();
 			return this;
 		}
 

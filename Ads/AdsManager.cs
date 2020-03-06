@@ -217,6 +217,13 @@ namespace BicUtil.Ads
             }
         }
         
+        public void ShowRewardBasedIfReady(object _adsPlacement, Action<AdsResult> _nextAction){
+            if(IsReadyRewardBased(_adsPlacement) == true){
+                ShowRewardBased(_adsPlacement, _nextAction);
+            }else{
+                _nextAction(AdsResult.Failed);
+            }
+        }
 
         public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {

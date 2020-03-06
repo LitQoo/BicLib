@@ -24,8 +24,6 @@ namespace BicUtil.TouchNotifier
 		public TouchEventWithStartingPosition OnTouchMove = new TouchEventWithStartingPosition();
 		public TouchEventWithStartingPosition OnTouchUp = new TouchEventWithStartingPosition();
 		private Vector2[] startTouchPosition = new Vector2[20]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
-
-        [SerializeField]
 		private bool[] isTouchIn = new bool[20]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
 
 		private void Update ()
@@ -134,12 +132,13 @@ namespace BicUtil.TouchNotifier
         private void touchProcess()
         {
 			int _touchCount = Input.touchCount;
-            
+            Touch _touch = default(Touch);
             touchUpNotify = null;
+            try{
             for (int i = 0; i < _touchCount; i++)
             {
                 
-                var _touch = Input.GetTouch(i);
+                _touch = Input.GetTouch(i);
                 var _index = _touch.fingerId;
                 
                 if (_touch.phase == TouchPhase.Began)
@@ -161,6 +160,10 @@ namespace BicUtil.TouchNotifier
             if(touchUpNotify != null){
                 touchUpNotify();
             }
+            }catch(SystemException _e){
+                Debug.Log("touchProcess error " + _touch.fingerId.ToString() + ", touch Count " + _touchCount.ToString() + ", touchinsize "+ isTouchIn.Length.ToString());
+                throw _e;
+            }
         }
 
         private void notifyOnTouchMove(int _index, Touch _touch)
@@ -180,15 +183,20 @@ namespace BicUtil.TouchNotifier
 
         private void notifyOnTouchDown(int _index, Touch _touch)
         {
+            var _line = 1;
             try{
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(_index) == false)
             {
+                _line = 2;
                 isTouchIn[_index] = true;
+                _line = 3;
                 startTouchPosition[_index] = Camera.main.ScreenToWorldPoint(_touch.position);
+                _line = 4;
                 OnTouchDown.Invoke(startTouchPosition[_index], _index);
             }
+            _line = 5;
             }catch(SystemException _e){
-                Debug.Log("notifyOnTouchDown fingerid = " + _index);
+                Debug.Log("notifyOnTouchDown fingerid = " + _index + ", line = " + _line.ToString() + ", touchnisize " + isTouchIn.Length.ToString() + ", startTouchPosition size "+ startTouchPosition.Length.ToString());
                 throw _e;
             }
         }

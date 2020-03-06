@@ -18,6 +18,10 @@ namespace BicUtil.ServerTime
         private NtpClient ntpClient = new NtpClient();
         private Action onFiledSyncCallback;
         
+        private void OnDestroy() {
+            BicTween.Cancel(this.gameObject);    
+        }
+        
         public void Sync(){
             if(State.AsEnum == ServerTimeState.Fail){
                 return;
@@ -42,7 +46,7 @@ namespace BicUtil.ServerTime
             #if UNITY_EDITOR
             BicTween.Delay(5f).SubscribeComplete(()=>{
                 InternetTime.GetTime(setTimeByInternet, timeout);
-            });
+            }).SetTargetObject(this.gameObject);
             #else
             InternetTime.GetTime(setTimeByInternet, timeout);
             #endif
@@ -80,9 +84,10 @@ namespace BicUtil.ServerTime
             if(_isSuccess == true){
                 setDiff(_dateTime);
             }else{
+                Debug.Log("time sync failed retry " + timeout.ToString());
                 State.AsEnum = ServerTimeState.Fail;
-                BicTween.Delay(timeout).SubscribeComplete(sync);
-                timeout += 2;
+                BicTween.Delay(timeout).SubscribeComplete(sync).SetTargetObject(this.gameObject);
+                timeout *= 2;
             }
         }
 
