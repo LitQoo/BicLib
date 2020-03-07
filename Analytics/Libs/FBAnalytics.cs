@@ -25,7 +25,6 @@ namespace BicUtil.Analytics
                 RetrySavedEvent();
                 
                 try{
-                    Debug.Log("FBLog " + _name);
                     FB.LogAppEvent(_name, _value, _eventData);
                 }catch{
                     Debug.Log("LogAppEvent Error " + _name);

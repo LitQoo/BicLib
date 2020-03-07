@@ -70,6 +70,8 @@ namespace BicUtil.SDKUtil
 
             if(TableService.IsSetup == true){
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", Application.version);
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(Application.version).ToString());
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateTime", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
             }
 
             if(_result == Firebase.DependencyStatus.Available){
@@ -77,6 +79,27 @@ namespace BicUtil.SDKUtil
             }
 
             return _result;
+        }
+
+        public static int GetVersionNumber(string _versionString){
+            try{
+                if(_versionString.Contains(".") == true){
+                    var _versions = _versionString.Split('.');
+                    int _result = 0;
+                    _result += int.Parse(_versions[0]) * 10000;
+                    _result += int.Parse(_versions[1]) * 100;
+
+                    if(_versions.Length >=3){
+                        _result += int.Parse(_versions[2]);
+                    }
+
+                    return _result;
+                }else{
+                    return int.Parse(_versionString) * 10000;	
+                }
+            }catch{
+                return 0;
+            }
         }
 
         static public async Task<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
