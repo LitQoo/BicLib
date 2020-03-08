@@ -23,8 +23,9 @@ namespace BicUtil.TouchNotifier
 		public TouchEvent OnTouchDown = new TouchEvent();
 		public TouchEventWithStartingPosition OnTouchMove = new TouchEventWithStartingPosition();
 		public TouchEventWithStartingPosition OnTouchUp = new TouchEventWithStartingPosition();
-		private Vector2[] startTouchPosition = new Vector2[20]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
-		private bool[] isTouchIn = new bool[20]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
+		const int TOUCH_SIZE = 20;
+        private Vector2[] startTouchPosition = new Vector2[TOUCH_SIZE]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
+		private bool[] isTouchIn = new bool[TOUCH_SIZE]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
 
 		private void Update ()
         {
@@ -132,6 +133,11 @@ namespace BicUtil.TouchNotifier
         private void touchProcess()
         {
 			int _touchCount = Input.touchCount;
+            
+            if(TOUCH_SIZE < _touchCount){
+                return;
+            }
+
             Touch _touch = default(Touch);
             touchUpNotify = null;
             try{
