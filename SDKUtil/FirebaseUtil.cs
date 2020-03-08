@@ -24,6 +24,7 @@ namespace BicUtil.SDKUtil
         }
 
         static private void updateConstant(IRecordContainer _constants){
+            Debug.Log("start Update Constant");
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
@@ -111,8 +112,10 @@ namespace BicUtil.SDKUtil
 
             if(_result == _initTask){
                 if (_initTask.Result == Firebase.DependencyStatus.Available) {
+                    Debug.Log("firebase init available");
                     return new BicDB.Result(0);
                 }else{
+                    Debug.Log("firebase init not available");
                     return new BicDB.Result(1);
                 }
             }else if(_result == _timeoutTask){
@@ -145,9 +148,9 @@ namespace BicUtil.SDKUtil
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
                 var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
-                await Task.Delay(20);
                 #if !UNITY_EDITOR
                 sendActiveABTestEvent();
+                await Task.Delay(10);
                 updateConstant(_constants);
                 #endif
                 return new BicDB.Result(0);
@@ -255,7 +258,7 @@ namespace BicUtil.SDKUtil
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                Application.logMessageReceived += log;
+                //Application.logMessageReceived += log;
 
                 BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
