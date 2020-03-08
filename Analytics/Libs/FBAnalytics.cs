@@ -26,6 +26,7 @@ namespace BicUtil.Analytics
                 
                 try{
                     FB.LogAppEvent(_name, _value, _eventData);
+                    
                 }catch{
                     Debug.Log("LogAppEvent Error " + _name);
                 }

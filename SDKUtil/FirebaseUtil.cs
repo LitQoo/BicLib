@@ -37,14 +37,17 @@ namespace BicUtil.SDKUtil
             }
             
             if(_constants.ContainsKey("ab_group") == true){
+                var _abGroup = _constants["ab_group"].AsVariable.AsString;
                 BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
                     {
                         "GroupName",
                         _constants["ab_group"].AsVariable.AsString
                     }
                 });
-
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
+                
+                if(!string.IsNullOrEmpty(_abGroup) && _abGroup.ToLower() != "none"){
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
+                }
             }else{
                 #if UNITY_EDITOR
                 Debug.LogError("[ABTest] Add 'ab_group' value in Constant");
