@@ -16,7 +16,8 @@ namespace BicDB.Core
         private const string PROP_FIELD_SESSION_COUNT = "initCount";
         private const string PROP_FIELD_USER_ID = "userId";
         private const string PROP_FIELD_VERSION = "version";
-        private const string PROP_FIELD_INSTALL_VERSION = "installVersion";
+        public const string PROP_FIELD_INSTALL_VERSION = "installVersion";
+        public const string PROP_FIELD_INSTALL_DATEHOUR = "installDateHour";
         private const string PROP_FIELD_IS_SETUP = "isSetup";
         #region Const
         static public readonly string TABLENAME = "BICSYSTEM";
@@ -212,6 +213,7 @@ namespace BicDB.Core
                 if(!hasProperty(PROP_FIELD_IS_SETUP)){
                     setStringProperty(PROP_FIELD_VERSION, currentVersion);
                     setStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
+                    setStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
                     setIntProperty(PROP_FIELD_SESSION_COUNT, 1);
                     setStringProperty(PROP_FIELD_IS_SETUP, "true");
 
@@ -328,6 +330,7 @@ namespace BicDB.Core
                 PlayerPrefs.SetString(PROP_FIELD_USER_ID, getStringProperty(PROP_FIELD_USER_ID));
                 PlayerPrefs.SetString(PROP_FIELD_VERSION, getStringProperty(PROP_FIELD_VERSION));
                 PlayerPrefs.SetString(PROP_FIELD_INSTALL_VERSION, getStringProperty(PROP_FIELD_INSTALL_VERSION));
+                PlayerPrefs.SetString(PROP_FIELD_INSTALL_DATEHOUR, getStringProperty(PROP_FIELD_INSTALL_DATEHOUR));
                 PlayerPrefs.SetString(PROP_FIELD_IS_SETUP, getStringProperty(PROP_FIELD_IS_SETUP));
             }catch{
 
