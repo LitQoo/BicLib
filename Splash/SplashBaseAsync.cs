@@ -9,7 +9,7 @@ namespace BicUtil.Splash
 {
     public abstract class SplashBaseAsync : MonoBehaviour
     {
-        private async void Awake(){
+        private async void Start(){
             await loadTableService();
         }
 
