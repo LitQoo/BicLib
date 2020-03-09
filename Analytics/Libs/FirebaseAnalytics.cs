@@ -1,3 +1,4 @@
+
 #if BICUTIL_ANALYTICS_FIREBASE
 using System;
 using System.Collections;
@@ -7,6 +8,9 @@ using UnityEngine;
 namespace BicUtil.Analytics
 {
     public class FirebaseAnalytics : IAnalyticsLib{
+
+        static public object LOCK_CHECK{get;} = new object();
+        
         private struct SavedEvent{
             public string Name;
             public Dictionary<string, object> EventData;
@@ -18,28 +22,29 @@ namespace BicUtil.Analytics
                 this.Value = _value;
             }
         } 
-
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
-            var _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
-            try{
-                _isAvailable = Firebase.FirebaseApp.CheckDependencies();
-            }catch{
-                _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
-            }
-            
-            if(_isAvailable == Firebase.DependencyStatus.Available){
-                RetrySavedEvent();
+            lock(LOCK_CHECK){
+                var _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
+                try{
+                    _isAvailable = Firebase.FirebaseApp.CheckDependencies();
+                }catch{
+                    _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
+                }
+                
+                if(_isAvailable == Firebase.DependencyStatus.Available){
+                    retrySavedEvent();
 
-                sendEvent(_name, _value, _eventData);
-            }else{
-                savedEvent.Add(new SavedEvent(_name, _eventData, _value));
-                needRetryEvent = true;
+                    sendEvent(_name, _value, _eventData);
+                }else{
+                    savedEvent.Add(new SavedEvent(_name, _eventData, _value));
+                    needRetryEvent = true;
+                }
             }
         }
 
-        public void RetrySavedEvent(){
+        private void retrySavedEvent(){
             if(needRetryEvent == true){
                 foreach(var _savedData in savedEvent){
                     sendEvent(_savedData.Name, _savedData.Value, _savedData.EventData);

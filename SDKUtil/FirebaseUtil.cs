@@ -261,7 +261,7 @@ namespace BicUtil.SDKUtil
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                //Application.logMessageReceived += log;
+                Application.logMessageReceived += log;
 
                 BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
                     {
@@ -282,7 +282,9 @@ namespace BicUtil.SDKUtil
 
         private static void log(string _condition, string _stackTrace, LogType _type)
         {
-            Firebase.Crashlytics.Crashlytics.Log(_condition + "\n[stack]" + _stackTrace + "\n[type]" + _type.ToString());
+            lock(FirebaseAnalytics.LOCK_CHECK){
+                Firebase.Crashlytics.Crashlytics.Log(_condition + "\n[stack]" + _stackTrace + "\n[type]" + _type.ToString());
+            }
         }
         #endregion
 

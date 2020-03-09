@@ -23,9 +23,9 @@ namespace BicUtil.Analytics
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             if(FB.IsInitialized == true){
                 RetrySavedEvent();
-                
+
                 try{
-                    FB.LogAppEvent(_name, _value, _eventData);
+                    eventWithLock(_name, _eventData, _value);
                     
                 }catch{
                     Debug.Log("LogAppEvent Error " + _name);
@@ -41,16 +41,24 @@ namespace BicUtil.Analytics
                 try{
                     foreach(var _savedData in savedEvent){
                         Debug.Log("RetrySavedEvent FBLog " + _savedData.Name);
-                        FB.LogAppEvent(_savedData.Name, _savedData.Value, _savedData.EventData);
+                        eventWithLock(_savedData.Name, _savedData.EventData, _savedData.Value);
                     }
 
                     savedEvent.Clear();
                 }catch{
                     Debug.Log("RetrySavedEvent Error ");
                 }
+
                 needRetryEvent = false;
             }
         }
+
+        private void eventWithLock(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
+            lock(savedEvent){
+                FB.LogAppEvent(_name, _value, _eventData);
+            }
+        }
+        
     }
 }
 #endif

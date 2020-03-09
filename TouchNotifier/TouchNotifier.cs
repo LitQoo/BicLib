@@ -137,6 +137,8 @@ namespace BicUtil.TouchNotifier
             if(TOUCH_SIZE < _touchCount){
                 return;
             }
+            
+            _touchCount = Mathf.Min(_touchCount, 5);
 
             Touch _touch = default(Touch);
             touchUpNotify = null;
