@@ -57,7 +57,7 @@ namespace BicUtil.SDKUtil
 
         static private async Task<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-            Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
+            
             var _result = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
 
             if(_result == Firebase.DependencyStatus.Available){
@@ -72,13 +72,12 @@ namespace BicUtil.SDKUtil
                 }
             });
 
-            if(TableService.IsSetup == true){
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", Application.version);
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(Application.version).ToString());
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateTime", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-            }
-
             if(_result == Firebase.DependencyStatus.Available){
+                Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
+
                 await remoteConfigAsync(_constants, 2f);
             }
 
@@ -107,8 +106,6 @@ namespace BicUtil.SDKUtil
         }
 
         static public async Task<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
-            Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-            Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             var _initTask = checkAndFixDependenciesAsync(_constants);
             var _timeoutTask = Task.Run(async ()=>{await Task.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
             var _result = await Task.WhenAny(_initTask, _timeoutTask);
@@ -137,7 +134,7 @@ namespace BicUtil.SDKUtil
 
             var _asyncTask = Task.Run(async ()=>
             {
-                var _reloadTime = TimeSpan.FromDays(1);
+                var _reloadTime = TimeSpan.FromHours(12);
                 if (TableService.IsUpdate == true)
                 {
                     _reloadTime = TimeSpan.Zero;
@@ -150,12 +147,26 @@ namespace BicUtil.SDKUtil
 
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
+
+                if(TableService.IsSetup == true){
+                    BicUtil.Analytics.Analytics.Event("InitRemoteConfigNewUserBefore", new Dictionary<string, object> {
+                        {
+                            "Result",
+                            "Success"
+                        }
+                    });
+                }
+
                 var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
+
+                await Task.Delay(20);
+
                 #if !UNITY_EDITOR
                 sendActiveABTestEvent();
-                await Task.Delay(10);
+                await Task.Delay(20);
                 updateConstant(_constants);
                 #endif
+
                 return new BicDB.Result(0);
             });
 
@@ -164,7 +175,8 @@ namespace BicUtil.SDKUtil
                 return new BicDB.Result(1);
             });
 
-            await Task.WhenAny(_asyncTask, _timeoutTask);
+            var _result = await Task.WhenAny(_asyncTask, _timeoutTask);
+            Debug.Log("remoteConfigAsync result = " + _result.Result.ToString());
         }
 
         private static void sendActiveABTestEvent()
