@@ -229,7 +229,7 @@ namespace BicUtil.Tween{
 
 		public void UpdateMaxPlayingIndex(int _index){
 			if(MaxPlayingIndex < _index){
-				MaxPlayingIndex = Math.Min(_index, TweenList.Count - 1);
+				MaxPlayingIndex = Mathf.Min(_index, TweenList.Count - 1);
 			}
 
 			isUpdatedPlayingMax = true;
@@ -254,7 +254,8 @@ namespace BicUtil.Tween{
 			int _lastPlayingIndex = -1;
 			int _frameCount = Time.frameCount;
 			if(MaxPlayingIndex >= 0){
-				for(int i = 0; i <= MaxPlayingIndex; i++){
+				var _count = Mathf.Min(MaxPlayingIndex, TweenList.Count - 1);
+				for(int i = 0; i <= _count; i++){
 					var _tween = TweenList[i];
 					try{
 						if(_tween != null && _tween.IsPlaying == true){
