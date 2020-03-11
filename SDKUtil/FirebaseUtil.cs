@@ -77,7 +77,8 @@ namespace BicUtil.SDKUtil
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
-
+                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
+                
                 await remoteConfigAsync(_constants, 2f);
             }
 
@@ -144,6 +145,8 @@ namespace BicUtil.SDKUtil
                 Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
                 _reloadTime = TimeSpan.Zero;
                 #endif
+
+                await Task.Delay(20);
 
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
