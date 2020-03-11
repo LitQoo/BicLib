@@ -205,6 +205,7 @@ namespace BicUtil.Tween{
 						if(__model.destoryCount == TweenModel.DESTORY_READY_TO_RECYCLE){
 							__model.Clear();
 							__model.Id = NextId;
+							__model.PlayingIndex = i;
 							__model.Name = __model.Id.ToString();
 							__model.CreatedFrameCount = Time.frameCount;
 							__model.Play();
@@ -218,6 +219,7 @@ namespace BicUtil.Tween{
 			_result.pool = this;
 			_result.Clear();
 			_result.Id = NextId;
+			_result.PlayingIndex = _count;
 			_result.Name = _result.Id.ToString();
 			_result.CreatedFrameCount = Time.frameCount;
 			TweenList.Add(_result);

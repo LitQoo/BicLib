@@ -632,6 +632,12 @@ namespace BicUtil.Tween
 		}
 
 		public TweenModel AddChild(TweenModel _tween){
+			#if UNITY_EDITOR
+			if(this.PlayingIndex > _tween.PlayingIndex){
+				Debug.LogWarning($"[BicTween] Child tween Playing Index({_tween.PlayingIndex}) is bigger then parent({PlayingIndex})");
+			}
+			#endif
+
 			_tween.Pause();
 			_tween.IsLockedComplete = true;
 			
