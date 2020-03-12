@@ -21,18 +21,20 @@ namespace BicUtil.Analytics
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
-            if(FB.IsInitialized == true){
-                RetrySavedEvent();
+            lock(savedEvent){
+                if(FB.IsInitialized == true){
+                    RetrySavedEvent();
 
-                try{
-                    eventWithLock(_name, _eventData, _value);
-                    
-                }catch{
-                    Debug.Log("LogAppEvent Error " + _name);
+                    try{
+                        eventWithLock(_name, _eventData, _value);
+                        
+                    }catch{
+                        Debug.Log("LogAppEvent Error " + _name);
+                    }
+                }else{
+                    savedEvent.Add(new SavedEvent(_name, _eventData, _value));
+                    needRetryEvent = true;
                 }
-            }else{
-                savedEvent.Add(new SavedEvent(_name, _eventData, _value));
-                needRetryEvent = true;
             }
         }
 
@@ -54,9 +56,7 @@ namespace BicUtil.Analytics
         }
 
         private void eventWithLock(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
-            lock(savedEvent){
-                FB.LogAppEvent(_name, _value, _eventData);
-            }
+            FB.LogAppEvent(_name, _value, _eventData);
         }
         
     }
