@@ -150,16 +150,6 @@ namespace BicUtil.SDKUtil
 
                 var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
-
-                if(TableService.IsSetup == true){
-                    BicUtil.Analytics.Analytics.Event("InitRemoteConfigNewUserBefore", new Dictionary<string, object> {
-                        {
-                            "Result",
-                            "Success"
-                        }
-                    });
-                }
-
                 var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
 
                 await Task.Delay(20);
