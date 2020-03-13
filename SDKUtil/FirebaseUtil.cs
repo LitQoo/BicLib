@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
+using BicDB.Variable;
 using BicUtil.Analytics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -37,15 +38,12 @@ namespace BicUtil.SDKUtil
             }
             
             if(_constants.ContainsKey("ab_group") == true){
-                var _abGroup = _constants["ab_group"].AsVariable.AsString;
-                BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
-                    {
-                        "GroupName",
-                        _constants["ab_group"].AsVariable.AsString
-                    }
-                });
+
+                lock(FirebaseAnalytics.LOCK_CHECK){
+                    abTestName = _constants["ab_group"].AsVariable;
+                }
                 
-                if(!string.IsNullOrEmpty(_abGroup) && _abGroup.ToLower() != "none"){
+                if(!string.IsNullOrEmpty(abTestName.AsString) && abTestName.AsString.ToLower() != "none"){
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
                 }
             }else{
@@ -65,12 +63,12 @@ namespace BicUtil.SDKUtil
             }
 
             Debug.Log("firebase init complete "+ _result.ToString());
-            BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
-                {
-                    "Result",
-                    _result.ToString()
-                }
-            });
+            // BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
+            //     {
+            //         "Result",
+            //         _result.ToString()
+            //     }
+            // });
 
             if(_result == Firebase.DependencyStatus.Available){
                 Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
@@ -155,8 +153,8 @@ namespace BicUtil.SDKUtil
                 await Task.Delay(20);
 
                 #if !UNITY_EDITOR
-                sendActiveABTestEvent();
-                await Task.Delay(20);
+                //sendActiveABTestEvent();
+                //await Task.Delay(20);
                 updateConstant(_constants);
                 #endif
 
@@ -264,24 +262,10 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
-            var dependencyStatus = task.Result;
-            if (dependencyStatus == Firebase.DependencyStatus.Available) {
-                Application.logMessageReceived += log;
-
-                BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
-                    {
-                        "Result",
-                        "Success"
-                    }
-                });
-            } else {
-                BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
-                    {
-                        "Result",
-                        "Fail"
-                    }
-                });
-            }
+                var dependencyStatus = task.Result;
+                if (dependencyStatus == Firebase.DependencyStatus.Available) {
+                    Application.logMessageReceived += log;
+                }
             });
         }
 
@@ -289,6 +273,28 @@ namespace BicUtil.SDKUtil
         {
             lock(FirebaseAnalytics.LOCK_CHECK){
                 Firebase.Crashlytics.Crashlytics.Log(_condition + "\n[stack]" + _stackTrace + "\n[type]" + _type.ToString());
+            }
+        }
+
+        static private int sendABTestEventCount = 0;
+        static private bool isSendABTestEvent = false;
+        static private IVariable abTestName = null;
+        
+        static public void SendABTestEvent(){
+            lock(FirebaseAnalytics.LOCK_CHECK){
+                if(isSendABTestEvent == false && abTestName != null){
+                    var _abGroup = abTestName.AsString;
+                    sendABTestEventCount++;
+                    if((!string.IsNullOrEmpty(_abGroup) && _abGroup.ToLower() != "none") || sendABTestEventCount > 3){
+                        isSendABTestEvent = true;
+                        BicUtil.Analytics.Analytics.Event("ABGroup", new Dictionary<string, object> {
+                            {
+                                "GroupName",
+                                _abGroup
+                            }
+                        });
+                    }
+                }
             }
         }
         #endregion
