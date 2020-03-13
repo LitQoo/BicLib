@@ -291,7 +291,11 @@ namespace BicUtil.SDKUtil
                             {
                                 "GroupName",
                                 _abGroup
-                            }
+                            },
+                            {
+                                "SessionCount",
+                                TableService.SessionCount
+                            },
                         });
                     }
                 }
