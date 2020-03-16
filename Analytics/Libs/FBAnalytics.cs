@@ -7,6 +7,12 @@ using Facebook.Unity;
 namespace BicUtil.Analytics
 {
     public class FBAnalytics : IAnalyticsLib{
+        #region Static
+        private static bool isEnabled = true;
+        public static void SetEnable(bool _isEnabled){
+            isEnabled = _isEnabled;
+        }
+        #endregion
         private struct SavedEvent{
             public string Name;
             public Dictionary<string, object> EventData;
@@ -18,9 +24,14 @@ namespace BicUtil.Analytics
                 this.Value = _value;
             }
         } 
+
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
+            if(isEnabled == false){
+                return;
+            }
+            
             lock(savedEvent){
                 if(FB.IsInitialized == true){
                     RetrySavedEvent();
