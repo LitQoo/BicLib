@@ -255,12 +255,15 @@ namespace BicUtil.Tween{
 
 			int _lastPlayingIndex = -1;
 			int _frameCount = Time.frameCount;
+			SystemException _error = null;
+
 			if(MaxPlayingIndex >= 0){
 				var _count = Mathf.Min(MaxPlayingIndex, TweenList.Count - 1);
 				for(int i = 0; i <= _count; i++){
 					var _tween = TweenList[i];
-					try{
-						if(_tween != null && _tween.IsPlaying == true){
+					if(_tween != null && _tween.IsPlaying == true){
+						
+						try{
 							if(_tween.IsDestroyed == false){
 								_lastPlayingIndex = i;
 							}else{
@@ -279,13 +282,13 @@ namespace BicUtil.Tween{
 							if(_tween.Update != null){
 								_tween.Update();
 							}
-						}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
-							_tween.destoryCount--;
-							_lastPlayingIndex = i;
+						}catch(SystemException _e){
+							Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo);
+							_error = _e;
 						}
-					}catch(SystemException _e){
-						Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo);
-						throw _e;
+					}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
+						_tween.destoryCount--;
+						_lastPlayingIndex = i;
 					}
 				}
 			}
@@ -295,6 +298,10 @@ namespace BicUtil.Tween{
 			}
 
 			isUpdatedPlayingMax = false;
+
+			if(_error != null){
+				throw _error;
+			}
 		}
 
 		public void DontDestroy(){
