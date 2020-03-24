@@ -111,8 +111,6 @@ namespace BicUtil.TouchNotifier
 
 		public int TouchCount{
 			get{
-                return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
-
 			#if UNITY_EDITOR 
                 if(UnityEditor.EditorApplication.isRemoteConnected == true){
                     return Input.touchCount;
@@ -122,7 +120,7 @@ namespace BicUtil.TouchNotifier
             #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
-				return Input.touchCount;
+				return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#endif
 			}
 		}
@@ -212,11 +210,12 @@ namespace BicUtil.TouchNotifier
 
 		#region StandAlone
 		private void checkTouch(bool _touchResponse, int _touchIndex){
-			if (_touchResponse == true && isTouchIn[_touchIndex] == false)
+			
+
+            if (_touchResponse == true && isTouchIn[_touchIndex] == false)
             {
                 if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() == false)
                 {
-
 					isTouchIn[_touchIndex] = true;
                     startTouchPosition[_touchIndex] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     OnTouchDown.Invoke(startTouchPosition[_touchIndex], _touchIndex);
