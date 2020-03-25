@@ -148,6 +148,10 @@ namespace BicUtil.TouchNotifier
                 
                 _touch = Input.GetTouch(i);
                 var _index = _touch.fingerId;
+
+                if(_index >= TOUCH_SIZE){
+                    continue;
+                }
                 
                 if (_touch.phase == TouchPhase.Began)
                 {

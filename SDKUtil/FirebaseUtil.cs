@@ -77,7 +77,11 @@ namespace BicUtil.SDKUtil
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
                 Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
                 
-                await remoteConfigAsync(_constants, 2f);
+                try{
+                    await remoteConfigAsync(_constants, 2f);
+                }catch(Firebase.InitializationException _error){
+                    Debug.Log("[Firebase] InitializationException " + _error.Message);
+                }
             }
 
             return _result;
