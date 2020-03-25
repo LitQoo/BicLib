@@ -24,6 +24,7 @@ namespace BicDB.Storage
 			Success = 0,
 			FailedConvertJson = 1,
 			ErrorNetwork = 2,
+			ServerRequestError = 3,
 			Crypto = 3
 		}
 
@@ -194,17 +195,20 @@ namespace BicDB.Storage
 
 			var _form = new WWWForm();
 			var _formDataString = _formData.ToString();
+
 			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
 				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
 			}
 			_form.AddField("data", _formDataString);
 
+
 			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
+				
 				if(_result.isHttpError == true || _result.isNetworkError == true){
 					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.ErrorNetwork));
+						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
 					}
 					return;
 				}
@@ -237,7 +241,7 @@ namespace BicDB.Storage
 						return;
 					}else{
 						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ErrorNetwork));
+							_resultCallback(new Result((int)ResultCode.ServerRequestError));
 						}
 						return;
 					}

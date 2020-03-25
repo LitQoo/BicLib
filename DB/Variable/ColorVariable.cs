@@ -100,6 +100,12 @@ namespace BicDB.Variable
             }
         }
 
+		public float RGBAverage{
+			get{
+				return (this.R + this.G + this.B) / 3f;
+			}
+		}
+
 		public Color AsColor{
 			get{
 				return new Color(this.R, this.G, this.B, this.A);
