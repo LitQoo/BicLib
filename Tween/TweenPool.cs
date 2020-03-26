@@ -255,7 +255,7 @@ namespace BicUtil.Tween{
 
 			int _lastPlayingIndex = -1;
 			int _frameCount = Time.frameCount;
-			SystemException _error = null;
+			System.Exception _error = null;
 
 			if(MaxPlayingIndex >= 0){
 				var _count = Mathf.Min(MaxPlayingIndex, TweenList.Count - 1);
