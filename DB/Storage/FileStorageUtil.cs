@@ -119,7 +119,7 @@ namespace BicDB.Storage
             {
                 _data = await FileStorageUtil.GetFileDataWithPathListAsync(_table.Name, _encryptKey);
             }
-            catch (SystemException _e)
+            catch (System.Exception _e)
             {
                 Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
                 _result.Code = (int)ResultCode.FileStream;
@@ -146,7 +146,7 @@ namespace BicDB.Storage
             {
                 _data = FileStorageUtil.GetFileDataWithPathList(_table.Name, _encryptKey);
             }
-            catch (SystemException _e)
+            catch (System.Exception _e)
             {
                 Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
                 _result.Code = (int)ResultCode.FileStream;

@@ -79,7 +79,7 @@ namespace BicDB.Core
                         try{
                             var _string = FileStorageUtil.ReadAndDecrypt(_loadData.Table.Name, FileStorage.GetInstance().GetEncryptKey(_loadData.Table.Name));
                             errorMasssage += "/filestring : " + _string + "/";
-                        }catch(SystemException _e){
+                        }catch(System.Exception _e){
                             errorMasssage += "/error readbypath " + _e.ToString() + "/";
                         }
                     }

@@ -71,7 +71,7 @@ namespace BicUtil.Ads
                     _log += "/2";
                     Destroy(this.gameObject);
                     _log += "/3";
-                }catch(SystemException _e){
+                }catch(System.Exception _e){
                     Debug.Log(_log);
                     throw new SystemException(_log);
                 }

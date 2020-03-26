@@ -170,7 +170,7 @@ namespace BicUtil.TouchNotifier
             if(touchUpNotify != null){
                 touchUpNotify();
             }
-            }catch(SystemException _e){
+            }catch(System.Exception _e){
                 Debug.Log("touchProcess error " + _touch.fingerId.ToString() + ", touch Count " + _touchCount.ToString() + ", touchinsize "+ isTouchIn.Length.ToString());
                 throw _e;
             }
@@ -205,7 +205,7 @@ namespace BicUtil.TouchNotifier
                 OnTouchDown.Invoke(startTouchPosition[_index], _index);
             }
             _line = 5;
-            }catch(SystemException _e){
+            }catch(System.Exception _e){
                 Debug.Log("notifyOnTouchDown fingerid = " + _index + ", line = " + _line.ToString() + ", touchnisize " + isTouchIn.Length.ToString() + ", startTouchPosition size "+ startTouchPosition.Length.ToString());
                 throw _e;
             }

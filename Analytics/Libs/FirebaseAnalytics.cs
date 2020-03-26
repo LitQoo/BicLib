@@ -38,8 +38,10 @@ namespace BicUtil.Analytics
 
                     sendEvent(_name, _value, _eventData);
                 }else{
-                    savedEvent.Add(new SavedEvent(_name, _eventData, _value));
-                    needRetryEvent = true;
+                    if(savedEvent.Count < 100){
+                        savedEvent.Add(new SavedEvent(_name, _eventData, _value));
+                        needRetryEvent = true;
+                    }
                 }
             }
         }

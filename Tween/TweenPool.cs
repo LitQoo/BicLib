@@ -282,7 +282,7 @@ namespace BicUtil.Tween{
 							if(_tween.Update != null){
 								_tween.Update();
 							}
-						}catch(SystemException _e){
+						}catch(System.Exception _e){
 							Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo);
 							_error = _e;
 						}
