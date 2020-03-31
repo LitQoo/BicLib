@@ -240,12 +240,12 @@ namespace BicDB.Storage
 							}
 						}
 
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.Success));
-						}
-
 						if(_table.OnSave != null){
 							_table.OnSave(new Result((int)ResultCode.Success));
+						}
+
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.Success));
 						}
 						return;
 					}else{
@@ -332,13 +332,15 @@ namespace BicDB.Storage
 						}
 						
 						_table.AddWithoutDuplication(_record);
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.Success));
-						}
 
 						if(_table.OnSave != null){
 							_table.OnSave(new Result((int)ResultCode.Success));
 						}
+
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.Success));
+						}
+
 						return;
 					}else{
 						if(_resultCallback != null){
