@@ -23,9 +23,9 @@ namespace BicUtil.TouchNotifier
 		public TouchEvent OnTouchDown = new TouchEvent();
 		public TouchEventWithStartingPosition OnTouchMove = new TouchEventWithStartingPosition();
 		public TouchEventWithStartingPosition OnTouchUp = new TouchEventWithStartingPosition();
-		const int TOUCH_SIZE = 20;
-        private Vector2[] startTouchPosition = new Vector2[TOUCH_SIZE]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
-		private bool[] isTouchIn = new bool[TOUCH_SIZE]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
+		const int TOUCH_SIZE = 40;
+        private Vector2[] startTouchPosition = new Vector2[TOUCH_SIZE]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
+		private bool[] isTouchIn = new bool[TOUCH_SIZE]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
 
 		private void Update ()
         {
@@ -120,7 +120,7 @@ namespace BicUtil.TouchNotifier
             #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
-				return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
+                return Input.touchCount;
 			#endif
 			}
 		}
@@ -146,6 +146,10 @@ namespace BicUtil.TouchNotifier
                 
                 _touch = Input.GetTouch(i);
                 var _index = _touch.fingerId;
+
+                if(_index >= TOUCH_SIZE){
+                    continue;
+                }
                 
                 if (_touch.phase == TouchPhase.Began)
                 {
@@ -166,7 +170,7 @@ namespace BicUtil.TouchNotifier
             if(touchUpNotify != null){
                 touchUpNotify();
             }
-            }catch(SystemException _e){
+            }catch(System.Exception _e){
                 Debug.Log("touchProcess error " + _touch.fingerId.ToString() + ", touch Count " + _touchCount.ToString() + ", touchinsize "+ isTouchIn.Length.ToString());
                 throw _e;
             }
@@ -201,7 +205,7 @@ namespace BicUtil.TouchNotifier
                 OnTouchDown.Invoke(startTouchPosition[_index], _index);
             }
             _line = 5;
-            }catch(SystemException _e){
+            }catch(System.Exception _e){
                 Debug.Log("notifyOnTouchDown fingerid = " + _index + ", line = " + _line.ToString() + ", touchnisize " + isTouchIn.Length.ToString() + ", startTouchPosition size "+ startTouchPosition.Length.ToString());
                 throw _e;
             }

@@ -71,13 +71,21 @@ namespace BicUtil.SDKUtil
             // });
 
             if(_result == Firebase.DependencyStatus.Available){
-                Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
-                Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
+                try{
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
+                    Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
+                }catch(System.Exception _error){
+                    Debug.Log("[Firebase] InitializationException property " + _error.Message);
+                }
                 
-                await remoteConfigAsync(_constants, 2f);
+                try{
+                    await remoteConfigAsync(_constants, 2f);
+                }catch(System.Exception _error){
+                    Debug.Log("[Firebase] InitializationException " + _error.Message);
+                }
             }
 
             return _result;
@@ -105,24 +113,29 @@ namespace BicUtil.SDKUtil
         }
 
         static public async Task<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
-            var _initTask = checkAndFixDependenciesAsync(_constants);
-            var _timeoutTask = Task.Run(async ()=>{await Task.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
-            var _result = await Task.WhenAny(_initTask, _timeoutTask);
+            try{
+                var _initTask = checkAndFixDependenciesAsync(_constants);
+                var _timeoutTask = Task.Run(async ()=>{await Task.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
+                var _result = await Task.WhenAny(_initTask, _timeoutTask);
 
-            if(_result == _initTask){
-                if (_initTask.Result == Firebase.DependencyStatus.Available) {
-                    Debug.Log("firebase init available");
-                    return new BicDB.Result(0);
+                if(_result == _initTask){
+                    if (_initTask.Result == Firebase.DependencyStatus.Available) {
+                        Debug.Log("firebase init available");
+                        return new BicDB.Result(0);
+                    }else{
+                        Debug.Log("firebase init not available");
+                        return new BicDB.Result(1);
+                    }
+                }else if(_result == _timeoutTask){
+                    Debug.Log("firebase init timeout");
+                    return new BicDB.Result(2);
                 }else{
-                    Debug.Log("firebase init not available");
-                    return new BicDB.Result(1);
+                    Debug.Log("firebase init known");
+                    return new BicDB.Result(3);
                 }
-            }else if(_result == _timeoutTask){
-                Debug.Log("firebase init timeout");
-                return new BicDB.Result(2);
-            }else{
-                Debug.Log("firebase init known");
-                return new BicDB.Result(3);
+            }catch(System.Exception _e){
+                Debug.Log("firebase init exception " + _e.Message);
+                return new BicDB.Result(3, "", 0, _e.Message);
             }
         }
 

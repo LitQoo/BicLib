@@ -255,7 +255,7 @@ namespace BicUtil.Tween{
 
 			int _lastPlayingIndex = -1;
 			int _frameCount = Time.frameCount;
-			SystemException _error = null;
+			System.Exception _error = null;
 
 			if(MaxPlayingIndex >= 0){
 				var _count = Mathf.Min(MaxPlayingIndex, TweenList.Count - 1);
@@ -282,7 +282,7 @@ namespace BicUtil.Tween{
 							if(_tween.Update != null){
 								_tween.Update();
 							}
-						}catch(SystemException _e){
+						}catch(System.Exception _e){
 							Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo);
 							_error = _e;
 						}
