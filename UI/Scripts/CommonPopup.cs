@@ -1,0 +1,165 @@
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace BicUtil.UI{
+    public class CommonPopup : MonoBehaviour
+    {
+        #region DI
+        [SerializeField]
+        private GameObject header;
+        [SerializeField]
+        private UnityEngine.UI.Text titleText;
+        [SerializeField]
+        private UnityEngine.UI.Text mainMessageText;
+        [SerializeField]
+        private UnityEngine.UI.Text subMessageText;
+        [SerializeField]
+        private UnityEngine.UI.InputField inputField;
+        [SerializeField]
+        private UnityEngine.UI.Text placeholderText;
+        [SerializeField]
+        private UnityEngine.UI.Button closeButton;
+        [SerializeField]
+        private UnityEngine.UI.Button leftButton;
+        [SerializeField]
+        private UnityEngine.UI.Button rightButton;
+        [SerializeField]
+        private UnityEngine.UI.Button bottomButton;
+        [SerializeField]
+        private UnityEngine.UI.Text leftButtonText;
+        [SerializeField]
+        private UnityEngine.UI.Text rightButtonText;
+        [SerializeField]
+        private UnityEngine.UI.Text bottomButtonText;
+        [SerializeField]
+        private UnityEngine.UI.Image leftButtonIcon;
+        [SerializeField]
+        private UnityEngine.UI.Image rightButtonIcon;
+        #endregion   
+
+        #region Instant
+        public string InputText{
+            get{
+                return inputField.text;
+            }
+        }
+        #endregion
+
+        #region Event
+        private Action onClickClose;
+        private Action onClickLeftButton;
+        private Action onClickRightButton;
+        private Action onClickBottomButton;
+        #endregion
+
+        #region Logic
+        public void OnClickClose(){
+            onClickClose();
+        }
+
+        public void OnClickLeftButton(){
+            onClickLeftButton();
+        }
+
+        public void OnClickRightButton(){
+            onClickRightButton();
+        }
+
+        public void OnClickBottomButton(){
+            onClickBottomButton();
+        }
+
+        public void diableAllUI(){
+            onClickClose = null;
+            onClickLeftButton = null;
+            onClickRightButton = null;
+            onClickBottomButton = null;
+            header.gameObject.SetActive(false);
+            titleText.gameObject.SetActive(false);
+            mainMessageText.gameObject.SetActive(false);
+            subMessageText.gameObject.SetActive(false);
+            inputField.gameObject.SetActive(false);
+            closeButton.gameObject.SetActive(false);
+            leftButton.gameObject.SetActive(false);
+            rightButton.gameObject.SetActive(false);
+            bottomButton.gameObject.SetActive(false);
+            rightButtonIcon.gameObject.SetActive(false);
+            leftButtonIcon.gameObject.SetActive(false);
+        }
+
+        public void Info(string _text, Action _onClickClose){
+            diableAllUI();
+            header.SetActive(true);
+            mainMessageText.gameObject.SetActive(true);
+            closeButton.gameObject.SetActive(true);
+            mainMessageText.text = _text;
+            onClickClose = _onClickClose;
+        }
+
+        public void Confirm(string _text, string _buttonText, Action _onClickLeftButton){
+            diableAllUI();
+            mainMessageText.gameObject.SetActive(true);
+            leftButton.gameObject.SetActive(true);
+            leftButtonText.text = _buttonText;
+            mainMessageText.text = _text;
+            onClickLeftButton = _onClickLeftButton;
+        }
+
+        public void Select(string _text, string _leftButtonText, string _rightButtonText, Action _onClickLeftButton, Action _onClickRightButton){
+            diableAllUI();
+            mainMessageText.gameObject.SetActive(true);
+            leftButton.gameObject.SetActive(true);
+            rightButton.gameObject.SetActive(true);
+            mainMessageText.text = _text;
+            leftButtonText.text = _leftButtonText;
+            rightButtonText.text = _rightButtonText;
+            onClickLeftButton = _onClickLeftButton;
+            onClickRightButton = _onClickRightButton;
+
+        }
+
+        public void Input(string _text, string _buttonText, string _inputText, string _placeholderText, Action _onClickLeftButton, Action _onClickClose){
+            diableAllUI();
+            header.gameObject.SetActive(true);
+            mainMessageText.gameObject.SetActive(true);
+            leftButton.gameObject.SetActive(true);
+            closeButton.gameObject.SetActive(true);
+            inputField.gameObject.SetActive(true);
+            mainMessageText.text = _text;
+            leftButtonText.text = _buttonText;
+            onClickLeftButton = _onClickLeftButton;
+            onClickClose = _onClickClose;
+            inputField.text = _inputText;
+            placeholderText.text = _placeholderText;
+        }
+
+        public void SetTitle(string _text){
+            this.titleText.text = _text;
+            this.header.gameObject.SetActive(titleText);
+        }
+
+        public void SetSubMessage(string _text){
+            this.subMessageText.gameObject.SetActive(true);
+            this.subMessageText.text = _text;
+        }
+
+        public void SetBottomButton(string _text, Action _callback){
+            this.bottomButton.gameObject.SetActive(true);
+            this.bottomButtonText.text = _text;
+            this.onClickBottomButton = _callback;
+        }
+
+        public void Open(){
+            this.gameObject.SetActive(true);
+        }
+
+        public void Close(){
+            this.gameObject.SetActive(false);
+        }
+        #endregion
+    }
+}
