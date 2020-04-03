@@ -44,7 +44,6 @@ namespace BicDB.Core
                     
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry
-                        UnityEngine.Debug.Log("TableLoader Retry LoadTables, TableCount = " + tableList.Count.ToString());
                         loadTables();
                     }else if(leftCount == 0 && tableList.Count == 0){
                         //success
@@ -93,34 +92,26 @@ namespace BicDB.Core
 
         private string errorMasssage = "";
 
-
         public async Task<BicDB.Result> LoadAsync(int _retryCount){
             int loadCount = 0;
-
-            UnityEngine.Debug.Log("LoadAsync start");
             while(true)
             {
                 List<Task<Result>> _taskList = getTaskList();
 
-                UnityEngine.Debug.Log("LoadAsync Task.WhenAll start");
                 var _result = await Task.WhenAll(_taskList.ToArray());
-                UnityEngine.Debug.Log("LoadAsync Task.WhenAll finish");
-
+                
                 removeLoadedTable(_result);
 
                 if (tableList.Count == 0)
                 {
-                    UnityEngine.Debug.Log("TableLoader finish success");
                     return new BicDB.Result(0);
                 }
                 else
                 {
                     loadCount++;
-                    UnityEngine.Debug.Log("TableLoader retry " + loadCount.ToString());
-
+                    
                     if (loadCount > _retryCount)
                     {   
-                        UnityEngine.Debug.Log("TableLoader finish fail");
                         return new BicDB.Result(1);
                     }
                 }
@@ -131,13 +122,11 @@ namespace BicDB.Core
         {
             for (int i = tableList.Count - 1; i >= 0; i--)
             {
-                Debug.Log("Result Check Task index" + i.ToString());
                 var _tableInfo = tableList[i];
                 var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : true;
 
                 if (_result[i].IsSuccess == true && _isComplete == true)
                 {
-                    Debug.Log("Task successed " + _result[i].Code.ToString());
                     tableList.RemoveAt(i);
                 }
                 else

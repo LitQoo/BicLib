@@ -363,14 +363,14 @@ namespace BicUtil.Purchasing{
 				// On Apple stores, receipts contain multiple products.
 				var result = validator.Validate(_recipt);
 				// For informational purposes, we list the receipt(s)
-				Debug.Log("[pixaw] Receipt is valid. Contents:");
-				foreach (IPurchaseReceipt productReceipt in result) {
-					Debug.Log("[pixaw]" + productReceipt.productID);
-					Debug.Log("[pixaw]" + productReceipt.purchaseDate);
-					Debug.Log("[pixaw]" + productReceipt.transactionID);
-				}
+				// Debug.Log("[pixaw] Receipt is valid. Contents:");
+				// foreach (IPurchaseReceipt productReceipt in result) {
+				// 	Debug.Log("[pixaw]" + productReceipt.productID);
+				// 	Debug.Log("[pixaw]" + productReceipt.purchaseDate);
+				// 	Debug.Log("[pixaw]" + productReceipt.transactionID);
+				// }
 			} catch (IAPSecurityException) {
-				Debug.Log("[pixaw] Invalid receipt, not unlocking content");
+				// Debug.Log("[pixaw] Invalid receipt, not unlocking content");
 				_isValidPurchase = false;
 			}
 			// try  
@@ -448,7 +448,7 @@ namespace BicUtil.Purchasing{
         private void checkSubscribeMaybe()
         {
 
-			Debug.Log("[pixaw] checkSubscribeMaybe");
+			// Debug.Log("[pixaw] checkSubscribeMaybe");
 
 			this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Inactive;
             for(int i = 0; i < this.productTable.Count; i++){
@@ -469,7 +469,7 @@ namespace BicUtil.Purchasing{
 			// Get a reference to IAppleConfiguration during IAP initialization.
 			IAppleConfiguration appleConfig = builder.Configure<IAppleConfiguration>();
 			if (!string.IsNullOrEmpty (appleConfig.appReceipt)) {
-				Debug.Log (appleConfig.appReceipt);
+				// Debug.Log (appleConfig.appReceipt);
 	//            InstantiateDebugText (DebugInfoPanel, "APP Receipt Base64 " + appleConfig.appReceipt);
 				var receiptData = System.Convert.FromBase64String (appleConfig.appReceipt);
 	//            InstantiateDebugText (DebugInfoPanel, "receipt Data "+ receiptData);
@@ -487,7 +487,7 @@ namespace BicUtil.Purchasing{
 		private bool checkIfProductIsAvailableForSubscriptionManager(string receipt) {
 			var receipt_wrapper = (Dictionary<string, object>)MiniJson.JsonDecode(receipt);
 			if (!receipt_wrapper.ContainsKey("Store") || !receipt_wrapper.ContainsKey("Payload")) {
-				Debug.Log("The product receipt does not contain enough information");
+				// Debug.Log("The product receipt does not contain enough information");
 				return false;
 			}
 			var store = (string)receipt_wrapper ["Store"];
@@ -499,18 +499,18 @@ namespace BicUtil.Purchasing{
 					{
 						var payload_wrapper = (Dictionary<string, object>)MiniJson.JsonDecode(payload);
 						if (!payload_wrapper.ContainsKey("json")) {
-							Debug.Log("The product receipt does not contain enough information, the 'json' field is missing");
+							// Debug.Log("The product receipt does not contain enough information, the 'json' field is missing");
 							return false;
 						}
 						var original_json_payload_wrapper = (Dictionary<string, object>)MiniJson.JsonDecode((string)payload_wrapper["json"]);
 						if (original_json_payload_wrapper == null || !original_json_payload_wrapper.ContainsKey("developerPayload")) {
-							Debug.Log("The product receipt does not contain enough information, the 'developerPayload' field is missing");
+							// Debug.Log("The product receipt does not contain enough information, the 'developerPayload' field is missing");
 							return false;
 						}
 						var developerPayloadJSON = (string)original_json_payload_wrapper["developerPayload"];
 						var developerPayload_wrapper = (Dictionary<string, object>)MiniJson.JsonDecode(developerPayloadJSON);
 						if (developerPayload_wrapper == null || !developerPayload_wrapper.ContainsKey("is_free_trial") || !developerPayload_wrapper.ContainsKey("has_introductory_price_trial")) {
-							Debug.Log("The product receipt does not contain enough information, the product is not purchased using 1.19 or later");
+							// Debug.Log("The product receipt does not contain enough information, the product is not purchased using 1.19 or later");
 							return false;
 						}
 						return true;

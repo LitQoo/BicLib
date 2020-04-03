@@ -37,7 +37,7 @@ namespace BicDB.Storage
             if (_data == null || _data == string.Empty)
             {
                 if(_tableName == TableService.TABLENAME){
-                    Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
+                    //Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
 
                     if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
                         string _path = PlayerPrefs.GetString(TableService.TABLENAME);
@@ -48,7 +48,7 @@ namespace BicDB.Storage
                         }
                     }
                 }else{
-                    Debug.Log("[BicDB] path by bicsystem.path");
+                    //Debug.Log("[BicDB] path by bicsystem.path");
 
                     var _tableInfo = TableService.GetTableInfo(_tableName, false);
                     if (_tableInfo != null)
@@ -78,7 +78,7 @@ namespace BicDB.Storage
             if (_data == null || _data == string.Empty)
             {
                 if(_tableName == TableService.TABLENAME){
-                    Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
+                    //Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
 
                     if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
                         string _path = PlayerPrefs.GetString(TableService.TABLENAME);
@@ -89,7 +89,7 @@ namespace BicDB.Storage
                         }
                     }
                 }else{
-                    Debug.Log("[BicDB] path by bicsystem.path");
+                    //Debug.Log("[BicDB] path by bicsystem.path");
 
                     var _tableInfo = TableService.GetTableInfo(_tableName, false);
                     if (_tableInfo != null)
