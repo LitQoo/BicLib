@@ -4,10 +4,11 @@ using System.Linq;
 using System.Collections.Generic;
 using BicDB.Container;
 using UnityEngine;
+using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover
+	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover, IDataBase, IVariable
 	{
 		#region Event
 		private event Action<ColorVariable> onChangedValueActions = delegate{};
@@ -23,7 +24,20 @@ namespace BicDB.Variable
 			}
 		}
 
-		public void Subscribe(Action<ColorVariable> _callback, bool _needFirstCall = false){
+        event Action<IVariable> IVariable.OnChangedValueActions
+        {
+            add
+            {
+                throw new NotImplementedException();
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public void Subscribe(Action<ColorVariable> _callback, bool _needFirstCall = false){
 			onChangedValueActions += _callback;
 			if(_needFirstCall == true){
 				_callback(this as ColorVariable);
@@ -119,10 +133,28 @@ namespace BicDB.Variable
 				NotifyChanged ();
 			}
 		}
-		#endregion
+		
 
-		#region Logic
-		public void NotifyChanged(){
+		public string AsString { 
+			get{
+				return "#"+ColorUtility.ToHtmlStringRGBA(this.AsColor);
+			} 
+
+			set{
+				Color color;
+				if(ColorUtility.TryParseHtmlString(value, out color) == true){
+					AsColor = color;
+				}
+			} 
+		}
+
+        public int AsInt { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public float AsFloat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool AsBool { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        #endregion
+
+        #region Logic
+        public void NotifyChanged(){
 			if (onChangedValueActions != null) {
 				onChangedValueActions (this);
 			}
@@ -131,6 +163,42 @@ namespace BicDB.Variable
 		public void ClearNotifyAndBinding (){
 			onChangedValueActions = null;
 		}
+		
 		#endregion
-	}
+
+		#region IDataBase
+		public new void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
+		{
+			if(_json[_counter] == '"'){
+				_parser.BuildStringVariable(this, ref _json, ref _counter);
+			}else{
+				_parser.BuildDictionaryContainer(this, ref _json, ref _counter);
+			}
+		}
+
+		public new void BuildFormattedString(System.Text.StringBuilder _stringBuilder, IStringFormatter _formatter){
+			_formatter.BuildFormattedString(this as IVariable, _stringBuilder);
+		}
+
+        public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unsubscribe(Action<IVariable> _callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyChanged(IVariable _value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEqual(IVariable _variable)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
 }

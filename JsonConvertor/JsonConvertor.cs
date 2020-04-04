@@ -181,11 +181,10 @@ namespace BicUtil.Json
 			}
 
 			_stringBuilder.Append('}');
-
 		}
 
 		public void BuildFormattedString(IVariable _variable, StringBuilder _stringBuilder){
-			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum) {
+			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum || _variable.Type == DataType.Dictionary) {
 				_stringBuilder.AppendFormat("\"{0}\"", _variable.AsString.Replace("\"","\\\""));
 			} else {
 				_stringBuilder.Append(_variable.AsString);
