@@ -180,7 +180,7 @@ namespace BicUtil.SDKUtil
             });
 
             var _result = await Task.WhenAny(_asyncTask, _timeoutTask);
-            Debug.Log("remoteConfigAsync result = " + _result.Result.ToString());
+            Debug.Log("remoteConfigAsync result = " + _result.Result.Code.ToString());
         }
 
         private static void sendActiveABTestEvent()

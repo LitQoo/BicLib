@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BicDB.Storage;
 using BicDB.Variable;
 using BicUtil.Tween;
+using UnityEngine;
 
 namespace BicDB.Core
 {
@@ -14,6 +15,7 @@ namespace BicDB.Core
         private TweenTracker loadTracker = new TweenTracker();
         private int tryTime = 0;
         public void AddTable(ITableStorageSuppoter _table, ITableStorage _storage, object _param, Func<Result, bool> _passCallback = null){
+           
             _table.SetStorage(_storage);
             tableList.Insert(0, new TableLoadData(_table, _param, _passCallback));
         }
@@ -42,7 +44,6 @@ namespace BicDB.Core
                     
                     if(leftCount == 0 && tableList.Count > 0){
                         //retry
-                        UnityEngine.Debug.Log("TableLoader Retry LoadTables, TableCount = " + tableList.Count.ToString());
                         loadTables();
                     }else if(leftCount == 0 && tableList.Count == 0){
                         //success
@@ -91,37 +92,61 @@ namespace BicDB.Core
 
         private string errorMasssage = "";
 
-
         public async Task<BicDB.Result> LoadAsync(int _retryCount){
             int loadCount = 0;
-            List<Task<BicDB.Result>> _taskList = new List<Task<BicDB.Result>>();
-            for(int i = 0; i < tableList.Count; i++){
-                var _param = tableList[i].Parameter;
-                var _task = tableList[i].Table.LoadAsync(_param); 
-                tableList[i].TaskId.AsInt = _task.Id;
-                _taskList.Add(_task);
-            }
+            while(true)
+            {
+                List<Task<Result>> _taskList = getTaskList();
 
-            while(true){
                 var _result = await Task.WhenAll(_taskList.ToArray());
-                for(int i = _taskList.Count - 1; i >= 0; i--){
-                    var _tableInfo = tableList.FirstOrDefault(_row=>_row.TaskId.AsInt==_taskList[i].Id);
-                    var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : true;
+                
+                removeLoadedTable(_result);
 
-                    if(_result[i].IsSuccess == true && _isComplete == true){
-                        _taskList.RemoveAt(i);
-                    }
-                }
-
-                if(_taskList.Count == 0){
+                if (tableList.Count == 0)
+                {
                     return new BicDB.Result(0);
-                }else{
+                }
+                else
+                {
                     loadCount++;
-                    if(loadCount > _retryCount){
+                    
+                    if (loadCount > _retryCount)
+                    {   
                         return new BicDB.Result(1);
                     }
                 }
             }
+        }
+
+        private void removeLoadedTable(Result[] _result)
+        {
+            for (int i = tableList.Count - 1; i >= 0; i--)
+            {
+                var _tableInfo = tableList[i];
+                var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : true;
+
+                if (_result[i].IsSuccess == true && _isComplete == true)
+                {
+                    tableList.RemoveAt(i);
+                }
+                else
+                {
+                    Debug.Log("Task failed load table " + _tableInfo.Table.Name + "/ task.id " + i.ToString() + "/code " + _result[i].Code.ToString());
+                }
+            }
+        }
+
+        private List<Task<Result>> getTaskList()
+        {
+            List<Task<BicDB.Result>> _taskList = new List<Task<BicDB.Result>>();
+            for (int i = 0; i < tableList.Count; i++)
+            {
+                var _param = tableList[i].Parameter;
+                var _task = tableList[i].Table.LoadAsync(_param);
+                _taskList.Add(_task);
+            }
+
+            return _taskList;
         }
     }
 
@@ -129,13 +154,11 @@ namespace BicDB.Core
         public ITableStorageSuppoter Table;
         public object Parameter;
         public Func<Result, bool> PassCallback;
-        public IntVariable TaskId;
 
         public TableLoadData(ITableStorageSuppoter _table, object _param, Func<Result, bool> _passCallback = null){
             this.Table = _table;
             this.Parameter = _param;
             this.PassCallback = _passCallback;
-            this.TaskId = new IntVariable(-1);
         }
     }
 }
