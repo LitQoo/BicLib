@@ -25,7 +25,6 @@ namespace BicUtil.SDKUtil
         }
 
         static private void updateConstant(IRecordContainer _constants){
-            Debug.Log("start Update Constant");
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
@@ -62,7 +61,7 @@ namespace BicUtil.SDKUtil
                 Application.logMessageReceived += log;
             }
 
-            Debug.Log("firebase init complete "+ _result.ToString());
+            //Debug.Log("firebase init complete "+ _result.ToString());
             // BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
             //     {
             //         "Result",
@@ -120,7 +119,7 @@ namespace BicUtil.SDKUtil
 
                 if(_result == _initTask){
                     if (_initTask.Result == Firebase.DependencyStatus.Available) {
-                        Debug.Log("firebase init available");
+                        // Debug.Log("firebase init available");
                         return new BicDB.Result(0);
                     }else{
                         Debug.Log("firebase init not available");
@@ -142,7 +141,7 @@ namespace BicUtil.SDKUtil
         static private async Task remoteConfigAsync(IRecordContainer _constants, float _timeout){
             setRemoteConfigDefaultValue(_constants);
             
-            Debug.Log("FirebaseRemoteConfig Start");
+            // Debug.Log("FirebaseRemoteConfig Start");
 
             var _asyncTask = Task.Run(async ()=>
             {
@@ -180,7 +179,7 @@ namespace BicUtil.SDKUtil
             });
 
             var _result = await Task.WhenAny(_asyncTask, _timeoutTask);
-            Debug.Log("remoteConfigAsync result = " + _result.Result.Code.ToString());
+            // Debug.Log("remoteConfigAsync result = " + _result.Result.Code.ToString());
         }
 
         private static void sendActiveABTestEvent()
@@ -223,15 +222,15 @@ namespace BicUtil.SDKUtil
          {
               if (fetchTask.IsCanceled)
               {
-                  Debug.Log("Fetch canceled.");
+                  Debug.Log("Remoteconfig Fetch canceled.");
               }
               else if (fetchTask.IsFaulted)
               {
-                  Debug.Log("Fetch encountered an error.");
+                  Debug.Log("Remoteconfig Fetch encountered an error.");
               }
               else if (fetchTask.IsCompleted)
               {
-                  Debug.Log("Fetch completed successfully!");
+                //   Debug.Log("Fetch completed successfully!");
               }
 
               var info = Firebase.RemoteConfig.FirebaseRemoteConfig.Info;
@@ -241,7 +240,7 @@ namespace BicUtil.SDKUtil
                   case Firebase.RemoteConfig.LastFetchStatus.Success:
                     //Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
 
-                      Debug.Log(string.Format("Remote data loaded and ready (last fetch time {0}).", info.FetchTime));
+                      Debug.Log(string.Format("Remoteconfig Remote data loaded and ready (last fetch time {0}).", info.FetchTime));
                     //   string stop = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue("stops").StringValue;
                     //   Debug.Log("Value: " + (string.IsNullOrEmpty(stop) ? "NA" : stop));
 
@@ -258,15 +257,15 @@ namespace BicUtil.SDKUtil
                       switch (info.LastFetchFailureReason)
                       {
                           case Firebase.RemoteConfig.FetchFailureReason.Error:
-                                Debug.Log("Fetch failed for unknown reason");
+                                Debug.Log("Remoteconfig Fetch failed for unknown reason");
                                 break;
                           case Firebase.RemoteConfig.FetchFailureReason.Throttled:
-                                Debug.Log("Fetch throttled until " + info.ThrottledEndTime);
+                                Debug.Log("Remoteconfig Fetch throttled until " + info.ThrottledEndTime);
                                 break;
                       }
                      break;
                   case Firebase.RemoteConfig.LastFetchStatus.Pending:
-                     Debug.Log("Latest Fetch call still pending.");
+                     Debug.Log("Remoteconfig Latest Fetch call still pending.");
                      break;
             }
         }
