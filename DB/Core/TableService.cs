@@ -27,6 +27,7 @@ namespace BicDB.Core
         static private bool isInit = false;
         static private TableContainer<TableModel> tableInfo;
         static private TableContainer<QueryModel> queryTable;
+        static public bool IsLoaded{get=>isInit;}
         #endregion
 
         #region Event
