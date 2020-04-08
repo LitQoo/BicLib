@@ -34,7 +34,7 @@ namespace BicUtil.UI{
             this.Value.AsInt = Mathf.Clamp(this.Value.AsInt - gapValue, minValue, maxValue);
         }
 
-        private void setValueText(IVariable _value)
+        private void setValueText(IVariableReadOnly _value)
         {
             this.valueText.text = string.Format(valueFormat, this.Value.AsInt);
         }

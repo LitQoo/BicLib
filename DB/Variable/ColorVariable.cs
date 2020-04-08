@@ -24,7 +24,7 @@ namespace BicDB.Variable
 			}
 		}
 
-        event Action<IVariable> IVariable.OnChangedValueActions
+        event Action<IVariableReadOnly> IVariableReadOnly.OnChangedValueActions
         {
             add
             {
@@ -180,17 +180,17 @@ namespace BicDB.Variable
 			_formatter.BuildFormattedString(this as IVariable, _stringBuilder);
 		}
 
-        public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false)
+        public void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
         {
             throw new NotImplementedException();
         }
 
-        public void Unsubscribe(Action<IVariable> _callback)
+        public void Unsubscribe(Action<IVariableReadOnly> _callback)
         {
             throw new NotImplementedException();
         }
 
-        public void NotifyChanged(IVariable _value)
+        public void NotifyChanged(IVariableReadOnly _value)
         {
             throw new NotImplementedException();
         }

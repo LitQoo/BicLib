@@ -106,7 +106,7 @@ namespace BicDB.Variable
 			StringVariable _var = new StringVariable ("def");
 			string _changeValue = "change";
 
-			_var.Subscribe((IVariable _changer) => {
+			_var.Subscribe((IVariableReadOnly _changer) => {
 				if(_changer.AsString != _changeValue){
 					Assert.Fail();
 				}

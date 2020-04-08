@@ -28,7 +28,7 @@ namespace BicUtil.UI{
             IsSelect.AsBool = !IsSelect.AsBool;
         }
 
-        private void changeActive(IVariable _isSelect)
+        private void changeActive(IVariableReadOnly _isSelect)
         {
             for(int i = 0; i < enableAtOnObjects.Length; i++){
                 enableAtOnObjects[i].gameObject.SetActive(_isSelect.AsBool);

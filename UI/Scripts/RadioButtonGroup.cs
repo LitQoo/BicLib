@@ -27,14 +27,14 @@ namespace BicUtil.UI{
             SelectedButtonIndex.Subscribe(selectButton, true);
         }
 
-        private void selectButton(IVariable _buttonIndex)
+        private void selectButton(IVariableReadOnly _buttonIndex)
         {
             if(this.buttons[_buttonIndex.AsInt].IsSelect.AsBool != true){
                 this.buttons[_buttonIndex.AsInt].IsSelect.AsBool = true;
             }
         }
 
-        private void setButtonGroup(IVariable _isSelect)
+        private void setButtonGroup(IVariableReadOnly _isSelect)
         {
             if(_isSelect.AsBool == false){
                 return;

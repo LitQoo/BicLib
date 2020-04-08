@@ -42,28 +42,28 @@ namespace BicUtil.InfinityNumber
         #endregion
         
         #region Logic
-        public event Action<IVariable> OnChangedValueActions = delegate{};
+        public event Action<IVariableReadOnly> OnChangedValueActions = delegate{};
 
         public void NotifyChanged(){
             if(isTurnOffNotify == false){
-                OnChangedValueActions (this as IVariable);
+                OnChangedValueActions (this as IVariableReadOnly);
             }
         }
 
-        public void NotifyChanged(IVariable _value){
+        public void NotifyChanged(IVariableReadOnly _value){
             if(isTurnOffNotify == false){
-                OnChangedValueActions (this as IVariable);
+                OnChangedValueActions (this as IVariableReadOnly);
             }
         }
 
-        public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
+        public void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false){
             OnChangedValueActions += _callback;
             if(_needFirstCall == true){
                 _callback(this as IVariable);
             }
         }
 
-        public void Unsubscribe(Action<IVariable> _callback){
+        public void Unsubscribe(Action<IVariableReadOnly> _callback){
             OnChangedValueActions -= _callback;
         }
 

@@ -78,7 +78,7 @@ namespace BicUtil.TimeRefill{
             _targetCount.Subscribe(resetTimestamp);
         }
 
-        private void resetTimestamp(IVariable obj)
+        private void resetTimestamp(IVariableReadOnly obj)
         {
             if(this.FillRate.AsFloat == 0){
                 this.LastTimestamp.AsInt = (int)ServerTimeManager.Instance.TimestampUnix;

@@ -30,7 +30,7 @@ namespace BicUtil.UI{
             IsSelect.AsBool = !IsSelect.AsBool;
         }
 
-        private void changeSprite(IVariable _isSelect)
+        private void changeSprite(IVariableReadOnly _isSelect)
         {
             if(_isSelect.AsBool == true){
                 this.targetImage.sprite = onSprite;

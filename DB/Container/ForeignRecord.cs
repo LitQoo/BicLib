@@ -25,7 +25,7 @@ namespace BicDB.Container
 			}
 		}
 
-		private void findRecord(IVariable _findVariable){
+		private void findRecord(IVariableReadOnly _findVariable){
 			cached = targetTable.FirstOrDefault(_row=>_row[targetFieldName].AsVariable.AsString == findVariable.AsString);
 		}
 	}
