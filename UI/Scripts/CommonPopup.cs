@@ -85,9 +85,11 @@ namespace BicUtil.UI{
             inputField.gameObject.SetActive(false);
             closeButton.gameObject.SetActive(false);
             leftButton.gameObject.SetActive(false);
+            leftButtonText.gameObject.SetActive(false);
             rightButton.gameObject.SetActive(false);
             bottomButton.gameObject.SetActive(false);
             rightButtonIcon.gameObject.SetActive(false);
+            rightButtonText.gameObject.SetActive(false);
             leftButtonIcon.gameObject.SetActive(false);
         }
 
@@ -104,7 +106,18 @@ namespace BicUtil.UI{
             diableAllUI();
             mainMessageText.gameObject.SetActive(true);
             leftButton.gameObject.SetActive(true);
+            leftButtonText.gameObject.SetActive(true);
             leftButtonText.text = _buttonText;
+            mainMessageText.text = _text;
+            onClickLeftButton = _onClickLeftButton;
+        }
+
+        public void Confirm(string _text, Sprite _buttonIcon, Action _onClickLeftButton){
+            diableAllUI();
+            mainMessageText.gameObject.SetActive(true);
+            leftButton.gameObject.SetActive(true);
+            leftButtonIcon.gameObject.SetActive(true);
+            leftButtonIcon.sprite = _buttonIcon;
             mainMessageText.text = _text;
             onClickLeftButton = _onClickLeftButton;
         }
@@ -114,6 +127,8 @@ namespace BicUtil.UI{
             mainMessageText.gameObject.SetActive(true);
             leftButton.gameObject.SetActive(true);
             rightButton.gameObject.SetActive(true);
+            leftButtonText.gameObject.SetActive(true);
+            rightButtonText.gameObject.SetActive(true);
             mainMessageText.text = _text;
             leftButtonText.text = _leftButtonText;
             rightButtonText.text = _rightButtonText;
@@ -129,6 +144,7 @@ namespace BicUtil.UI{
             leftButton.gameObject.SetActive(true);
             closeButton.gameObject.SetActive(true);
             inputField.gameObject.SetActive(true);
+            leftButtonText.gameObject.SetActive(true);
             mainMessageText.text = _text;
             leftButtonText.text = _buttonText;
             onClickLeftButton = _onClickLeftButton;
