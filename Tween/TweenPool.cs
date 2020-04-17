@@ -299,6 +299,8 @@ namespace BicUtil.Tween{
 
 			isUpdatedPlayingMax = false;
 
+			runOnMainThread();
+
 			if(_error != null){
 				throw _error;
 			}
@@ -347,6 +349,34 @@ namespace BicUtil.Tween{
 				return _tracker;
 			}else{
 				return this.trackers[_id];
+			}
+		}
+		#endregion
+
+		#region RunOnMainThread
+		private volatile bool useThreadDispather = false;
+		private List<Action> funcOnMainList = new List<Action>();
+		
+		public void RunOnMainThread(Action _func){
+			lock(funcOnMainList){
+				funcOnMainList.Add(_func);
+				useThreadDispather = true;
+			}
+		}
+
+		private void runOnMainThread(){
+			if(useThreadDispather == false){
+				return;
+			}
+
+			lock(funcOnMainList){
+				var _count = funcOnMainList.Count;
+				for(int i = 0; i < _count; i++){
+					funcOnMainList[_count]();
+				}
+
+				funcOnMainList.Clear();
+				useThreadDispather = false;
 			}
 		}
 		#endregion

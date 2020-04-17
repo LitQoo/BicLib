@@ -22,7 +22,7 @@ namespace BicUtil.Purchasing{
         PRODUCTTYPE SubscriptionActiveID {get;set;}
         ProductModel<PRODUCTTYPE> GetProduct(PRODUCTTYPE _idType);
 
-        void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _callback);
+        void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariableReadOnly> _callback);
         void Initialize();
         void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback);
         void RestorePurchases(Action<bool> _callback);

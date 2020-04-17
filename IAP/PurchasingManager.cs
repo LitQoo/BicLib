@@ -22,7 +22,7 @@ namespace BicUtil.Purchasing{
 		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return subscriptionState;}}
 		public PRODUCTTYPE SubscriptionActiveID {get;set;}
 		private bool isLoad = false;
-		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariable> _valueChangedCallback){
+		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariableReadOnly> _valueChangedCallback){
 			if(isLoad == false){
 				throw new SystemException("Not Load PurchasingManager");
 			}
@@ -267,7 +267,7 @@ namespace BicUtil.Purchasing{
 			try{
 				this.Save();
 			}catch{
-				
+
 			}
 		}
 		

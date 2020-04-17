@@ -41,12 +41,12 @@ namespace BicUtil.Ads
         private void onLoaded(object sender, EventArgs e)
         {
             reloadTime = 30f;
-            onLoadBannerAction(this);
+            BicTween.RunOnMainThread(()=>onLoadBannerAction(this));
         }
 
         private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
         {
-            reloadBanner();
+            BicTween.RunOnMainThread(reloadBanner);
         }
 
 

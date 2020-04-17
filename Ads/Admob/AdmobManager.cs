@@ -77,11 +77,14 @@ namespace BicUtil.Ads{
                 if(adsData[__adsType].Data != null){
                     _interstitial.Destroy();
                     adsData[__adsType].Data = null;
-                    BicTween.Delay(0.5f).SubscribeComplete(()=>{
-                        LoadInterstitial(__adsType);
-                    });
 
-                    BicTween.DelayOneFrame().SubscribeComplete(()=>_callback(AdsResult.Finished));
+                    BicTween.RunOnMainThread(()=>{
+                        BicTween.Delay(0.5f).SubscribeComplete(()=>{
+                            LoadInterstitial(__adsType);
+                        });
+
+                        _callback(AdsResult.Finished);
+                    });
                 }
             };
 
@@ -102,8 +105,11 @@ namespace BicUtil.Ads{
                 _interstitial.OnAdFailedToLoad += (_sender, _args)=>{
                     _interstitial.Destroy();
                     adsData[_adsType].Data = null;
-                    BicTween.Delay(__time).SubscribeComplete(()=>{
-                        loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
+
+                    BicTween.RunOnMainThread(()=>{
+                        BicTween.Delay(__time).SubscribeComplete(()=>{
+                            loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
+                        });
                     });
                 };
 
@@ -134,8 +140,10 @@ namespace BicUtil.Ads{
 
                 _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
                     rewardedAdLoader[_adsId] = null;
-                    BicTween.Delay(__time).SubscribeComplete(()=>{
-                        loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
+                    BicTween.RunOnMainThread(()=>{
+                        BicTween.Delay(__time).SubscribeComplete(()=>{
+                            loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
+                        });
                     });
                 };
 
@@ -160,9 +168,9 @@ namespace BicUtil.Ads{
                     var __callback = _callback;
                     _callback = null;
                     if(isSuccessRewarded == true){
-                        BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Finished));
+                        BicTween.RunOnMainThread(()=>__callback(AdsResult.Finished));
                     }else{
-                        BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Skipped));
+                        BicTween.RunOnMainThread(()=>__callback(AdsResult.Skipped));
                     }
                 }
             };
@@ -171,7 +179,7 @@ namespace BicUtil.Ads{
                 if(_callback != null){
                     var __callback = _callback;
                     _callback = null;
-                    BicTween.DelayOneFrame().SubscribeComplete(()=>__callback(AdsResult.Failed));
+                    BicTween.RunOnMainThread(()=>__callback(AdsResult.Failed));
                 }
             };
 

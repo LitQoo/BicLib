@@ -949,6 +949,10 @@ namespace BicUtil.Tween
 			}
 		}
 
+		public static void RunOnMainThread(Action _func){
+			DefaultPool.RunOnMainThread(_func);
+		}
+
 
 		// public static List<Vector3> GetPathFortween(List<int> chidDataList){
 
