@@ -82,7 +82,7 @@ namespace BicDB.Variable
 			IntVariable _var = new IntVariable (124);
 			int _changeValue = 222;
 
-			_var.Subscribe((IVariable _changer) => {
+			_var.Subscribe((IVariableReadOnly _changer) => {
 				if(_changer.AsFloat != _changeValue){
 					Assert.Fail();
 				}

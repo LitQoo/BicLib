@@ -24,7 +24,7 @@ namespace BicUtil.MVCSystem
 		#endregion
 
 		#region Model -> Controller Binding
-		public void BindModelToController (IVariable _variable, Action<IVariable> _func, bool _needFirstCall = false){
+		public void BindModelToController (IVariable _variable, Action<IVariableReadOnly> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.Unsubscribe(_func);
 			});
@@ -73,7 +73,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, bool _needFirstCall = false){
-			Action<IVariable> _func = (__variable)=>{
+			Action<IVariableReadOnly> _func = (__variable)=>{
 				_text.text = __variable.AsString;
 			};
 			
@@ -90,7 +90,7 @@ namespace BicUtil.MVCSystem
 
 		public void BindModelToController(IVariable _variable, UnityEngine.UI.Text _text, string _format, bool _needFirstCall = false){
 			var __format = _format;
-			Action<IVariable> _func = (__variable)=>{
+			Action<IVariableReadOnly> _func = (__variable)=>{
 				_text.text = string.Format(__format, __variable.AsString);
 			};
 
@@ -106,7 +106,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (IVariable _variable, Action _func, bool _needFirstCall = false){
-			BindModelToController (_variable, (IVariable __variable) => _func (), _needFirstCall);
+			BindModelToController (_variable, (IVariableReadOnly __variable) => _func (), _needFirstCall);
 		}
 
 		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>> _func, bool _needFirstCall = false){

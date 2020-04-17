@@ -18,7 +18,7 @@ namespace BicUtil.UI{
             this.SelectedIndex.Subscribe(enableObject, true);
         }
 
-        private void enableObject(IVariable _selectedIndexk)
+        private void enableObject(IVariableReadOnly _selectedIndexk)
         {
             for(int i = 0; i < enableObjects.Length; i++){
                 enableObjects[i].SetActive(i == _selectedIndexk.AsInt);

@@ -71,6 +71,10 @@ namespace BicDB.Container
 				_callback(new Result(0));
 			}
 		}
+
+		public void SubscribeOnAdded(Action<T> _callback){
+			this.OnAddedRowActions += _callback;
+		}
 		#endregion
 
 		#region LifeCycle

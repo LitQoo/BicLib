@@ -6,22 +6,29 @@ using BicUtil.Json;
 namespace BicDB.Variable
 {
 
-	public interface IVariable : IDataBase, IBindRmover{
-		[Obsolete("use Subscribe")]
-		event Action<IVariable> OnChangedValueActions;
-
-		void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false);
-		void Unsubscribe(Action<IVariable> _callback);
-		void UnsubscribeAll();
-		void NotifyChanged();
-		void NotifyChanged(IVariable _value);
-
+	public interface IVariable : IDataBase, IBindRmover, IVariableReadOnly{
 		bool IsEqual(IVariable _variable);
 
-		int AsInt{ get; set; }
-		string AsString{ get; set; }
-		float AsFloat{ get; set; }
-		bool AsBool{ get; set; }
+		new int AsInt{ get; set; }
+		new string AsString{ get; set; }
+		new float AsFloat{ get; set; }
+		new bool AsBool{ get; set; }
+	}
+
+	public interface IVariableReadOnly{
+		[Obsolete("use Subscribe")]
+		event Action<IVariableReadOnly> OnChangedValueActions;
+
+		void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false);
+		void Unsubscribe(Action<IVariableReadOnly> _callback);
+		void UnsubscribeAll();
+		void NotifyChanged();
+		void NotifyChanged(IVariableReadOnly _value);
+
+		int AsInt{ get;}
+		string AsString{ get;}
+		float AsFloat{ get;}
+		bool AsBool{ get;}
 	}
 
 	public interface IEnumVariable<T> : IVariable where  T : struct
@@ -37,7 +44,7 @@ namespace BicDB.Variable
 
 	public class VariableBase{
 		[Obsolete("use Subscribe")]
-		public event Action<IVariable> OnChangedValueActions{
+		public event Action<IVariableReadOnly> OnChangedValueActions{
 			add{
 				onChangedValueActions += value;
 			}
@@ -47,16 +54,16 @@ namespace BicDB.Variable
 			}
 		}
 		
-		private event Action<IVariable> onChangedValueActions = delegate{};
+		private event Action<IVariableReadOnly> onChangedValueActions = delegate{};
 
-		public void Subscribe(Action<IVariable> _callback, bool _needFirstCall = false){
+		public void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false){
 			onChangedValueActions += _callback;
 			if(_needFirstCall == true){
-				_callback(this as IVariable);
+				_callback(this as IVariableReadOnly);
 			}
 		}
 		
-		public void Unsubscribe(Action<IVariable> _callback){
+		public void Unsubscribe(Action<IVariableReadOnly> _callback){
 			onChangedValueActions -= _callback;
 		}
 
@@ -65,11 +72,11 @@ namespace BicDB.Variable
 		}
 
 		public void NotifyChanged(){
-			onChangedValueActions (this as IVariable);
+			onChangedValueActions (this as IVariableReadOnly);
 		}
 
-		public void NotifyChanged(IVariable _value){
-			onChangedValueActions (this as IVariable);
+		public void NotifyChanged(IVariableReadOnly _value){
+			onChangedValueActions (this as IVariableReadOnly);
 		}
 
 		public bool IsEqual(IVariable _variable){
@@ -141,7 +148,7 @@ namespace BicDB.Variable
 			}
 		}
 
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable>[] _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariableReadOnly>[] _callback){
 			if (_member != null) {
 				for (int i = 0; i < _callback.Length; i++) {
 					_member.Unsubscribe(_callback[i]);
@@ -155,7 +162,7 @@ namespace BicDB.Variable
 			_member.NotifyChanged();
 		}
 
-		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariable> _callback){
+		static public void SetVariableProperty(ref IVariable _member, IVariable _value, Action<IVariableReadOnly> _callback){
 			if (_member != null) {
 				_member.Unsubscribe(_callback);
 			}
