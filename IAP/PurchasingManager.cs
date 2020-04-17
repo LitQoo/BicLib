@@ -241,6 +241,7 @@ namespace BicUtil.Purchasing{
 
 							if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.False || _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.True){
 								_model.PurchaseCount.AsInt = 0;
+								this.SubscriptionState.AsEnum = SubscriptionStateType.Inactive;
 								// Debug.Log("[pixaw] purchasing count = 0");
 							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
 								_model.PurchaseCount.AsInt = 1;
@@ -248,15 +249,25 @@ namespace BicUtil.Purchasing{
 								this.SubscriptionActiveID = _model.IdType.AsEnum;
 								this.SubscriptionState.AsEnum = SubscriptionStateType.Active;
 								// Debug.Log("[pixaw] purchasing count = 1 Active");
+							}else{
+								this.SubscriptionState.AsEnum = SubscriptionStateType.Inactive;
+								_model.PurchaseCount.AsInt = 0;
 							}
 						}
 					}catch(Exception){
 						// Debug.Log("[pixaw] checkRecipt fail exception");
+						this.SubscriptionState.AsEnum = SubscriptionStateType.Inactive;
 						_model.PurchaseCount.AsInt = 0;
 					}
 					#endif
 					}
 				}
+			}
+
+			try{
+				this.Save();
+			}catch{
+				
 			}
 		}
 		
