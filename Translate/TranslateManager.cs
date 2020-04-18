@@ -114,7 +114,9 @@ namespace BicUtil.Translate
             }
 
             if(_value.ContainsKey(language) == true){
-                return _value[language].AsVariable.AsString.Replace("\\n", "\n");
+                if(string.IsNullOrEmpty(_value[language].AsVariable.AsString) == false){
+                    return _value[language].AsVariable.AsString.Replace("\\n", "\n");
+                }
             }
 
             if(_value.ContainsKey("English") == true){
