@@ -73,21 +73,31 @@ namespace BicUtil.PublishingUtil{
 			}
 		}
 
-		static public bool IsReviewTime(int _trueCount){
+		static public bool IsReviewTime(int _trueCount, bool _countingReview = true){
 			if(IsWriteReview == true){
 				return false;
 			}
 
-			var _reviewCount = TableService.GetProperty("reviewCount", new IntVariable(0));
-			_reviewCount.AsInt++;
-			TableService.Save();
-
-			if(_reviewCount.AsInt % _trueCount == 0){
-				return true;
-			}else{
+			if(NotRequestReviewToday == true){
 				return false;
 			}
+
+			var _reviewCount = TableService.GetProperty("reviewCount", new IntVariable(1));
+			var _result = false;
+
+			if(_reviewCount.AsInt % _trueCount == 0){
+				_result = true;
+			}
+
+			if(_countingReview == true){
+				_reviewCount.AsInt++;
+				TableService.Save();
+			}
+
+			return _result;
 		}
+
+		static public bool NotRequestReviewToday = false;
 
 		static public int ReviewCount{
 			get{
