@@ -157,9 +157,9 @@ namespace BicDB.Core
 
         private static bool hasProperty(string _key){
             if(tableInfo.Property.ContainsKey(_key) == false){
-                if(PlayerPrefs.HasKey(_key) == false){
+                //if(PlayerPrefs.HasKey(_key) == false){
                     return false;
-                }
+                //}
             }
 
             return true;
@@ -252,7 +252,7 @@ namespace BicDB.Core
                 #if UNITY_EDITOR
                 Debug.LogError("[TableService] Sync warning, if you want uninstall, do Edit > Clear All PlayerPrefs");
                 #else
-                Debug.LogWarning("[TableService] Sync warning tableinfo.containskey(is_setup) = " + tableInfo.Property.ContainsKey(PROP_FIELD_IS_SETUP).ToString());
+                Debug.LogWarning("[TableService] Sync warning tableinfo.containskey(is_setup)");
                 #endif
             }
         }
