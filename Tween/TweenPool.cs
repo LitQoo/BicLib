@@ -359,8 +359,10 @@ namespace BicUtil.Tween{
 		
 		public void RunOnMainThread(Action _func){
 			lock(funcOnMainList){
-				funcOnMainList.Add(_func);
-				useThreadDispather = true;
+				if(_func != null){
+					funcOnMainList.Add(_func);
+					useThreadDispather = true;
+				}
 			}
 		}
 
@@ -372,7 +374,7 @@ namespace BicUtil.Tween{
 			lock(funcOnMainList){
 				var _count = funcOnMainList.Count;
 				for(int i = 0; i < _count; i++){
-					funcOnMainList[_count]();
+					funcOnMainList[i]();
 				}
 
 				funcOnMainList.Clear();
