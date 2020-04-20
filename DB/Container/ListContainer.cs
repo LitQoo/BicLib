@@ -211,5 +211,15 @@ namespace BicDB.Container
 			OnChangedElementActions = new OnChangedElementDelegator<int, T>();
 		}
 
+		public ListContainer(string _defaultValue) : this(){
+			int _counter = 0;
+            BicUtil.Json.JsonConvertor.GetInstance().BuildListContainer(this, ref _defaultValue, ref _counter);
+		}
+
+		public override string ToString(){
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			BuildFormattedString (_stringBuilder, BicUtil.Json.JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
+		}
 	}
 }
