@@ -8,7 +8,7 @@ namespace BicUtil.Analytics
     public class Analytics : BicUtil.SingletonBase.SingletonBase<Analytics>
     {
         private List<IAnalyticsLib> libList = new List<IAnalyticsLib>();
-        
+        private bool isEnable = false;
         public override void Initialize()
         {
             #if BICUTIL_ANALYTICS_APPSFLYER
@@ -30,15 +30,21 @@ namespace BicUtil.Analytics
 
         private void addService(IAnalyticsLib _lib){
             libList.Add(_lib);
+            isEnable = true;
         }
 
         private void sendEvent(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
+            
             #if UNITY_EDITOR
-                if(libList.Count <= 0){
+                if(isEnable == false){
                     Debug.LogError("[Analytics] Analytics Lib is Not Added");
                 }
                 return;
             #else
+
+            if(isEnable == false){
+                return;
+            }
 
             for(int i = 0; i < libList.Count; i++){
                 libList[i].Event(_eventName, _eventData, _count);

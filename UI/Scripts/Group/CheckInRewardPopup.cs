@@ -131,6 +131,16 @@ namespace BicUtil.UI{
         private void callback(bool _isDouble){
             var _dayIndex = lastCheckCount.AsInt - 1;
             takeRewardCallback(_dayIndex, _isDouble);
+            Analytics.Analytics.Event("check_in_reward", new Dictionary<string, object> {
+                {
+                    "isDouble",
+                    _isDouble
+                },
+                {
+                    "dayIndex",
+                    _dayIndex
+                }
+            });
         }
 
         private void resetIfFull(){
