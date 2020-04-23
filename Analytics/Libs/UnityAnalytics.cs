@@ -9,6 +9,8 @@ namespace BicUtil.Analytics
     public class UnityAnalytics : IAnalyticsLib{
         private object lockObject = new object();
 
+        public string TermsURL => "https://unity3d.com/fr/legal/privacy-policy";
+
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             lock(lockObject){
                 if(_eventData == null){

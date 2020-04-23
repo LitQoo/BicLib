@@ -6,6 +6,8 @@ namespace BicUtil.Ads{
 
     public class DummyManager : IAdsPlatform
     {
+        public string TermsURL => "";
+
         public bool IsReadyInterstitialReturn = false;
         public bool IsReadyRewardBasedReturn = false;
         public AdsResult ShowInterstitialReturn = AdsResult.Finished;

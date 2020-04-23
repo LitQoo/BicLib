@@ -10,6 +10,8 @@ namespace BicUtil.Ads
 {
     public class LocalAdsManager : SingletonBase<LocalAdsManager>, IAdsPlatform
     {
+        public string TermsURL => "https://bigjamgames.com/privacy_en.html";
+
         #region InstantData
         private List<LocalAdsInfo> adsData = new List<LocalAdsInfo>();
         public float BannerReloadTime = 60;

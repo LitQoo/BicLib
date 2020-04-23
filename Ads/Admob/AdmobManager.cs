@@ -9,6 +9,8 @@ using UnityEngine;
 namespace BicUtil.Ads{
     public class AdmobManager : IAdsPlatform
     {
+        public string TermsURL => "https://policies.google.com/privacy/update";
+
         #region InstantData
         private Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
@@ -205,7 +207,7 @@ namespace BicUtil.Ads{
 
         #region Banner
         private BannerView bannerView;
-        
+
         public bool IsReadyBanner(object _adsType){
             return true;
         }

@@ -56,9 +56,19 @@ namespace BicUtil.Analytics
             Instance.sendEvent(_eventName, _eventData, _count);
         }
 
+        public List<string> GetTerms(){
+            var _result = new List<string>();
+            for(int i = 0; i < libList.Count; i++){
+                _result.Add(libList[i].TermsURL);
+            }
+
+            return _result;
+        }
+
     }
 
     public interface IAnalyticsLib{
         void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1);
+        string TermsURL{get;}
     }
 }

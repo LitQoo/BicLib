@@ -6,6 +6,8 @@ using UnityEngine;
 namespace BicUtil.Analytics
 {
     public class AppsFlyerAnalytics : IAnalyticsLib{
+        public string TermsURL => "https://www.appsflyer.com/privacy-policy/";
+
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             var _afData = new Dictionary<string, string>();
 

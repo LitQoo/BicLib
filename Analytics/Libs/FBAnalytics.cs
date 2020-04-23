@@ -27,6 +27,9 @@ namespace BicUtil.Analytics
 
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
+
+        public string TermsURL => "https://www.facebook.com/policy";
+
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             if(isEnabled == false){
                 return;

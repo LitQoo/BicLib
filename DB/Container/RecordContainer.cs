@@ -13,6 +13,18 @@ namespace BicDB.Container
 		private IDictionary<string, IDataBase> data = new Dictionary<string, IDataBase>();
 		#endregion
 
+		#region LifeCycle
+		public RecordContainer(){
+
+		}
+
+		public RecordContainer(Dictionary<string, IDataBase> _default) : this(){
+			foreach(var _info in _default){
+				AddManagedColumn(_info.Key, _info.Value);
+			}
+		}
+		#endregion
+
 		#region IRecordContainer
 		public IRecordContainerParent Parent{ get; set; }
 		public virtual Action<IRecordContainer, string> OnChangedValueActions{ get; set;}

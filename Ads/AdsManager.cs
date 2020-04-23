@@ -387,6 +387,15 @@ namespace BicUtil.Ads
 
             //this.AnalyticsTable.Save();
         }
+
+        public List<string> GetTerms(){
+            var _result = new List<string>();
+            for(int i = 0; i < adsPlatforms.Count; i++){
+                _result.Add(adsPlatforms[i].TermsURL);
+            }
+
+            return _result;
+        }
     }
 
     public class DummyBanner : IAdsBanner

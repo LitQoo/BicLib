@@ -10,6 +10,7 @@ namespace BicUtil.Analytics
     public class FirebaseAnalytics : IAnalyticsLib{
 
         static public object LOCK_CHECK{get;} = new object();
+        public string TermsURL => "https://policies.google.com/privacy/update";
         
         private struct SavedEvent{
             public string Name;
