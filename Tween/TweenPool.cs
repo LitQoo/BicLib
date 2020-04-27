@@ -263,7 +263,9 @@ namespace BicUtil.Tween{
 					var _tween = TweenList[i];
 					if(_tween != null && _tween.IsPlaying == true){
 						
+						#if !UNITY_EDITOR
 						try{
+						#endif
 							if(_tween.IsDestroyed == false){
 								_lastPlayingIndex = i;
 							}else{
@@ -282,10 +284,12 @@ namespace BicUtil.Tween{
 							if(_tween.Update != null){
 								_tween.Update();
 							}
+						#if !UNITY_EDITOR
 						}catch(System.Exception _e){
 							Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo);
 							_error = _e;
 						}
+						#endif
 					}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
 						_tween.destoryCount--;
 						_lastPlayingIndex = i;
