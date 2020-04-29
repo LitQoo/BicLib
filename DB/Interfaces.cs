@@ -56,6 +56,10 @@ namespace BicDB
 				return Code == 0;
 			}
 		}
+
+		public override string ToString(){
+			return "Code:" + Code.ToString() + ", Message : " + Message; 
+		}
 	}
 
 
