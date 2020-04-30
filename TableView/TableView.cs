@@ -27,9 +27,16 @@ namespace BicUtil.TableView
         /// The data source that will feed this table view with information. Required.
         /// </summary>
 
-		public void SetDBSource<T>(IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) where T : IRecordContainer, new(){
-           DataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
-		}
+		public void SetDBSource<T>(IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc) where T : IRecordContainer, new(){
+            DataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
+        }
+
+        public void SetDBSource<T>(IList<T> _table, string _headRowName = "", string _footRowName = "") where T : IRecordContainer, new(){
+            var _dataSource = new TableDataSourceAuto<T>(this, _table, null);
+            _dataSource.SetHeadRow(_headRowName);
+            _dataSource.SetFootRow(_footRowName);
+            DataSource = _dataSource;
+        }
 
         [System.Serializable]
         public class RowVisibilityChangeEvent : UnityEvent<int, bool> { }
@@ -69,14 +76,12 @@ namespace BicUtil.TableView
 			TableRow _row = GetReusableRow(_reuseIdentifier);
 
 			if (_row == null) {
-                if(string.IsNullOrEmpty(_reuseIdentifier) == false){
-                    for(int i = 0; i < tableRows.Count; i++){
-                        if(tableRows[i].ReuseIdentifier == _reuseIdentifier){
-                            _row = (TableRow)GameObject.Instantiate(tableRows[i]);
-                            break;
-                        }
-                    }
-                }else{
+                if(string.IsNullOrEmpty(_reuseIdentifier) == false)
+                {
+                    _row = (TableRow)GameObject.Instantiate(getTableRowForCopy(_reuseIdentifier));
+                }
+                else
+                {
                     _row = (TableRow)GameObject.Instantiate(tableRowDefault);
                 }
 
@@ -92,13 +97,39 @@ namespace BicUtil.TableView
 			return _row;
 		}
 
-		public int GetTableSize(){
+        private TableRow getTableRowForCopy(string _reuseIdentifier)
+        {
+            for (int i = 0; i < tableRows.Count; i++)
+            {
+                if (tableRows[i].ReuseIdentifier == _reuseIdentifier)
+                {
+                    return tableRows[i];
+                }
+            }
+
+            return null;
+        }
+
+        public int GetTableSize(){
 			return DataSource.GetNumberOfCellsForTableView();
 		}
 
+        [Obsolete("use GetDefaultRowHeight")]
 		public float GetRowHeight(){
-			return m_rowHeight;
+			return m_defaultRowHeight;
 		}
+
+        public float GetRowHeight(string _rowName){
+            var _row = getTableRowForCopy(_rowName);
+            var _height = _row.GetComponent<RectTransform>().sizeDelta.y;
+            return _height; 
+        }
+
+        public float GetDefaultRowHeight(){
+            return m_defaultRowHeight;
+        }
+
+
 
         public void StopScrollMovement(){
             m_scrollRect.StopMovement();
@@ -331,7 +362,7 @@ namespace BicUtil.TableView
         private bool m_requiresRefresh;
 
 		private bool m_isVertical;
-		private float m_rowHeight;
+		private float m_defaultRowHeight;
 
 		public ITableViewDataSource DataSource
 		{
@@ -398,7 +429,7 @@ namespace BicUtil.TableView
 
         private void initRows()
         {
-            m_rowHeight = 100;
+            m_defaultRowHeight = 100;
             
             if (tableRowDefault != null)
             {
@@ -426,11 +457,11 @@ namespace BicUtil.TableView
 
                 if (m_isVertical)
                 {
-                    m_rowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.y;
+                    m_defaultRowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.y;
                 }
                 else
                 {
-                    m_rowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.x;
+                    m_defaultRowHeight = tableRowDefault.GetComponent<RectTransform>().sizeDelta.x;
                 }
             }
         }
