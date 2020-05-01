@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using BicDB.Variable;
 #if BICUTIL_SPINE
 using Spine.Unity;
 #endif
@@ -643,24 +644,32 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time,
+		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, float _alpha = 1f,
+		TweenPool _puller = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			return Rainbow(_uigraphic, _time, new FloatVariable(_alpha), _puller, _memberName, _sourceFilePath, _sourceLineNumber);	
+		}
+
+		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, FloatVariable _alpha,
 		TweenPool _puller = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return BicTween.Value(0f, 6f, _time, _puller, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
                 if(_value.x < 1){
-                    _uigraphic.color = new Color(1f, 1f - _value.x, 0f);
+                    _uigraphic.color = new Color(1f, 1f - _value.x, 0f, _alpha.AsFloat);
                 }else if(_value.x < 2){
-                    _uigraphic.color = new Color(1f, 0f, _value.x - 1f);
+                    _uigraphic.color = new Color(1f, 0f, _value.x - 1f, _alpha.AsFloat);
                 }else if(_value.x < 3){
-                    _uigraphic.color = new Color(3f - _value.x, 0f, 1f);
+                    _uigraphic.color = new Color(3f - _value.x, 0f, 1f, _alpha.AsFloat);
                 }else if(_value.x < 4){
-                    _uigraphic.color = new Color(0f, _value.x - 3f, 1f);
+                    _uigraphic.color = new Color(0f, _value.x - 3f, 1f, _alpha.AsFloat);
                 }else if(_value.x < 5){
-                    _uigraphic.color = new Color(0f, 1f, 5f - _value.x);
+                    _uigraphic.color = new Color(0f, 1f, 5f - _value.x, _alpha.AsFloat);
                 }else{
-                    _uigraphic.color = new Color(_value.x - 5f, 1f, 0f);
+                    _uigraphic.color = new Color(_value.x - 5f, 1f, 0f, _alpha.AsFloat);
                 }
             }).SetTargetObject(_uigraphic.gameObject);
 		}
