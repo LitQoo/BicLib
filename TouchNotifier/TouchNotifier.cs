@@ -60,6 +60,10 @@ namespace BicUtil.TouchNotifier
 			return UnityEngine.RectTransformUtility.RectangleContainsScreenPoint(_rectTransform, _worldPosition);
 		}
 
+        public Vector2 GetStartPosition(int _touchIndex){
+            return this.startTouchPosition[_touchIndex];
+        }
+
 		public Vector2 GetTouch(int _touchIndex){
 			#if UNITY_EDITOR
                 bool _useGetTouch = false;
@@ -113,14 +117,14 @@ namespace BicUtil.TouchNotifier
 			get{
 			#if UNITY_EDITOR 
                 if(UnityEditor.EditorApplication.isRemoteConnected == true){
-                    return Input.touchCount;
+                    return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
                 }else{
                     return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
                 }
             #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
-                return Input.touchCount;
+                return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#endif
 			}
 		}
