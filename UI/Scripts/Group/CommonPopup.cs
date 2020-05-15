@@ -169,6 +169,12 @@ namespace BicUtil.UI{
             this.onClickBottomButton = _callback;
         }
 
+
+        public void SetCloseButton(Action _callback){
+            this.closeButton.gameObject.SetActive(true);
+            this.onClickClose = _callback;
+        }
+
         public void Open(){
             this.gameObject.SetActive(true);
         }
