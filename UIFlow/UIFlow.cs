@@ -53,9 +53,11 @@ namespace BicUtil.UIFlow
 		private UIInfo currentUiInfo { get{ return uiStack [uiStack.Count - 1]; }}
 		private IUIFlowObject baseUi = null;
 		private BoolVariable isWait = new BoolVariable(false);
+		private object sceneTransitionParameter = null;
 
-		public void LoadScene(string _sceneName){
+		public void LoadScene(string _sceneName, object _param = null){
 			cleaningValriables();
+			sceneTransitionParameter = _param;
 			UnityEngine.SceneManagement.SceneManager.LoadScene (_sceneName);
 		}
 
@@ -71,6 +73,7 @@ namespace BicUtil.UIFlow
 		}
 
 		private void cleaningValriables(){
+			sceneTransitionParameter = null;
 			UIFlow.Instance.ClearRegisteredUI();
 			backAction = null;
 			uiStack.Clear();
@@ -354,6 +357,11 @@ namespace BicUtil.UIFlow
 
 		public void SetBase(IUIFlowObject _ui, OpenMode _openMode, object _param = null){
 			baseUi = _ui;
+			if(sceneTransitionParameter != null){
+				_param = sceneTransitionParameter;
+				sceneTransitionParameter = null;
+			}
+
 			open(_ui, _openMode, _param);
 		}
 
