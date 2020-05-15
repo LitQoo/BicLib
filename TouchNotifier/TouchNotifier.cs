@@ -117,14 +117,14 @@ namespace BicUtil.TouchNotifier
 			get{
 			#if UNITY_EDITOR 
                 if(UnityEditor.EditorApplication.isRemoteConnected == true){
-                    return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
+                    return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0) + (isTouchIn[5]?1:0) + (isTouchIn[6]?1:0) + (isTouchIn[7]?1:0) + (isTouchIn[8]?1:0) + (isTouchIn[9]?1:0) + (isTouchIn[10]?1:0);
                 }else{
                     return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
                 }
             #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
 				return (isTouchIn[0]?1:0) + (isTouchIn[1]?2:0) + (isTouchIn[2]?2:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
 			#else
-                return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0);
+                return (isTouchIn[0]?1:0) + (isTouchIn[1]?1:0) + (isTouchIn[2]?1:0) + (isTouchIn[3]?1:0) + (isTouchIn[4]?1:0) + (isTouchIn[5]?1:0) + (isTouchIn[6]?1:0) + (isTouchIn[7]?1:0) + (isTouchIn[8]?1:0) + (isTouchIn[9]?1:0) + (isTouchIn[10]?1:0);
 			#endif
 			}
 		}

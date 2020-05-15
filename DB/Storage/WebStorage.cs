@@ -18,7 +18,7 @@ namespace BicDB.Storage
 		static public string LOAD_URL_KEY = "webstorageLoadURL";
 		static public string SEND_RECORD_URL = "sendRecordURL";
 		static public string SEND_RECORDS_URL = "sendRecordsURL";
-		static public string DELETE_RECORD_URL = "deleteRecordURL";
+		static public string DELETE_RECORDS_URL = "deleteRecordsURL";
 		static public string ENCRYPT = "encrypt";
 		#endregion
 
@@ -170,101 +170,6 @@ namespace BicDB.Storage
 			SendRecord(_table, _record, null, _callback);
 		}
 
-		public void DeleteRecord<T>(ITableContainer<T> _targetTable, IVariable _primaryValue, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
-			var _resultCallback = _callback;
-			var _table = _targetTable;
-			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
-				throw new SystemException("Need to set PrimaryKey");
-			}
-
-			if (!_table.Header.ContainsKey (DELETE_RECORD_URL)) {
-				throw new SystemException ("not found Header " + DELETE_RECORD_URL);
-			}
-
-			if (!_table.Header.ContainsKey (ENCRYPT)) {
-				throw new SystemException ("not found Header " + ENCRYPT);
-			}
-
-			throw new NotImplementedException();
-
-
-			var _formData = new RecordContainer();
-			_formData.AddManagedColumn("primaryValue", _primaryValue);
-			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
-
-			if(_param != null){
-				foreach(var _value in _param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
-				}
-			}
-
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-
-			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-
-			_form.AddField("data", _formDataString);
-
-			var _request = UnityWebRequest.Post(_table.Header[DELETE_RECORD_URL].AsVariable.AsString, _form);
-
-
-			WebStorage.Instance.SendWebRequest(_request, _result=>{
-
-				if(_result.isHttpError == true || _result.isNetworkError == true){
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
-					}
-					return;
-				}
-
-				string _json = _result.downloadHandler.text;
-				try{
-					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
-					}
-				}catch{
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.Crypto));
-					}
-				}
-
-				var _resultRecord = new RecordContainer();
-				_resultRecord.AddManagedColumn("result", new IntVariable());
-
-				if(_resultRecord.ParseJson(_json) == true){
-					if(_resultRecord["result"].AsVariable.AsInt == 0){
-						for(int i = _table.Count - 1; i >= 0; i--){
-							if(_table[i][_table.PrimaryKey].AsVariable.AsString == _primaryValue.AsString){
-								_table.RemoveAt(i);
-							}
-						}
-
-						if(_table.OnSave != null){
-							_table.OnSave(new Result((int)ResultCode.Success));
-						}
-
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.Success));
-						}
-						return;
-					}else{
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ServerRequestError));
-						}
-						return;
-					}
-				}else{
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
-					}
-					return;
-				}
-			});
-
-		}
-
 		public void SendRecord<T>(ITableContainer<T> _targetTable, T _targetRecord, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
@@ -359,7 +264,6 @@ namespace BicDB.Storage
 			});
 		}
 
-
 		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
@@ -433,6 +337,108 @@ namespace BicDB.Storage
 							}
 
 							_table.AddWithoutDuplication(_record);
+						}
+
+						if(_table.OnSave != null){
+							_table.OnSave(new Result((int)ResultCode.Success));
+						}
+
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.Success));
+						}
+
+						return;
+					}else{
+						if(_resultCallback != null){
+							_resultCallback(new Result((int)ResultCode.ServerRequestError));
+						}
+						return;
+					}
+				}else{
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
+					}
+					return;
+				}
+			});
+		}
+
+		public void DeleteRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+			var _resultCallback = _callback;
+			var _table = _targetTable;
+			var _records = _targetRecords;
+			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
+				throw new SystemException("Need to set PrimaryKey");
+			}
+
+			if (!_table.Header.ContainsKey (DELETE_RECORDS_URL)) {
+				throw new SystemException ("not found Header " + DELETE_RECORDS_URL);
+			}
+
+			if (!_table.Header.ContainsKey (ENCRYPT)) {
+				throw new SystemException ("not found Header " + ENCRYPT);
+			}
+
+			var _formData = new RecordContainer();
+			var _ids = new ListContainer<StringVariable>();
+			for(int i = 0; i < _records.Count; i++){
+				_ids.Add(new StringVariable(_records[i][_table.PrimaryKey].AsVariable.AsString));
+			}
+
+			_formData.AddManagedColumn("data", _ids);
+			_formData.AddManagedColumn("primayKey", new StringVariable(_table.PrimaryKey));
+
+			if(_param != null){
+				foreach(var _value in _param){
+					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+				}
+			}
+
+			var _form = new WWWForm();
+			var _formDataString = _formData.ToString();
+
+			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+			}
+			_form.AddField("data", _formDataString);
+
+
+			var _request = UnityWebRequest.Post(_table.Header[DELETE_RECORDS_URL].AsVariable.AsString, _form);
+
+			WebStorage.Instance.SendWebRequest(_request, _result=>{
+
+				if(_result.isHttpError == true || _result.isNetworkError == true){
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
+					}
+					return;
+				}
+
+				string _json = _result.downloadHandler.text;
+				try{
+					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}
+				}catch{
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.Crypto));
+					}
+					return;
+				}
+
+				var _resultRecord = new RecordContainer();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+				var _primaryKeys = new ListContainer<StringVariable>();
+				_resultRecord.AddManagedColumn(_table.PrimaryKey, _primaryKeys);
+
+				if(_resultRecord.ParseJson(_json) == true){
+					if(_resultRecord["result"].AsVariable.AsInt == 0){
+
+						for(int i = 0; i < _primaryKeys.Count; i++){
+							var _target = _table.FirstOrDefault(_row=>_row[_table.PrimaryKey].AsVariable.AsString == _primaryKeys[i].AsString);
+							if(_target != null){
+								_table.Remove(_target);
+							}
 						}
 
 						if(_table.OnSave != null){
