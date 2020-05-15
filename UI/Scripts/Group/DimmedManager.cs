@@ -9,9 +9,20 @@ namespace BicUtil.UI{
     public class DimmedManager : MonoBehaviour
     {
         #region Static
+        static private DimmedManager instance = null;
         static public DimmedManager Instance{
-            get;
-            private set;
+            get{
+
+                if(instance == null){
+                    instance = (DimmedManager)GameObject.FindObjectOfType(typeof(DimmedManager));
+                }
+
+                return instance;
+            }
+
+            private set{
+                instance = value;
+            }
         }
         #endregion
 
@@ -20,10 +31,11 @@ namespace BicUtil.UI{
         private UnityEngine.UI.Image image;
         [SerializeField]
         private UnityEngine.UI.Text message;
+        [SerializeField]
+        private Color baseColor = Color.clear;
         #endregion
 
         #region InstantData
-        [SerializeField]
         private int count = 0;
         private int lastDimmedFrame = 0;
 
@@ -38,7 +50,7 @@ namespace BicUtil.UI{
                 lastDimmedFrame = Time.frameCount;
                 if(count <= 0){
                     image.color = Color.clear;
-                    message.text = "";
+                    setMessage("");
                 }
             }
         }
@@ -59,6 +71,11 @@ namespace BicUtil.UI{
         #endregion
 
         #region Event
+        private void OnDestroy() {
+            if(Instance == this){
+                Instance = null;
+            }    
+        }
         private void Awake(){
             Instance = this;
         }
@@ -70,7 +87,7 @@ namespace BicUtil.UI{
 
         #region Logic
         public void Enable(){
-            Enable(Color.clear, "");
+            Enable(baseColor, "");
         }
 
         public void Enable(Color _color, string _text = ""){
@@ -78,7 +95,7 @@ namespace BicUtil.UI{
                 this.image.color = _color; 
             }
 
-            this.message.text = _text;
+            setMessage(_text);
             dimmedCount++;
 
             #if UNITY_EDITOR
@@ -108,7 +125,7 @@ namespace BicUtil.UI{
         public TweenModel PlayTransitionTween(Action _transitionAction, float _time = 2f){
             var _multi = BicTween.Multi();
             dimmedCount++;
-            this.message.text = "";
+            setMessage("");
             this.image.color = Color.clear;
             _multi.Sequance(()=>{
                 PlayAlphaTween(Color.black, 0f, 1f, _time / 2f).AddTo(_multi).SubscribeComplete(()=>{
@@ -122,6 +139,12 @@ namespace BicUtil.UI{
                 dimmedCount--;
             });
             
+        }
+
+        private void setMessage(string _message){
+            if(this.message != null){
+                this.message.text = _message;
+            }
         }
         #endregion
     }
