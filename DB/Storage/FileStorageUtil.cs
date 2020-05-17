@@ -171,31 +171,37 @@ namespace BicDB.Storage
             return Application.persistentDataPath + "/" + _fileName;
         }
 
-        static public void Write(string _data, string _fileName, string _key){
-            #if !WEB_BUILD
+        static public void Write(string _data, string _fileName, string _key)
+        {
+#if !WEB_BUILD
 
             string _path = GetPath(_fileName);
+            if (_key != string.Empty)
+            {
+                _data = AESEncrypt256(_data, _key);
+            }
 
-            using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Create, System.IO.FileAccess.Write)){
-                using(System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file)){
-                    if(_key != string.Empty){
-                        _streamWriter.Write(AESEncrypt256(_data, _key));
-                    }else{
-                        _streamWriter.Write(_data);
-                    }
+            WriteFile(_data, _path);
 
+#else
+
+            throw new System.Exception ("webbuild do not save to file");
+
+#endif
+        }
+
+        public static void WriteFile(string _data, string _path)
+        {
+            using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+            {
+                using (System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file))
+                {
+                    _streamWriter.Write(_data);
                     _streamWriter.Flush();
                     _streamWriter.Close();
                     _file.Close();
                 }
             }
-
-
-            #else
-
-            throw new System.Exception ("webbuild do not save to file");
-
-            #endif
         }
 
         static public string ReadByTableName(string _tableName, string _key){
