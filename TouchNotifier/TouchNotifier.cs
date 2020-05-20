@@ -308,6 +308,7 @@ namespace BicUtil.TouchNotifier
                 cursor.sprite = cursorNormal;
                 cursor.transform.localScale = Vector2.one * cursorScale;
                 cursor.sortingLayerName = cursorSortingLayer;
+                cursor.sortingOrder = 999999;
                 cursor.gameObject.SetActive(true);
             }
         }
