@@ -10,7 +10,6 @@ namespace BicUtil.TouchNotifier
 	public class TouchNotifier : MonoBehaviour {
 		#region Event
 		public const string BUTTON_ESC = "esc";
-
 		
 		[System.Serializable]
 		public class BackKeyEvent : UnityEvent<Vector2> {}
@@ -37,6 +36,7 @@ namespace BicUtil.TouchNotifier
                 checkTouch(Input.GetMouseButton(1), 1);
                 twoTouchScaleWithControlKey();
                 twoTouchMoveWithShiftKey();
+                updateCursor();
             }
             #elif UNITY_WEBGL || UNITY_STANDALONE || UNITY_FACEBOOK
             checkTouch(Input.GetMouseButton(0), 0);
@@ -286,5 +286,47 @@ namespace BicUtil.TouchNotifier
             }
         }
 		#endregion
+
+        #region Editor Touch Cursor
+        [SerializeField]
+        private Sprite cursorNormal;
+        [SerializeField]
+        private Sprite cursorDown;
+        [SerializeField]
+        private string cursorSortingLayer = "Top";
+        [SerializeField]
+        private float cursorScale = 1f;
+
+        private SpriteRenderer cursor = null;
+
+        private void createCursor(){
+            if(cursor == null){
+                var _gameobject = new GameObject();
+                _gameobject.name = "cursor";
+                _gameobject.transform.SetParent(this.transform);
+                cursor = _gameobject.AddComponent(typeof(SpriteRenderer)) as SpriteRenderer;
+                cursor.sprite = cursorNormal;
+                cursor.transform.localScale = Vector2.one * cursorScale;
+                cursor.sortingLayerName = cursorSortingLayer;
+                cursor.gameObject.SetActive(true);
+            }
+        }
+
+        private void updateCursor(){
+            if(cursorNormal == null){
+                return;
+            }
+
+            createCursor();
+
+            this.cursor.transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            if(Input.GetMouseButtonDown(0) == true){
+                this.cursor.sprite = cursorDown;
+            }else if(Input.GetMouseButtonUp(0) == true){
+                this.cursor.sprite = cursorNormal;
+            }
+        }
+        #endregion
 	}
 }
