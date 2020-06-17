@@ -78,6 +78,7 @@ namespace BicUtil.UI{
             onClickLeftButton = null;
             onClickRightButton = null;
             onClickBottomButton = null;
+            titleText.text = string.Empty;
             header.gameObject.SetActive(false);
             titleText.gameObject.SetActive(false);
             mainMessageText.gameObject.SetActive(false);
@@ -171,6 +172,7 @@ namespace BicUtil.UI{
 
 
         public void SetCloseButton(Action _callback){
+            this.header.gameObject.SetActive(true);
             this.closeButton.gameObject.SetActive(true);
             this.onClickClose = _callback;
         }
