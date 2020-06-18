@@ -1,6 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace UnityEngine{
+    public class DebugForEditor{
+        public static void Log(string _format){
+            #if UNITY_EDITOR
+            UnityEngine.Debug.Log(_format);
+            #endif
+        }
+    }
+}
+
 namespace BicUtil.CSharpExtensions
 {
    static class BicUtilExtensions
