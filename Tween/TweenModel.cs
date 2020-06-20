@@ -404,7 +404,7 @@ namespace BicUtil.Tween
 			
 			
 
-			if(Rate == 0f){
+			if(Rate == 0f && CurrentRepeatCount == 0){
 				setValuesByFunc();
 				if(OnStartCallback != null){
 					OnStartCallback();
