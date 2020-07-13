@@ -860,6 +860,14 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
+		public static TweenModel ValueWithSpeed(Vector4 _from, Vector4 _to, float _distancePerSecond, TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			var _time = Vector3.Distance(_from, _to) / _distancePerSecond;
+			return Value(_from, _to, _time, _pool);	
+		}
+
 		public static TweenModel Sequance(TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
