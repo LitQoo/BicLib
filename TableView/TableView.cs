@@ -322,6 +322,21 @@ namespace BicUtil.TableView
             return GetScrollYForRow(_rowIndex, _above);
         }
 
+        public void ScrollTo<U>(Func<U, bool> _find, out int _rowIndex) where U : class, IRecordContainer{
+            var _scrollTargetIndex = this.DataSource.GetRowIndex(_find);
+            _rowIndex = _scrollTargetIndex;
+
+            if(_rowIndex >= 0){
+                ScrollToRow(_scrollTargetIndex);
+            }
+        }
+
+        public void ScrollToRow(int _cellIndex, float _scrollOffset = 0, bool _above = true){
+            var _rowIndex = DataSource.GetRowIndex(_cellIndex);
+            var _scroll = Mathf.Max(0, this.GetScrollYForRow(_rowIndex, _above) - _scrollOffset);
+            this.scrollDistance = _scroll;
+        }
+
         #endregion
 
         #region Private implementation
@@ -367,7 +382,7 @@ namespace BicUtil.TableView
 		public ITableViewDataSource DataSource
 		{
 			get { return m_dataSource; }
-			set { m_dataSource = value; m_requiresReload = true; }
+			set { m_dataSource = value; ReloadData(); }
 		}
 
         private void ScrollViewValueChanged(Vector2 newScrollValue) {

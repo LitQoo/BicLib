@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using BicDB.Container;
+using System;
 
 namespace BicUtil.TableView
 {
@@ -15,6 +16,7 @@ namespace BicUtil.TableView
         int GetStartDataIndex(int _rowIndex);
         void ReloadData();
         int GetRowIndex(int _cellIndex);
+        int GetRowIndex<T>(Func<T, bool> _find) where T : class, IRecordContainer;
     }
 }
 

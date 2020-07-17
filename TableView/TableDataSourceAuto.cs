@@ -125,6 +125,18 @@ namespace BicUtil.TableView
             return _rowIndex;
 		}
 
+		public int GetRowIndex<U>(Func<U, bool> _find) where U : class, IRecordContainer{
+			var _cellIndex = -1;
+
+			for(int i = 0; i < this.table.Count; i++){
+				if(_find(table[i] as U) == true){
+					return i;
+				}
+			}
+
+			return GetRowIndex(_cellIndex);
+		}
+
 		#region Head and Foot
 		private bool hasHeadRow{get=>headRowName != string.Empty;}
 		private string headRowName = "";
