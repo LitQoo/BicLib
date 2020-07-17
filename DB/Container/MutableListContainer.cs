@@ -42,6 +42,16 @@ namespace BicDB.Container
 		#endregion
 
 		#region IList
+		public int IndexOf(Func<IDataBase, bool> _find){
+			for(int i = 0; i < this.Count; i++){
+				if(_find(data[i]) == true){
+					return i;
+				}
+			}
+
+			return -1;
+		}
+
 		public int IndexOf(IDataBase _item)
 		{
 			return data.IndexOf(_item);

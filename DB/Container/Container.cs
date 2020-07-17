@@ -49,6 +49,7 @@ namespace BicDB.Container
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
+		int IndexOf(Func<T,bool> _find);
 	}
 
 	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase, IBindRmover{
@@ -77,6 +78,7 @@ namespace BicDB.Container
 
 		#region Logic
 		void AddWithoutDuplication(T _item);
+		int IndexOf(Func<T,bool> _find);
 		#endregion
 	}
 
