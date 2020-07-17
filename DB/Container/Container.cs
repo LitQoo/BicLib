@@ -59,6 +59,7 @@ namespace BicDB.Container
 		void AddManagedColumn(string _key, IDataBase _value);
 		void MergeCopyBy(IRecordContainer _model);
 		void Commit();
+		bool ParseJson(string _json);
 	}
 
 	public interface ITableContainer<T> : IRecordContainerParent, ITableStorageSuppoter, IDataBase, IList<T> where T : IRecordContainer

@@ -1,6 +1,4 @@
-﻿using System.Runtime.Versioning;
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO;
 using BicDB.Storage;
 using System;
@@ -119,7 +117,7 @@ namespace BicDB.Storage{
 		#endregion
 
 		#region ResourceControl
-		public string ReadAsset(string _filePath){
+		public static string ReadAsset(string _filePath){
 			#if UNITY_EDITOR
 			string _path = Application.dataPath + "/Resources/" + _filePath;
 
@@ -142,11 +140,53 @@ namespace BicDB.Storage{
 			return tText.text;
 			#endif 
 		}
+		
 
-		public async Task<string> ReadAssetAsync(string _filePath){
-			return ReadAsset(_filePath);
+		public static async Task<string> ReadAssetAsync(string _filePath){
+			#if UNITY_EDITOR
+			string _path = Application.dataPath + "/Resources/" + _filePath;
+
+			if (File.Exists(_path))
+			{
+				return await FileStorageUtil.ReadFileAsync(_path);
+			}
+			else
+			{
+				Debug.Log("not found json file Resources/" + _filePath);
+				return null;
+			}
+			#else
+			if(_filePath.Contains(".")){
+				_filePath = _filePath.Split('.')[0];
+			}
+
+			TextAsset tText = await Resources.LoadAsync<TextAsset>(_filePath);
+
+			return tText.text;
+			#endif 
 		}
 
+		public static T ReadRecord<T>(string _filePath) where T : IRecordContainer, new(){
+			var _record = new T();
+			var _fileString = ResourceStorage.ReadAsset(_filePath);
+
+			if(_record.ParseJson(_fileString) == false){
+                throw new System.Exception("polyart parse error");
+            }
+
+			return _record;
+		}
+
+		public static async Task<T> ReadRecordAsync<T>(string _filePath) where T : IRecordContainer, new(){
+			var _record = new T();
+			var _fileString = await ResourceStorage.ReadAssetAsync(_filePath);
+
+			if(_record.ParseJson(_fileString) == false){
+				throw new System.Exception("polyart parse error");
+			}
+
+			return _record;
+		}
 
         #endregion
     }
