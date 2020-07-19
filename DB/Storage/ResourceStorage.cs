@@ -160,8 +160,8 @@ namespace BicDB.Storage{
 				_filePath = _filePath.Split('.')[0];
 			}
 
-			TextAsset tText = await Resources.LoadAsync<TextAsset>(_filePath);
-
+			var tText = Resources.Load<TextAsset>(_filePath);
+		
 			return tText.text;
 			#endif 
 		}
