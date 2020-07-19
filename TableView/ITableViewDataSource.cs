@@ -17,6 +17,8 @@ namespace BicUtil.TableView
         void ReloadData();
         int GetRowIndex(int _cellIndex);
         int GetRowIndex<T>(Func<T, bool> _find) where T : class, IRecordContainer;
+        CollectionRowData GetArrangeInfoInRow(int _rowIndex);
+        Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;}
     }
 }
 

@@ -31,8 +31,16 @@ namespace BicUtil.TableView
             DataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
         }
 
-        public void SetDBSource<T>(IList<T> _table, string _headRowName = "", string _footRowName = "") where T : IRecordContainer, new(){
+        public void SetDBSource<T>(IList<T> _table, string _headRowName = "", string _footRowName = "", Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) where T : IRecordContainer, new(){
+            var _dataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
+            _dataSource.SetHeadRow(_headRowName);
+            _dataSource.SetFootRow(_footRowName);
+            DataSource = _dataSource;
+        }
+
+        public void SetDBSource<T>(IList<T> _table, Func<CollectionRowData[]> _collectionArrangeBuilder, string _headRowName = "", string _footRowName = "") where T : IRecordContainer, new(){
             var _dataSource = new TableDataSourceAuto<T>(this, _table, null);
+            _dataSource.ArrangeInfoBuilder = _collectionArrangeBuilder;
             _dataSource.SetHeadRow(_headRowName);
             _dataSource.SetFootRow(_footRowName);
             DataSource = _dataSource;
@@ -638,7 +646,7 @@ namespace BicUtil.TableView
             TableRow newRow = m_dataSource.GetCellForRowInTableView(_rowIndex);
             int _startDataIndex = DataSource.GetStartDataIndex(_rowIndex);
 
-            newRow.SetData(_startDataIndex, DataSource.GetCellData, DataSource.GetCellCountInRow(_rowIndex));
+            newRow.SetData(_startDataIndex, DataSource.GetCellData, DataSource);
 
             newRow.transform.SetParent(_parent, false);
 

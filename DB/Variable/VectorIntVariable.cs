@@ -157,6 +157,11 @@ namespace BicDB.Variable
         {
             throw new NotImplementedException();
         }
+
+		public bool Equals(Vector2Int _target)
+		{
+			return _target.x == this.X && _target.y == this.Y;
+		}
         #endregion
     }
 }

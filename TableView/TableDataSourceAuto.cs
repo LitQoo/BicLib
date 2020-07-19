@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BicDB.Container;
+using UnityEngine;
 
 namespace BicUtil.TableView
 {
@@ -34,7 +35,42 @@ namespace BicUtil.TableView
 				return tableView.GetRowHeight(footRowName);
 			}
 
-			return tableView.GetDefaultRowHeight();
+			return tableView.GetDefaultRowHeight() * getHeightUnit(_rowIndex);
+		}
+
+		public CollectionRowData GetArrangeInfoInRow(int _rowIndex){
+			if(this.ArrangeInfo != null){
+				try{
+					return this.ArrangeInfo[_rowIndex];
+				}catch{
+					Debug.Log("leng : " + this.ArrangeInfo.Length.ToString() + "/" + _rowIndex.ToString());
+					throw new System.Exception("asdf");
+				}
+			}else{
+				return new CollectionRowData(this.tableView.CellCountInRowDefault);
+			}
+		}
+
+		private CollectionRowData[] ArrangeInfo = null;
+		public Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;} = null;
+
+		public void UpdateArrangeInfo(){
+			this.ArrangeInfo = this.ArrangeInfoBuilder(); 
+		}
+
+		private int getHeightUnit(int _rowIndex){
+			var _info = GetArrangeInfoInRow(_rowIndex);
+			int _heightUnit = 1;
+			for(int v = 0; v < _info.VerticalCount; v++){
+				var _unit = 0;
+				for(int h = 0; h < _info.Data[v].Length; h++){
+					_unit += _info.Data[v][h].y;
+				}
+
+				_heightUnit = Mathf.Max(_heightUnit, _unit);
+			}
+
+			return _heightUnit;
 		}
 
 		public TableRow GetCellForRowInTableView(int _rowIndex)
@@ -76,11 +112,20 @@ namespace BicUtil.TableView
 			if(hasFootRow == true && _rowIndex == GetRowCount() - 1){
 				return 1;
 			}
+			
+			if(this.ArrangeInfo != null){
+				return ArrangeInfo[_rowIndex].CellCount;
+			}
 
 			return tableView.CellCountInRowDefault;
 		}
 
 		public int GetRowCount(){
+
+			if(this.ArrangeInfo != null){
+				return ArrangeInfo.Length;
+			}
+
 			int _offset = 0;
 			if(hasHeadRow == true){
 				_offset++;
@@ -94,6 +139,14 @@ namespace BicUtil.TableView
 		}
 
 		public int GetStartDataIndex(int _rowIndex){
+			if(this.ArrangeInfoBuilder != null){
+				int _cellCount = 0;
+				for(int i = 0; i < _rowIndex; i++){
+					_cellCount += this.ArrangeInfo[i].CellCount;
+				}
+				return _cellCount;
+			}
+
 			if(hasHeadRow == true){
 				if(_rowIndex == 0){
 					return 0;
@@ -106,7 +159,9 @@ namespace BicUtil.TableView
 		}
 
 		public void ReloadData(){
-			
+			if(this.ArrangeInfoBuilder != null){
+				UpdateArrangeInfo();
+			}
 		}
 
 		public int GetRowIndex(int _cellIndex){
@@ -147,12 +202,50 @@ namespace BicUtil.TableView
 
 
 		private bool hasFootRow{get=>footRowName != string.Empty;}
-		private string footRowName = "";
+
+        private string footRowName = "";
 
 		public void SetFootRow(string _rowName){
 			footRowName = _rowName;
 		}
 		#endregion
+	}
+
+	public class CollectionRowData{
+		public Vector2Int[][] Data;
+		public int CellCount = 0;
+		public int VerticalCount = 0;
+
+		public CollectionRowData(int _verticalCount){
+			var _v = new Vector2Int[_verticalCount][];
+
+			for(int i = 0; i < _verticalCount; i++){
+				_v[i] = new Vector2Int[1];
+				_v[i][0] = new Vector2Int(1, 1);
+			}
+
+			this.Data = _v;
+		}
+
+		public CollectionRowData(Vector2Int[] _vertical1, Vector2Int[] _vertical2, Vector2Int[] _vertical3){
+			var _verticalCount = 1 + (_vertical2 != null ? 1 : 0) + (_vertical3 != null ? 1 : 0);
+			Data = new Vector2Int[_verticalCount][];
+			Data[0] = _vertical1;
+			this.CellCount = _vertical1.Length;
+			this.VerticalCount = 1;
+
+			if(_vertical2 != null){
+				Data[1] = _vertical2;
+				this.CellCount += _vertical2.Length;
+				this.VerticalCount++;
+			} 
+
+			if(_vertical3 != null){
+				Data[2] = _vertical3;
+				this.CellCount += _vertical3.Length;
+				this.VerticalCount++;
+			}
+		} 
 	}
 
 }

@@ -18,7 +18,7 @@ namespace BicUtil.TableView
 
 		#region Member
 		[SerializeField]
-		private int cellCount = 1;
+		protected int cellCount = 1;
 
 		[SerializeField]
 		public RowDataChanged OnCreateFunction;
@@ -52,7 +52,7 @@ namespace BicUtil.TableView
 		#endregion
 
 		#region Logic
-		public void InitializeCells(){
+		virtual public void InitializeCells(){
 			if(cellCount > 0){
 				var _tableCell = transform.GetComponentInChildren<TableCell>();
 				var _childs = transform.GetComponentsInChildren<TableCell>();
@@ -79,7 +79,9 @@ namespace BicUtil.TableView
 			cellCount = Cells.Count;
 		}
 
-		public void SetData(int _startCellIndex, Func<int, int, int, IRecordContainer> _cellDataFunc, int _cellCount){
+		public virtual void SetData(int _startCellIndex, Func<int, int, int, IRecordContainer> _cellDataFunc, ITableViewDataSource _dataSource){
+			var _cellCount = _dataSource.GetCellCountInRow(this.RowIndex);
+
 			for(int i = 0; i < Cells.Count; i++){
 				if(_cellCount > i){
 					var _model = _cellDataFunc(_startCellIndex + i, RowIndex, i);
