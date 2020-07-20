@@ -330,12 +330,12 @@ namespace BicUtil.TableView
             return GetScrollYForRow(_rowIndex, _above);
         }
 
-        public void ScrollTo<U>(Func<U, bool> _find, out int _rowIndex) where U : class, IRecordContainer{
+        public void ScrollTo<U>(Func<U, bool> _find, out int _rowIndex, int _scrollOffset = 0) where U : class, IRecordContainer{
             var _scrollTargetIndex = this.DataSource.GetRowIndex(_find);
             _rowIndex = _scrollTargetIndex;
 
             if(_rowIndex >= 0){
-                ScrollToRow(_scrollTargetIndex);
+                ScrollToRow(_scrollTargetIndex, _scrollOffset);
             }
         }
 
