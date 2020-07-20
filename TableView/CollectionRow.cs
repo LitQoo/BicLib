@@ -48,12 +48,17 @@ namespace BicUtil.TableView
             }
 
             cellCount = Cells.Count;
+
+            if(WIDTH < 0){
+                Canvas.ForceUpdateCanvases();
+                WIDTH = RectTransformUtility.CalculateRelativeRectTransformBounds(this.tableContentRectTransform).size.x;
+            }
+
+            var _rect = ((RectTransform)this.transform); 
+            _rect.sizeDelta = new Vector2(_rect.sizeDelta.x, WIDTH / 3f);
         }
 
         public override void SetData(int _startCellIndex, Func<int, int, int, IRecordContainer> _cellDataFunc, ITableViewDataSource _dataSource){
-            if(WIDTH < 0){
-                WIDTH = RectTransformUtility.CalculateRelativeRectTransformBounds(this.tableContentRectTransform).size.x;
-            }
             var _cellCount = _dataSource.GetCellCountInRow(this.RowIndex);
             var _arrangeInfo = _dataSource.GetArrangeInfoInRow(this.RowIndex);
 

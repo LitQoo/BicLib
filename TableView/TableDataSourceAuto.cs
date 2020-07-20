@@ -40,6 +40,10 @@ namespace BicUtil.TableView
 
 		public CollectionRowData GetArrangeInfoInRow(int _rowIndex){
 			if(this.ArrangeInfo != null){
+				if(hasHeadRow == true){
+					_rowIndex--;
+				}
+
 				try{
 					return this.ArrangeInfo[_rowIndex];
 				}catch{
@@ -89,31 +93,36 @@ namespace BicUtil.TableView
 		}
 
 		public IRecordContainer GetCellData(int _index, int _rowIndex, int _cellOrder){
-			if(hasHeadRow == true){
-				if(_rowIndex == 0){
-					return null;
-				}else{
-					_index--;
-				}
-			}
-
-			if(table.Count <= _index){
+			if((hasHeadRow == true && _rowIndex == 0) || (hasFootRow == true && _rowIndex == GetRowCount() - 1)){
 				return null;
 			}
 
-			return table[_index];	
+			// if(hasHeadRow == true){
+			// 	_index--;
+			// }
+
+			try{
+				return table[_index];
+			}catch{
+				Debug.Log(_index.ToString() + "/" + hasHeadRow.ToString() + "/" + _rowIndex.ToString());
+				throw new System.Exception("asdf");
+			}
 		}
 
 		public int GetCellCountInRow(int _rowIndex){
 			if(hasHeadRow == true && _rowIndex == 0){
-				return 1;
+				return 0;
 			}
 
 			if(hasFootRow == true && _rowIndex == GetRowCount() - 1){
-				return 1;
+				return 0;
 			}
 			
 			if(this.ArrangeInfo != null){
+				if(hasHeadRow == true){
+					_rowIndex--;
+				}
+
 				return ArrangeInfo[_rowIndex].CellCount;
 			}
 
@@ -121,11 +130,6 @@ namespace BicUtil.TableView
 		}
 
 		public int GetRowCount(){
-
-			if(this.ArrangeInfo != null){
-				return ArrangeInfo.Length;
-			}
-
 			int _offset = 0;
 			if(hasHeadRow == true){
 				_offset++;
@@ -135,24 +139,31 @@ namespace BicUtil.TableView
 				_offset++;
 			}
 
+			if(this.ArrangeInfo != null){
+				return ArrangeInfo.Length + _offset;
+			}
+
 			return (int)Math.Ceiling((float)table.Count / (float)tableView.CellCountInRowDefault) + _offset;
 		}
 
 		public int GetStartDataIndex(int _rowIndex){
-			if(this.ArrangeInfoBuilder != null){
-				int _cellCount = 0;
-				for(int i = 0; i < _rowIndex; i++){
-					_cellCount += this.ArrangeInfo[i].CellCount;
-				}
-				return _cellCount;
+			if((hasHeadRow == true && _rowIndex == 0) || (hasFootRow == true && _rowIndex == GetRowCount() - 1)){
+				return -1;
 			}
 
-			if(hasHeadRow == true){
-				if(_rowIndex == 0){
-					return 0;
-				}else{
-					return (_rowIndex - 1) * tableView.CellCountInRowDefault + 1;		
+			if(hasHeadRow == true & _rowIndex != 0){
+				_rowIndex--;
+			}
+
+			if(this.ArrangeInfoBuilder != null){ 
+				int _cellCount = 0;
+				int _start = 0;
+
+				for(int i = _start; i < _rowIndex; i++){
+					_cellCount += this.ArrangeInfo[i].CellCount;
 				}
+				
+				return _cellCount;
 			}
 
 			return _rowIndex * tableView.CellCountInRowDefault;
@@ -168,6 +179,7 @@ namespace BicUtil.TableView
 			int _cellCount = 0;
             int _rowCount = GetRowCount();
 			var _rowIndex = _rowCount;
+
             for(int i = 0; i < _rowCount; i++){
                 _cellCount += GetCellCountInRow(i);
 
