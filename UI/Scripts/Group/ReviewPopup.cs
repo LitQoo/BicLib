@@ -32,13 +32,14 @@ namespace BicUtil.UI{
 
         #region Event
         private void Awake(){
-            mode.Subscribe(setMode);
         }
 
         public void OnClickedLeftButton(){
             switch(this.mode.AsEnum){
                 case Mode.Enjoy:
                     mode.AsEnum = Mode.Feedback;
+                    this.isWroteReview.AsBool = true;
+                    TableService.Save();
                 break;
                 case Mode.Feedback:
                     close();
@@ -103,6 +104,8 @@ namespace BicUtil.UI{
             firstReviewSession = _firstReviewSession;
             isWroteReview = TableService.GetProperty("isWriteReview", new BoolVariable(false));
             reviewCounting = TableService.GetProperty("reviewCount", new IntVariable(1));
+
+            mode.Subscribe(setMode);
         }
 
         private void setMode(IEnumVariable<Mode> _mode)
@@ -118,6 +121,8 @@ namespace BicUtil.UI{
                 setReview();
                 break;
             }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(this.messageText.rectTransform);
         }
 
         public void Open(){
@@ -135,7 +140,8 @@ namespace BicUtil.UI{
                 return false;
             }
 
-            if(firstReviewSession < TableService.SessionCount){
+            if(firstReviewSession > TableService.SessionCount){
+                Debug.Log(firstReviewSession.ToString() + "<" +  TableService.SessionCount.ToString());
                 return false;
             }
 
