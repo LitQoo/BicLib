@@ -189,6 +189,10 @@ namespace BicUtil.TableView
                 }
             }
 
+			if(hasHeadRow == true){
+				_rowIndex++;
+			}
+
             return _rowIndex;
 		}
 
@@ -197,7 +201,8 @@ namespace BicUtil.TableView
 
 			for(int i = 0; i < this.table.Count; i++){
 				if(_find(table[i] as U) == true){
-					return i;
+					_cellIndex = i;
+					break;
 				}
 			}
 
