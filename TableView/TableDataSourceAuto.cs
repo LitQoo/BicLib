@@ -97,15 +97,10 @@ namespace BicUtil.TableView
 				return null;
 			}
 
-			// if(hasHeadRow == true){
-			// 	_index--;
-			// }
-
 			try{
 				return table[_index];
 			}catch{
-				Debug.Log(_index.ToString() + "/" + hasHeadRow.ToString() + "/" + _rowIndex.ToString());
-				throw new System.Exception("asdf");
+				return null;
 			}
 		}
 
