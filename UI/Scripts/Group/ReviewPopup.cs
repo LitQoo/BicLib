@@ -141,7 +141,6 @@ namespace BicUtil.UI{
             }
 
             if(firstReviewSession > TableService.SessionCount){
-                Debug.Log(firstReviewSession.ToString() + "<" +  TableService.SessionCount.ToString());
                 return false;
             }
 

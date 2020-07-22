@@ -97,6 +97,7 @@ namespace BicUtil.TableView
                     throw new SystemException("[TableView] NotFound TableRow " + _reuseIdentifier);
                 }
 
+                _row.transform.SetParent(m_scrollRect.content); 
 				_row.BindOnClickedEvent(onClickedCellActions);
 				_row.name = "RowInstance";
 				_row.gameObject.SetActive(true);
