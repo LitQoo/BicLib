@@ -340,8 +340,7 @@ namespace BicUtil.TableView
             }
         }
 
-        public void ScrollToRow(int _cellIndex, float _scrollOffset = 0, bool _above = true){
-            var _rowIndex = DataSource.GetRowIndex(_cellIndex);
+        public void ScrollToRow(int _rowIndex, float _scrollOffset = 0, bool _above = true){
             var _scroll = Mathf.Max(0, this.GetScrollYForRow(_rowIndex, _above) - _scrollOffset);
             this.scrollDistance = _scroll;
         }

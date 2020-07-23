@@ -184,10 +184,6 @@ namespace BicUtil.TableView
                 }
             }
 
-			if(hasHeadRow == true){
-				_rowIndex++;
-			}
-
             return _rowIndex;
 		}
 
