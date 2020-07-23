@@ -30,6 +30,12 @@ namespace BicUtil.CameraScaler
 				return this.referenceResolution;
 			}
 		}
+
+		public Vector2 FullResolution{
+			get{
+				return this.manageFullSizeRect[0].sizeDelta;
+			}
+		}
 		#endregion
 
 		#region LifeCycle
