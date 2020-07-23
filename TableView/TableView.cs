@@ -38,8 +38,8 @@ namespace BicUtil.TableView
             DataSource = _dataSource;
         }
 
-        public void SetDBSource<T>(IList<T> _table, Func<CollectionRowData[]> _collectionArrangeBuilder, string _headRowName = "", string _footRowName = "") where T : IRecordContainer, new(){
-            var _dataSource = new TableDataSourceAuto<T>(this, _table, null);
+        public void SetDBSource<T>(IList<T> _table, Func<CollectionRowData[]> _collectionArrangeBuilder, string _headRowName = "", string _footRowName = "", Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) where T : IRecordContainer, new(){
+            var _dataSource = new TableDataSourceAuto<T>(this, _table, _getRowHeightFunc);
             _dataSource.ArrangeInfoBuilder = _collectionArrangeBuilder;
             _dataSource.SetHeadRow(_headRowName);
             _dataSource.SetFootRow(_footRowName);

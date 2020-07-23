@@ -19,6 +19,7 @@ namespace BicUtil.TableView
         int GetRowIndex<T>(Func<T, bool> _find) where T : class, IRecordContainer;
         CollectionRowData GetArrangeInfoInRow(int _rowIndex);
         Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;}
+        int GetHeightUnit(int _rowIndex);
     }
 }
 

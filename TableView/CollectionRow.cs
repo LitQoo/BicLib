@@ -16,9 +16,9 @@ namespace BicUtil.TableView
         public static float WIDTH = -1;
         #region DI
         [SerializeField]
-        private VerticalLayoutGroup[] verticals;
+        protected VerticalLayoutGroup[] verticals;
         [SerializeField]
-        private RectTransform tableContentRectTransform;
+        protected RectTransform tableContentRectTransform;
         #endregion
 
         #region Logic

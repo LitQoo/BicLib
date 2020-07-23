@@ -35,7 +35,7 @@ namespace BicUtil.TableView
 				return tableView.GetRowHeight(footRowName);
 			}
 
-			return tableView.GetDefaultRowHeight() * getHeightUnit(_rowIndex);
+			return tableView.GetDefaultRowHeight() * GetHeightUnit(_rowIndex);
 		}
 
 		public CollectionRowData GetArrangeInfoInRow(int _rowIndex){
@@ -62,7 +62,7 @@ namespace BicUtil.TableView
 			this.ArrangeInfo = this.ArrangeInfoBuilder(); 
 		}
 
-		private int getHeightUnit(int _rowIndex){
+		public int GetHeightUnit(int _rowIndex){
 			var _info = GetArrangeInfoInRow(_rowIndex);
 			int _heightUnit = 1;
 			for(int v = 0; v < _info.VerticalCount; v++){
