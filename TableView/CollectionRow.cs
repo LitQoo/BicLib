@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using BicUtil.Tween;
+using BicUtil.CameraScaler;
 
 namespace BicUtil.TableView
 {
@@ -22,7 +23,13 @@ namespace BicUtil.TableView
         #endregion
 
         #region Logic
+        private void OnDestroy() {
+            CameraScaler.CameraScaler.Instance.UnsubscribeChangedScreenSize(updateWidth);
+        }
+
         public override void InitializeCells(){
+            CameraScaler.CameraScaler.Instance.SubscribeChangedScreenSize(updateWidth);
+
             if(cellCount > 0){
                 var _tableCell = transform.GetComponentInChildren<TableCell>();
                 var _childs = transform.GetComponentsInChildren<TableCell>();
@@ -50,12 +57,16 @@ namespace BicUtil.TableView
             cellCount = Cells.Count;
 
             if(WIDTH < 0){
-                Canvas.ForceUpdateCanvases();
-                WIDTH = RectTransformUtility.CalculateRelativeRectTransformBounds(this.tableContentRectTransform).size.x;
+                updateWidth();
             }
 
             var _rect = ((RectTransform)this.transform); 
             _rect.sizeDelta = new Vector2(_rect.sizeDelta.x, WIDTH / 3f);
+        }
+
+        private void updateWidth(){
+            Canvas.ForceUpdateCanvases();
+            WIDTH = RectTransformUtility.CalculateRelativeRectTransformBounds(this.tableContentRectTransform).size.x;
         }
 
         public override void SetData(int _startCellIndex, Func<int, int, int, IRecordContainer> _cellDataFunc, ITableViewDataSource _dataSource){

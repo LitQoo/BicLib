@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -157,6 +158,7 @@ namespace BicUtil.CameraScaler
 		#endregion
 
 		#if UNITY_EDITOR
+
 		Rect screenSize = Rect.zero;
 
 		[ExecuteInEditMode]
@@ -164,10 +166,23 @@ namespace BicUtil.CameraScaler
 			if(screenSize.Equals(Screen.safeArea) == false){
 				screenSize = Screen.safeArea;
 				init();
+				if(onChangedScreenSize != null){
+					onChangedScreenSize();
+				}
 				return;
 			}
 		}
 		#endif
+
+		private Action onChangedScreenSize = null;
+
+		public void SubscribeChangedScreenSize(Action _action){
+			this.onChangedScreenSize += _action;
+		}
+		
+		public void UnsubscribeChangedScreenSize(Action _action){
+			this.onChangedScreenSize -= _action;
+		}
 	}
 
 	public enum VerticalAlign

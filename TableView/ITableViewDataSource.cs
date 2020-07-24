@@ -20,6 +20,7 @@ namespace BicUtil.TableView
         CollectionRowData GetArrangeInfoInRow(int _rowIndex);
         Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;}
         int GetHeightUnit(int _rowIndex);
+        void UpdateArrangeInfo();
     }
 }
 

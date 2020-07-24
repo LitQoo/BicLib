@@ -39,15 +39,15 @@ namespace BicUtil.TableView
 		}
 
 		public CollectionRowData GetArrangeInfoInRow(int _rowIndex){
-			if(this.ArrangeInfo != null){
+			if(this.arrangeInfo != null){
 				if(hasHeadRow == true){
 					_rowIndex--;
 				}
 
 				try{
-					return this.ArrangeInfo[_rowIndex];
+					return this.arrangeInfo[_rowIndex];
 				}catch{
-					Debug.Log("leng : " + this.ArrangeInfo.Length.ToString() + "/" + _rowIndex.ToString());
+					Debug.Log("leng : " + this.arrangeInfo.Length.ToString() + "/" + _rowIndex.ToString());
 					throw new System.Exception("asdf");
 				}
 			}else{
@@ -55,11 +55,11 @@ namespace BicUtil.TableView
 			}
 		}
 
-		private CollectionRowData[] ArrangeInfo = null;
+		private CollectionRowData[] arrangeInfo = null;
 		public Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;} = null;
 
 		public void UpdateArrangeInfo(){
-			this.ArrangeInfo = this.ArrangeInfoBuilder(); 
+			this.arrangeInfo = this.ArrangeInfoBuilder(); 
 		}
 
 		public int GetHeightUnit(int _rowIndex){
@@ -113,12 +113,12 @@ namespace BicUtil.TableView
 				return 0;
 			}
 			
-			if(this.ArrangeInfo != null){
+			if(this.arrangeInfo != null){
 				if(hasHeadRow == true){
 					_rowIndex--;
 				}
 
-				return ArrangeInfo[_rowIndex].CellCount;
+				return arrangeInfo[_rowIndex].CellCount;
 			}
 
 			return tableView.CellCountInRowDefault;
@@ -134,8 +134,8 @@ namespace BicUtil.TableView
 				_offset++;
 			}
 
-			if(this.ArrangeInfo != null){
-				return ArrangeInfo.Length + _offset;
+			if(this.arrangeInfo != null){
+				return arrangeInfo.Length + _offset;
 			}
 
 			return (int)Math.Ceiling((float)table.Count / (float)tableView.CellCountInRowDefault) + _offset;
@@ -155,7 +155,7 @@ namespace BicUtil.TableView
 				int _start = 0;
 
 				for(int i = _start; i < _rowIndex; i++){
-					_cellCount += this.ArrangeInfo[i].CellCount;
+					_cellCount += this.arrangeInfo[i].CellCount;
 				}
 				
 				return _cellCount;
