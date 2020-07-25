@@ -39,6 +39,8 @@ namespace BicUtil.UI{
                 case Mode.Enjoy:
                     mode.AsEnum = Mode.Feedback;
                     this.isWroteReview.AsBool = true;
+
+                    reviewCounting.AsInt = -20;
                     TableService.Save();
                 break;
                 case Mode.Feedback:
@@ -149,7 +151,7 @@ namespace BicUtil.UI{
             }
             
             var _result = false;
-            if(reviewCounting.AsInt % _term != 0){
+            if(reviewCounting.AsInt > 0 && reviewCounting.AsInt % _term != 0){
                 _result = false;
             }else{
                 _result = true;
