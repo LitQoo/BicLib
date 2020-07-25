@@ -50,6 +50,7 @@ namespace BicUtil.UI{
         #endregion
 
         #region Event
+        private Action onClickDimmed;
         private Action onClickClose;
         private Action onClickLeftButton;
         private Action onClickRightButton;
@@ -57,24 +58,39 @@ namespace BicUtil.UI{
         #endregion
 
         #region Logic
+        public void OnClickDimmed(){
+            if(onClickDimmed != null){
+                onClickDimmed();
+            }
+        }
+
         public void OnClickClose(){
-            onClickClose();
+            if(onClickClose != null){
+                onClickClose();
+            }
         }
 
         public void OnClickLeftButton(){
-            onClickLeftButton();
+            if(onClickLeftButton != null){
+                onClickLeftButton();
+            }
         }
 
         public void OnClickRightButton(){
-            onClickRightButton();
+            if(onClickRightButton != null){
+                onClickRightButton();
+            }
         }
 
         public void OnClickBottomButton(){
-            onClickBottomButton();
+            if(onClickBottomButton != null){
+                onClickBottomButton();
+            }
         }
 
         public void diableAllUI(){
             onClickClose = null;
+            onClickDimmed = null;
             onClickLeftButton = null;
             onClickRightButton = null;
             onClickBottomButton = null;
@@ -175,6 +191,10 @@ namespace BicUtil.UI{
             this.header.gameObject.SetActive(true);
             this.closeButton.gameObject.SetActive(true);
             this.onClickClose = _callback;
+        }
+
+        public void SetDimmed(Action _callback){
+            this.onClickDimmed = _callback;
         }
 
         public void Open(){

@@ -42,7 +42,7 @@ namespace BicUtil.UI{
                     TableService.Save();
                 break;
                 case Mode.Feedback:
-                    close();
+                    Close();
                     BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
                         {
                             "Result",
@@ -51,7 +51,7 @@ namespace BicUtil.UI{
                     });
                 break;
                 case Mode.Review:
-                    close();
+                    Close();
                     BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
                         {
                             "Result",
@@ -69,7 +69,7 @@ namespace BicUtil.UI{
                 break;
                 case Mode.Feedback:
                     PublishingUtil.PublishingUtil.OpenFacebookPage();
-                    close();
+                    Close();
                     BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
                         {
                             "Result",
@@ -81,7 +81,7 @@ namespace BicUtil.UI{
                     PublishingUtil.PublishingUtil.OpenReview(this.appId, this.appId);
                     this.isWroteReview.AsBool = true;
                     TableService.Save();
-                    close();
+                    Close();
                     BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
                         {
                             "Result",
@@ -183,7 +183,7 @@ namespace BicUtil.UI{
             rightButtonText.text = TranslateManager.Instance.GetText("review_ok");
         }
 
-        private void close(){
+        public void Close(){
             developer.StopDance();
             this.gameObject.SetActive(false);
         }
