@@ -100,7 +100,7 @@ namespace BicUtil.UI{
 
             #if UNITY_EDITOR
             //this.image.color = new Color(1f, 0f, 0f, 0.3f);
-            Debug.Log("DimmedManager.Enable " + dimmedCount.ToString());
+            Debug.Log("DimmedManager.Enable " + dimmedCount.ToString() + " / " + _color.ToString());
             #endif
         }
 
@@ -124,9 +124,9 @@ namespace BicUtil.UI{
 
         public TweenModel PlayTransitionTween(Action _transitionAction, float _time = 2f){
             var _multi = BicTween.Multi();
-            dimmedCount++;
+            
+            Enable(Color.clear);
             setMessage("");
-            this.image.color = Color.clear;
             _multi.Sequance(()=>{
                 PlayAlphaTween(Color.black, 0f, 1f, _time / 2f).AddTo(_multi).SubscribeComplete(()=>{
                     _transitionAction();
@@ -136,9 +136,19 @@ namespace BicUtil.UI{
             });
 
             return _multi.Play().SetTracker(tweenTracker).SubscribeComplete(()=>{
-                dimmedCount--;
+                Disable();
             });
-            
+        }
+
+        public TweenModel PlayHalfTransitionTween(Action _transitionAction, float _time = 1f){
+
+            setMessage("");
+            Enable(Color.black);
+            _transitionAction();
+            var _tween = PlayAlphaTween(Color.black, 1f, 0f, _time);
+            return _tween.SetTracker(tweenTracker).SubscribeComplete(()=>{
+                Disable();
+            });
         }
 
         private void setMessage(string _message){
