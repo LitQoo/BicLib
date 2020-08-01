@@ -5,7 +5,10 @@ using System.Net;
 using BicDB.Core;
 using BicDB.Variable;
 using UnityEngine;
+
+#if UNITY_IOS
 using UnityEngine.iOS;
+#endif
 
 namespace BicUtil.PublishingUtil{
 	static public class PublishingUtil {
