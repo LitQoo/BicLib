@@ -390,7 +390,7 @@ namespace BicUtil.TableView
 		public ITableViewDataSource DataSource
 		{
 			get { return m_dataSource; }
-			set { m_dataSource = value; ReloadData(); }
+			set { m_dataSource = value; }
 		}
 
         private void ScrollViewValueChanged(Vector2 newScrollValue) {
