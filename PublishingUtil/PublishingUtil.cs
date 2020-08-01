@@ -5,6 +5,7 @@ using System.Net;
 using BicDB.Core;
 using BicDB.Variable;
 using UnityEngine;
+using UnityEngine.iOS;
 
 namespace BicUtil.PublishingUtil{
 	static public class PublishingUtil {
@@ -18,7 +19,16 @@ namespace BicUtil.PublishingUtil{
 
 		static public void OpenReview(string _androidAppId, string _iosAppId){
 			SaveWriteReview();
+
+			
+			#if UNITY_IOS
+			var _isOpen = Device.RequestStoreReview();
+			if(_isOpen == false){
+				OpenStore(_androidAppId, _iosAppId, "review");	
+			}
+			#else
 			OpenStore(_androidAppId, _iosAppId, "review");
+			#endif
 		}
 
 		static public void OpenStore(string _androidAppId, string _iosAppId, string _utm){
