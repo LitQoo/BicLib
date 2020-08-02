@@ -390,7 +390,7 @@ namespace BicUtil.TableView
 		public ITableViewDataSource DataSource
 		{
 			get { return m_dataSource; }
-			set { m_dataSource = value; }
+			set { m_dataSource = value;init(); }
 		}
 
         private void ScrollViewValueChanged(Vector2 newScrollValue) {
@@ -419,6 +419,17 @@ namespace BicUtil.TableView
 
         void Awake()
         {
+            init();
+        }
+
+        private bool isInit = false;
+        private void init()
+        {
+            if(isInit == true){
+                return;
+            }
+
+            isInit = true;
             m_isVertical = true;
             isEmpty = true;
             m_scrollRect = GetComponent<EventControlledScrollRect>();
