@@ -6,10 +6,12 @@ namespace BicUtil.ObjectPuller
 {
     public class PrefabPuller<T> where T : class{
 
-		private List<T> objectList = new List<T>();
+		private List<T> pullingObjects = new List<T>();
+		private List<T> usingObjects = new List<T>();
 		private Action<T> usingFunction = null;
 		private Action<T> pullingFunction = null;
 		private UnityEngine.Object prefab;
+		private int index = 0;
 
 		public PrefabPuller(int _readyObjectCount, string _prefabPath, Action<T> _pullingFunction = null, Action<T> _usingFunction = null) : this(_pullingFunction, _usingFunction){
 			this.prefab = Resources.Load(_prefabPath);
@@ -42,6 +44,8 @@ namespace BicUtil.ObjectPuller
 
         private T copyPrefab(){
 			GameObject _object = MonoBehaviour.Instantiate (prefab) as GameObject;
+			_object.name = _object.name + "_" + index.ToString();
+			index++;
 			return _object.GetComponent<T>();
 		}
 
@@ -52,7 +56,6 @@ namespace BicUtil.ObjectPuller
 				return;
 			}
 			
-
 			var _pullingObject = _object as IPullingObject;
 			if(_pullingObject != null){
 				_pullingObject.ReadyPulling ();
@@ -62,14 +65,21 @@ namespace BicUtil.ObjectPuller
 				pullingFunction (_object);
 			}
 
-			objectList.Add (_object);
+			usingObjects.Remove(_object);
+			pullingObjects.Add (_object);
+		}
+
+		public void PullingAllObject(){
+			for(int i = usingObjects.Count - 1; i >= 0; i--){
+				this.PullingObject(usingObjects[i]);
+			}
 		}
 
 		public T GetObject(){
 			T _result = null;
-			if (objectList.Count > 0) {
-				_result = objectList [0];
-				objectList.RemoveAt (0);
+			if (pullingObjects.Count > 0) {
+				_result = pullingObjects [0];
+				pullingObjects.RemoveAt(0);
 			} else {
 				_result = createFunc ();
 			}
@@ -83,11 +93,13 @@ namespace BicUtil.ObjectPuller
 				usingFunction (_result);
 			}
 
+			usingObjects.Add(_result);
+
 			return _result;
 		}
 		
 		public void Clear(){
-			objectList.Clear();
+			pullingObjects.Clear();
 		}
 	}
 }
