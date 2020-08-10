@@ -5,6 +5,9 @@ using System.Net;
 using BicDB.Core;
 using BicDB.Variable;
 using UnityEngine;
+#if BICUTIL_GIAR
+using Google.Play.Review;
+#endif
 
 #if UNITY_IOS
 using UnityEngine.iOS;
@@ -29,10 +32,53 @@ namespace BicUtil.PublishingUtil{
 			if(_isOpen == false){
 				OpenStore(_androidAppId, _iosAppId, "review");	
 			}
+			#elif BICUTIL_GIAR && UNITY_ANDROID
+			BicUtil.Tween.BicTween.StartCoroutine(googlePlayReview());
 			#else
 			OpenStore(_androidAppId, _iosAppId, "review");
 			#endif
 		}
+
+		#if BICUTIL_GIAR
+		static private IEnumerator googlePlayReview(){
+			Debug.Log("googlePlayReview");
+
+			// Create instance of ReviewManager
+			ReviewManager _reviewManager = null;
+			// ...
+
+			try{
+				_reviewManager = new ReviewManager();
+			}catch{
+				Debug.Log("ReviewManager exception");
+				yield break;
+			}
+			
+			var requestFlowOperation = _reviewManager.RequestReviewFlow();
+			yield return requestFlowOperation;
+			if (requestFlowOperation.Error != ReviewErrorCode.NoError)
+			{
+				// Log error. For example, using requestFlowOperation.Error.ToString().
+				Debug.Log("RequestReviewFlow Error : " + requestFlowOperation.Error.ToString());
+				yield break;
+			}
+			var _playReviewInfo = requestFlowOperation.GetResult();
+			var launchFlowOperation = _reviewManager.LaunchReviewFlow(_playReviewInfo);
+			yield return launchFlowOperation;
+			_playReviewInfo = null; // Reset the object
+			if (launchFlowOperation.Error != ReviewErrorCode.NoError)
+			{
+				// Log error. For example, using requestFlowOperation.Error.ToString().
+				Debug.Log("LaunchReviewFlow Error : " + requestFlowOperation.Error.ToString());
+				yield break;
+			}
+			// The flow has finished. The API does not indicate whether the user
+			// reviewed or not, or even whether the review dialog was shown. Thus, no
+			// matter the result, we continue our app flow.
+
+			Debug.Log("complete review");
+		}
+		#endif
 
 		static public void OpenStore(string _androidAppId, string _iosAppId, string _utm){
 			#if UNITY_ANDROID
