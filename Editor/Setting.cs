@@ -45,6 +45,7 @@ namespace BicUtil.Core{
             defineSymbol(BuildTargetGroup.Standalone);
             defineSymbol(BuildTargetGroup.iOS);
             defineSymbol(BuildTargetGroup.Android);
+            defineSymbol(BuildTargetGroup.WebGL);
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
