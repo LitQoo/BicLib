@@ -970,6 +970,10 @@ namespace BicUtil.Tween
 			DefaultPool.RunOnMainThread(_func);
 		}
 
+		public static void StartCoroutine(IEnumerator _func){
+			defaultPool.StartCoroutine(_func);
+		}
+		
 
 		// public static List<Vector3> GetPathFortween(List<int> chidDataList){
 

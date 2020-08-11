@@ -23,7 +23,8 @@ namespace BicUtil.Core{
 
             new DefineData("ETC", "Unity WWW", false, "BICUTIL_WWW"),
             new DefineData("ETC", "Unity WWW TEXTURE", false, "BICUTIL_WWW_TEXTURE"),
-            new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP")
+            new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP"),
+            new DefineData("ETC", "GoogleInAppReview", false, "BICUTIL_GIAR")
         };
 
         Vector2 scroll = new Vector2(0, 0);
