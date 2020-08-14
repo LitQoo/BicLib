@@ -65,7 +65,6 @@ namespace BicUtil.TableView
         }
 
         private void updateWidth(){
-            Canvas.ForceUpdateCanvases();
             WIDTH = RectTransformUtility.CalculateRelativeRectTransformBounds(this.tableContentRectTransform).size.x;
         }
 

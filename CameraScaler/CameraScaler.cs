@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BicUtil.CameraScaler
 {
@@ -37,17 +38,25 @@ namespace BicUtil.CameraScaler
 				return this.manageFullSizeRect[0].sizeDelta;
 			}
 		}
+
+		private bool isInit = false;
 		#endregion
 
 		#region LifeCycle
-		private void Start(){
+		private void Awake(){
 			Instance = this;
 			init ();
 		}
 		#endregion
 
 		#region Logic
-		private void init(){
+		private void init(bool _isForcedInit = false){
+			if(isInit == true && _isForcedInit == false){
+				return;
+			}
+
+			isInit = true;
+
 			if(manageFullSizeRect.Length > 0 && referenceTransform == manageFullSizeRect[0]){
 				Debug.LogWarning("[CameraScaler] Set referenceTransform != manageFullSizeRect");
 				return;
@@ -165,7 +174,7 @@ namespace BicUtil.CameraScaler
 		private void Update(){
 			if(screenSize.Equals(Screen.safeArea) == false){
 				screenSize = Screen.safeArea;
-				init();
+				init(true);
 				if(onChangedScreenSize != null){
 					onChangedScreenSize();
 				}
