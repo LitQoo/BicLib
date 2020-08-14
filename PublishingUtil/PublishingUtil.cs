@@ -52,6 +52,12 @@ namespace BicUtil.PublishingUtil{
 			}catch{
 				OpenStore(_appId, "", "review");
 				Debug.Log("ReviewManager exception");
+				BicUtil.Analytics.Analytics.Event("GoogleInappReview", new Dictionary<string, object> {
+					{
+						"Result",
+						"Exception1"
+					}
+                });
 				yield break;
 			}
 			
@@ -63,6 +69,12 @@ namespace BicUtil.PublishingUtil{
 				OpenStore(_appId, "", "review");
 				// Log error. For example, using requestFlowOperation.Error.ToString().
 				Debug.Log("RequestReviewFlow Error : " + requestFlowOperation.Error.ToString());
+				BicUtil.Analytics.Analytics.Event("GoogleInappReview", new Dictionary<string, object> {
+					{
+						"Result",
+						"Exception2"
+					}
+				});
 				yield break;
 			}
 			var _playReviewInfo = requestFlowOperation.GetResult();
@@ -75,6 +87,12 @@ namespace BicUtil.PublishingUtil{
 				OpenStore(_appId, "", "review");
 				// Log error. For example, using requestFlowOperation.Error.ToString().
 				Debug.Log("LaunchReviewFlow Error : " + requestFlowOperation.Error.ToString());
+				BicUtil.Analytics.Analytics.Event("GoogleInappReview", new Dictionary<string, object> {
+					{
+						"Result",
+						"Exception3"
+					}
+				});
 				yield break;
 			}
 			// The flow has finished. The API does not indicate whether the user
@@ -82,6 +100,13 @@ namespace BicUtil.PublishingUtil{
 			// matter the result, we continue our app flow.
 
 			Debug.Log("complete review");
+
+			BicUtil.Analytics.Analytics.Event("GoogleInappReview", new Dictionary<string, object> {
+				{
+					"Result",
+					"Complete"
+				}
+			});
 		}
 		#endif
 

@@ -28,6 +28,7 @@ namespace BicUtil.UI{
         private IVariable reviewCounting;
         private IVariable isWroteReview;
         private int firstReviewSession = 1;
+        private bool isFastReviewReqeust = false;
         #endregion
 
         #region Event
@@ -39,7 +40,6 @@ namespace BicUtil.UI{
                 case Mode.Enjoy:
                     mode.AsEnum = Mode.Feedback;
                     this.isWroteReview.AsBool = true;
-
                     reviewCounting.AsInt = -20;
                     TableService.Save();
                 break;
@@ -80,23 +80,28 @@ namespace BicUtil.UI{
                     });
                 break;
                 case Mode.Review:
-                    PublishingUtil.PublishingUtil.OpenReview(this.appId, this.appId);
-                    this.isWroteReview.AsBool = true;
-                    TableService.Save();
-                    Close();
-                    BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
+                    openReviewAndClose();
+                    break;
+            }
+        }
+
+        private void openReviewAndClose()
+        {
+            PublishingUtil.PublishingUtil.OpenReview(this.appId, this.appId);
+            this.isWroteReview.AsBool = true;
+            TableService.Save();
+            Close();
+            BicUtil.Analytics.Analytics.Event("ReviewPopup", new Dictionary<string, object> {
                         {
                             "Result",
                             "Yes"
                         }
                     });
-                break;
-            }
         }
         #endregion
 
         #region Logic
-        public void Setup(int _firstReviewSession, string _iosAppId, string _androidAppId){
+        public void Setup(int _firstReviewSession, string _iosAppId, string _androidAppId, bool _isFastReviewRequest){
             #if UNITY_IOS
                 appId = _iosAppId;
             #elif UNITY_ANDROID
@@ -106,6 +111,7 @@ namespace BicUtil.UI{
             firstReviewSession = _firstReviewSession;
             isWroteReview = TableService.GetProperty("isWriteReview", new BoolVariable(false));
             reviewCounting = TableService.GetProperty("reviewCount", new IntVariable(1));
+            isFastReviewReqeust = _isFastReviewRequest;
 
             mode.Subscribe(setMode);
         }
@@ -179,10 +185,15 @@ namespace BicUtil.UI{
         }
 
         private void setReview(){
-            developer.PlayHadsUpDance();
-            messageText.text = TranslateManager.Instance.GetText("review_request");
-            leftButtonText.text = TranslateManager.Instance.GetText("review_later");
-            rightButtonText.text = TranslateManager.Instance.GetText("review_ok");
+
+            if(isFastReviewReqeust == true){
+                openReviewAndClose();
+            }else{
+                developer.PlayHadsUpDance();
+                messageText.text = TranslateManager.Instance.GetText("review_request");
+                leftButtonText.text = TranslateManager.Instance.GetText("review_later");
+                rightButtonText.text = TranslateManager.Instance.GetText("review_ok");
+            }
         }
 
         public void Close(){
