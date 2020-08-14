@@ -33,14 +33,14 @@ namespace BicUtil.PublishingUtil{
 				OpenStore(_androidAppId, _iosAppId, "review");	
 			}
 			#elif BICUTIL_GIAR && UNITY_ANDROID
-			BicUtil.Tween.BicTween.StartCoroutine(googlePlayReview());
+			BicUtil.Tween.BicTween.StartCoroutine(googlePlayReview(_androidAppId));
 			#else
 			OpenStore(_androidAppId, _iosAppId, "review");
 			#endif
 		}
 
 		#if BICUTIL_GIAR
-		static private IEnumerator googlePlayReview(){
+		static private IEnumerator googlePlayReview(string _appId){
 			Debug.Log("googlePlayReview");
 
 			// Create instance of ReviewManager
@@ -50,6 +50,7 @@ namespace BicUtil.PublishingUtil{
 			try{
 				_reviewManager = new ReviewManager();
 			}catch{
+				OpenStore(_appId, "", "review");
 				Debug.Log("ReviewManager exception");
 				yield break;
 			}
@@ -58,6 +59,8 @@ namespace BicUtil.PublishingUtil{
 			yield return requestFlowOperation;
 			if (requestFlowOperation.Error != ReviewErrorCode.NoError)
 			{
+
+				OpenStore(_appId, "", "review");
 				// Log error. For example, using requestFlowOperation.Error.ToString().
 				Debug.Log("RequestReviewFlow Error : " + requestFlowOperation.Error.ToString());
 				yield break;
@@ -68,6 +71,8 @@ namespace BicUtil.PublishingUtil{
 			_playReviewInfo = null; // Reset the object
 			if (launchFlowOperation.Error != ReviewErrorCode.NoError)
 			{
+
+				OpenStore(_appId, "", "review");
 				// Log error. For example, using requestFlowOperation.Error.ToString().
 				Debug.Log("LaunchReviewFlow Error : " + requestFlowOperation.Error.ToString());
 				yield break;
