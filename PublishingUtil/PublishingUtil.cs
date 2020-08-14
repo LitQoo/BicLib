@@ -30,7 +30,21 @@ namespace BicUtil.PublishingUtil{
 			#if UNITY_IOS
 			var _isOpen = Device.RequestStoreReview();
 			if(_isOpen == false){
+				BicUtil.Analytics.Analytics.Event("AppleInappReview", new Dictionary<string, object> {
+					{
+						"Result",
+						"Exception"
+					}
+				});
+
 				OpenStore(_androidAppId, _iosAppId, "review");	
+			}else{
+				BicUtil.Analytics.Analytics.Event("AppleInappReview", new Dictionary<string, object> {
+					{
+						"Result",
+						"Complete"
+					}
+				});
 			}
 			#elif BICUTIL_GIAR && UNITY_ANDROID
 			BicUtil.Tween.BicTween.StartCoroutine(googlePlayReview(_androidAppId));
