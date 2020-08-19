@@ -74,6 +74,10 @@ namespace BicUtil.Analytics
         private void eventWithLock(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             FB.LogAppEvent(_name, _value, _eventData);
         }
+
+        public void SetUserConsent(bool _isEnabled){
+            FB.Mobile.SetAutoLogAppEventsEnabled(_isEnabled);
+        }
         
     }
 }

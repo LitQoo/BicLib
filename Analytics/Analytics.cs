@@ -65,10 +65,17 @@ namespace BicUtil.Analytics
             return _result;
         }
 
+        public void SetUserConsent(bool _isEnabled){
+            for(int i = 0; i < libList.Count; i++){
+                libList[i].SetUserConsent(_isEnabled);
+            }
+        }
+
     }
 
     public interface IAnalyticsLib{
         void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1);
         string TermsURL{get;}
+        void SetUserConsent(bool _isEnabled);
     }
 }

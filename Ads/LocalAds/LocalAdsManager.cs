@@ -166,6 +166,10 @@ namespace BicUtil.Ads
         {
             return adsData.Where(_row => _row.IsReady() == true && (_row.AdsPlacement.ToString() == _adsPlacement.ToString())).ToList();
         }
+
+        public void SetUserConsent(bool _isEnabled){
+
+        }
         #endregion
     }
 

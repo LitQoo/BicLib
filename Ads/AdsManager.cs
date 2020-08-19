@@ -396,6 +396,12 @@ namespace BicUtil.Ads
 
             return _result;
         }
+
+        public void SetUserConsent(bool _isEnabled){
+            for(int i = 0; i < adsPlatforms.Count; i++){
+                adsPlatforms[i].SetUserConsent(_isEnabled);
+            }
+        }
     }
 
     public class DummyBanner : IAdsBanner

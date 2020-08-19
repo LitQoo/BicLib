@@ -26,15 +26,14 @@ namespace BicUtil.Ads
         #region Logic
         private object adsPlacement;
         private Action<IAdsBanner> onLoadBannerAction;
-        public void Load(string _unitId, object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction){
+        public void Load(string _unitId, object _adsPlacement, Action<IAdsBanner> _onLoadBannerAction, AdRequest _request){
             adsPlacement = _adsPlacement;
             onLoadBannerAction = _onLoadBannerAction;
             bannerView = new BannerView(_unitId, AdSize.Banner, AdPosition.Top);
             bannerView.OnAdFailedToLoad += reloadBanner;
             bannerView.OnAdLoaded += onLoaded;
-            AdRequest request = new AdRequest.Builder().Build();
             BicTween.Delay(0.1f).SubscribeComplete(()=>{
-                bannerView.LoadAd(request);
+                bannerView.LoadAd(_request);
             }).SetTargetObject(this.gameObject);
         }
 

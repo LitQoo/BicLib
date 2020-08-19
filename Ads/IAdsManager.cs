@@ -17,6 +17,7 @@ namespace BicUtil.Ads
         IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction);
         
         string TermsURL{get;}
+        void SetUserConsent(bool _isEnabled);
     }
 
     public interface IAdsManager

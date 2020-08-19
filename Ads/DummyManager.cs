@@ -76,5 +76,9 @@ namespace BicUtil.Ads{
         {
             _callback(ShowRewardBasedReturn);
         }
+
+        public void SetUserConsent(bool _isEnabled){
+         
+        }
     }
 }
