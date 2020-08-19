@@ -45,7 +45,6 @@ namespace BicUtil.UI{
             }
 
             isLoadGDPRArea = true;
-            Debug.Log("start loadgdprarea");
             try
             {
                 using( WebClient webClient = new WebClient())
@@ -54,7 +53,6 @@ namespace BicUtil.UI{
                     webClient.DownloadStringCompleted += (_objet, _result)=>{
                         try{
                             var _response = _result.Result;
-                            Debug.Log(_response);
                             int index = _response.IndexOf( "is_request_in_eea_or_unknown\":" );
                             
                             lock(locker){

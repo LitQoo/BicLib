@@ -76,7 +76,7 @@ namespace BicUtil.Analytics
         }
 
         public void SetUserConsent(bool _isEnabled){
-            FB.Mobile.SetAutoLogAppEventsEnabled(_isEnabled);
+            //FB.Mobile.SetAutoLogAppEventsEnabled(_isEnabled);
         }
         
     }

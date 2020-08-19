@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using BicDB.Core;
 using BicDB.Variable;
+using BicUtil.ClassInitializer;
 using BicUtil.Translate;
+using BicUtil.UIFlow;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BicUtil.UI{
-    public class ReviewPopup : MonoBehaviour
+    public class ReviewPopup : MonoBehaviour, IClassInitializerObject, IUIFlowObject
     {
         #region DI
         [SerializeField]
@@ -19,6 +21,8 @@ namespace BicUtil.UI{
         private Text rightButtonText;
         [SerializeField]
         private Bigjam.Developer.DeveloperController developer;
+        [SerializeField]
+        private bool openAlwaysOnEditor = false;
         #endregion
 
         #region Instant
@@ -29,6 +33,32 @@ namespace BicUtil.UI{
         private IVariable isWroteReview;
         private int firstReviewSession = 1;
         private bool isFastReviewReqeust = false;
+        private Func<string, string> translator;
+        #endregion
+
+        #region ClassInitialiszer
+        public void Deinitialize()
+        {
+            UIFlow.UIFlow.Instance.UnregisterUI(this);	
+        }
+
+        public void Initialize()
+        {
+            this.gameObject.SetActive(false);
+            UIFlow.UIFlow.Instance.RegisterUI(this);
+        }
+        #endregion
+
+        #region IUIFlowObject
+        public OnCloseUIResult OnClosedUI(IUIFlowObject _fromUI, Action _finishCallback, object _parameter)
+        {
+            return OnCloseUIResult.DoNotWait;
+        }
+
+        public void OnOpenedUI(IUIFlowObject _fromUI, object _paramter)
+        {
+            Open();
+        }
         #endregion
 
         #region Event
@@ -134,6 +164,10 @@ namespace BicUtil.UI{
         }
 
         public void Open(){
+            if(translator == null){
+                translator = TranslateManager.Instance.GetText;
+            }
+
             if(string.IsNullOrEmpty(appId) == true){
                 throw new System.Exception("[ReviewPopup] Not Setup appid");
             }
@@ -147,6 +181,12 @@ namespace BicUtil.UI{
             if(isOpend == true){
                 return false;
             }
+
+            #if UNITY_EDITOR
+            if(openAlwaysOnEditor == true){
+                return true;
+            }
+            #endif
 
             if(firstReviewSession > TableService.SessionCount){
                 return false;
@@ -173,15 +213,15 @@ namespace BicUtil.UI{
 
         private void setEnjoy(){
             
-            messageText.text = TranslateManager.Instance.GetText("review_enjoy");
-            leftButtonText.text = TranslateManager.Instance.GetText("review_not_really");
-            rightButtonText.text = TranslateManager.Instance.GetText("review_yes");
+            messageText.text = translator("review_enjoy");
+            leftButtonText.text = translator("review_not_really");
+            rightButtonText.text = translator("review_yes");
         }
 
         private void setFeedback(){
-            messageText.text = TranslateManager.Instance.GetText("review_feedback");
-            leftButtonText.text = TranslateManager.Instance.GetText("review_no");
-            rightButtonText.text = TranslateManager.Instance.GetText("review_yes");
+            messageText.text = translator("review_feedback");
+            leftButtonText.text = translator("review_no");
+            rightButtonText.text = translator("review_yes");
         }
 
         private void setReview(){
@@ -190,15 +230,19 @@ namespace BicUtil.UI{
                 openReviewAndClose();
             }else{
                 developer.PlayHadsUpDance();
-                messageText.text = TranslateManager.Instance.GetText("review_request");
-                leftButtonText.text = TranslateManager.Instance.GetText("review_later");
-                rightButtonText.text = TranslateManager.Instance.GetText("review_ok");
+                messageText.text = translator("review_request");
+                leftButtonText.text = translator("review_later");
+                rightButtonText.text = translator("review_ok");
             }
         }
 
         public void Close(){
             developer.StopDance();
             this.gameObject.SetActive(false);
+        }
+
+        public void SetTranslator(Func<string, string> _translator){
+            translator = _translator;
         }
 
         private enum Mode{
