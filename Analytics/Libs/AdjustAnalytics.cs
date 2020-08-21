@@ -34,7 +34,12 @@ namespace BicUtil.Analytics
             }
 
             eventInfoList.Add(new EventTokenInfo(_eventToken, _eventName, _conditionFunc));
-        } 
+        }
+
+        public void SetUserConsent(bool _isEnabled)
+        {
+            
+        }
     }
 
     internal class EventTokenInfo{
