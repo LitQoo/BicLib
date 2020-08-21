@@ -26,6 +26,10 @@ namespace BicUtil.Analytics
             #if BICUTIL_ANALYTICS_UNITY
             this.addService(new UnityAnalytics());
             #endif
+
+            #if BICUTIL_ANALYTICS_ADJUST
+            this.addService(new AdjustAnalytics());
+            #endif
         }
 
         private void addService(IAnalyticsLib _lib){
