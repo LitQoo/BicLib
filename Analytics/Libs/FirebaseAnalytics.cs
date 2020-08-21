@@ -71,6 +71,10 @@ namespace BicUtil.Analytics
                 Firebase.Analytics.FirebaseAnalytics.LogEvent(_eventName);
             }
         }
+
+        public void SetUserConsent(bool _isEnabled){
+            //Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(_isEnabled);
+        }
     }
 }
 #endif
