@@ -1,4 +1,5 @@
 ﻿#if BICUTIL_ANALYTICS_ADJUST
+using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,6 +35,14 @@ namespace BicUtil.Analytics
             }
 
             eventInfoList.Add(new EventTokenInfo(_eventToken, _eventName, _conditionFunc));
+        }
+
+        public static void SetEventToken(string _eventTokenForiOS, string _eventTokenForAOS, string _eventName, Func<Dictionary<string, object>, bool> _conditionFunc = null){
+            #if UNITY_IOS
+            SetEventToken(_eventTokenForiOS, _eventName, _conditionFunc);    
+            #elif UNITY_ANDROID
+            SetEventToken(_eventTokenForAOS, _eventName, _conditionFunc);
+            #endif
         }
 
         public void SetUserConsent(bool _isEnabled)
