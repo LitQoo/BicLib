@@ -1,10 +1,6 @@
 ﻿#if BICUTIL_ANALYTICS_ADJUST
-using System.Runtime.CompilerServices;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Facebook.Unity;
 using com.adjust.sdk;
 using System;
 
