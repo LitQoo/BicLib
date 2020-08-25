@@ -99,6 +99,7 @@ namespace BicDB.Storage
 
 			var _webParam = _parameter as WebStorageParameter;
 			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
 
 			if(_webParam != null && _webParam.Param != null){
 				foreach(var _value in _webParam.Param){
@@ -189,6 +190,7 @@ namespace BicDB.Storage
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
 			_formData.AddManagedColumn(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable);
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
 			
 			if(_param != null){
 				foreach(var _value in _param){
@@ -282,7 +284,7 @@ namespace BicDB.Storage
 
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _records);
-			_formData.AddManagedColumn("primayKey", new StringVariable(_table.PrimaryKey));
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
 
 			if(_param != null){
 				foreach(var _value in _param){
@@ -386,7 +388,7 @@ namespace BicDB.Storage
 			}
 
 			_formData.AddManagedColumn("data", _ids);
-			_formData.AddManagedColumn("primayKey", new StringVariable(_table.PrimaryKey));
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
 
 			if(_param != null){
 				foreach(var _value in _param){
