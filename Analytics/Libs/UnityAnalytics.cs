@@ -20,6 +20,10 @@ namespace BicUtil.Analytics
                 }
             }
         }
+
+
+        public void SetUserConsent(bool _isEnabled){
+        }
     }
 }
 #endif

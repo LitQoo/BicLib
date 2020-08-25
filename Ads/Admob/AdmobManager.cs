@@ -99,17 +99,22 @@ namespace BicUtil.Ads{
         }
 
         public void loadInterstitial(object _adsType, float _time){
-            if(adsData[_adsType].Data == null){
+            if(adsData[_adsType].Data == null)
+            {
                 InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].PlatformId);
-                AdRequest _request = new AdRequest.Builder().Build();
+                AdRequest _request = buildRequest();
+
                 float __time = _time;
                 object __adsType = _adsType;
-                _interstitial.OnAdFailedToLoad += (_sender, _args)=>{
+                _interstitial.OnAdFailedToLoad += (_sender, _args) =>
+                {
                     _interstitial.Destroy();
                     adsData[_adsType].Data = null;
 
-                    BicTween.RunOnMainThread(()=>{
-                        BicTween.Delay(__time).SubscribeComplete(()=>{
+                    BicTween.RunOnMainThread(() =>
+                    {
+                        BicTween.Delay(__time).SubscribeComplete(() =>
+                        {
                             loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
                         });
                     });
@@ -136,7 +141,8 @@ namespace BicUtil.Ads{
         public void loadRewardBased(string _adsId, float _time){
             if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
                 RewardedAd _rewardedAd = new RewardedAd(_adsId);
-                AdRequest _request = new AdRequest.Builder().Build();
+                AdRequest _request = buildRequest();
+                
                 float __time = _time;
                 string __adsId = _adsId;
 
@@ -215,13 +221,33 @@ namespace BicUtil.Ads{
         {
             if(adsData.ContainsKey(_adsType) == true){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));
-                _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction);
+                _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction, buildRequest());
                 return _banner;
             }else{
                 return null;
             }
         }
 
+        #endregion
+
+        #region UserConsent
+        private bool isUserConsent = true;
+        public void SetUserConsent(bool _isEnabled){
+            isUserConsent = _isEnabled;
+        }
+
+        private AdRequest buildRequest()
+        {
+            var _builder = new AdRequest.Builder();
+
+            if (isUserConsent == false)
+            {
+                _builder.AddExtra("npa", "1");
+            }
+
+            var _request = _builder.Build();
+            return _request;
+        }
         #endregion
     }
 }

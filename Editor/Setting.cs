@@ -13,6 +13,7 @@ namespace BicUtil.Core{
             new DefineData("Analytics", "Facebook", false, "BICUTIL_ANALYTICS_FB"),
             new DefineData("Analytics", "Unity", false, "BICUTIL_ANALYTICS_UNITY"),
             new DefineData("Analytics", "Firebase", false, "BICUTIL_ANALYTICS_FIREBASE"),
+            new DefineData("Analytics", "Adjust", false, "BICUTIL_ANALYTICS_ADJUST"),
 
             new DefineData("Ads", "UnityAds", false, "BICUTIL_UNITYADS2"),
             new DefineData("Ads", "AppLovin", false, "BICUTIL_APPLOVIN"),

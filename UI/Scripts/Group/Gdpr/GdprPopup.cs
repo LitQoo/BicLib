@@ -2,13 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
 using BicDB.Variable;
+using BicUtil.Ads;
+using BicUtil.ClassInitializer;
+using BicUtil.UIFlow;
 using UnityEngine;
 
 namespace BicUtil.UI{
-    public class GdprPopup : MonoBehaviour
+    public class GdprPopup : MonoBehaviour, IClassInitializerObject, IUIFlowObject
     {
         #region static
         static private int GDPR_STATE_YES = 1; 
@@ -16,34 +20,66 @@ namespace BicUtil.UI{
         static private int GDPR_STATE_NONE = 0;
 
         private const string EU_QUERY_URL = "http://adservice.google.com/getconfig/pubvendors";
-        private static bool isGdprArea(){
-            bool _result = false;
+        private static bool isGDPRArea = false;
+        private static bool IsGDPRArea{
+            get{
+                lock(locker){
+                    return isGDPRArea;
+                }
+            }
+        }
+        private static bool isLoadGDPRArea = false;
+        public static System.Object locker = new System.Object();
+        public static void LoadGdprArea(){
+            if(isLoadGDPRArea == true){
+                return;
+            }
 
-            #if UNITY_EDITOR
-            return true;
-            #endif
+            if(TableService.IsLoaded == false){
+                Debug.LogError("Not load tableservice");
+            }else{
+                // var _state = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
+                // if(_state.AsInt == GDPR_STATE_YES){
+                //     return;
+                // }
+            }
 
+            isLoadGDPRArea = true;
             try
             {
                 using( WebClient webClient = new WebClient())
                 {
-                    string response = webClient.DownloadString( EU_QUERY_URL );
-                    int index = response.IndexOf( "is_request_in_eea_or_unknown\":" );
-                    if( index < 0 )
-                        _result = true;
-                    else
-                    {
-                        index += 30;
-                        _result = index >= response.Length || !response.Substring( index ).TrimStart().StartsWith( "false" );
-                    }
+                    var _uri = new Uri(EU_QUERY_URL);
+                    webClient.DownloadStringCompleted += (_objet, _result)=>{
+                        try{
+                            var _response = _result.Result;
+                            int index = _response.IndexOf( "is_request_in_eea_or_unknown\":" );
+                            
+                            lock(locker){
+                                if( index < 0 ){
+                                    isGDPRArea = true;
+                                }else{
+                                    index += 30;
+                                    isGDPRArea = index >= _response.Length || !_response.Substring( index ).TrimStart().StartsWith( "false" );
+                                }
+                            }
+                        }catch{
+                            lock(locker){
+                                isGDPRArea = false;
+                            }
+                        }
+                    };
+
+                    webClient.DownloadStringAsync(_uri);
+                    
                 }
             }
             catch
             {
-                _result = true;
+                lock(locker){
+                    isGDPRArea = false;
+                }
             }
-
-            return _result;
         }
         #endregion
         #region DI
@@ -61,6 +97,10 @@ namespace BicUtil.UI{
         private BicUtil.UI.CheckButtonWithChangeActive analyticsSettingButton;
         [SerializeField]
         private BicUtil.UI.CheckButtonWithChangeActive adsSettingButton;
+        [SerializeField]
+        private bool openAlwaysOnEditor = false;
+        [SerializeField]
+        private bool forcedGdprAreaOnEditor = false;
         #endregion
 
         #region Instant
@@ -68,6 +108,33 @@ namespace BicUtil.UI{
         private IVariable isAgreedAnaltics;
         private IVariable isAgreedAds;
         private bool isOpend = false;
+        private bool isSetup = false;
+        #endregion
+
+        #region ClassInitialiszer
+        public void Deinitialize()
+        {
+            UIFlow.UIFlow.Instance.UnregisterUI(this);	
+        }
+
+        public void Initialize()
+        {
+            this.gameObject.SetActive(false);
+            UIFlow.UIFlow.Instance.RegisterUI(this);
+            Setup();
+        }
+        #endregion
+
+        #region IUIFlowObject
+        public OnCloseUIResult OnClosedUI(IUIFlowObject _fromUI, Action _finishCallback, object _parameter)
+        {
+            return OnCloseUIResult.DoNotWait;
+        }
+
+        public void OnOpenedUI(IUIFlowObject _fromUI, object _paramter)
+        {
+            Open();
+        }
         #endregion
 
         #region Event
@@ -84,7 +151,13 @@ namespace BicUtil.UI{
 
         #region Logic
         public void Setup(){
+            if(isSetup == true){
+                return;
+            }
 
+            isSetup = true;
+
+            LoadGdprArea();
             isAgreedAnaltics = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
             isAgreedAds = TableService.GetProperty("iaad", new IntVariable(GDPR_STATE_NONE));
 
@@ -119,6 +192,22 @@ namespace BicUtil.UI{
                 }));
             }
 
+            isAgreedAds.Subscribe(_agreed=>{
+                if(_agreed.AsInt == GDPR_STATE_NO){
+                    AdsManager.Instance.SetUserConsent(false);
+                }else{
+                    AdsManager.Instance.SetUserConsent(true);
+                }
+            }, true);
+
+            isAgreedAnaltics.Subscribe(_agreed=>{
+                if(_agreed.AsInt == GDPR_STATE_NO){
+                    Analytics.Analytics.Instance.SetUserConsent(false);
+                }else{
+                    Analytics.Analytics.Instance.SetUserConsent(true);
+                }
+            }, true);
+
             tableView.SetDBSource(_urls);
         }
 
@@ -138,33 +227,39 @@ namespace BicUtil.UI{
             var _result = new Dictionary<string, object> ();
             _result["analytics"] = isAgreedAnaltics.AsInt;
             _result["ads"] = isAgreedAds.AsInt;
+            _result["session"] = TableService.SessionCount;
             BicUtil.Analytics.Analytics.Event("GdprPopupClose", _result);
         }
 
         public bool ShouldOpen(bool _shouldCheckCountry){
+            #if UNITY_EDITOR
+            if(this.openAlwaysOnEditor == true){
+                return true;
+            }
+            #endif
+
             if(isOpend == true){
                 return false;
             }
 
             //미설정
-            if(isAgreedAnaltics.AsInt == GDPR_STATE_NONE){
+            if(isAgreedAnaltics.AsInt == GDPR_STATE_NONE || isAgreedAds.AsInt == GDPR_STATE_NONE){
                 //국가관련없이 무조건 띄울경우
                 if(_shouldCheckCountry == false){
                     return true;
 
                 //gdpr대상국가인지 체크하고 띄울경우
                 }else{
-                    if(isGdprArea() == true){
+                    if(IsGDPRArea == true 
+                        #if UNITY_EDITOR
+                        || forcedGdprAreaOnEditor == true
+                        #endif
+                    ){
                         return true;
                     }else{
                         return false;
                     }
                 }
-            }
-
-            //둘중하나라도 거절상태
-            if(isAgreedAds.AsInt == GDPR_STATE_NO || isAgreedAnaltics.AsInt == GDPR_STATE_NO){
-                return true;
             }
 
             return false;            
@@ -233,6 +328,7 @@ namespace BicUtil.UI{
 
         public void OpenOption(){
             this.mode.AsEnum = Mode.Option;
+            tableView.ReloadData();
         }
 
         public void OpenWarning(){
