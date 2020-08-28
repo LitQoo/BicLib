@@ -105,6 +105,22 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
+		public void BindModelToController(IVariable _variable, UnityEngine.UI.Slider _slider, bool _needFirstCall = false){
+			Action<IVariableReadOnly> _func = (__variable)=>{
+				_slider.value = __variable.AsFloat;
+			};
+
+			bindRemoverList.Add (()=>{
+				_variable.Unsubscribe(_func);
+			});
+
+			_variable.Subscribe(_func);
+
+			if(_needFirstCall == true){
+				_slider.value = _variable.AsFloat;
+			}
+		}
+
 		public void BindModelToController (IVariable _variable, Action _func, bool _needFirstCall = false){
 			BindModelToController (_variable, (IVariableReadOnly __variable) => _func (), _needFirstCall);
 		}
