@@ -177,9 +177,8 @@ namespace BicUtil.TableView
 
             for(int i = 0; i < _rowCount; i++){
                 _cellCount += GetCellCountInRow(i);
-
-                if(_cellIndex <= _cellCount){
-                    _rowIndex = i;
+                if(_cellIndex < _cellCount){
+					_rowIndex = i;
                     break;
                 }
             }
