@@ -28,7 +28,7 @@ namespace BicDB.Storage
 			FailedConvertJson = 1,
 			ErrorNetwork = 2,
 			ServerRequestError = 3,
-			Crypto = 3
+			Crypto = 4
 		}
 
 		#region singleton
@@ -253,7 +253,7 @@ namespace BicDB.Storage
 						return;
 					}else{
 						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ServerRequestError));
+							_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
 						}
 						return;
 					}
@@ -352,7 +352,7 @@ namespace BicDB.Storage
 						return;
 					}else{
 						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ServerRequestError));
+							_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
 						}
 						return;
 					}
