@@ -18,7 +18,7 @@ namespace BicUtil.TableView
         
         public int GetNumberOfCellsForTableView()
 		{
-			return table.Count + (hasHeadRow == true ? 1 : 0) +  + (hasFootRow == true ? 1 : 0);
+			return table.Count + (HasHeadRow == true ? 1 : 0) +  + (HasFootRow == true ? 1 : 0);
 		}
 
 		public float GetHeightForRowInTableView(int _rowIndex)
@@ -27,11 +27,11 @@ namespace BicUtil.TableView
                 return getRowHeightFunc(tableView, table, _rowIndex);
             }
 
-			if(hasHeadRow == true && _rowIndex == 0){
+			if(HasHeadRow == true && _rowIndex == 0){
 				return tableView.GetRowHeight(headRowName);
 			}
 
-			if(hasFootRow == true && _rowIndex == GetRowCount() - 1){
+			if(HasFootRow == true && _rowIndex == GetRowCount() - 1){
 				return tableView.GetRowHeight(footRowName);
 			}
 
@@ -40,7 +40,7 @@ namespace BicUtil.TableView
 
 		public CollectionRowData GetArrangeInfoInRow(int _rowIndex){
 			if(this.arrangeInfo != null){
-				if(hasHeadRow == true){
+				if(HasHeadRow == true){
 					_rowIndex--;
 				}
 
@@ -80,9 +80,9 @@ namespace BicUtil.TableView
 		public TableRow GetCellForRowInTableView(int _rowIndex)
 		{
 			TableRow _tableRow = null;
-			if(hasHeadRow == true && _rowIndex == 0){
+			if(HasHeadRow == true && _rowIndex == 0){
 				_tableRow = tableView.CreateTableRow(headRowName);
-			}else if(hasFootRow == true && _rowIndex == GetRowCount() - 1){
+			}else if(HasFootRow == true && _rowIndex == GetRowCount() - 1){
 				_tableRow = tableView.CreateTableRow(footRowName);
 			}else{
 				_tableRow = tableView.CreateTableRow(tableView.defaultReusableRowId); // 셀 리턴
@@ -93,7 +93,7 @@ namespace BicUtil.TableView
 		}
 
 		public IRecordContainer GetCellData(int _index, int _rowIndex, int _cellOrder){
-			if((hasHeadRow == true && _rowIndex == 0) || (hasFootRow == true && _rowIndex == GetRowCount() - 1)){
+			if((HasHeadRow == true && _rowIndex == 0) || (HasFootRow == true && _rowIndex == GetRowCount() - 1)){
 				return null;
 			}
 
@@ -105,16 +105,16 @@ namespace BicUtil.TableView
 		}
 
 		public int GetCellCountInRow(int _rowIndex){
-			if(hasHeadRow == true && _rowIndex == 0){
+			if(HasHeadRow == true && _rowIndex == 0){
 				return 0;
 			}
 
-			if(hasFootRow == true && _rowIndex == GetRowCount() - 1){
+			if(HasFootRow == true && _rowIndex == GetRowCount() - 1){
 				return 0;
 			}
 			
 			if(this.arrangeInfo != null){
-				if(hasHeadRow == true){
+				if(HasHeadRow == true){
 					_rowIndex--;
 				}
 
@@ -126,11 +126,11 @@ namespace BicUtil.TableView
 
 		public int GetRowCount(){
 			int _offset = 0;
-			if(hasHeadRow == true){
+			if(HasHeadRow == true){
 				_offset++;
 			}
 
-			if(hasFootRow == true){
+			if(HasFootRow == true){
 				_offset++;
 			}
 
@@ -142,11 +142,11 @@ namespace BicUtil.TableView
 		}
 
 		public int GetStartDataIndex(int _rowIndex){
-			if((hasHeadRow == true && _rowIndex == 0) || (hasFootRow == true && _rowIndex == GetRowCount() - 1)){
+			if((HasHeadRow == true && _rowIndex == 0) || (HasFootRow == true && _rowIndex == GetRowCount() - 1)){
 				return -1;
 			}
 
-			if(hasHeadRow == true & _rowIndex != 0){
+			if(HasHeadRow == true & _rowIndex != 0){
 				_rowIndex--;
 			}
 
@@ -200,7 +200,7 @@ namespace BicUtil.TableView
 		}
 
 		#region Head and Foot
-		private bool hasHeadRow{get=>headRowName != string.Empty;}
+		public bool HasHeadRow{get=>headRowName != string.Empty;}
 		private string headRowName = "";
 
 		public void SetHeadRow(string _rowName){
@@ -208,8 +208,7 @@ namespace BicUtil.TableView
 		}
 
 
-		private bool hasFootRow{get=>footRowName != string.Empty;}
-
+		public bool HasFootRow{get=>footRowName != string.Empty;}
         private string footRowName = "";
 
 		public void SetFootRow(string _rowName){

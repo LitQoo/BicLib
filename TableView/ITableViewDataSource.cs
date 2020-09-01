@@ -21,6 +21,9 @@ namespace BicUtil.TableView
         Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;}
         int GetHeightUnit(int _rowIndex);
         void UpdateArrangeInfo();
+
+        bool HasHeadRow{get;}
+        bool HasFootRow{get;}
     }
 }
 
