@@ -10,6 +10,7 @@ using BicUtil.Ads;
 using BicUtil.ClassInitializer;
 using BicUtil.UIFlow;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BicUtil.UI{
     public class GdprPopup : MonoBehaviour, IClassInitializerObject, IUIFlowObject
@@ -35,38 +36,26 @@ namespace BicUtil.UI{
                 return;
             }
 
+            isLoadGDPRArea = true;
+
             if(TableService.IsLoaded == false){
                 Debug.LogError("Not load tableservice");
             }else{
-                // var _state = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
-                // if(_state.AsInt == GDPR_STATE_YES){
-                //     return;
-                // }
+                var _state = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
+                if(_state.AsInt != GDPR_STATE_NONE){
+                    return;
+                }
             }
 
-            isLoadGDPRArea = true;
             try
             {
                 using( WebClient webClient = new WebClient())
                 {
                     var _uri = new Uri(EU_QUERY_URL);
-                    webClient.DownloadStringCompleted += (_objet, _result)=>{
-                        try{
-                            var _response = _result.Result;
-                            int index = _response.IndexOf( "is_request_in_eea_or_unknown\":" );
-                            
-                            lock(locker){
-                                if( index < 0 ){
-                                    isGDPRArea = true;
-                                }else{
-                                    index += 30;
-                                    isGDPRArea = index >= _response.Length || !_response.Substring( index ).TrimStart().StartsWith( "false" );
-                                }
-                            }
-                        }catch{
-                            lock(locker){
-                                isGDPRArea = false;
-                            }
+                    webClient.DownloadStringCompleted += (_objet, _result)=>
+                    {
+                        lock(locker){
+                            isGDPRArea = ParseIsGDPRArea(_result.Result);
                         }
                     };
 
@@ -80,6 +69,61 @@ namespace BicUtil.UI{
                     isGDPRArea = false;
                 }
             }
+        }
+
+        public static async Task LoadGDPRAreaAsync(){
+            if(isLoadGDPRArea == true){
+                return;
+            }
+
+            isLoadGDPRArea = true;
+            
+            if(TableService.IsLoaded == false){
+                Debug.LogError("Not load tableservice");
+                return;
+            }else{
+                var _state = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
+                if(_state.AsInt != GDPR_STATE_NONE){
+                    return;
+                }
+            }
+
+            var _request = UnityWebRequest.Get(EU_QUERY_URL);
+            await _request.SendWebRequest();
+            var _isGDPRArea = ParseIsGDPRArea(_request.downloadHandler.text);
+        
+            if(string.IsNullOrEmpty(_request.error) == false){
+                return;
+            }
+
+            lock(locker){
+                isGDPRArea = _isGDPRArea;
+            }
+        }
+
+        private static bool ParseIsGDPRArea(string _response)
+        {
+            bool _isGDPRArea = false;
+            try
+            {
+                int index = _response.IndexOf("is_request_in_eea_or_unknown\":");
+
+                if (index < 0)
+                {
+                    _isGDPRArea = true;
+                }
+                else
+                {
+                    index += 30;
+                    _isGDPRArea = index >= _response.Length || !_response.Substring(index).TrimStart().StartsWith("false");
+                }
+            }
+            catch
+            {
+                _isGDPRArea = false;
+            }
+
+            return _isGDPRArea;
         }
         #endregion
         #region DI
@@ -109,6 +153,7 @@ namespace BicUtil.UI{
         private IVariable isAgreedAds;
         private bool isOpend = false;
         private bool isSetup = false;
+        private Action closeCallback;
         #endregion
 
         #region ClassInitialiszer
@@ -139,7 +184,7 @@ namespace BicUtil.UI{
 
         #region Event
         private void Awake(){
-            mode.Subscribe(setMode);
+            mode.Subscribe(setMode, true);
             tableView.AddClickCellEvent("OpenTerms", openTerms);
         }
 
@@ -221,6 +266,10 @@ namespace BicUtil.UI{
             BicUtil.Analytics.Analytics.Event("GdprPopupOpen", _result);
         }
 
+        public void SubscribeOnClose(Action _callback){
+            closeCallback += _callback;
+        }
+
         private void close(){
             this.gameObject.SetActive(false);
 
@@ -229,6 +278,10 @@ namespace BicUtil.UI{
             _result["ads"] = isAgreedAds.AsInt;
             _result["session"] = TableService.SessionCount;
             BicUtil.Analytics.Analytics.Event("GdprPopupClose", _result);
+
+            if(closeCallback != null){
+                closeCallback();
+            }
         }
 
         public bool ShouldOpen(bool _shouldCheckCountry){
