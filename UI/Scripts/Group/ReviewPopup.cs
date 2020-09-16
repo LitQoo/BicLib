@@ -5,6 +5,7 @@ using BicDB.Core;
 using BicDB.Variable;
 using BicUtil.ClassInitializer;
 using BicUtil.Translate;
+using BicUtil.Tween;
 using BicUtil.UIFlow;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,6 +47,15 @@ namespace BicUtil.UI{
         {
             this.gameObject.SetActive(false);
             UIFlow.UIFlow.Instance.RegisterUI(this);
+
+            #if UNITY_EDITOR
+            BicTween.Delay(0.5f).SubscribeComplete(()=>{
+                var _check = TranslateManager.Instance.GetText("review_enjoy");
+                if(string.IsNullOrEmpty(_check) == true){
+                    Debug.LogError("Setup translate for review");
+                }
+            });
+            #endif
         }
         #endregion
 
@@ -237,6 +247,10 @@ namespace BicUtil.UI{
         }
 
         public void Close(){
+            if(UIFlow.UIFlow.Instance.CurrentUI == this as UIFlow.IUIFlowObject){
+                UIFlow.UIFlow.Instance.Back(CloseMode.Disable);
+            }
+
             developer.StopDance();
             this.gameObject.SetActive(false);
         }
