@@ -25,6 +25,7 @@ namespace BicUtil.Ads
         #region Event
         private Action<object, AdsType, AdsResult> OnAfterPlayedAdsCallback;
         private Action<object, AdsType> OnBeforePlayAdsCallback;
+        private Action<object, AdsType> OnNotReadyAdsCallback;
         
         public void SubscribeAfterPlayedAds(Action<object, AdsType, AdsResult> _callback){
             OnAfterPlayedAdsCallback += _callback;
@@ -32,6 +33,10 @@ namespace BicUtil.Ads
 
         public void SubscribeBeforePlayAds(Action<object, AdsType> _callback){
             OnBeforePlayAdsCallback += _callback;
+        }
+
+        public void SubscribeNotReadyAds(Action<object, AdsType> _callback){
+            OnNotReadyAdsCallback += _callback;
         }
 
         private Dictionary<object, Func<bool>> isReadyInterstitialFunc = new Dictionary<object, Func<bool>>();
@@ -119,6 +124,10 @@ namespace BicUtil.Ads
                 }
             }
 
+            if(OnNotReadyAdsCallback != null){
+                OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital);
+            }
+
             return false;
         }
 
@@ -134,6 +143,10 @@ namespace BicUtil.Ads
                     selectedRewardBasedPlatform = i;
                     return true;
                 }
+            }
+
+            if(OnNotReadyAdsCallback != null){
+                OnNotReadyAdsCallback(_adsPlacement, AdsType.RewardBase);
             }
 
             return false;

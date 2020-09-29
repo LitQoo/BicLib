@@ -101,8 +101,6 @@ namespace BicUtil.Ads{
         public void loadInterstitial(object _adsType, float _time){
             if(adsData[_adsType].Data == null)
             {
-                 UnityEngine.Debug.Log("[admob] start loadInterstitial " + _adsType.ToString());
-
                 InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].PlatformId);
                 AdRequest _request = buildRequest();
 
@@ -110,9 +108,6 @@ namespace BicUtil.Ads{
                 object __adsType = _adsType;
                 _interstitial.OnAdFailedToLoad += (_sender, _args) =>
                 {
-
-                    UnityEngine.Debug.Log("[admob] Interstitial OnAdFailedToLoad " + _adsType.ToString() + "/" + _args.Message);
-
                     _interstitial.Destroy();
                     adsData[_adsType].Data = null;
 
@@ -123,10 +118,6 @@ namespace BicUtil.Ads{
                             loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
                         });
                     });
-                };
-
-                _interstitial.OnAdLoaded += (_sender, _args)=>{
-                    UnityEngine.Debug.Log("[admob] Interstitial onLoadedAds " + _adsType.ToString());
                 };
 
                 _interstitial.LoadAd(_request);
@@ -149,7 +140,6 @@ namespace BicUtil.Ads{
 
         public void loadRewardBased(string _adsId, float _time){
             if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
-                UnityEngine.Debug.Log("[admob] start loadRewardBased " + _adsId);
                 RewardedAd _rewardedAd = new RewardedAd(_adsId);
                 AdRequest _request = buildRequest();
                 
@@ -157,20 +147,12 @@ namespace BicUtil.Ads{
                 string __adsId = _adsId;
 
                 _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
-
-                    UnityEngine.Debug.Log("[admob] Rewarded OnAdFailedToLoad " + _adsId.ToString()+ "/" + _args.Message);
-
                     rewardedAdLoader[_adsId] = null;
                     BicTween.RunOnMainThread(()=>{
                         BicTween.Delay(__time).SubscribeComplete(()=>{
                             loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
                         });
                     });
-                };
-
-
-                _rewardedAd.OnAdLoaded += (_sender, _args)=>{
-                    UnityEngine.Debug.Log("[admob] Rewarded onLoadedAds " + _adsId.ToString());
                 };
 
                 _rewardedAd.LoadAd(_request);
