@@ -129,6 +129,25 @@ namespace BicUtil.Tween
 
 		}
 
+		static public TweenModel Counting(UnityEngine.UI.Text _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null, 
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			int _repeatCount = (int)(_time / _intervalTime);
+			float _dt = (_to - _from)/(float)_repeatCount;
+
+			_text.text = _from.ToString();
+			var _result = Interval(_intervalTime, _repeatCount, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeRepeat((_tween, _count)=>{
+				_text.text = ((int)(_from + _dt * _count)).ToString();
+			}).SubscribeComplete(()=>{
+				_text.text = _to.ToString();
+			});
+
+
+			return _result;
+
+		}
+
 
 
 		////////////////////////////////////////////////
