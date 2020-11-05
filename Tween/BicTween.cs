@@ -693,7 +693,7 @@ namespace BicUtil.Tween
             }).SetTargetObject(_uigraphic.gameObject);
 		}
 
-		public static TweenModel Rainbow(SpriteRenderer _sprite, float _time, TweenPool _pool, 
+		public static TweenModel Rainbow(SpriteRenderer _sprite, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -710,6 +710,27 @@ namespace BicUtil.Tween
                     _sprite.color = new Color(0f, 1f, 5f - _value.x);
                 }else{
                     _sprite.color = new Color(_value.x - 5f, 1f, 0f);
+                }
+            });
+		}
+
+		public static TweenModel Rainbow(UnityEngine.UI.Outline _outline, float _time, TweenPool _pool = null, 
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			return BicTween.Value(0f, 6f, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
+                if(_value.x < 1){
+                    _outline.effectColor = new Color(1f, 1f - _value.x, 0f);
+                }else if(_value.x < 2){
+                    _outline.effectColor = new Color(1f, 0f, _value.x - 1f);
+                }else if(_value.x < 3){
+                    _outline.effectColor = new Color(3f - _value.x, 0f, 1f);
+                }else if(_value.x < 4){
+                    _outline.effectColor = new Color(0f, _value.x - 3f, 1f);
+                }else if(_value.x < 5){
+                    _outline.effectColor = new Color(0f, 1f, 5f - _value.x);
+                }else{
+                    _outline.effectColor = new Color(_value.x - 5f, 1f, 0f);
                 }
             });
 		}
