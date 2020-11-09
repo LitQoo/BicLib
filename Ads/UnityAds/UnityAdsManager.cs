@@ -8,6 +8,11 @@ using UnityEngine.Advertisements;
 namespace BicUtil.Ads{
     public class UnityAdsManager : IAdsPlatform
     {
+        public string TermsURL => "https://unity3d.com/legal/privacy-policy";
+        public void SetUserConsent(bool _isEnabled){
+
+        }
+
         #region InstantData
         Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
