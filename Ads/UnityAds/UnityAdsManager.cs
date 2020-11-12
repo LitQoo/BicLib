@@ -59,6 +59,16 @@ namespace BicUtil.Ads{
             #endif
         }
 
+        static public void SetupPlatform(string _iosID, string _androidID){
+            #if UNITY_IOS
+            Advertisement.Initialize(_iosID, false);
+            #endif
+
+            #if UNITY_ANDROID
+            Advertisement.Initialize(_androidID, false);
+            #endif
+        }
+
         public void SetAdsSettingAndroidOnly(string _unityAdsId, object _adsPlacement)
         {
             #if UNITY_ANDROID
