@@ -25,6 +25,7 @@ namespace BicUtil.Ads
         #region Event
         private Action<object, AdsType, AdsResult> OnAfterPlayedAdsCallback;
         private Action<object, AdsType> OnBeforePlayAdsCallback;
+        private Action<object, AdsType, string> OnNotReadyAdsCallback;
         
         public void SubscribeAfterPlayedAds(Action<object, AdsType, AdsResult> _callback){
             OnAfterPlayedAdsCallback += _callback;
@@ -32,6 +33,10 @@ namespace BicUtil.Ads
 
         public void SubscribeBeforePlayAds(Action<object, AdsType> _callback){
             OnBeforePlayAdsCallback += _callback;
+        }
+
+        public void SubscribeNotReadyAds(Action<object, AdsType, string> _callback){
+            OnNotReadyAdsCallback += _callback;
         }
 
         private Dictionary<object, Func<bool>> isReadyInterstitialFunc = new Dictionary<object, Func<bool>>();
@@ -103,11 +108,17 @@ namespace BicUtil.Ads
         {
             if(isReadyInterstitialFunc.ContainsKey(_adsPlacement) == true){
                 if(isReadyInterstitialFunc[_adsPlacement]() == false){
+                    if(OnNotReadyAdsCallback != null){
+                        OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "Custom");
+                    }
                     return false;
                 }
             }
 
             if(isPossiblePlayAds(_adsPlacement) == false){
+                if(OnNotReadyAdsCallback != null){
+                    OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "Time");
+                }
                 return false;
             }
 
@@ -119,6 +130,10 @@ namespace BicUtil.Ads
                 }
             }
 
+            if(OnNotReadyAdsCallback != null){
+                OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "NoFill");
+            }
+
             return false;
         }
 
@@ -126,6 +141,9 @@ namespace BicUtil.Ads
         public bool IsReadyRewardBased(object _adsPlacement)
         {
             if(isPossiblePlayAds(_adsPlacement) == false){
+                if(OnNotReadyAdsCallback != null){
+                    OnNotReadyAdsCallback(_adsPlacement, AdsType.RewardBase, "Time");
+                }
                 return false;
             }
 
@@ -134,6 +152,10 @@ namespace BicUtil.Ads
                     selectedRewardBasedPlatform = i;
                     return true;
                 }
+            }
+
+            if(OnNotReadyAdsCallback != null){
+                OnNotReadyAdsCallback(_adsPlacement, AdsType.RewardBase, "NoFill");
             }
 
             return false;

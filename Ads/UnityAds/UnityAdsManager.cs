@@ -8,6 +8,11 @@ using UnityEngine.Advertisements;
 namespace BicUtil.Ads{
     public class UnityAdsManager : IAdsPlatform
     {
+        public string TermsURL => "https://unity3d.com/legal/privacy-policy";
+        public void SetUserConsent(bool _isEnabled){
+
+        }
+
         #region InstantData
         Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
@@ -51,6 +56,16 @@ namespace BicUtil.Ads{
         public void SetPlatformAndroid(string _id){
             #if UNITY_ANDROID
             Advertisement.Initialize(_id, false);
+            #endif
+        }
+
+        static public void SetupPlatform(string _iosID, string _androidID){
+            #if UNITY_IOS
+            Advertisement.Initialize(_iosID, false);
+            #endif
+
+            #if UNITY_ANDROID
+            Advertisement.Initialize(_androidID, false);
             #endif
         }
 

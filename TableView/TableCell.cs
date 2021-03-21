@@ -31,8 +31,10 @@ namespace BicUtil.TableView
 				removeBindCell();
 
 				model = value;
-				model.OnChangedValueActions += callToSetDataFunction;
-				model.NotifyChanged();
+				if(model != null){
+					model.OnChangedValueActions += callToSetDataFunction;
+					model.NotifyChanged();
+				}
 			}
 
 			get{ 

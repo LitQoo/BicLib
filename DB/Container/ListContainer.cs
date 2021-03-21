@@ -117,7 +117,10 @@ namespace BicDB.Container
 		public void Insert(int _index, T _item)
 		{
 			data.Insert(_index, _item);
-			onAddedValueActions(_item);
+
+			if(onAddedValueActions != null){
+				onAddedValueActions(_item);
+			}
 		}
 
 		public void RemoveAt(int _index)

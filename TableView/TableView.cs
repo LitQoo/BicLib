@@ -619,6 +619,10 @@ namespace BicUtil.TableView
 		}
 
         public Action<int> OnMargnetControl = null;
+
+        public void EnableScroll(bool _isEnable){
+            this.m_scrollRect.enabled = _isEnable;
+        }
 		#endregion
         
         private Range CalculateCurrentVisibleRowRange()

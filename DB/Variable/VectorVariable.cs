@@ -61,7 +61,7 @@ namespace BicDB.Variable
 
 		public string AsString { 
 			get{
-				return string.Format("{0},{1}", this.X, this.Y);
+				return string.Format("{0},{1}", this.X.AsString, this.Y.AsString);
 			} 
 
 			set {
