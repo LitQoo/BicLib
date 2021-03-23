@@ -132,10 +132,10 @@ namespace BicDB.Storage
 			var _result = new Result ((int)ResultCode.Success);
 			int _counter = 0;
 
-			if (www.error != null || www.isNetworkError || www.isHttpError)
+			if (www.error != null || www.result != UnityWebRequest.Result.Success)
 			{
 				_result.Code = (int)ResultCode.ErrorNetwork;
-				_result.Message = www.error;
+				_result.Message = www.result.ToString();
 			}
 			else
 			{

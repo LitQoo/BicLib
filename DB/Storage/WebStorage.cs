@@ -211,7 +211,7 @@ namespace BicDB.Storage
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 				
-				if(_result.isHttpError == true || _result.isNetworkError == true){
+				if(_result.result != UnityWebRequest.Result.Success){
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
 					}
@@ -305,7 +305,7 @@ namespace BicDB.Storage
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 
-				if(_result.isHttpError == true || _result.isNetworkError == true){
+				if(_result.result != UnityWebRequest.Result.Success){
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
 					}
@@ -409,7 +409,7 @@ namespace BicDB.Storage
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 
-				if(_result.isHttpError == true || _result.isNetworkError == true){
+				if(_result.result != UnityWebRequest.Result.Success){
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
 					}
