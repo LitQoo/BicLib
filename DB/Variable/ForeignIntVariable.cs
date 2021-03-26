@@ -57,7 +57,7 @@ namespace BicDB.Variable
             get{
                 if(record == null){
                     cached();
-                }else if(targetField != null && data != targetField.AsInt){
+                }else if(targetTable !=null && targetField != null && data != targetField.AsInt){
                     cached();
                 }
 
@@ -77,6 +77,10 @@ namespace BicDB.Variable
             }else{
                 targetField = null;
             }
+        }
+
+        public void SetRecrod(T _record){
+            this.record = _record;
         }
         #endregion
     }
