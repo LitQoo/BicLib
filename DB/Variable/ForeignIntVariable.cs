@@ -81,6 +81,7 @@ namespace BicDB.Variable
 
         public void SetRecrod(T _record){
             this.record = _record;
+            this.targetTable = null;
         }
         #endregion
     }
