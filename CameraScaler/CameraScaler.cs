@@ -192,6 +192,11 @@ namespace BicUtil.CameraScaler
 		public void UnsubscribeChangedScreenSize(Action _action){
 			this.onChangedScreenSize -= _action;
 		}
+
+		public void SetReferenceResolution(Vector2 _size){
+			this.referenceResolution = _size;
+			init(true);
+		}
 	}
 
 	public enum VerticalAlign
