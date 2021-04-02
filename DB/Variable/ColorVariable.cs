@@ -8,13 +8,26 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover, IDataBase, IVariable
+	public interface IColorVariableReadOnly{
+		void Subscribe(Action<IColorVariableReadOnly> _callback, bool _needFirstCall = false);
+		void Unsubscribe(Action<IColorVariableReadOnly> _callback);
+
+		float R {get;}
+		float G {get;}
+		float B {get;}
+		float A {get;}
+		float RGBAverage{get;}
+		Color AsColor{get;}
+		string AsString{get;}
+	}
+
+	public class ColorVariable : DictionaryContainer<FloatVariable>, IBindRmover, IDataBase, IVariable, IColorVariableReadOnly
 	{
 		#region Event
-		private event Action<ColorVariable> onChangedValueActions = delegate{};
+		private event Action<IColorVariableReadOnly> onChangedValueActions = delegate{};
 
 		[Obsolete("use Subscribe")]
-		public event Action<ColorVariable> OnChangedValueActions{
+		public event Action<IColorVariableReadOnly> OnChangedValueActions{
 			add{
 				onChangedValueActions += value;
 			}
@@ -37,14 +50,14 @@ namespace BicDB.Variable
             }
         }
 
-        public void Subscribe(Action<ColorVariable> _callback, bool _needFirstCall = false){
+        public void Subscribe(Action<IColorVariableReadOnly> _callback, bool _needFirstCall = false){
 			onChangedValueActions += _callback;
 			if(_needFirstCall == true){
-				_callback(this as ColorVariable);
+				_callback(this as IColorVariableReadOnly);
 			}
 		}
 
-		public void Unsubscribe(Action<ColorVariable> _callback){
+		public void Unsubscribe(Action<IColorVariableReadOnly> _callback){
 			onChangedValueActions -= _callback;
 		}
 
@@ -156,7 +169,7 @@ namespace BicDB.Variable
         #region Logic
         public void NotifyChanged(){
 			if (onChangedValueActions != null) {
-				onChangedValueActions (this);
+				onChangedValueActions (this as IColorVariableReadOnly);
 			}
 		}
 

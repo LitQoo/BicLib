@@ -56,7 +56,7 @@ namespace BicUtil.MVCSystem
 			}
 		}
 
-		public void BindModelToController (ColorVariable _variable, Action<ColorVariable> _func, bool _needFirstCall = false){
+		public void BindModelToController (ColorVariable _variable, Action<IColorVariableReadOnly> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.Unsubscribe(_func);
 			});
