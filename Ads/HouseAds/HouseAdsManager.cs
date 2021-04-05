@@ -54,7 +54,10 @@ namespace BicUtil.Ads
 		#endregion
 
 		private float reloadInterval = 2f;
-		private void loadByServer(){
+
+        public string TermsURL => throw new NotImplementedException();
+
+        private void loadByServer(){
 			HouseAdsTable.Load (onLoadedData, new SyncStorageParameter(SyncStorageParameter.SyncMode.All, SyncStorageParameter.SyncTarget.All));
 		}
 
@@ -252,6 +255,11 @@ namespace BicUtil.Ads
         {
 			var _id = adsData[_adsPlacement].PlatformId;
             return HouseAdsManager.Instance.HouseAdsTable.Where(_row => _row.IsLoaded() && (_row.AdsId.AsString == "" || _row.AdsId.AsString.Contains(_id) == true)).ToList();
+        }
+
+        public void SetUserConsent(bool _isEnabled)
+        {
+            throw new NotImplementedException();
         }
     }
 }
