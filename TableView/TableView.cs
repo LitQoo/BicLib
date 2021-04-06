@@ -177,6 +177,10 @@ namespace BicUtil.TableView
 
             RecalculateVisibleRowsFromScratch();
             m_requiresReload = false;
+
+            if(onReloadData != null){
+                onReloadData();
+            }
             // scrollDistance = 1;
             // scrollDistance = 0; 
 
@@ -846,8 +850,16 @@ namespace BicUtil.TableView
 
         #endregion
 
+        #region Event
+        private Action onReloadData = null;
+        public void SubscribeReloadData(Action _callback){
+            onReloadData += _callback;
+        }
 
-        
+        public void UnsubscribeReloadData(Action _callback){
+            onReloadData -= _callback;
+        }
+        #endregion
     }
 
     internal static class RangeExtensions
