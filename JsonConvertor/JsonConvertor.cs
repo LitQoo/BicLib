@@ -304,6 +304,7 @@ namespace BicUtil.Json
                 }
 
                 addRowToTable(_table, _model);
+				_model.NotifyChanged();
 				
             }
         }

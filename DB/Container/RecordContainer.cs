@@ -66,6 +66,8 @@ namespace BicDB.Container
 
 		public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser){
 			_parser.BuildModelContainer(this, ref _json, ref _counter);
+
+			this.NotifyChanged();
 		}
 
 		public void BuildFormattedString(System.Text.StringBuilder _stringBuilder, IStringFormatter _formatter){
