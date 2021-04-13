@@ -4,7 +4,6 @@ using System.Collections;
 using System;
 using BicDB.Container;
 using BicDB.Variable;
-using System.Runtime.CompilerServices;
 using BicUtil.Json;
 using UnityEngine.Networking;
 using System.Collections.Generic;
@@ -264,6 +263,61 @@ namespace BicDB.Storage
 					return;
 				}
 			});
+		}
+
+		public static async Task<Result> SendRecordAsync<T>(string _url, T _record, Dictionary<string, string> _param) where T : IRecordContainer, new (){
+			bool _isEncrypt = true;
+			
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("data", _record);
+
+			if(_param != null){
+				foreach(var _value in _param){
+					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+				}
+			}
+
+			var _form = new WWWForm();
+			var _formDataString = _formData.ToString();
+
+			if(_isEncrypt == true){
+				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+			}
+			
+			_form.AddField("data", _formDataString);
+
+			var _request = UnityWebRequest.Post(_url, _form);
+
+			await _request.SendWebRequest();
+
+			if(_request.result == UnityWebRequest.Result.Success){
+				string _json = _request.downloadHandler.text;
+				
+				try{
+					if(_isEncrypt == true){
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}
+				}catch{
+					return new Result((int)ResultCode.Crypto);
+				}
+
+				Debug.Log("_json : " + _json);
+
+				var _resultRecord = new RecordContainer();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+
+				if(_resultRecord.ParseJson(_json) == true){
+					if(_resultRecord["result"].AsVariable.AsInt == 0){
+						return new Result((int)ResultCode.Success);
+					}else{
+						return new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString());
+					}
+				}else{
+					return new Result((int)ResultCode.FailedConvertJson);
+				}
+			}else{
+				return new Result((int)ResultCode.ErrorNetwork);
+			}
 		}
 
 		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
