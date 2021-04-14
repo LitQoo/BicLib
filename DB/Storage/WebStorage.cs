@@ -79,9 +79,8 @@ namespace BicDB.Storage
 
 		public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
 		{
-			throw new NotImplementedException();
-			// _table.Clear();
-			//  this.PullAsync(_table, _callback, _parameter);
+			_table.Clear();
+			return this.PullAsync(_table, _parameter);
 		}
 
 		public void Pull<T>(ITableContainer<T> _targetTable, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
@@ -155,6 +154,76 @@ namespace BicDB.Storage
 					_loadCallback (_storageResult);
 				}
 			});
+		}
+
+		public async Task<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
+			var _table = _targetTable;
+
+			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
+				throw new SystemException ("not found Header " + LOAD_URL_KEY);
+			}
+
+			if (!_table.Header.ContainsKey (ENCRYPT)) {
+				throw new SystemException ("not found Header " + ENCRYPT);
+			}
+
+			var _webParam = _parameter as WebStorageParameter;
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
+
+			if(_webParam != null && _webParam.Param != null){
+				foreach(var _value in _webParam.Param){
+					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+				}
+			}
+
+			var _form = new WWWForm();
+			var _formDataString = _formData.ToString();
+			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+			}
+			_form.AddField("data", _formDataString);
+
+			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
+			
+			await _request.SendWebRequest();
+			
+			var _result = _request;
+
+			var _storageResult = new Result ((int)ResultCode.Success);
+			string _json = _result.downloadHandler.text;
+
+
+			int _counter = 0;
+			if (string.IsNullOrEmpty(_result.error) == false)
+			{
+				_storageResult.Code = (int)ResultCode.ErrorNetwork;
+				_storageResult.Message = _result.error;
+			}
+			else
+			{
+				try{
+					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}
+				}catch{
+					_storageResult.Code = (int)ResultCode.Crypto;	
+					return _storageResult;					
+				}
+
+				if(_webParam != null && _webParam.RequestConvertor != null){
+					_json = _webParam.RequestConvertor(_json);
+				}
+
+				try {
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
+				} catch (Exception) {
+					_storageResult.Code = (int)ResultCode.FailedConvertJson;
+					_storageResult.Message = ResultCode.FailedConvertJson.ToString ();
+				}
+			}
+
+			return _storageResult;
 		}
 
 		private IEnumerator sendWebRequestCoroutine(UnityWebRequest _request, Action<UnityWebRequest> _callback){
@@ -266,12 +335,13 @@ namespace BicDB.Storage
 		}
 
 		public static async Task<T> GetRecordAsync<T>(string _url) where T : class, IRecordContainer, new (){
-			bool _isEncrypt = false;
+			bool _isEncrypt = true;
 			var _request = UnityWebRequest.Get(_url);
 			await _request.SendWebRequest();
 
 			if(_request.result == UnityWebRequest.Result.Success){
 				string _json = _request.downloadHandler.text;
+
 
 				try{
 					if(_isEncrypt == true){
@@ -280,8 +350,6 @@ namespace BicDB.Storage
 				}catch{
 					return null;
 				}
-
-				Debug.Log("_json : " + _json);
 
 				var _resultRecord = new T();
 				_resultRecord.AddManagedColumn("result", new IntVariable());
