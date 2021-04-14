@@ -265,6 +265,37 @@ namespace BicDB.Storage
 			});
 		}
 
+		public static async Task<T> GetRecordAsync<T>(string _url) where T : class, IRecordContainer, new (){
+			bool _isEncrypt = false;
+			var _request = UnityWebRequest.Get(_url);
+			await _request.SendWebRequest();
+
+			if(_request.result == UnityWebRequest.Result.Success){
+				string _json = _request.downloadHandler.text;
+
+				try{
+					if(_isEncrypt == true){
+						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					}
+				}catch{
+					return null;
+				}
+
+				Debug.Log("_json : " + _json);
+
+				var _resultRecord = new T();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+
+				if(_resultRecord.ParseJson(_json) == true){
+					return _resultRecord;
+				}else{
+					return null;
+				}
+			}else{
+				return null;
+			}
+		}
+
 		public static async Task<Result> SendRecordAsync<T>(string _url, T _record, Dictionary<string, string> _param) where T : IRecordContainer, new (){
 			bool _isEncrypt = true;
 			
