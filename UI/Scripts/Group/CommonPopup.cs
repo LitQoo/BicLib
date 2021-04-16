@@ -139,6 +139,12 @@ namespace BicUtil.UI{
             onClickLeftButton = _onClickLeftButton;
         }
 
+        public void Dimmed(string _text){
+            diableAllUI();
+            mainMessageText.gameObject.SetActive(true);
+            mainMessageText.text = _text;
+        }
+
         public void Select(string _text, string _leftButtonText, string _rightButtonText, Action _onClickLeftButton, Action _onClickRightButton){
             diableAllUI();
             mainMessageText.gameObject.SetActive(true);
