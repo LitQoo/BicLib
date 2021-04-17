@@ -27,7 +27,7 @@ namespace BicUtil.TableView
 		[SerializeField]
 		public LayoutElement LayoutElement;
 
-		[HideInInspector]
+		[SerializeField]
 		public List<TableCell> Cells = new List<TableCell>();
         [SerializeField]
 		public string ReuseIdentifier = "tableRow";
