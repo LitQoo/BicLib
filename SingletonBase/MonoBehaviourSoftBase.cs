@@ -36,6 +36,11 @@ namespace BicUtil.SingletonBase
 	{
 		private static T instance = null;
 		private static bool isInit = false;
+		
+		public static bool IsInit{
+			get=>isInit;
+		}
+		
 		public static T Instance{
 			get{
 				if(instance == null && isInit == false){
