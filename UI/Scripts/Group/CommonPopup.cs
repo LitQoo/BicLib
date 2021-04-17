@@ -165,7 +165,7 @@ namespace BicUtil.UI{
             header.gameObject.SetActive(true);
             mainMessageText.gameObject.SetActive(true);
             leftButton.gameObject.SetActive(true);
-            closeButton.gameObject.SetActive(true);
+            closeButton.gameObject.SetActive(_onClickClose != null);
             inputField.gameObject.SetActive(true);
             leftButtonText.gameObject.SetActive(true);
             mainMessageText.text = _text;
