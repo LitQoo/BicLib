@@ -342,7 +342,6 @@ namespace BicDB.Storage
 			if(_request.result == UnityWebRequest.Result.Success){
 				string _json = _request.downloadHandler.text;
 
-
 				try{
 					if(_isEncrypt == true){
 						_json = BicUtil.Crypto.AES256.Decrypt(_json);
@@ -397,7 +396,7 @@ namespace BicDB.Storage
 						_json = BicUtil.Crypto.AES256.Decrypt(_json);
 					}
 				}catch{
-					return new Result((int)ResultCode.Crypto);
+					return new Result((int)ResultCode.Crypto, "", 0, "Crypto error");
 				}
 
 				Debug.Log("_json : " + _json);
@@ -412,10 +411,10 @@ namespace BicDB.Storage
 						return new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString());
 					}
 				}else{
-					return new Result((int)ResultCode.FailedConvertJson);
+					return new Result((int)ResultCode.FailedConvertJson, "", 0, "FailedConvertJson error");
 				}
 			}else{
-				return new Result((int)ResultCode.ErrorNetwork);
+				return new Result((int)ResultCode.ErrorNetwork, "", 0, "ErrorNetwork error");
 			}
 		}
 
