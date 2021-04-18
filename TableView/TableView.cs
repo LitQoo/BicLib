@@ -859,6 +859,21 @@ namespace BicUtil.TableView
         public void UnsubscribeReloadData(Action _callback){
             onReloadData -= _callback;
         }
+
+        private Action onDestoryCallback = null;
+        private void OnDestroy() {
+            if(onDestoryCallback != null){
+                onDestoryCallback();
+            }
+        }
+
+        public void SubscribeDestory(Action _callback){
+            onDestoryCallback += _callback;
+        }
+
+        public void UnsubscribeDestory(Action _callback){
+            onDestoryCallback -= _callback;
+        }
         #endregion
     }
 

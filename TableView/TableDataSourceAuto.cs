@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace BicUtil.TableView
 {
-    internal class TableDataSourceAuto<T> : ITableViewDataSource  where T : IRecordContainer, new(){
-        private Func<TableView, IList<T>, int, float> getRowHeightFunc = null;
-		private IList<T> table;
-		private TableView tableView;
+    public class TableDataSourceAuto<T> : ITableViewDataSource  where T : IRecordContainer, new(){
+        protected Func<TableView, IList<T>, int, float> getRowHeightFunc = null;
+		protected IList<T> table;
+		protected TableView tableView;
 
         public TableDataSourceAuto(TableView _tableView, IList<T> _table, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null){
             table = _table;

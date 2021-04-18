@@ -24,7 +24,7 @@ namespace BicUtil.MVCSystem
 		#endregion
 
 		#region Model -> Controller Binding
-		public void BindModelToController (IVariable _variable, Action<IVariableReadOnly> _func, bool _needFirstCall = false){
+		public void BindModelToController (IVariableReadOnly _variable, Action<IVariableReadOnly> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.Unsubscribe(_func);
 			});
