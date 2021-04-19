@@ -83,146 +83,153 @@ namespace BicDB.Storage
 			return this.PullAsync(_table, _parameter);
 		}
 
-		public void Pull<T>(ITableContainer<T> _targetTable, Action<Result> _callback, object _parameter) where T : IRecordContainer, new (){
-			var _loadCallback = _callback;
-			var _table = _targetTable;
-
-			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
-				throw new SystemException ("not found Header " + LOAD_URL_KEY);
-			}
-
-			if (!_table.Header.ContainsKey (ENCRYPT)) {
-				throw new SystemException ("not found Header " + ENCRYPT);
-			}
-
+		public void Pull<T>(ITableContainer<T> _targetTable, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
+        {
+            var _loadCallback = _callback;
+            var _table = _targetTable;
 			var _webParam = _parameter as WebStorageParameter;
-			var _formData = new RecordContainer();
+			
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
+			}
+
+			if(string.IsNullOrEmpty(_webParam.Url) == true){
+				assertByTableHeader(_table, new string[]{LOAD_URL_KEY, ENCRYPT});
+				_webParam.Url = _table.Header[LOAD_URL_KEY].AsVariable.AsString;
+				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
+			}
+			
+            
+            var _formData = new RecordContainer();
 			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
+			WWWForm _form = createForm(_webParam, _formData);
+            var _request = UnityWebRequest.Post(_webParam.Url, _form);
 
-			if(_webParam != null && _webParam.Param != null){
-				foreach(var _value in _webParam.Param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+            this.SendWebRequest(_request, _result =>
+            {
+                var _storageResult = buildTable(_result, _table, _webParam);
+
+                if (_loadCallback != null)
+                {
+                    _loadCallback(_storageResult);
+                }
+            });
+        }
+
+        private static void assertByTableHeader<T>(ITableContainer<T> _table, string[] _checkList) where T : IRecordContainer, new()
+        {
+			foreach(var _key in _checkList){
+				if (!_table.Header.ContainsKey(_key))
+				{
+					throw new SystemException("not found Header " + _key);
 				}
 			}
+        }
 
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-			_form.AddField("data", _formDataString);
+		private static (Result, string) buildJson(UnityWebRequest _result, WebStorageParameter _webParam)
+		{
+			var _storageResult = new Result((int)ResultCode.Success);
+			var _json = _result.downloadHandler.text; 
 
-			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
-			this.SendWebRequest(_request, _result=>{
-				var _storageResult = new Result ((int)ResultCode.Success);
-				string _json = _result.downloadHandler.text;
-				
+            do
+            {
+                if (_result.result != UnityWebRequest.Result.Success)
+                {
+                    _storageResult.Code = (int)ResultCode.ErrorNetwork;
+                    _storageResult.Message = _result.error;
+                    break;
+                }
 
-				int _counter = 0;
-				if (string.IsNullOrEmpty(_result.error) == false)
-				{
-					_storageResult.Code = (int)ResultCode.ErrorNetwork;
-					_storageResult.Message = _result.error;
-				}
-				else
-				{
-					try{
-						if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-							_json = BicUtil.Crypto.AES256.Decrypt(_json);
-						}
-					}catch{
-						if(_loadCallback != null){
-							_storageResult.Code = (int)ResultCode.Crypto;
-							_loadCallback(_storageResult);
-						}
-						return;
-					}
+                try
+                {
+                    if (_webParam.ShouldEncrypt == true)
+                    {
+                        _json = BicUtil.Crypto.AES256.Decrypt(_json);
+                    }
+                }
+                catch
+                {
+                    _storageResult.Code = (int)ResultCode.Crypto;
+                    _storageResult.Message = "crypto error";
+                    break;
+                }
 
-					if(_webParam != null && _webParam.RequestConvertor != null){
-						_json = _webParam.RequestConvertor(_json);
-					}
+                if (_webParam != null && _webParam.RequestConvertor != null)
+                {
+                    _json = _webParam.RequestConvertor(_json);
+                }
 
-					try {
-						JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
-					} catch (Exception) {
-						_storageResult.Code = (int)ResultCode.FailedConvertJson;
-						_storageResult.Message = ResultCode.FailedConvertJson.ToString ();
-					}
-				}
+            } while (false);
 
-				if (_loadCallback != null) {
-					_loadCallback (_storageResult);
-				}
-			});
+            return (_storageResult, _json);
 		}
 
-		public async Task<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
-			var _table = _targetTable;
-
-			if (!_table.Header.ContainsKey (LOAD_URL_KEY)) {
-				throw new SystemException ("not found Header " + LOAD_URL_KEY);
-			}
-
-			if (!_table.Header.ContainsKey (ENCRYPT)) {
-				throw new SystemException ("not found Header " + ENCRYPT);
-			}
-
-			var _webParam = _parameter as WebStorageParameter;
-			var _formData = new RecordContainer();
-			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
-
-			if(_webParam != null && _webParam.Param != null){
-				foreach(var _value in _webParam.Param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+        private static Result buildTable<T>(UnityWebRequest _result, ITableContainer<T> _table, WebStorageParameter _webParam) where T : IRecordContainer, new()
+        {
+			(var _storageResult, var _json) = buildJson(_result, _webParam);
+			if(_storageResult.IsSuccess == true){
+				try
+				{
+					int _counter = 0;
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
+					_storageResult.Code = (int)ResultCode.Success;
+				}
+				catch (Exception)
+				{
+					_storageResult.Code = (int)ResultCode.FailedConvertJson;
+					_storageResult.Message = ResultCode.FailedConvertJson.ToString();
 				}
 			}
 
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-			_form.AddField("data", _formDataString);
+            return _storageResult;
+        }
 
-			var _request = UnityWebRequest.Post(_table.Header[LOAD_URL_KEY].AsVariable.AsString, _form);
+        private static WWWForm createForm(WebStorageParameter _webParam, RecordContainer _formData = null)
+        {
+			if(_formData == null){
+            	_formData = new RecordContainer();
+			}
+
+            if (_webParam != null && _webParam.Param != null)
+            {
+                foreach (var _value in _webParam.Param)
+                {
+                    _formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
+                }
+            }
+
+            var _form = new WWWForm();
+            var _formDataString = _formData.ToString();
+            if (_webParam.ShouldEncrypt == true)
+            {
+                _formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+            }
+            _form.AddField("data", _formDataString);
+            return _form;
+        }
+
+        public async Task<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
+			var _table = _targetTable;
+
+			var _webParam = _parameter as WebStorageParameter;
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
+			}
+
+			if(string.IsNullOrEmpty(_webParam.Url) == true){
+				assertByTableHeader(_table, new string[]{LOAD_URL_KEY, ENCRYPT});
+				_webParam.Url = _table.Header[LOAD_URL_KEY].AsVariable.AsString;
+				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
+			}
+
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
+			WWWForm _form = createForm(_webParam, _formData);
+			var _request = UnityWebRequest.Post(_webParam.Url, _form);
 			
 			await _request.SendWebRequest();
 			
-			var _result = _request;
-
-			var _storageResult = new Result ((int)ResultCode.Success);
-			string _json = _result.downloadHandler.text;
-
-
-			int _counter = 0;
-			if (string.IsNullOrEmpty(_result.error) == false)
-			{
-				_storageResult.Code = (int)ResultCode.ErrorNetwork;
-				_storageResult.Message = _result.error;
-			}
-			else
-			{
-				try{
-					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
-					}
-				}catch{
-					_storageResult.Code = (int)ResultCode.Crypto;	
-					return _storageResult;					
-				}
-
-				if(_webParam != null && _webParam.RequestConvertor != null){
-					_json = _webParam.RequestConvertor(_json);
-				}
-
-				try {
-					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _json, ref _counter);
-				} catch (Exception) {
-					_storageResult.Code = (int)ResultCode.FailedConvertJson;
-					_storageResult.Message = ResultCode.FailedConvertJson.ToString ();
-				}
-			}
-
+			var _storageResult = buildTable(_request, _table, _webParam);
 			return _storageResult;
 		}
 
@@ -239,111 +246,84 @@ namespace BicDB.Storage
 			SendRecord(_table, _record, null, _callback);
 		}
 
-		public void SendRecord<T>(ITableContainer<T> _targetTable, T _targetRecord, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+		public void SendRecord<T>(ITableContainer<T> _targetTable, T _targetRecord, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
 			var _record = _targetRecord;
-			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
-				throw new SystemException("Need to set PrimaryKey");
+			var _webParam = _param;
+
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
 			}
 
-			if (!_table.Header.ContainsKey (SEND_RECORD_URL)) {
-				throw new SystemException ("not found Header " + SEND_RECORD_URL);
-			}
-
-			if (!_table.Header.ContainsKey (ENCRYPT)) {
-				throw new SystemException ("not found Header " + ENCRYPT);
+			if(string.IsNullOrEmpty(_webParam.Url) == true){
+				assertByTableHeader(_table, new string[]{SEND_RECORD_URL, ENCRYPT, HeaderKey.PrimaryKey});
+				_webParam.Url = _table.Header[SEND_RECORD_URL].AsVariable.AsString;
+				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
+				_webParam.TargetKey = _table.PrimaryKey;
 			}
 
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
-			_formData.AddManagedColumn(_table.PrimaryKey, _record[_table.PrimaryKey].AsVariable);
-			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
-			
-			if(_param != null){
-				foreach(var _value in _param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
-				}
-			}
-
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-
-			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-			_form.AddField("data", _formDataString);
-
-
-			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORD_URL].AsVariable.AsString, _form);
+			_formData.AddManagedColumn(_webParam.TargetKey, _record[_webParam.TargetKey].AsVariable);
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_webParam.TargetKey));
+			var _form = createForm(_webParam, _formData);
+			var _request = UnityWebRequest.Post(_webParam.Url, _form);
 
 			WebStorage.Instance.SendWebRequest(_request, _result=>{
 				
-				if(_result.result != UnityWebRequest.Result.Success){
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
-					}
-					return;
-				}
+				(var _storageResult, var _json) = buildJson(_result, _webParam);
 
-				string _json = _result.downloadHandler.text;
-				try{
-					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
-					}
-				}catch{
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.Crypto));
-					}
+				if(_storageResult.IsSuccess == false){
+					_resultCallback(_storageResult);
 					return;
 				}
 
 				var _resultRecord = new RecordContainer();
 				_resultRecord.AddManagedColumn("result", new IntVariable());
-				_resultRecord.AddManagedColumn(_table.PrimaryKey, new StringVariable());
+				_resultRecord.AddManagedColumn(_webParam.TargetKey, new StringVariable());
 
-				if(_resultRecord.ParseJson(_json) == true){
-					if(_resultRecord["result"].AsVariable.AsInt == 0){
-						if(string.IsNullOrEmpty(_record[_table.PrimaryKey].AsVariable.AsString) == true){
-							_record[_table.PrimaryKey].AsVariable.AsString = _resultRecord[_table.PrimaryKey].AsVariable.AsString;
-						}
-						
-						_table.AddWithoutDuplication(_record);
-
-						if(_table.OnSave != null){
-							_table.OnSave(new Result((int)ResultCode.Success));
-						}
-
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.Success));
-						}
-
-						return;
-					}else{
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
-						}
-						return;
-					}
-				}else{
+				if(_resultRecord.ParseJson(_json) == false){
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
 					}
 					return;
 				}
+
+				if(_resultRecord["result"].AsVariable.AsInt != 0){
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
+					}
+					return;
+				}
+
+				if(string.IsNullOrEmpty(_record[_webParam.TargetKey].AsVariable.AsString) == true){
+					_record[_webParam.TargetKey].AsVariable.AsString = _resultRecord[_webParam.TargetKey].AsVariable.AsString;
+				}
+				
+				_table.AddWithoutDuplication(_record);
+
+				if(_table.OnSave != null){
+					_table.OnSave(new Result((int)ResultCode.Success));
+				}
+
+				if(_resultCallback != null){
+					_resultCallback(new Result((int)ResultCode.Success));
+				}
 			});
 		}
 
-		public static async Task<T> GetRecordAsync<T>(string _url) where T : class, IRecordContainer, new (){
-			bool _isEncrypt = true;
-			var _request = UnityWebRequest.Get(_url);
+		public static async Task<T> GetRecordAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
+			// bool _isEncrypt = true;
+			var _webParam = _param;
+			var _request = UnityWebRequest.Get(_webParam.Url);
 			await _request.SendWebRequest();
 
 			if(_request.result == UnityWebRequest.Result.Success){
 				string _json = _request.downloadHandler.text;
 
 				try{
-					if(_isEncrypt == true){
+					if(_webParam.ShouldEncrypt == true){
 						_json = BicUtil.Crypto.AES256.Decrypt(_json);
 					}
 				}catch{
@@ -354,6 +334,7 @@ namespace BicDB.Storage
 				_resultRecord.AddManagedColumn("result", new IntVariable());
 
 				if(_resultRecord.ParseJson(_json) == true){
+					_resultRecord.Remove("result");
 					return _resultRecord;
 				}else{
 					return null;
@@ -363,156 +344,105 @@ namespace BicDB.Storage
 			}
 		}
 
-		public static async Task<Result> SendRecordAsync<T>(string _url, T _record, Dictionary<string, string> _param) where T : IRecordContainer, new (){
-			bool _isEncrypt = true;
-			
+		public static async Task<Result> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
+			var _webParam = _param;
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
 
-			if(_param != null){
-				foreach(var _value in _param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
-				}
-			}
-
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-
-			if(_isEncrypt == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-			
-			_form.AddField("data", _formDataString);
-
-			var _request = UnityWebRequest.Post(_url, _form);
+			var _form = createForm(_webParam, _formData);
+			var _request = UnityWebRequest.Post(_webParam.Url, _form);
 
 			await _request.SendWebRequest();
 
-			if(_request.result == UnityWebRequest.Result.Success){
-				string _json = _request.downloadHandler.text;
-				
-				try{
-					if(_isEncrypt == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
-					}
-				}catch{
-					return new Result((int)ResultCode.Crypto, "", 0, "Crypto error");
-				}
+			(var _storageResult, var _json) = buildJson(_request, _webParam);
 
-				Debug.Log("_json : " + _json);
+			if(_storageResult.IsSuccess == false){
+				return _storageResult;
+			}
 
-				var _resultRecord = new RecordContainer();
-				_resultRecord.AddManagedColumn("result", new IntVariable());
+			Debug.Log("_json : " + _json);
 
-				if(_resultRecord.ParseJson(_json) == true){
-					if(_resultRecord["result"].AsVariable.AsInt == 0){
-						return new Result((int)ResultCode.Success);
-					}else{
-						return new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString());
-					}
-				}else{
-					return new Result((int)ResultCode.FailedConvertJson, "", 0, "FailedConvertJson error");
-				}
+			var _resultRecord = new RecordContainer();
+			_resultRecord.AddManagedColumn("result", new IntVariable());
+
+			if(_resultRecord.ParseJson(_json) == false){
+				return new Result((int)ResultCode.FailedConvertJson, "", 0, "FailedConvertJson error");
+			}
+
+			if(_resultRecord["result"].AsVariable.AsInt == 0){
+				return new Result((int)ResultCode.Success);
 			}else{
-				return new Result((int)ResultCode.ErrorNetwork, "", 0, "ErrorNetwork error");
+				return new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString());
 			}
 		}
 
-		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, Dictionary<string, string> _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
 			var _records = _targetRecords;
-			if(string.IsNullOrEmpty(_table.PrimaryKey) == true){
-				throw new SystemException("Need to set PrimaryKey");
+			var _webParam = _param;
+
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
 			}
 
-			if (!_table.Header.ContainsKey (SEND_RECORDS_URL)) {
-				throw new SystemException ("not found Header " + SEND_RECORDS_URL);
-			}
-
-			if (!_table.Header.ContainsKey (ENCRYPT)) {
-				throw new SystemException ("not found Header " + ENCRYPT);
+			if(string.IsNullOrEmpty(_webParam.Url) == true){
+				assertByTableHeader(_table, new string[]{SEND_RECORDS_URL, ENCRYPT, HeaderKey.PrimaryKey});
+				_webParam.Url = _table.Header[SEND_RECORDS_URL].AsVariable.AsString;
+				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
+				_webParam.TargetKey = _table.PrimaryKey;
 			}
 
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _records);
-			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
+			_formData.AddManagedColumn("primaryKey", new StringVariable(_webParam.TargetKey));
+			var _form = createForm(_webParam, _formData);
+			var _request = UnityWebRequest.Post(_webParam.Url, _form);
 
-			if(_param != null){
-				foreach(var _value in _param){
-					_formData.AddManagedColumn(_value.Key, new StringVariable(_value.Value));
-				}
-			}
+			this.SendWebRequest(_request, _result=>{
+				
+				(var _storageResult, var _json) = buildJson(_result, _webParam);
 
-			var _form = new WWWForm();
-			var _formDataString = _formData.ToString();
-
-			if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-				_formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
-			}
-			_form.AddField("data", _formDataString);
-
-
-			var _request = UnityWebRequest.Post(_table.Header[SEND_RECORDS_URL].AsVariable.AsString, _form);
-
-			WebStorage.Instance.SendWebRequest(_request, _result=>{
-
-				if(_result.result != UnityWebRequest.Result.Success){
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.ErrorNetwork, "", 0, _result.error));
-					}
+				if(_storageResult.IsSuccess == false){
+					_resultCallback(_storageResult);
 					return;
 				}
-
-				string _json = _result.downloadHandler.text;
-				try{
-					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
-					}
-				}catch{
-					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.Crypto));
-					}
-					return;
-				}
-
+				
 				var _resultRecord = new RecordContainer();
 				_resultRecord.AddManagedColumn("result", new IntVariable());
 				var _primaryKeys = new ListContainer<StringVariable>();
-				_resultRecord.AddManagedColumn(_table.PrimaryKey, _primaryKeys);
+				_resultRecord.AddManagedColumn(_webParam.TargetKey, _primaryKeys);
 
-				if(_resultRecord.ParseJson(_json) == true){
-					if(_resultRecord["result"].AsVariable.AsInt == 0){
-						
-						for(int i = 0; i < _records.Count; i++){
-							var _record = _records[i];
-							if(string.IsNullOrEmpty(_record[_table.PrimaryKey].AsVariable.AsString) == true){
-								_record[_table.PrimaryKey].AsVariable.AsString = _primaryKeys[i].AsString;
-							}
 
-							_table.AddWithoutDuplication(_record);
-						}
-
-						if(_table.OnSave != null){
-							_table.OnSave(new Result((int)ResultCode.Success));
-						}
-
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.Success));
-						}
-
-						return;
-					}else{
-						if(_resultCallback != null){
-							_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
-						}
-						return;
-					}
-				}else{
+				if(_resultRecord.ParseJson(_json) == false){
 					if(_resultCallback != null){
 						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
 					}
 					return;
+				}
+
+				if(_resultRecord["result"].AsVariable.AsInt != 0){
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString()));
+					}
+					return;
+				}
+				
+				for(int i = 0; i < _records.Count; i++){
+					var _record = _records[i];
+					if(string.IsNullOrEmpty(_record[_webParam.TargetKey].AsVariable.AsString) == true){
+						_record[_webParam.TargetKey].AsVariable.AsString = _primaryKeys[i].AsString;
+					}
+
+					_table.AddWithoutDuplication(_record);
+				}
+
+				if(_table.OnSave != null){
+					_table.OnSave(new Result((int)ResultCode.Success));
+				}
+
+				if(_resultCallback != null){
+					_resultCallback(new Result((int)ResultCode.Success));
 				}
 			});
 		}
@@ -623,11 +553,13 @@ namespace BicDB.Storage
     }
 
 	public class WebStorageParameter{
+		public string Url = string.Empty;
+		public bool ShouldEncrypt = false;
+		public string TargetKey = string.Empty;
 		public Func<string, string> RequestConvertor = null;
 		public Dictionary<string, string> Param = null;
-		public WebStorageParameter(Func<string, string> _requestConvertor, Dictionary<string, string> _param){
-			RequestConvertor = _requestConvertor;
-			Param = _param;
+
+		public WebStorageParameter(){
 		}
 	}
 }
