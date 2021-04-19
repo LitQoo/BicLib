@@ -171,6 +171,8 @@ namespace BicDB.Storage
             return Application.persistentDataPath + "/" + _fileName;
         }
 
+        static System.Object locker = new System.Object();
+
         static public void Write(string _data, string _fileName, string _key)
         {
 #if !WEB_BUILD
@@ -192,14 +194,16 @@ namespace BicDB.Storage
 
         public static void WriteFile(string _data, string _path)
         {
-            using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
-            {
-                using (System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file))
+            lock(locker){
+                using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
                 {
-                    _streamWriter.Write(_data);
-                    _streamWriter.Flush();
-                    _streamWriter.Close();
-                    _file.Close();
+                    using (System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file))
+                    {
+                        _streamWriter.Write(_data);
+                        _streamWriter.Flush();
+                        _streamWriter.Close();
+                        _file.Close();
+                    }
                 }
             }
         }
@@ -228,18 +232,45 @@ namespace BicDB.Storage
         static public string ReadFile(string _path){
             string _data = null;
 
-            if (System.IO.File.Exists(_path))
-            {
-                using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
-                    using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
-                        _data = _stream.ReadToEnd ();
-                        _stream.Close();
-                        _file.Close();
+            lock(locker){
+                if (System.IO.File.Exists(_path))
+                {
+                    using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
+                        using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
+                            _data = _stream.ReadToEnd ();
+                            _stream.Close();
+                            _file.Close();
+                        }
                     }
                 }
             }
 
             return _data;
+        }
+
+        static public (string headline, string data) ReadFileHeadLineAndData(string _path){
+            string _data = null;
+            string _head = null;
+
+            lock(locker){
+                try{
+                    if (System.IO.File.Exists(_path))
+                    {
+                        using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
+                            using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
+                                _head = _stream.ReadLine();
+                                _data = _stream.ReadToEnd ();
+                                _stream.Close();
+                                _file.Close();
+                            }
+                        }
+                    }
+                }catch{
+
+                }
+            }
+
+            return (_head, _data);
         }
 
         static public async Task<string> ReadAndDecryptAsync(string _path, string _key){
