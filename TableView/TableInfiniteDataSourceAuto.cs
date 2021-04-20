@@ -125,7 +125,13 @@ namespace BicUtil.TableView
                         }
                     }
 
-                    this.tableView.ReloadData();
+                    try{
+                        this.tableView.ReloadData();
+                    }catch{
+                        //씬전환, 프로그램 종료로 인해 null exception 이 생길수도 있음.
+                        Debug.LogWarning("TableInfiniteDataSourceAuto null exception");
+                    }
+
                     isLoading.AsBool = false;
                 }
             } 
