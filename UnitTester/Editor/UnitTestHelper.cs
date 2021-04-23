@@ -6,6 +6,7 @@ using System.Reflection;
 using System;
 using UnityEditor;
 
+#if UNIT_TEST
 public class UnitTester{
     [MenuItem("UnitTest/Test")]
     [UnitTest(IsPass = true)]
@@ -204,3 +205,4 @@ public class UnitTester{
         }
     }
 }
+#endif
