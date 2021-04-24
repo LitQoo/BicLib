@@ -26,7 +26,6 @@ namespace BicUtil.TableView
 
         public TableInfiniteDataSourceAuto(TableView _tableView, Func<int, IRecordContainer, Task<IList<T>>> _dataLoader, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) : base(_tableView, null, _getRowHeightFunc){
             tableView = _tableView;
-            tableView.DataSource = this;
             getRowHeightFunc = _getRowHeightFunc;
             dataLoader = _dataLoader;
             _tableView.onRowVisibilityChanged.AddListener(reloadData);
@@ -151,5 +150,16 @@ namespace BicUtil.TableView
                 this.table.Add(_item);
             }
         }	
+
+        public void ClearAllData(){
+            isLoadedAll.AsBool = false;
+            isLoading.AsBool = false;
+            isCancelLoad.AsBool = false;
+            if(table != null){
+                table.Clear();
+            }
+            
+            table = null;
+        }
     }
 }
