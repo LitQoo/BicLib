@@ -57,7 +57,11 @@ namespace BicUtil.UI{
             }
 
             UnityAction<int> action = new UnityAction<int>(this.OpenTab);
-            UnityEditor.Events.UnityEventTools.AddIntPersistentListener(_button.onClick, action, _index);
+            if(_button.onClick.GetPersistentEventCount() <= 0){
+                UnityEditor.Events.UnityEventTools.AddIntPersistentListener(_button.onClick, action, _index);
+            }else{
+                UnityEditor.Events.UnityEventTools.RegisterIntPersistentListener(_button.onClick, 0, action, _index);
+            }
         }
         #endif
 
