@@ -22,11 +22,11 @@ namespace BicUtil.TableView
         public IVariableReadOnly IsLoading{get=>this.isLoading;}
         public IVariableReadOnly IsLoadedAll{get=>this.isLoadedAll;}
 
-        private Func<int, IRecordContainer, Task<IList<T>>> dataLoader;
+        private Func<int, IRecordContainer, Task<(IList<T> List, bool IsEnd)>> dataLoader;
         
         #endregion
 
-        public TableInfiniteDataSourceAuto(TableView _tableView, Func<int, IRecordContainer, Task<IList<T>>> _dataLoader, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) : base(_tableView, null, _getRowHeightFunc){
+        public TableInfiniteDataSourceAuto(TableView _tableView, Func<int, IRecordContainer, Task<(IList<T> List, bool IsEnd)>> _dataLoader, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) : base(_tableView, null, _getRowHeightFunc){
             tableView = _tableView;
             getRowHeightFunc = _getRowHeightFunc;
             dataLoader = _dataLoader;
@@ -50,7 +50,8 @@ namespace BicUtil.TableView
 
             isLoading.AsBool = true;
             var _laodIndex = ++dataLoadCount;
-            table = await dataLoader(0, null);
+            bool _isEnd = false;
+            (table, _isEnd) = await dataLoader(0, null);
             isLoadedFirst = true;
 
             if(_laodIndex != dataLoadCount){
@@ -72,11 +73,10 @@ namespace BicUtil.TableView
                 return;
             }
             
-
-            isLoadedAll.AsBool = false;
             fistLoadErrorCount = 0;
             tableView.ReloadData();
             isLoading.AsBool = false;
+            isLoadedAll.AsBool = _isEnd;
         }
         
         public void SetRowCountForStartToLoad(int _count){
@@ -110,7 +110,7 @@ namespace BicUtil.TableView
                     isLoading.AsBool = true;
                 
                     var _laodIndex = ++dataLoadCount;
-                    var _list = await dataLoader(index, _lastData);
+                    (var _list, var _isEnd )= await dataLoader(index, _lastData);
                     if(_laodIndex != dataLoadCount){
                         return; 
                     }
@@ -149,6 +149,10 @@ namespace BicUtil.TableView
                     }
 
                     isLoading.AsBool = false;
+
+                    if(_isEnd == true){
+                        isLoadedAll.AsBool = true;
+                    }
                 }
             } 
         }
