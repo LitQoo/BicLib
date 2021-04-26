@@ -227,28 +227,26 @@ namespace BicDB.Storage
 			return _storageResult;
 		}
 
-		private async Task<string> getWebRequestWithCache(WebStorageParameter _param){
-			Debug.Log(_param.ToString());
-
+		private async Task<(CachingType CachingType, string Text)> getWebRequestWithCache(WebStorageParameter _param){
 			var _cached = getCache(_param);
-			if(string.IsNullOrEmpty(_cached) == false){
+			if(_cached.CachingType != CachingType.None){
 				return _cached;
 			}
 			
 			var _request = UnityWebRequest.Get(_param.Url);
 			await _request.SendWebRequest();
 
+			//TODO: request 실패시 기존캐시에서 얻어오는 문구 작성 혹은 지정된 리소스폴더에서 얻어오기
+
 			setCache(_param, _request.downloadHandler.text);
 
-			return _request.downloadHandler.text;
+			return (CachingType.None, _request.downloadHandler.text);
 		}
 
 		private async Task<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
-			Debug.Log(_param.ToString());
-
 			var _cached = getCache(_param);
-			if(string.IsNullOrEmpty(_cached) == false){
-				return _cached;
+			if(_cached.CachingType != CachingType.None){
+				return _cached.Result;
 			}
 
 			WWWForm _form = createForm(_param, _formData);
@@ -265,11 +263,10 @@ namespace BicDB.Storage
 		}
 
 		private void sendWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData, Action<string> _callback){
-			Debug.Log(_param.ToString());
 			
 			var _cached = getCache(_param);
-			if(string.IsNullOrEmpty(_cached) == false){
-				_callback(_cached);
+			if(_cached.CachingType != CachingType.None){
+				_callback(_cached.Result);
 				return;
 			}
 			
@@ -359,29 +356,34 @@ namespace BicDB.Storage
 		}
 
 		public async Task<T> GetRecordAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
+			var _result = await GetRecordWithCachingTypeAsync<T>(_param);
+			return _result.Result;
+		}
+
+		public async Task<(CachingType CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
 			var _webParam = _param as WebStorageParameter;
 			if(_webParam == null){
 				_webParam = new WebStorageParameter();
 			}
 		
-			var _json = await getWebRequestWithCache(_webParam);
+			var _result = await getWebRequestWithCache(_webParam);
 
 			try{
 				if(_webParam.ShouldEncrypt == true){
-					_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					_result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text);
 				}
 			}catch{
-				return null;
+				return (_result.CachingType, null);
 			}
 			
 			var _resultRecord = new T();
 			_resultRecord.AddManagedColumn("result", new IntVariable());
 
-			if(_resultRecord.ParseJson(_json) == true){
+			if(_resultRecord.ParseJson(_result.Text) == true){
 				_resultRecord.Remove("result");
-				return _resultRecord;
+				return (_result.CachingType, _resultRecord);
 			}else{
-				return null;
+				return (_result.CachingType, null);
 			}
 		}
 
@@ -397,8 +399,6 @@ namespace BicDB.Storage
 			if(_storageResult.IsSuccess == false){
 				return _storageResult;
 			}
-
-			Debug.Log("_json : " + _json);
 
 			var _resultRecord = new RecordContainer();
 			_resultRecord.AddManagedColumn("result", new IntVariable());
@@ -577,73 +577,83 @@ namespace BicDB.Storage
 	
 		private Dictionary<string, (long timestamp, string text)> memoryCache = new Dictionary<string, (long, string)>();
 		private bool isExistsDirectory = false;
-		public static bool DISABLE_CACHE = false;
+		public static CachingType ENABLE_CACHE_LEVEL = CachingType.None;
 		
-		private string getCache(WebStorageParameter _param){
-			if(DISABLE_CACHE == true){
-				Debug.Log("cache is disable");
-				return string.Empty;
+		private (CachingType CachingType, string Result) getCache(WebStorageParameter _param){
+			if(ENABLE_CACHE_LEVEL == CachingType.None){
+				// Debug.Log("cache is disable");
+				return (CachingType.None, string.Empty);
 			}
 
 			if(_param.IsEnabledCache == false){
-				Debug.Log("cache is disable");
-				return string.Empty;
+				// Debug.Log("cache is disable");
+				return (CachingType.None, string.Empty);
 			}
 
 			//캐시타임 체크해서 지났으면 캐시로드하지 말고 그냥로드 캐시타임은 메모리, 파일 따로 조사해야할듯? 그럼 파일 json파싱을 해야하는데? -0-
 			lock(memoryCache){
 				if(memoryCache.ContainsKey(_param.CacheId) == true){
-					Debug.Log("memory caching");
+					// Debug.Log("memory caching");
 					//캐시타임체크
 					if(getTimestamp() - memoryCache[_param.CacheId].timestamp < _param.CacheTime){
-						Debug.Log("memory cache success");
-						return memoryCache[_param.CacheId].text;
+						// Debug.Log("memory cache success");
+						return (CachingType.Memory, memoryCache[_param.CacheId].text);
 					}else{
 						Debug.Log("cache timeout");
 					}
 				}
 			}
+
+			if(ENABLE_CACHE_LEVEL == CachingType.Memory){
+				// Debug.Log("cache is disable");
+				return (CachingType.None, string.Empty);
+			}
 			
 			if(_param.IsEnabledFileCache == true){
-				Debug.Log("file caching");
+				// Debug.Log("file caching");
 				//파일에서 읽어오고
 				(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId);
 				if(_data != null){
 
-					Debug.Log("file founded");
+					// Debug.Log("file founded");
 					//파싱, 캐시타임 체크
 					var _timestamp = long.Parse(_head);
 					//문제없으면 메모리캐시에 등록 후 리턴
 					if(getTimestamp() - _timestamp < _param.CacheTime){
-						Debug.Log("file cace done");
+						// Debug.Log("file cace done");
 						lock(memoryCache){
 							memoryCache[_param.CacheId] = (_timestamp, _data);
 						}
-						return _data;
+						return (CachingType.File, _data);
 					}else{
-						Debug.Log("file cache timeout");
+						// Debug.Log("file cache timeout");
 					}
 				}else{
-					Debug.Log("file cache not found");
+					// Debug.Log("file cache not found");
 				}
 			}
 			
 			
-			Debug.Log("cache not work");
-			return string.Empty;
+			// Debug.Log("cache not work");
+			return (CachingType.None, string.Empty);
 		}
 
 		private void setCache(WebStorageParameter _param, string _text){
-			if(DISABLE_CACHE == true){
-				Debug.Log("cache is disable");
+			if(ENABLE_CACHE_LEVEL == CachingType.None){
+				// Debug.Log("cache is disable");
 				return;
 			}
 
 			if(_param.IsEnabledCache == true){
-				Debug.Log("meorycache enable set-");
+				// Debug.Log("meorycache enable set-");
 				lock(memoryCache){
 					this.memoryCache[_param.CacheId] = (getTimestamp(), _text);
 				}
+			}
+
+			if(ENABLE_CACHE_LEVEL == CachingType.Memory){
+				// Debug.Log("cache is disable");
+				return;
 			}
 
 			if(_param.IsEnabledFileCache == true){
@@ -653,7 +663,7 @@ namespace BicDB.Storage
 		}
 
 		public void AddCacheToFile(string _id, string _data, bool _shouldEncrypt){
-			Debug.Log("write file cache");
+			// Debug.Log("write file cache");
 
 			if(isExistsDirectory == false && Directory.Exists(CACHE_DIRECTORY) == false){
 				System.IO.Directory.CreateDirectory(CACHE_DIRECTORY);
@@ -661,7 +671,7 @@ namespace BicDB.Storage
 			}
 
 			if(_shouldEncrypt == true){
-				Debug.Log("encrypt saving cache data");
+				// Debug.Log("encrypt saving cache data");
 				_data = BicUtil.Crypto.AES256.Encrypt(_data);
 			}
 
@@ -676,6 +686,11 @@ namespace BicDB.Storage
 
     }
 
+	public enum CachingType{
+		None,
+		Memory,
+		File
+	}
 	public class WebStorageParameter{
 		public string Url = string.Empty;
 		public bool ShouldEncrypt = false;

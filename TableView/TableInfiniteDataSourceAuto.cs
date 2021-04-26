@@ -16,6 +16,8 @@ namespace BicUtil.TableView
         private int rowCountForStartToLoad = 10;
         private string duplicationCheckFieldName = "";
         private int fistLoadErrorCount = 0;
+        private int dataLoadCount = 0;
+        private bool isLoadedFirst = false;
 
         public IVariableReadOnly IsLoading{get=>this.isLoading;}
         public IVariableReadOnly IsLoadedAll{get=>this.isLoadedAll;}
@@ -38,7 +40,7 @@ namespace BicUtil.TableView
         }
 
         public async Task LoadFirst(){
-            if(table != null && fistLoadErrorCount == 0){
+            if(isLoadedFirst == true && fistLoadErrorCount == 0){
                 return;
             }
 
@@ -47,7 +49,13 @@ namespace BicUtil.TableView
             }
 
             isLoading.AsBool = true;
+            var _laodIndex = ++dataLoadCount;
             table = await dataLoader(0, null);
+            isLoadedFirst = true;
+
+            if(_laodIndex != dataLoadCount){
+                return; 
+            }
 
             if(isCancelLoad.AsBool == true){
                 return;
@@ -63,6 +71,7 @@ namespace BicUtil.TableView
                 tableView.ReloadData();
                 return;
             }
+            
 
             isLoadedAll.AsBool = false;
             fistLoadErrorCount = 0;
@@ -99,18 +108,26 @@ namespace BicUtil.TableView
 
                     var _lastData = this.GetCellData(this.GetRowCount() - _offset, 0, 0);
                     isLoading.AsBool = true;
+                
+                    var _laodIndex = ++dataLoadCount;
                     var _list = await dataLoader(index, _lastData);
+                    if(_laodIndex != dataLoadCount){
+                        return; 
+                    }
 
                     if(isCancelLoad.AsBool == true){
+                        Debug.Log("_list is cancel");
                         return;
                     }
 
                     if(_list == null){
+                        Debug.Log("_list is null");
                         isLoading.AsBool = false;
                         return;
                     }
 
                     if(_list.Count == 0){
+                        Debug.Log("_list is count 0");
                         isLoading.AsBool = false;
                         isLoadedAll.AsBool = true;
                         return;
@@ -158,8 +175,7 @@ namespace BicUtil.TableView
             if(table != null){
                 table.Clear();
             }
-            
-            table = null;
+            isLoadedFirst = false;
         }
     }
 }
