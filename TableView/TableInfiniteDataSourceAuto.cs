@@ -106,7 +106,7 @@ namespace BicUtil.TableView
                         _offset++;
                     }
 
-                    var _lastData = this.GetCellData(this.GetRowCount() - _offset, 0, 0);
+                    var _lastData = this.table[this.table.Count - 1];
                     isLoading.AsBool = true;
                 
                     var _laodIndex = ++dataLoadCount;
