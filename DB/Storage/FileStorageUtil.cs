@@ -208,6 +208,54 @@ namespace BicDB.Storage
             }
         }
 
+
+        static public async Task WriteAsync(string _data, string _fileName, string _key)
+        {
+#if !WEB_BUILD
+
+            string _path = GetPath(_fileName);
+            if (_key != string.Empty)
+            {
+                _data = AESEncrypt256(_data, _key);
+            }
+
+            await WriteFileAsync(_data, _path);
+
+#else
+
+            throw new System.Exception ("webbuild do not save to file");
+
+#endif
+        }
+
+
+        public static async Task WriteFileAsync(string _data, string _path)
+        {
+            using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+            {
+                using (System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file))
+                {
+                    await _streamWriter.WriteAsync(_data);
+                    await _streamWriter.FlushAsync();
+                    _streamWriter.Close();
+                    _file.Close();
+                }
+            }
+        }
+
+        public static void WriteByte(byte[] _data, string _path)
+        {
+            using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
+            {
+                using (System.IO.BinaryWriter _writer = new System.IO.BinaryWriter(_file))
+                {
+                    _writer.Write(_data);
+                    _writer.Close();
+                    _file.Close();
+                }
+            }
+        }
+
         static public string ReadByTableName(string _tableName, string _key){
             return ReadAndDecrypt(GetPath(GetFileName(_tableName)), _key);
         }
@@ -321,7 +369,7 @@ namespace BicDB.Storage
             #endif 
         }
 
-        static private string AESDecrypt256(String Input, String key)
+        static public string AESDecrypt256(String Input, String key)
         {
             if (string.IsNullOrEmpty(Input)) {
                 return string.Empty;
@@ -355,7 +403,7 @@ namespace BicDB.Storage
             return Output;
         }
 
-        static private String AESEncrypt256(String Input, String key)
+        static public String AESEncrypt256(String Input, String key)
         {
             if (string.IsNullOrEmpty(Input)) {
                 return string.Empty;

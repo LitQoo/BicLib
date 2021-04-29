@@ -170,14 +170,53 @@ namespace BicDB.Storage
 			var _result = await FileStorageUtil.LoadByFileAsync(_table, getEncryptKey(_table, _parameter));
 			return _result;
 		}
+
+		public async Task<Result> SaveRecordAsync<T>(T _record, object _parameter)  where T : IRecordContainer, new()
+		{
+			try{
+				var _fileParam = _parameter as FileStorageParameter;
+				var _data = _record.ToString();
+
+				if(string.IsNullOrEmpty(_fileParam.EncryptKey) == false){
+					_data = FileStorageUtil.AESEncrypt256(_data, _fileParam.EncryptKey);
+				}
+
+				await FileStorageUtil.WriteFileAsync(_data, _fileParam.FilePath);
+				return new Result(0);
+			}catch(System.Exception _e){
+				return new Result(1, _e.Message);
+			}
+		}
+
+
+		public async Task<T> LoadRecordAsync<T>(object _parameter)  where T : IRecordContainer, new()
+		{
+			try{
+				var _fileParam = _parameter as FileStorageParameter;
+				var _data = await FileStorageUtil.ReadFileAsync(_fileParam.FilePath);
+				
+				if(string.IsNullOrEmpty(_fileParam.EncryptKey) == false){
+					_data = FileStorageUtil.AESDecrypt256(_data, _fileParam.EncryptKey);
+				}
+
+				var _record = new T();
+				int _count = 0;
+				_record.BuildVariable(ref _data, ref _count, JsonConvertor.GetInstance());
+				return _record;
+			}catch(System.Exception _e){
+				return default(T);
+			}
+		}
         #endregion
     }
 
 	public class FileStorageParameter{
 		public string EncryptKey;
+		public string FilePath;
 
-		public FileStorageParameter(string _encryptKey = ""){
+		public FileStorageParameter(string _encryptKey = "", string _filePath = ""){
 			EncryptKey = _encryptKey;
+			FilePath = _filePath;
 		}
 	}
 }

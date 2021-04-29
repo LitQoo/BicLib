@@ -49,6 +49,10 @@ namespace BicDB.Storage
 		void BuildFormattedString(IDataBase _variable, StringBuilder _stringBuilder);
 	}
 
+	public interface IStorageParam{
+
+	}
+	
 	public interface ITableStorage
 	{
 		string StorageType{get;}
