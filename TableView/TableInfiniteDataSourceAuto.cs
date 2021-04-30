@@ -63,17 +63,12 @@ namespace BicUtil.TableView
             }
 
             if(table == null){
-                await Task.Delay(3000);
-
                 table = new List<T>();
-                isLoading.AsBool = false;
-                isLoadedAll.AsBool = true;
                 fistLoadErrorCount++;
-                tableView.ReloadData();
-                return;
+            }else{
+                fistLoadErrorCount = 0;
             }
             
-            fistLoadErrorCount = 0;
             tableView.ReloadData();
             isLoading.AsBool = false;
             isLoadedAll.AsBool = _isEnd;

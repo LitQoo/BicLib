@@ -118,52 +118,65 @@ namespace BicDB.Storage{
 
 		#region ResourceControl
 		public static string ReadAsset(string _filePath){
-			#if UNITY_EDITOR
-			string _path = Application.dataPath + "/Resources/" + _filePath;
+			// #if UNITY_EDITOR
+			// string _path = Application.dataPath + "/Resources/" + _filePath;
 
-			if (File.Exists(_path))
-			{
-				return FileStorageUtil.ReadFile(_path);
-			}
-			else
-			{
-				Debug.Log("not found json file Resources/" + _filePath);
-				return null;
-			}
-			#else
+			// if (File.Exists(_path))
+			// {
+			// 	return FileStorageUtil.ReadFile(_path);
+			// }
+			// else
+			// {
+			// 	Debug.Log("not found json file Resources/" + _filePath);
+			// 	return null;
+			// }
+			// #else
 			if(_filePath.Contains(".")){
 				_filePath = _filePath.Split('.')[0];
 			}
 			
-			TextAsset tText = Resources.Load<TextAsset>(_filePath);
+			try{
+				TextAsset tText = Resources.Load<TextAsset>(_filePath);
 
-			return tText.text;
-			#endif 
+				return tText.text;
+			}catch{
+				return string.Empty;
+			}
+			// #endif 
 		}
 		
 
 		public static async Task<string> ReadAssetAsync(string _filePath){
-			#if UNITY_EDITOR
-			string _path = Application.dataPath + "/Resources/" + _filePath;
+			// Debug.Log("filestorage " + _filePath);
+			// #if UNITY_EDITOR
+			
+			// string _path = Application.dataPath + "/Resources/" + _filePath;
 
-			if (File.Exists(_path))
-			{
-				return await FileStorageUtil.ReadFileAsync(_path);
-			}
-			else
-			{
-				Debug.Log("not found json file Resources/" + _filePath);
-				return null;
-			}
-			#else
+			// if (File.Exists(_path))
+			// {
+			// 	return await FileStorageUtil.ReadFileAsync(_path);
+			// }
+			// else
+			// {
+			// 	Debug.Log("not found json file Resources/" + _filePath);
+			// 	return null;
+			// }
+			// #else
 			if(_filePath.Contains(".")){
 				_filePath = _filePath.Split('.')[0];
 			}
 
-			var tText = Resources.Load<TextAsset>(_filePath);
-		
-			return tText.text;
-			#endif 
+			try{
+				var _task = Resources.LoadAsync<TextAsset>(_filePath);
+				await _task;
+				var _text= (_task.asset as TextAsset).text;
+
+				var _startIndex = _text.IndexOf('\n', 0) + 1;
+				return _text.Substring(_startIndex);
+			}catch{
+				return string.Empty;
+			}
+			// #endif 
 		}
 
 		public static T ReadRecord<T>(string _filePath) where T : IRecordContainer, new(){

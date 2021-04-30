@@ -227,57 +227,6 @@ namespace BicDB.Storage
 			return _storageResult;
 		}
 
-		private async Task<(CachingType CachingType, string Text)> getWebRequestWithCache(WebStorageParameter _param){
-			var _cached = getCache(_param);
-			if(_cached.CachingType != CachingType.None){
-				return _cached;
-			}
-			
-			var _request = UnityWebRequest.Get(_param.Url);
-			await _request.SendWebRequest();
-
-			//TODO: request 실패시 기존캐시에서 얻어오는 문구 작성 혹은 지정된 리소스폴더에서 얻어오기
-
-			setCache(_param, _request.downloadHandler.text);
-
-			return (CachingType.None, _request.downloadHandler.text);
-		}
-
-		private async Task<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
-			var _cached = getCache(_param);
-			if(_cached.CachingType != CachingType.None){
-				return _cached.Result;
-			}
-
-			WWWForm _form = createForm(_param, _formData);
-			var _request = UnityWebRequest.Post(_param.Url, _form);
-			await _request.SendWebRequest();
-
-			//리퀘스트 에러일땐 강제 캐시 사용 (캐시 리로드 타임이라 할지라도~)
-
-			//리퀘스트 에러일때 캐시도 없으면 대체리소스파일 있을땐 해당파일로드해서 사용 및 메모리 캐싱, 파일캐싱은 하지 않음
-
-			setCache(_param, _request.downloadHandler.text);
-
-			return _request.downloadHandler.text;
-		}
-
-		private void sendWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData, Action<string> _callback){
-			
-			var _cached = getCache(_param);
-			if(_cached.CachingType != CachingType.None){
-				_callback(_cached.Result);
-				return;
-			}
-			
-			WWWForm _form = createForm(_param, _formData);
-			var _request = UnityWebRequest.Post(_param.Url, _form);
-			this.SendWebRequest(_request, _result=>{
-				setCache(_param, _result.downloadHandler.text);
-				_callback(_result.downloadHandler.text);
-			});
-		}
-
 		private IEnumerator sendWebRequestCoroutine(UnityWebRequest _request, Action<UnityWebRequest> _callback){
 			yield return _request.SendWebRequest();	
 			_callback(_request);
@@ -612,7 +561,7 @@ namespace BicDB.Storage
 			if(_param.IsEnabledFileCache == true){
 				// Debug.Log("file caching");
 				//파일에서 읽어오고
-				(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId);
+				(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt");
 				if(_data != null){
 
 					// Debug.Log("file founded");
@@ -675,19 +624,126 @@ namespace BicDB.Storage
 				_data = BicUtil.Crypto.AES256.Encrypt(_data);
 			}
 
-			FileStorageUtil.WriteFile(getTimestamp().ToString()+'\n'+_data, CACHE_DIRECTORY + "/" +_id);
+			FileStorageUtil.WriteFile(getTimestamp().ToString()+'\n'+_data, CACHE_DIRECTORY + "/" +_id + ".txt");
 		}
 		
 
 		private long getTimestamp(){
 			return System.DateTime.Now.Ticks / TimeSpan.TicksPerSecond;
 		}
+
+
+		private async Task<(CachingType CachingType, string Text)> getWebRequestWithCache(WebStorageParameter _param){
+			var _cached = getCache(_param);
+			if(_cached.CachingType != CachingType.None){
+				return _cached;
+			}
+			
+			var _request = UnityWebRequest.Get(_param.Url);
+			await _request.SendWebRequest();
+
+			if(_request.result == UnityWebRequest.Result.Success){
+				setCache(_param, _request.downloadHandler.text);
+				return (CachingType.None, _request.downloadHandler.text);
+			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
+				try
+                {
+                    string _result = await loadCacheFromResrouceAndCachingAsync(_param);
+                    return (CachingType.Resource, _result);
+                }
+                catch
+                {
+					return (CachingType.None, string.Empty);
+				}
+			}else{
+				return (CachingType.None, string.Empty);
+			}
+
+		}
+
+        private async Task<string> loadCacheFromResrouceAndCachingAsync(WebStorageParameter _param)
+        {
+            var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+            if (string.IsNullOrEmpty(_result) == false)
+            {
+                _param.IsEnabledFileCache = false;
+                setCache(_param, _result);
+            }
+
+            return _result;
+        }
+
+		private string loadCacheFromResrouceAndCaching(WebStorageParameter _param)
+        {
+            var _result = ResourceStorage.ReadAsset(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+            if (string.IsNullOrEmpty(_result) == false)
+            {
+                _param.IsEnabledFileCache = false;
+                setCache(_param, _result);
+            }
+
+            return _result;
+        }
+
+        private async Task<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
+			var _cached = getCache(_param);
+			if(_cached.CachingType != CachingType.None){
+				return _cached.Result;
+			}
+
+			WWWForm _form = createForm(_param, _formData);
+			var _request = UnityWebRequest.Post(_param.Url, _form);
+			await _request.SendWebRequest();
+
+			if(_request.result == UnityWebRequest.Result.Success){
+				setCache(_param, _request.downloadHandler.text);
+				return _request.downloadHandler.text;
+			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
+				try{
+					string _result = await loadCacheFromResrouceAndCachingAsync(_param);
+					return _result;
+				}catch{
+					return string.Empty;
+				}
+			}else{
+				return string.Empty;
+			}
+		}
+
+		private void sendWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData, Action<string> _callback){
+			
+			var _cached = getCache(_param);
+			if(_cached.CachingType != CachingType.None){
+				_callback(_cached.Result);
+				return;
+			}
+			
+			WWWForm _form = createForm(_param, _formData);
+			var _request = UnityWebRequest.Post(_param.Url, _form);
+			this.SendWebRequest(_request, _result=>{
+				if(_request.result == UnityWebRequest.Result.Success){
+					setCache(_param, _request.downloadHandler.text);
+					_callback(_request.downloadHandler.text);
+				}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
+					try{
+						string _cached = loadCacheFromResrouceAndCaching(_param);
+						_callback(_cached);
+					}catch{
+						_callback(string.Empty);
+					}
+				}else{
+					_callback(string.Empty);
+				}
+			});
+		}
+
 		#endregion
 
     }
 
 	public enum CachingType{
 		None,
+		Resource,
 		Memory,
 		File
 	}
@@ -697,6 +753,7 @@ namespace BicDB.Storage
 		public string TargetKey = string.Empty;
 		public Func<string, string> RequestConvertor = null;
 		public Dictionary<string, string> Param = null;
+		public string ResourceCacheDirectoryPath = string.Empty;
 
 		public string CacheId = string.Empty;
 		public long CacheTime = 0;
