@@ -664,26 +664,31 @@ namespace BicDB.Storage
         private async Task<string> loadCacheFromResrouceAndCachingAsync(WebStorageParameter _param)
         {
             var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
-            if (string.IsNullOrEmpty(_result) == false)
-            {
-                _param.IsEnabledFileCache = false;
-                setCache(_param, _result);
-            }
-
+            _result = removeFirstLineAndCaching(_param, _result);
             return _result;
         }
 
 		private string loadCacheFromResrouceAndCaching(WebStorageParameter _param)
         {
             var _result = ResourceStorage.ReadAsset(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
-            if (string.IsNullOrEmpty(_result) == false)
-            {
-                _param.IsEnabledFileCache = false;
-                setCache(_param, _result);
-            }
-
+            _result = removeFirstLineAndCaching(_param, _result);
             return _result;
         }
+
+		private string removeFirstLineAndCaching(WebStorageParameter _param, string _string){
+			if (string.IsNullOrEmpty(_string) == false)
+            {
+				var _startIndex = _string.IndexOf('\n', 0) + 1;
+				if(_startIndex > 0 && _startIndex < 100){
+					_string = _string.Substring(_startIndex);
+				}
+
+                _param.IsEnabledFileCache = false;
+                setCache(_param, _string);
+            }
+
+			return _string;
+		}
 
         private async Task<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
 			var _cached = getCache(_param);

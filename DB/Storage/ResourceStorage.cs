@@ -170,9 +170,7 @@ namespace BicDB.Storage{
 				var _task = Resources.LoadAsync<TextAsset>(_filePath);
 				await _task;
 				var _text= (_task.asset as TextAsset).text;
-
-				var _startIndex = _text.IndexOf('\n', 0) + 1;
-				return _text.Substring(_startIndex);
+				return _text;
 			}catch{
 				return string.Empty;
 			}
