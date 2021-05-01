@@ -439,6 +439,13 @@ namespace BicDB.Storage
         static public string GetFileName(string _tableName){
             return FILE_NAME_PREFIX + _tableName;
         }
+
+        static public void RemoveFile(string _filePath){
+            var _file = GetPath(_filePath);
+            if(System.IO.File.Exists(_file) == true){
+                System.IO.File.Delete(_file);
+            }
+        } 
         #endregion
     }
 }
