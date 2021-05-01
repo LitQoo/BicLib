@@ -441,9 +441,8 @@ namespace BicDB.Storage
         }
 
         static public void RemoveFile(string _filePath){
-            var _file = GetPath(_filePath);
-            if(System.IO.File.Exists(_file) == true){
-                System.IO.File.Delete(_file);
+            if(System.IO.File.Exists(_filePath) == true){
+                System.IO.File.Delete(_filePath);
             }
         } 
         #endregion
