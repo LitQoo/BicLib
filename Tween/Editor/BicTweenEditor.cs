@@ -31,7 +31,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		[MenuItem("Window/BicTween Editor")]
+		[MenuItem("Window/BicLib/BicTween Editor")]
 		public static void ShowWindow(){
 			BicTweenEditor _window = GetWindow<BicTweenEditor>("BicTween Editor");
 			UnityEngine.Object.DontDestroyOnLoad(_window);

@@ -28,6 +28,8 @@ namespace BicDB.Core
         static private TableContainer<TableModel> tableInfo;
         static private TableContainer<QueryModel> queryTable;
         static public bool IsLoaded{get=>isInit;}
+        static public IInspector Inspector{get=>inspector;}
+        static private IInspector inspector;
         #endregion
 
         #region Event
@@ -104,7 +106,6 @@ namespace BicDB.Core
             if(isInit == true){
                 return;
             }
-
             throw new SystemException("TableService Not Load");
         }
 
@@ -112,6 +113,13 @@ namespace BicDB.Core
             if(isInit == true){
                 return;
             }
+
+
+            #if UNITY_EDITOR
+            inspector = new Inspector();
+            #else
+            inspector = new DummyInspector();
+            #endif 
 
             isInit = true;
 

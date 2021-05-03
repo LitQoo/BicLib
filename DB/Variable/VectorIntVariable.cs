@@ -72,7 +72,7 @@ namespace BicDB.Variable
             }
 		}
 
-		public Vector2Int AsVector{
+		public Vector2Int AsVectorWithoutNotify{
 			get{
 				return new Vector2Int (this ["x"].AsInt, this ["y"].AsInt);
 			}
@@ -80,8 +80,14 @@ namespace BicDB.Variable
 			set{ 
 				this ["x"].AsInt = value.x;
 				this ["y"].AsInt = value.y;
-				NotifyChanged ();
+			}
+		}
 
+		public Vector2Int AsVector{
+			get => AsVectorWithoutNotify;
+			set{ 
+				AsVectorWithoutNotify = value;
+				NotifyChanged ();
 			}
 		}
 
