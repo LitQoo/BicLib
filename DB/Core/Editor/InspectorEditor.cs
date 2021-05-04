@@ -54,16 +54,32 @@ namespace BicUtil.Core{
             GUILayout.EndScrollView();
         }
 
+        private Dictionary<string, bool> foldoutState = new Dictionary<string, bool>();
         private void inspectObject(object _object, string _id)
         {
+            if(_object == null){
+                GUILayout.Label(_id + " is null", EditorStyles.boldLabel);
+
+                return;    
+            }
+
             Type myType = _object.GetType();
             var _fieldList = myType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-            GUILayout.Label(_id, EditorStyles.boldLabel);
+            if(foldoutState.ContainsKey(_id) == false){
+                foldoutState[_id] = false;
+            }
 
-            for (int i = 0; i < _fieldList.Length; i++)
-            {
-                inspectField(_object, _fieldList[i]);
+            foldoutState[_id] = EditorGUILayout.Foldout(foldoutState[_id], _id);
+            
+            
+            //GUILayout.Label(_id, EditorStyles.boldLabel);
+
+            if(foldoutState[_id] == true){
+                for (int i = 0; i < _fieldList.Length; i++)
+                {
+                    inspectField(_object, _fieldList[i]);
+                }
             }
         }
 
