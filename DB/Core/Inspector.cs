@@ -7,10 +7,15 @@ namespace BicDB.Core
     public interface IInspector
     {
         void Track(string _id, object _object);
+        void CancelToTrack(string _id);
     }
 
     public class DummyInspector : IInspector{
         public void Track(string _id, object _object){
+
+        }
+
+        public void CancelToTrack(string _id){
 
         }
     }
