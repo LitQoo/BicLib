@@ -128,9 +128,9 @@ namespace BicUtil.UI{
             Enable(Color.clear);
             setMessage("");
             _multi.Sequance(()=>{
-                PlayAlphaTween(Color.black, 0f, 1f, _time / 2f).AddTo(_multi).SubscribeComplete(()=>{
+                PlayAlphaTween(Color.black, 0f, 1f, _time / 2f).SubscribeComplete(()=>{
                     _transitionAction();
-                });
+                }).AddTo(_multi);
 
                 PlayAlphaTween(Color.black, 1f, 0f, _time / 2f).AddTo(_multi);
             });

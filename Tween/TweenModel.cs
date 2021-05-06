@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -651,6 +652,10 @@ namespace BicUtil.Tween
 			return this;
 		}
 
+		public void SetParent(TweenModel _parent){
+			_parent.AddChild(this);
+		}
+
 		public TweenModel AddTo(TweenModel _tween){
 			_tween.AddChild(this);
 			return this;
@@ -724,6 +729,20 @@ namespace BicUtil.Tween
 		}
 		#endregion
 
+		#region Task
+		public TweenAwaiter GetAwaiter () {
+			return new TweenAwaiter(this);
+		}
+
+		public async Task<TweenModel> GetTask(){
+			return await this;
+		}
+
+		public void SetParent(List<Task<TweenModel>> _taskList){
+			_taskList.Add(this.GetTask());
+		}
+		#endregion
+
         #if UNITY_EDITOR
         [NonSerialized]
         public Rect editor_rect;
@@ -734,4 +753,36 @@ namespace BicUtil.Tween
         #endif
 	}
 
+
+// make the interface task-like
+	public class TweenAwaiter : INotifyCompletion {
+		private readonly TweenModel tween;
+		int tweenIndex = 0;
+		// wrap the async operation
+		public TweenAwaiter (TweenModel _tween) {
+			tweenIndex = _tween.Id;
+			tween = _tween;
+		}
+
+		// is task already done (yes)
+		public bool IsCompleted {
+			get{
+				return tween.Rate >= 1f && tween.RepeatCount == tween.CurrentRepeatCount || 
+				tween.IsDestroyed == true ||
+				tweenIndex != tween.Id;
+			}
+		}
+
+		// wait until task is done (never called)
+		public void OnCompleted (Action continuation){
+			tween.SubscribeComplete(continuation);
+		}
+
+		// return the result
+		public TweenModel GetResult () {
+			return this.tween;
+		}
+	}
+
 }
+
