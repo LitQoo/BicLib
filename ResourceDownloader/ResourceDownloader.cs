@@ -84,7 +84,7 @@ namespace BicUtil.ResourceDownloader
 
 			Texture2D _texture = new Texture2D(1,1);
 			bool _isSuccess = false;
-			if(www.isNetworkError || www.isHttpError) {
+			if(www.result != UnityWebRequest.Result.Success) {
 				
 			}else {
 				_isSuccess = true;

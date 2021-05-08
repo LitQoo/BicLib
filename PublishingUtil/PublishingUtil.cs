@@ -259,12 +259,11 @@ namespace BicUtil.PublishingUtil{
 		}
 
 		private static bool checkingGdprArea(){
-			bool _result = false;
 			
 			#if UNITY_EDITOR
 			return true;
-			#endif
-
+			#else
+			bool _result = false;
 			try
 			{
 				using( WebClient webClient = new WebClient())
@@ -286,6 +285,7 @@ namespace BicUtil.PublishingUtil{
 			}
 
 			return _result;
+			#endif
 		}
 		#endregion
 	}

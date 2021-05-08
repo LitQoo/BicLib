@@ -125,6 +125,7 @@ namespace BicUtil.UIFlow
 				close (currentUiInfo.UI, _ui, CloseMode.Disable, () => {
 					open (_ui, _openMode, _parameter);
 				}, _parameter, false);
+				
 			} else {
 				isWait.AsBool = true;
 				if(OnStartChangeUI != null){

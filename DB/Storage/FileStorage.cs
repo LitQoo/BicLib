@@ -203,7 +203,7 @@ namespace BicDB.Storage
 				int _count = 0;
 				_record.BuildVariable(ref _data, ref _count, JsonConvertor.GetInstance());
 				return _record;
-			}catch(System.Exception _e){
+			}catch{
 				return default(T);
 			}
 		}
