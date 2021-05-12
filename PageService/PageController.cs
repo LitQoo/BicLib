@@ -1,15 +1,23 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using BicUtil.SingletonBase;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace BicUtil.PageFlow
+namespace BicUtil.PageService
 {
-    public class PageManager : MonoBehaviourHardBase<PageManager>
+    public class PageController : MonoBehaviour
     {
+        #region LinkingObject
+        [SerializeField]
+        private Transform pageParent;
+
+        private bool isDeinitialize = false;
+        #endregion
+
+        #region Instant
+        public string SceneName;
         private object sceneTransitionParameter = null;
         private Dictionary<Type, IPage> pages = new Dictionary<Type, IPage>();
         private Stack<IPage> pageStack = new Stack<IPage> ();
@@ -18,10 +26,70 @@ namespace BicUtil.PageFlow
                 return pageStack.Peek(); 
             }
         }
+        #endregion
 
-        private void Awake() {
-            this.name = "PageManager";    
+
+        #region LifeCycle
+        private void Awake(){
+            this.SceneName = gameObject.scene.name;
+            this.sceneTransitionParameter = PageManager.Instance.PopSceneTransitionParameter();
+            PageManager.Instance.AddController(this);
+            initialize ();
         }
+
+        private void Start(){
+            SceneManager.SetActiveScene(this.gameObject.scene);
+        }
+
+        private void OnDestroy() {
+            deinitialize();
+        }
+
+        private void OnApplicationQuit() {
+            deinitialize();
+        }
+        #endregion
+
+        #region initialize
+        private void initialize(){
+            DebugForEditor.Log("[PageControlelr.initialize]");
+
+            if(pageParent != null){
+                var _initCount = pages.Count;
+                var _pages = pageParent.GetComponentsInChildren<IPage>(true);
+                for(int i = 0; i < _pages.Length; i++){
+                    var _page = _pages[i];
+                    var _type = _page.GetType();
+                    if(pages.ContainsKey(_type) == false){
+                        pages[_type] = _page;
+                    }
+                }
+            }
+
+            var _orderedList = pages.OrderBy (_object => _object.Value.InitializeOrder);
+
+            foreach (var _page in _orderedList) {
+                _page.Value.PageController = this;
+                _page.Value.InitializePage();
+            }
+        }
+
+        private void deinitialize(){
+            DebugForEditor.Log("[PageControlelr.deinitialize]");
+            if( isDeinitialize == false){
+                var _orderedList = pages.OrderBy (_object => _object.Value.InitializeOrder);
+
+                foreach (var _page in _orderedList) {
+                    _page.Value.DeinitializePage();
+                }
+
+                this.pages.Clear();
+                this.pageStack.Clear();
+
+                isDeinitialize = true;
+            }
+        }
+        #endregion
         
         public void Register(IPage _page){
             if(pages.ContainsKey(_page.GetType()) == true){
@@ -39,7 +107,7 @@ namespace BicUtil.PageFlow
             pages.Clear();
         }
 
-        public void RegisterBase(IPage _page, object _param = null){
+        public void SetBasePage(IPage _page, object _param = null){
             if(pageStack.Count > 0){
                 throw new SystemException("[PageManager] already set base");
             }
@@ -49,42 +117,39 @@ namespace BicUtil.PageFlow
                 sceneTransitionParameter = null;
             }
             
-            this.Register(_page);
             pageStack.Push(_page);
             CurrentPage.OnOpenedPage(null, _param);
         }
 
-        private void clearValriables(){
+        public void ClearVariables(){
             sceneTransitionParameter = null;
             UnregisterAll();
             pageStack.Clear();
         }
 
         public AsyncOperation SceneReplaceAsync(string _sceneName, object _param = null){
-            clearValriables();
-
-            if(ClassInitializer.ClassInitializer.Instance != null){
-                ClassInitializer.ClassInitializer.Instance.Deinitialize();
-            }
-
-            sceneTransitionParameter = _param;
-            return SceneManager.LoadSceneAsync(_sceneName);
+            return PageManager.Instance.SceneReplaceAsync(_sceneName, _param);
         }
 
         public void SceneReplace(string _sceneName, object _param = null){
             _ = SceneReplaceAsync(_sceneName, _param);
         }
 
-        //TODO: scene마다 pageStack을 따로 두고 관리해야함.
-        // public AsyncOperation SceneEnterAsync(string _sceneName, object _param = null){
-        //     sceneTransitionParameter = _param;
-        //     return SceneManager.LoadSceneAsync(_sceneName, LoadSceneMode.Additive);
-        // }
+        public AsyncOperation SceneEnterAsync(string _sceneName, object _param = null){
+            return PageManager.Instance.SceneEnterAsync(_sceneName, _param);
+        }
 
-        // public AsyncOperation BackSceneAsync(object _param = null){
-        //     sceneTransitionParameter = _param;
-        //     return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
-        // }
+        public void SceneEnter(string _sceneName, object _param = null){
+            _ = PageManager.Instance.SceneEnterAsync(_sceneName, _param);
+        }
+
+        public async Task SceneBackAsync(){
+            await PageManager.Instance.SceneBackAsync();
+        }
+
+        public void SceneBack(){
+            _ = this.SceneBackAsync();
+        }
 
         public async Task EnterAsync<PageClass>(object _param = null){
             var _openPageType = typeof(PageClass);
@@ -166,7 +231,7 @@ namespace BicUtil.PageFlow
         }
 
         public void Back(PageTransition _transition, object _openParam = null, object _closeParam = null){
-            this.Back(_transition, _openParam, _closeParam);
+            _ = this.BackAsync(_transition, _openParam, _closeParam);
         }
 
         private async Task transitionPage(PageTransition _transition, Task _closeTask, Task _openTask)
@@ -200,24 +265,65 @@ namespace BicUtil.PageFlow
         }
     }
 
-    public enum PageTransition{
-        Sequance,
-        Spawn
-    }
 
-    public interface IPage : IPageController
-    {
-        Task OnOpenedPage(IPage _fromPage, object _param = null);
-        Task OnClosedPage(IPage _fromUI, object _param = null);
-    }
+    // class PageIntializer : MonoBehaviour{
+    //     #region LinkingObject
+    //     [SerializeField]
+    //     private Transform pageParent;
+    //     [SerializeField]
+    //     private List<IPage> pages;
 
-    public interface IPageController{
+    //     private bool isDeinitialize = false;
+    //     #endregion
 
-    }
+    //     #region LifeCycle
+    //     private void Awake(){
+    //         PageManager.Instance.stack
+    //         initialize ();
+    //     }
 
-    static public class PageManagerExtensions{
-        public static PageManager GetPageManager(this IPageController _page){
-            return PageManager.Instance;
-        }
-    }
+    //     private void OnDestroy() {
+    //         deinitialize();
+    //     }
+
+    //     private void OnApplicationQuit() {
+    //         deinitialize();
+    //     }
+    //     #endregion
+
+    //     #region logic
+    //     private void initialize(){
+    //         if(pageParent != null){
+    //             var _initCount = pages.Count;
+    //             var _pages = pageParent.GetComponentsInChildren<IPage>(true);
+    //             for(int i = 0; i < _pages.Length; i++){
+    //                 var _page = _pages[i];
+    //                 if(pages.Contains(_page) == false){
+    //                     PageManager.Instance.CurrentController.Register(_page);
+    //                     pages.Add(_page);
+    //                 }
+    //             }
+    //         }
+
+    //         var _orderedList = pages.OrderBy (_object => _object.InitializeOrder);
+
+    //         foreach (var _page in _orderedList) {
+    //             _page.InitializePage();
+    //         }
+    //     }
+
+    //     private void deinitialize(){
+    //         if( isDeinitialize == false){
+    //             var _orderedList = pages.OrderBy (_object => _object.InitializeOrder);
+
+    //             foreach (var _page in _orderedList) {
+    //                 PageManager.Instance.CurrentController.Unregister(_page);
+    //                 _page.DeinitializePage();
+    //             }
+
+    //             isDeinitialize = true;
+    //         }
+    //     }
+    //     #endregion
+    // }
 }
