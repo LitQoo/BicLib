@@ -13,7 +13,7 @@
 // 		[SerializeField]
 // 		public List<BezierCurve> Paths;
 
-// 		public TweenModel GetTween(string _name){
+// 		public Tween GetTween(string _name){
 // 			for(int i = 0; i < Paths.Count; i++){
 // 				if(Paths[i].name == _name){
 // 					return Paths[i].Tween;

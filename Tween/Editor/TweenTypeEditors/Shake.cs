@@ -9,20 +9,20 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
         [TweenEditorDrawNode(TweenType.Shake)]
-        private Rect drawShakeNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawShakeNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 
 		[TweenEditorDrawSetting(TweenType.Shake)]
-		private void drawShakeSetting(TweenModel _tween){
+		private void drawShakeSetting(Tween _tween){
 			_tween.DiffValue = EditorGUILayout.Vector3Field("Shake Range", _tween.DiffValue);
 		}
 
 		// [TweenEditorDrawHandleControl(TweenType.Shake)]
-		// private void drawShakeHandleControl(TweenModel _tween){
+		// private void drawShakeHandleControl(Tween _tween){
 		// 	if(_tween.TargetObject == null){
 		// 		return;
 		// 	}
@@ -33,7 +33,7 @@ namespace BicUtil.Tween
 		// 	drawMoveHandle(new Vector2(_originRect.x + _originRect.width, _originRect.y + _originRect.height), 0, Color.magenta, 10, _tween, setShakePosition);
 		// }
 
-		// private void setShakePosition(TweenModel _tween, int _index, Vector3 _position)
+		// private void setShakePosition(Tween _tween, int _index, Vector3 _position)
         // {
 		// 	var _transform = _tween.TargetObject.GetComponent<RectTransform>();
         //    	if(_index == 1){

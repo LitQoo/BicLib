@@ -8,10 +8,10 @@ using Spine.Unity;
 namespace BicUtil.Tween
 {
     public class MultiTween{
-		TweenModel mother = null;
-		List<TweenModel> groupTween = new List<TweenModel>();
+		Tween mother = null;
+		List<Tween> groupTween = new List<Tween>();
 		
-		public TweenModel Current{
+		public Tween Current{
 			get{
 				if(groupTween.Count <= 0){
 					throw new SystemException("MultiTween Current not found");
@@ -21,7 +21,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		private void addGroupTween(TweenModel _tween){
+		private void addGroupTween(Tween _tween){
 			if(mother == null){
 				mother = _tween;
 			}
@@ -90,11 +90,11 @@ namespace BicUtil.Tween
 			removeLastGroupTween();
 		}
 
-		public void AddChild(TweenModel _tween){
+		public void AddChild(Tween _tween){
 			groupTween[groupTween.Count - 1].AddChild(_tween);
 		}
 
-		public TweenModel Make(){
+		public Tween Make(){
 			if(groupTween.Count != 0){
 				throw new SystemException("MultiTween Count is " + groupTween.Count.ToString());
 			}
@@ -105,7 +105,7 @@ namespace BicUtil.Tween
 			return _result;
 		}
 
-		public TweenModel Play(){
+		public Tween Play(){
 			return Make().Play();
 		}
 	}

@@ -8,15 +8,15 @@ namespace BicUtil.Tween{
 		[SerializeField]
 		public List<int> GroupIdList;
 		[SerializeField]
-		public List<TweenModel> TweenList;
+		public List<Tween> TweenList;
 		[SerializeField]
 		public List<InitialInformations> InitialList;
 		
-		public TweenModel GetGroup(int _groupIndex){
+		public Tween GetGroup(int _groupIndex){
 			return GetTween(GroupIdList[_groupIndex]);
 		}
 
-		public TweenModel GetTween(string _name){
+		public Tween GetTween(string _name){
 			string _names = "";
 			for(int i = 0; i < TweenList.Count; i++){
 				_names += TweenList[i].Name + ",";
@@ -52,7 +52,7 @@ namespace BicUtil.Tween{
 			return null;
 		}
 
-		public TweenModel GetTween(int _id){
+		public Tween GetTween(int _id){
 			for(int i = 0; i < TweenList.Count; i++){
 				if(TweenList[i].Id == _id){
 					return TweenList[i];
@@ -72,26 +72,26 @@ namespace BicUtil.Tween{
 			throw new SystemException("not found tween. id = " + _id.ToString());
 		}
 
-		public void AddTween(TweenModel _group, TweenModel _tween){
+		public void AddTween(Tween _group, Tween _tween){
 			_group.AddChild(_tween);
 		}
 
-		public void RemoveTween(TweenModel _group, TweenModel _tween){
+		public void RemoveTween(Tween _group, Tween _tween){
 			_group.RemoveChild(_tween);
 			_tween.Remove();
 		}
 
-		public void RemoveTween(TweenModel _tween){
+		public void RemoveTween(Tween _tween){
 			TweenList.Remove(_tween);
 		}
 
-		public void RemoveGroup(TweenModel _group){
+		public void RemoveGroup(Tween _group){
 			GroupIdList.Remove(_group.Id);
 			InitialList.RemoveAll(_initial=>_initial.TargetTweenId == _group.Id);
 			_group.Remove();
 		}
 
-		public void AddChildTween(TweenModel _parent, TweenModel _child){
+		public void AddChildTween(Tween _parent, Tween _child){
 			_parent.AddChild(_child);
 		}
 
@@ -164,7 +164,7 @@ namespace BicUtil.Tween{
 			#endif
 		}
 
-		public void RefindTargetObject(TweenModel _group){
+		public void RefindTargetObject(Tween _group){
 			#if UNITY_EDITOR
 			var _childList = _group.GetChildList();
 
@@ -191,9 +191,9 @@ namespace BicUtil.Tween{
 		private int nextId = 0;
 		public int NextId{ get{ return nextId++;} }
 
-		public TweenModel CreateModel(){
+		public Tween CreateModel(){
 			if(TweenList == null){
-				TweenList = new List<TweenModel>(100);
+				TweenList = new List<Tween>(100);
 			}
 			
 			var _count = TweenList.Count;
@@ -202,7 +202,7 @@ namespace BicUtil.Tween{
 					var __model = TweenList[i];
 
 					if(IsLocked == false){
-						if(__model.destoryCount == TweenModel.DESTORY_READY_TO_RECYCLE){
+						if(__model.destoryCount == Tween.DESTORY_READY_TO_RECYCLE){
 							__model.Clear();
 							__model.Id = NextId;
 							__model.PlayingIndex = i;
@@ -215,7 +215,7 @@ namespace BicUtil.Tween{
 				}
 			}
 
-			var _result = new TweenModel();
+			var _result = new Tween();
 			_result.pool = this;
 			_result.Clear();
 			_result.Id = NextId;
@@ -237,7 +237,7 @@ namespace BicUtil.Tween{
 			isUpdatedPlayingMax = true;
 		}
 
-		public int GetIndex(TweenModel _tween){
+		public int GetIndex(Tween _tween){
 			for(int i = 0; i < TweenList.Count; i++){
 				if(TweenList[i] == _tween){
 					return i;
@@ -250,7 +250,7 @@ namespace BicUtil.Tween{
 		public void Update(){
 
 			if(TweenList == null){
-				TweenList = new List<TweenModel>();
+				TweenList = new List<Tween>();
 			}
 
 			int _lastPlayingIndex = -1;
@@ -290,7 +290,7 @@ namespace BicUtil.Tween{
 							_error = _e;
 						}
 						#endif
-					}else if(_tween.destoryCount > TweenModel.DESTORY_READY_TO_RECYCLE){
+					}else if(_tween.destoryCount > Tween.DESTORY_READY_TO_RECYCLE){
 						_tween.destoryCount--;
 						_lastPlayingIndex = i;
 					}

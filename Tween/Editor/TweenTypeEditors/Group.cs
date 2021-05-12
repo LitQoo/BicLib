@@ -9,12 +9,12 @@ using UnityEngine.SceneManagement;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-		private void drawGroupHandleControl(TweenModel _tween){
+		private void drawGroupHandleControl(Tween _tween){
 			var _childs = _tween.GetChildList();
 			DrawHandleControl(_childs);
 		}
 
-		private bool onClickedNodeGroup(TweenModel _tween, Event _event){
+		private bool onClickedNodeGroup(Tween _tween, Event _event){
 			if(onClickedNodeSingle(_tween, _event) == false){
 				var _childList = _tween.GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
@@ -29,7 +29,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-        private void openToAddTweenMenu(TweenModel _tween){
+        private void openToAddTweenMenu(Tween _tween){
             GenericMenu genericMenu = new GenericMenu ();
             genericMenu.AddItem (new GUIContent ("Single"), false,delegate() {
 				var _newTween = BicTween.MoveLocal(_tween.TargetObject, Vector3.zero, Vector3.zero, 1f, selectedTweenPool);

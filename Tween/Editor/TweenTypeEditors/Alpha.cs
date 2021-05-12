@@ -10,12 +10,12 @@ namespace BicUtil.Tween
 	public partial class BicTweenEditor {
 
 		[TweenEditorDrawNode(TweenType.Alpha)]
-		private Rect drawAlphaNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		private Rect drawAlphaNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 			return drawSingleNode(_tween, _startPosition, _timeline);
 		}
 
 		[TweenEditorDrawSetting(TweenType.Alpha)]
-		private void drawAlphaSetting(TweenModel _tween){
+		private void drawAlphaSetting(Tween _tween){
 			var _originAlpha = EditorGUILayout.FloatField("Origin Alpha", _tween.OriginValue.w);
 			_tween.OriginValue = new Vector4(0, 0, 0, _originAlpha);
 			var _diffAlpha = EditorGUILayout.FloatField("Diff Alpha", _tween.DiffValue.w);

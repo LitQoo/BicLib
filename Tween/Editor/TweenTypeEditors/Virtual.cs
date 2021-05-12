@@ -9,11 +9,11 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
 
         [TweenEditorDrawNode(TweenType.Virtual)]
-        private Rect drawVirtualNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawVirtualNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 			if(_tween.ChildDataList != null && _tween.ChildDataList.Count > 0){
 		    	var _virtual = selectedTweenPool.GetTween(_tween.ChildDataList[0]);
 				_tween.Time = _virtual.Time;
@@ -23,10 +23,10 @@ namespace BicUtil.Tween
         }
 		
 		[TweenEditorDrawSetting(TweenType.Virtual)]
-		private void drawVirtualSetting(TweenModel _tween){
+		private void drawVirtualSetting(Tween _tween){
 			if(selectedTweenPool != null){
 				var _titles = new List<string>();
-				var _groups = new List<TweenModel>();
+				var _groups = new List<Tween>();
 				for(int i = 0; i < selectedTweenPool.GroupIdList.Count; i++){
 					var _group = selectedTweenPool.GetGroup(i);
 					_titles.Add(_group.Name);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,9 +29,25 @@ namespace BicUtil.PageService
         }
         #endregion
 
+        #region TweenPool
+        private void OnEnable() {
+            BicTween.DefaultPool = getTweenPool();
+        }
+
+        private TweenPool tweenPool = null;
+        private TweenPool getTweenPool(){
+            if(tweenPool == null){  
+                tweenPool = this.gameObject.AddComponent(typeof(TweenPool)) as TweenPool; 
+            }
+
+            return tweenPool;
+        }
+        #endregion
+
 
         #region LifeCycle
         private void Awake(){
+            BicTween.DefaultPool = getTweenPool();
             this.SceneName = gameObject.scene.name;
             this.sceneTransitionParameter = PageManager.Instance.PopSceneTransitionParameter();
             PageManager.Instance.AddController(this);
@@ -75,6 +92,11 @@ namespace BicUtil.PageService
         }
 
         private void deinitialize(){
+            if(tweenPool != null){
+                tweenPool.CancelAll();
+                BicTween.DefaultPool = null;
+            }
+
             DebugForEditor.Log("[PageControlelr.deinitialize]");
             if( isDeinitialize == false){
                 var _orderedList = pages.OrderBy (_object => _object.Value.InitializeOrder);
@@ -262,68 +284,7 @@ namespace BicUtil.PageService
 
         public void SetBackKeyAction(Action _action){
             //TODO: setbackkey
+            Debug.LogWarning("SetBackeyaction impl");
         }
     }
-
-
-    // class PageIntializer : MonoBehaviour{
-    //     #region LinkingObject
-    //     [SerializeField]
-    //     private Transform pageParent;
-    //     [SerializeField]
-    //     private List<IPage> pages;
-
-    //     private bool isDeinitialize = false;
-    //     #endregion
-
-    //     #region LifeCycle
-    //     private void Awake(){
-    //         PageManager.Instance.stack
-    //         initialize ();
-    //     }
-
-    //     private void OnDestroy() {
-    //         deinitialize();
-    //     }
-
-    //     private void OnApplicationQuit() {
-    //         deinitialize();
-    //     }
-    //     #endregion
-
-    //     #region logic
-    //     private void initialize(){
-    //         if(pageParent != null){
-    //             var _initCount = pages.Count;
-    //             var _pages = pageParent.GetComponentsInChildren<IPage>(true);
-    //             for(int i = 0; i < _pages.Length; i++){
-    //                 var _page = _pages[i];
-    //                 if(pages.Contains(_page) == false){
-    //                     PageManager.Instance.CurrentController.Register(_page);
-    //                     pages.Add(_page);
-    //                 }
-    //             }
-    //         }
-
-    //         var _orderedList = pages.OrderBy (_object => _object.InitializeOrder);
-
-    //         foreach (var _page in _orderedList) {
-    //             _page.InitializePage();
-    //         }
-    //     }
-
-    //     private void deinitialize(){
-    //         if( isDeinitialize == false){
-    //             var _orderedList = pages.OrderBy (_object => _object.InitializeOrder);
-
-    //             foreach (var _page in _orderedList) {
-    //                 PageManager.Instance.CurrentController.Unregister(_page);
-    //                 _page.DeinitializePage();
-    //             }
-
-    //             isDeinitialize = true;
-    //         }
-    //     }
-    //     #endregion
-    // }
 }

@@ -7,12 +7,12 @@
 // namespace BicUtil.Tween
 // {
 
-//     public static class TweenModelEditorExtension{
-//         public static Action<TweenModel> OnSelected;
-//         public static Action<TweenModel> OnClickedRightButton;
-//         public static Action<TweenModel> OnAddTween;
+//     public static class TweenEditorExtension{
+//         public static Action<Tween> OnSelected;
+//         public static Action<Tween> OnClickedRightButton;
+//         public static Action<Tween> OnAddTween;
         
-//         public static Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+//         public static Rect DrawNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 //             if(_tween == null){
 //                 Debug.LogWarning("tween is null");
 //                 return new Rect(0, 0, 0, 0);
@@ -39,14 +39,14 @@
 //             Handles.EndGUI();
 //         }
 
-//         private static Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+//         private static Rect drawSingleNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 //             _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time),20);
 //             string _title = (_tween.TargetObject != null ? _tween.TargetObject.name : "null") + "." + _tween.Type.ToString();
 //             _tween.drawNode(_title, Color.white);
 //             return _tween.editor_rect;
 //         }
 
-//         private static void drawNode(this TweenModel _tween, string _text, Color _color){
+//         private static void drawNode(this Tween _tween, string _text, Color _color){
 //             var _lastColor = GUI.backgroundColor;
 //             GUI.backgroundColor = _color;
 //             GUI.Box (_tween.editor_rect,"","TL LogicBar 0");
@@ -57,7 +57,7 @@
 //             GUI.backgroundColor = _lastColor;
 //         }
 
-//         private static Rect drawSequanceNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+//         private static Rect drawSequanceNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 //             var _position = _startPosition + new Vector2(0, 20);
 //             var _rect = new Rect();
 //             float _heightMax = 20;
@@ -83,7 +83,7 @@
 //             return _resultRect;
 //         }
 
-//         private static Rect drawSpawnNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+//         private static Rect drawSpawnNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 //             float _xPos = _startPosition.x;
 //             float _height = 20;
 
@@ -108,7 +108,7 @@
 //             return _resultRect2;
 //         }
 
-//         public static void OnClicked(TweenModel _tween, Event _event){
+//         public static void OnClicked(Tween _tween, Event _event){
             
 //             switch(_tween.Type){
 //             case TweenType.Spawn:
@@ -156,7 +156,7 @@
 //             }
 //         }
 
-//         public static void DrawSetting(TweenModel _tween){
+//         public static void DrawSetting(Tween _tween){
 //             drawDefaultSetting(_tween);
 
 //             if(_tween.TargetObject == null){
@@ -173,7 +173,7 @@
 //             }
 //         }
 
-//         public static void DrawPreview(TweenModel _tween){
+//         public static void DrawPreview(Tween _tween){
 //             if(_tween.TargetObject == null){
 //                 return;
 //             }
@@ -188,7 +188,7 @@
 //             }
 //         }
 
-//         private static void drawDefaultSetting(TweenModel _tween){
+//         private static void drawDefaultSetting(Tween _tween){
 //             _tween.Name = EditorGUILayout.TextField("Name", _tween.Name);
 //             _tween.TargetObject = (GameObject)EditorGUILayout.ObjectField("Target Object", _tween.TargetObject, typeof(GameObject), true);
 //             _tween.Time = EditorGUILayout.FloatField("Time", _tween.Time);
@@ -199,13 +199,13 @@
 //             _tween.SetEase(EaseFuncs.GetFunc(_tween.EaseType));
 //         }
 
-//         private static void drawMoveSetting(TweenModel _tween){
+//         private static void drawMoveSetting(Tween _tween){
 //             _tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
 //             _tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
 //         }
 
         
-//         private static void drawMovePreview(TweenModel _tween){
+//         private static void drawMovePreview(Tween _tween){
 //             var _parentPos = _tween.TargetObject.transform.parent.position;
 
 //             Handles.color = Color.green;
@@ -224,7 +224,7 @@
 
 //         }
 
-//         private static void drawBezierSetting(TweenModel _tween){
+//         private static void drawBezierSetting(Tween _tween){
 //             var _vectors = BicTween.ChildDataToBezier(_tween.ChildDataList).ToArray();
 //             for(int i = 0; i < _vectors.Length; i++)
 //             {
@@ -288,7 +288,7 @@
 //         }
 
 //         private static int selectedHandleIndex = -1;
-//         private static void drawBezierPreview(TweenModel _tween){
+//         private static void drawBezierPreview(Tween _tween){
 //             float endPointSize = 10;
 //             var _vectors = BicTween.ChildDataToBezier(_tween.ChildDataList).ToArray();
 //             Vector3 p0 = _vectors[0];
@@ -311,7 +311,7 @@
 //             }
 //         }
 
-//         private static void DrawHandle (Vector3 point, int index, Color _pointColor, float _size, TweenModel _tween) {
+//         private static void DrawHandle (Vector3 point, int index, Color _pointColor, float _size, Tween _tween) {
 //             Handles.color = _pointColor;
 //             var _handleRotate = Tools.pivotRotation == PivotRotation.Local ? _tween.TargetObject.transform.rotation : Quaternion.identity;
 //             if (Handles.Button(point, _handleRotate, _size, _size, Handles.DotCap)) {

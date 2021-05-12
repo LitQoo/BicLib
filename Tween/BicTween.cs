@@ -11,7 +11,6 @@ using UnityEngine.SceneManagement;
 
 namespace BicUtil.Tween
 {
-
     public static class BicTween {
 		private static int id = 0;
 		public static int GetNewId(){
@@ -28,15 +27,6 @@ namespace BicUtil.Tween
 			}else{
 				_animator.Play(_stateHashName, -1, 0f);
 				throw new SystemException("write PlayMecanimAnimation");
-				// LeanTweenOnEditor.AddUpdateCallback((_id, _dt)=>{
-				// 	if(_animator.isActiveAndEnabled == true){
-				// 		_animator.Update(_dt);
-				// 	}
-
-				// 	if(_animator.isActiveAndEnabled == false || _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
-				// 		LeanTweenOnEditor.RemoveUpdateCallback(_id);
-				// 	}
-			 	// });
 			}
 			#else
 			_animator.Play(_stateHashName);
@@ -44,14 +34,14 @@ namespace BicUtil.Tween
 		}
 		#endif
 
-		static public TweenModel MoveSlider(UnityEngine.UI.Slider _slider, float _to, float _time, TweenPool _pool = null,
+		static public Tween MoveSlider(UnityEngine.UI.Slider _slider, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveSlider(_slider, _slider.value, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		static public TweenModel MoveSlider(UnityEngine.UI.Slider _slider, float _from, float _to, float _time, TweenPool _pool = null,
+		static public Tween MoveSlider(UnityEngine.UI.Slider _slider, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -60,7 +50,7 @@ namespace BicUtil.Tween
 			});
 		}
 
-		static public TweenModel Levelup(UnityEngine.UI.Slider _slider, float _toValue, float _time, float _nextMax, float _levelUpDelay, TweenPool _pool = null,
+		static public Tween Levelup(UnityEngine.UI.Slider _slider, float _toValue, float _time, float _nextMax, float _levelUpDelay, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -84,11 +74,11 @@ namespace BicUtil.Tween
 			}
 		}
 
-		static public TweenModel TypeWriter(UnityEngine.UI.Text _text, string _string, float _time, TweenPool _pool = null,
+		static public Tween TypeWriter(UnityEngine.UI.Text _text, string _string, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _text.gameObject;
 			_tween.StringData = _string;
 			_tween.Time = _time;
@@ -98,11 +88,11 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		static public TweenModel Interval(float _intervalTime, int _count, TweenPool _pool = null, 
+		static public Tween Interval(float _intervalTime, int _count, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.Time = _intervalTime;
 			_tween.RepeatCount = _count;
 			_tween.Type = TweenType.None;
@@ -110,7 +100,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		static public TweenModel Counting(TextMesh _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null, 
+		static public Tween Counting(TextMesh _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -129,7 +119,7 @@ namespace BicUtil.Tween
 
 		}
 
-		static public TweenModel Counting(UnityEngine.UI.Text _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null, 
+		static public Tween Counting(UnityEngine.UI.Text _text, int _from, int _to, float _time, float _intervalTime = 0.05f, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -154,14 +144,23 @@ namespace BicUtil.Tween
 
 		private static float previousRealTime;
 		public static float realDeltaTime = 0;
+		private static TweenPool selfCreatedPool = null;
 		private static TweenPool defaultPool = null;
 		public static TweenPool DefaultPool{
 			get{
 				if(defaultPool == null){
-					defaultPool = createPool();
+					if(selfCreatedPool == null){
+						selfCreatedPool = createPool();
+					}
+
+					defaultPool = selfCreatedPool;
 				}
 
 				return defaultPool;
+			}
+
+			set{
+				defaultPool = value;
 			}
 		}
 		
@@ -195,8 +194,8 @@ namespace BicUtil.Tween
 
 		#region Animation
 
-		public static TweenModel CreateModel(TweenPool _pool){
-			TweenModel _tween = null;
+		public static Tween CreateModel(TweenPool _pool){
+			Tween _tween = null;
 			if(_pool != null){
 				_tween = _pool.CreateModel();
 			}else{
@@ -206,19 +205,19 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveLocal(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null, 
+		public static Tween MoveLocal(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocal(_object, _object.transform.localPosition, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocal(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null, 
+		public static Tween MoveLocal(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = _from;
 			_tween.DiffValue = _to - _from;
@@ -230,19 +229,19 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveWorld(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null, 
+		public static Tween MoveWorld(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveWorld(_object, _object.transform.position, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorld(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null, 
+		public static Tween MoveWorld(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = _from;
 			_tween.DiffValue = _to - _from;
@@ -253,11 +252,11 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Follow(GameObject _object, GameObject _targetObject, float _time, TweenPool _pool = null,
+		public static Tween Follow(GameObject _object, GameObject _targetObject, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = _object.transform.position;
 			_tween.DiffValue = _targetObject.transform.position - (Vector3)_tween.OriginValue;
@@ -269,7 +268,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel FollowWithSpeed(GameObject _object, GameObject _targetObject, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween FollowWithSpeed(GameObject _object, GameObject _targetObject, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -277,7 +276,7 @@ namespace BicUtil.Tween
 			return Follow(_object, _targetObject, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveLocalWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -285,7 +284,7 @@ namespace BicUtil.Tween
 			return MoveLocal(_object, _from, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
+		public static Tween MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -293,21 +292,21 @@ namespace BicUtil.Tween
 			return MoveLocal(_object, _from, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
+		public static Tween MoveLocalWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocalWithSpeedAndMaxTime(_object, _object.transform.localPosition, _to, _distancePerSecond, _maxTime, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveLocalWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocalWithSpeed(_object, _object.transform.localPosition, _to, _distancePerSecond, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
+		public static Tween MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -315,14 +314,14 @@ namespace BicUtil.Tween
 			return MoveWorld(_object, _from, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
+		public static Tween MoveWorldWithSpeedAndMaxTime(GameObject _object, Vector3 _to, float _distancePerSecond, float _maxTime, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveWorldWithSpeedAndMaxTime(_object, _object.transform.position, _to, _distancePerSecond, _maxTime, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveWorldWithSpeed(GameObject _object, Vector3 _from, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -330,21 +329,21 @@ namespace BicUtil.Tween
 			return MoveWorld(_object, _from, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorldWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveWorldWithSpeed(GameObject _object, Vector3 _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveWorldWithSpeed(_object, _object.transform.position, _to, _distancePerSecond, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalX(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalX(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocalX(_object, _object.transform.localPosition.x, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalXWithSpeed(GameObject _object, float _from, float _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveLocalXWithSpeed(GameObject _object, float _from, float _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -352,19 +351,19 @@ namespace BicUtil.Tween
 			return MoveLocalX(_object, _from, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalXWithSpeed(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveLocalXWithSpeed(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocalXWithSpeed(_object, _object.transform.localPosition.x, _to, _distancePerSecond, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = new Vector3(_from, _object.transform.localPosition.y, _object.transform.localPosition.z);
 			_tween.DiffValue = new Vector3(_to - _from, 0f, 0f);
@@ -377,11 +376,11 @@ namespace BicUtil.Tween
 		}
 
 		//FIXME: FromLast시리즈 제거하고 그냥 MoveLocal 상대좌표이동 시리즈 내용을 수정하기 or 이건 유지하고 MoveLocal 상대좌표이동 시리즈 제거
-		public static TweenModel MoveLocalXWithSpeedFromLast(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveLocalXWithSpeedFromLast(GameObject _object, float _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			var __to = _to;
 			var __distancePerSecond = _distancePerSecond;
@@ -397,12 +396,12 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveLocalXFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalXFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			var __to = _to;
 			//FIXME: LateSetValueFunc 제거하고 SubscribeStart 로 대체 가능 할 듯?
@@ -419,12 +418,12 @@ namespace BicUtil.Tween
 		}
 
 
-		public static TweenModel MoveLocalYFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalYFromLast(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			var __to = _to;
 			_tween.SubscribeStart(()=>{
@@ -439,19 +438,19 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveWorldX(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveWorldX(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveWorldX(_object, _object.transform.position.x, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveWorldX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveWorldX(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = new Vector3(_from, _object.transform.position.y, _object.transform.position.z);
 			_tween.DiffValue = new Vector3(_to - _from, 0f, 0f);
@@ -464,19 +463,19 @@ namespace BicUtil.Tween
 		}
 
 
-		public static TweenModel MoveLocalY(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalY(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return MoveLocalY(_object, _object.transform.localPosition.y, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel MoveLocalY(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween MoveLocalY(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 
-			TweenModel _tween = CreateModel(_pool);
+			Tween _tween = CreateModel(_pool);
 			_tween.TargetObject = _object;
 			_tween.OriginValue = new Vector3(_object.transform.localPosition.x, _from, _object.transform.localPosition.z);
 			_tween.DiffValue = new Vector3(0f, _to - _from, 0f);
@@ -486,8 +485,8 @@ namespace BicUtil.Tween
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
-		// public static TweenModel MoveLocal(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null){
-		// 	TweenModel _tween = CreateModel(_pool);
+		// public static Tween MoveLocal(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null){
+		// 	Tween _tween = CreateModel(_pool);
 		// 	_tween.TargetObject = _object;
 		// 	_tween.OriginValue = new Vector4(0, 0, 0, 0);
 		// 	_tween.DiffValue = new Vector4(1f, 0, 0, 0);
@@ -500,7 +499,7 @@ namespace BicUtil.Tween
 		// }
 
 
-		public static TweenModel MoveByBezier(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null,
+		public static Tween MoveByBezier(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -516,7 +515,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveByBezierWithSpeed(GameObject _object, Vector3[] _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveByBezierWithSpeed(GameObject _object, Vector3[] _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -528,7 +527,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel MoveWorldByBezier(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null,
+		public static Tween MoveWorldByBezier(GameObject _object, Vector3[] _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -544,7 +543,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 		
-		public static TweenModel MoveWorldByBezierWithSpeed(GameObject _object, Vector3[] _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween MoveWorldByBezierWithSpeed(GameObject _object, Vector3[] _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -555,14 +554,14 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Scale(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Scale(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return Scale(_object, _object.transform.localScale, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Scale(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Scale(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -578,7 +577,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Alpha(GameObject _object, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(GameObject _object, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -598,7 +597,7 @@ namespace BicUtil.Tween
 			throw new SystemException("[BICTWEEN] Did not support this object " + _object.name);
 		}
 
-		public static TweenModel Alpha(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(GameObject _object, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -615,35 +614,35 @@ namespace BicUtil.Tween
 			throw new SystemException("[BICTWEEN] Did not support this object " + _object.name);
 		}
 
-		public static TweenModel Alpha(UnityEngine.UI.Graphic _uigraphic, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(UnityEngine.UI.Graphic _uigraphic, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return alpha(_uigraphic.gameObject, _from, _to, _time, TweenType.AlphaUIGraphic, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Alpha(SpriteRenderer _sprite, float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(SpriteRenderer _sprite, float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return alpha(_sprite.gameObject, _from, _to, _time, TweenType.AlphaSprite, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Alpha(UnityEngine.UI.Graphic _uigraphic, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(UnityEngine.UI.Graphic _uigraphic, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return alpha(_uigraphic.gameObject, _uigraphic.color.a, _to, _time, TweenType.AlphaUIGraphic, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Alpha(SpriteRenderer _sprite, float _to, float _time, TweenPool _pool = null,
+		public static Tween Alpha(SpriteRenderer _sprite, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return alpha(_sprite.gameObject, _sprite.color.a, _to, _time, TweenType.AlphaSprite, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		private static TweenModel alpha(GameObject _object, float _from, float _to, float _time, TweenType _alphaType, TweenPool _pool = null,
+		private static Tween alpha(GameObject _object, float _from, float _to, float _time, TweenType _alphaType, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -658,7 +657,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, float _alpha = 1f,
+		public static Tween Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, float _alpha = 1f,
 		TweenPool _puller = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
@@ -666,7 +665,7 @@ namespace BicUtil.Tween
 			return Rainbow(_uigraphic, _time, new FloatVariable(_alpha), _puller, _memberName, _sourceFilePath, _sourceLineNumber);	
 		}
 
-		public static TweenModel Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, FloatVariable _alpha,
+		public static Tween Rainbow(UnityEngine.UI.Graphic _uigraphic, float _time, FloatVariable _alpha,
 		TweenPool _puller = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
@@ -688,7 +687,7 @@ namespace BicUtil.Tween
             }).SetTargetObject(_uigraphic.gameObject);
 		}
 
-		public static TweenModel Rainbow(SpriteRenderer _sprite, float _time, TweenPool _pool = null, 
+		public static Tween Rainbow(SpriteRenderer _sprite, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -709,7 +708,7 @@ namespace BicUtil.Tween
             });
 		}
 
-		public static TweenModel Rainbow(UnityEngine.UI.Outline _outline, float _time, TweenPool _pool = null, 
+		public static Tween Rainbow(UnityEngine.UI.Outline _outline, float _time, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -730,7 +729,7 @@ namespace BicUtil.Tween
             });
 		}
 
-		public static TweenModel Size(RectTransform _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Size(RectTransform _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -747,7 +746,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Size(RectTransform _object, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Size(RectTransform _object, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -755,7 +754,7 @@ namespace BicUtil.Tween
 		}
 
 
-		public static TweenModel Shake(GameObject _object, Vector3 _range, float _time, TweenPool _pool = null,
+		public static Tween Shake(GameObject _object, Vector3 _range, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -770,7 +769,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel ShakeUpDown(GameObject _object, float _height, float _time, TweenPool _pool = null,
+		public static Tween ShakeUpDown(GameObject _object, float _height, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -781,14 +780,14 @@ namespace BicUtil.Tween
 			});
 		}
 
-		public static TweenModel Rotate(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Rotate(GameObject _object, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return Rotate(_object, _object.transform.eulerAngles, _to, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Rotate(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
+		public static Tween Rotate(GameObject _object, Vector3 _from, Vector3 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -803,14 +802,14 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel RotateZ(GameObject _object, float _toZ, float _time, TweenPool _pool = null,
+		public static Tween RotateZ(GameObject _object, float _toZ, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return RotateZ(_object, _object.transform.eulerAngles.z, _toZ, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel RotateZ(GameObject _object, float _fromZ, float _toZ, float _time, TweenPool _pool = null,
+		public static Tween RotateZ(GameObject _object, float _fromZ, float _toZ, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -830,7 +829,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Delay(float _time, TweenPool _pool = null,
+		public static Tween Delay(float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -843,7 +842,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel DelayOneFrame(TweenPool _pool = null,
+		public static Tween DelayOneFrame(TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -852,7 +851,7 @@ namespace BicUtil.Tween
 
 		
 		#if BICUTIL_SPINE
-		public static TweenModel SpineAnimation(SkeletonAnimation _spine, string _animationName, TweenPool _pool = null,
+		public static Tween SpineAnimation(SkeletonAnimation _spine, string _animationName, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -873,14 +872,14 @@ namespace BicUtil.Tween
 		}
 		#endif
 		
-		public static TweenModel Value(float _from, float _to, float _time, TweenPool _pool = null,
+		public static Tween Value(float _from, float _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return Value(new Vector4(_from, 0, 0, 0), new Vector4(_to, 0, 0, 0), _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static TweenModel Value(Vector4 _from, Vector4 _to, float _time, TweenPool _pool = null,
+		public static Tween Value(Vector4 _from, Vector4 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -895,7 +894,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel ValueWithSpeed(Vector4 _from, Vector4 _to, float _distancePerSecond, TweenPool _pool = null,
+		public static Tween ValueWithSpeed(Vector4 _from, Vector4 _to, float _distancePerSecond, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -903,7 +902,7 @@ namespace BicUtil.Tween
 			return Value(_from, _to, _time, _pool);	
 		}
 
-		public static TweenModel Sequance(TweenPool _pool = null,
+		public static Tween Sequance(TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -920,7 +919,7 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static TweenModel Spawn(TweenPool _pool = null,
+		public static Tween Spawn(TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
@@ -942,11 +941,11 @@ namespace BicUtil.Tween
 		}
 
 		[Obsolete]
-		public static TweenCancelObject CancelObject(TweenModel _tween){
+		public static TweenCancelObject CancelObject(Tween _tween){
 			return new TweenCancelObject(_tween);
 		}
 
-		public static TweenTracker Tracker(TweenModel _tween){
+		public static TweenTracker Tracker(Tween _tween){
 			return new TweenTracker(_tween);
 		}
 
@@ -1080,12 +1079,12 @@ namespace BicUtil.Tween
 	}
 
 	// public class MultiTweenMaker{
-	// 	private TweenModel sequance;
-	// // 	private List<TweenModel> backupList;
+	// 	private Tween sequance;
+	// // 	private List<Tween> backupList;
 	// // 	private Action onStartAction;
 
 	// // 	public MultiTweenMaker(){
-	// // 		backupList = new List<TweenModel>();
+	// // 		backupList = new List<Tween>();
 	// // 		this.Reset();
 	// // 	}
 
@@ -1099,7 +1098,7 @@ namespace BicUtil.Tween
 	// // 		onStartAction = null;
 	// // 	}
 
-	// // 	public void AddChild(TweenModel _tween){
+	// // 	public void AddChild(Tween _tween){
 	// // 		_tween.Pause();
 	// // 		backupList.Add(_tween);
 	// // 	}
@@ -1120,7 +1119,7 @@ namespace BicUtil.Tween
 	// // 		backupList.Clear();
 	// // 	}
 
-	// // 	public TweenModel Make(){
+	// // 	public Tween Make(){
 	// // 		NextStep();
 	// // 		sequance.SubscribeStart(this.onStartAction);
 
@@ -1133,7 +1132,7 @@ namespace BicUtil.Tween
 	
 	
 	public class TweenTracker{
-		public TweenModel Tween = null;
+		public Tween Tween = null;
 		public int Id = -1;
 
 		public bool IsComplete{
@@ -1154,11 +1153,11 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public TweenTracker(TweenModel _tween = null){
+		public TweenTracker(Tween _tween = null){
 			SetTween(_tween);
 		}
 
-		public void SetTween(TweenModel _tween){
+		public void SetTween(Tween _tween){
 			Tween = _tween;
 
 			if(_tween != null){
@@ -1193,7 +1192,7 @@ namespace BicUtil.Tween
 
 	[Obsolete]
 	public class TweenCancelObject : TweenTracker{
-		public TweenCancelObject(TweenModel _tween = null) : base(_tween){
+		public TweenCancelObject(Tween _tween = null) : base(_tween){
 			
 		}
 	}

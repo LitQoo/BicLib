@@ -30,7 +30,7 @@ namespace BicUtil.Tween
     }
 
     public static class UpdateFuncs{
-        public static void SetUpdateFunc(TweenModel _tween){
+        public static void SetUpdateFunc(Tween _tween){
             _tween.UpdateFunc = None;
 
             switch(_tween.Type){
@@ -163,7 +163,7 @@ namespace BicUtil.Tween
             }
         }
 
-        public static void TypeWriting(TweenModel _tween , int _number){
+        public static void TypeWriting(Tween _tween , int _number){
             if(_tween.Data == null){
                 _tween.Data = _tween.TargetObject.GetComponent<UnityEngine.UI.Text>();
                 _tween.RepeatCount = _tween.StringData.Length;

@@ -7,9 +7,13 @@ using UnityEngine.Events;
 
 namespace BicUtil.Tween
 {
-	//FIXME: rename tweenmodel -> tween
-    [Serializable]
-	public class TweenModel : IEaseData, IUpdateData{       
+	[Obsolete("Chagne TweenModel to Tween")]
+    public class TweenModel : Tween{
+
+	}
+	
+	[Serializable]
+	public class Tween : IEaseData, IUpdateData{       
 		#region Static
 		public const int DESTORY_WAIT_3FRAME = 3;
 		public const int DESTORY_READY_TO_RECYCLE = 1;
@@ -22,7 +26,7 @@ namespace BicUtil.Tween
 		public Vector4 DiffValue{get{return diffValue;}set{diffValue = value;}}
 		public List<int> ChildDataList{get{return childDataList;} set{childDataList = value;}}
 		public Vector4 CurrentValue{get;set;}
-		public Action<TweenModel> LateSetValueFunc{get;set;}
+		public Action<Tween> LateSetValueFunc{get;set;}
         public object Data{get;set;}
         public float Rate{ get;set;}
         public int PlayingIndex{get;set;}
@@ -126,7 +130,7 @@ namespace BicUtil.Tween
 		#endregion
 
 		#region  NoneSerialized Members (just use in playmode)
-		//public TweenModel Parent;
+		//public Tween Parent;
         [NonSerialized]
 		public int destoryCount = DESTORY_NOT;
         [NonSerialized]
@@ -144,7 +148,7 @@ namespace BicUtil.Tween
 		public Action OnStartCallback;
         public Action OnCompleteCallback;
         public Action<Vector4> OnUpdateCallback;
-        public Action<TweenModel, int> OnRepeatCallback;
+        public Action<Tween, int> OnRepeatCallback;
 		#endregion
 
 		public override string ToString(){
@@ -208,7 +212,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public TweenModel Copy(TweenPool _pool = null){
+		public Tween Copy(TweenPool _pool = null){
 			if(_pool == null){
 				_pool = this.pool;
 			}
@@ -308,7 +312,7 @@ namespace BicUtil.Tween
 				return;
 			}
 			
-			var _list = Data as List<TweenModel>;
+			var _list = Data as List<Tween>;
 			
 			if(_list.Count <= sequanceIndex){
 				if(RepeatCount == CurrentRepeatCount){		
@@ -360,7 +364,7 @@ namespace BicUtil.Tween
 			}
 
 
-			var _list = Data as List<TweenModel>;
+			var _list = Data as List<Tween>;
 			
 			if(_list.Count == 0){
 				if(RepeatCount == CurrentRepeatCount){	
@@ -463,8 +467,8 @@ namespace BicUtil.Tween
 			this.destoryCount = DESTORY_WAIT_3FRAME;
 		}
 
-		public List<TweenModel> GetChildList(){
-			List<TweenModel> _result = new List<TweenModel>();
+		public List<Tween> GetChildList(){
+			List<Tween> _result = new List<Tween>();
 			if(childDataList != null && this.type != TweenType.Bezier && this.type != TweenType.BezierWorld){
 				for(int i = 0; i < childDataList.Count; i++){
 					_result.Add(pool.GetTween(childDataList[i]));
@@ -477,7 +481,7 @@ namespace BicUtil.Tween
 			return childDataList.Count;
 		}
 
-		public TweenModel Play(bool _needApplyInitialInformations = true){
+		public Tween Play(bool _needApplyInitialInformations = true){
 			this.Rate = 0;
 			this.IsPlaying = true;
 			this.destoryCount = DESTORY_NOT;
@@ -493,7 +497,7 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel Pause(){
+		public Tween Pause(){
 			IsPlaying = false;
 			return this;
 		}
@@ -552,7 +556,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public TweenModel SubscribeStart(Action _callback, bool _clearSubscribe = false){
+		public Tween SubscribeStart(Action _callback, bool _clearSubscribe = false){
 			if(_clearSubscribe == true){
 				ClearSubscribeStart();
 			}
@@ -564,12 +568,12 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel ClearSubscribeStart(){
+		public Tween ClearSubscribeStart(){
 			OnStartCallback = null;
 			return this;
 		}
 
-		public TweenModel SubscribeComplete(Action _callback, bool _clearSubscribe = false){
+		public Tween SubscribeComplete(Action _callback, bool _clearSubscribe = false){
 			if(_clearSubscribe == true){
 				ClearSubscribeComplete();
 			}
@@ -581,27 +585,27 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public TweenModel ClearSubscribeComplete(){
+		public Tween ClearSubscribeComplete(){
 			OnCompleteCallback = null;
 			return this;
 		}
 
-		public TweenModel SubscribeUpdate(Action<Vector4> _callback){
+		public Tween SubscribeUpdate(Action<Vector4> _callback){
 			OnUpdateCallback += _callback;
 			return this;
 		}
 
-		public TweenModel SubscribeRepeat(Action<TweenModel, int> _callback){
+		public Tween SubscribeRepeat(Action<Tween, int> _callback){
 			OnRepeatCallback += _callback;
 			return this;
 		}
 
-		public TweenModel SetEase(EaseType _easeType){
+		public Tween SetEase(EaseType _easeType){
 			EaseType = _easeType;
 			return this;
 		}
 
-		public TweenModel SetCaller(
+		public Tween SetCaller(
 			[CallerMemberName] string _memberName = "",
 			[CallerFilePath] string _sourceFilePath = "",
 			[CallerLineNumber] int _sourceLineNumber = 0){
@@ -609,7 +613,7 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		// public TweenModel SetTimeType(Func<float> _timeType){
+		// public Tween SetTimeType(Func<float> _timeType){
 		// 	#if UNITY_EDITOR
 		// 	if(Application.isPlaying){
 		// 		TimeFunc = _timeType;
@@ -622,17 +626,17 @@ namespace BicUtil.Tween
 		// 	return this;
 		// }
 
-		public TweenModel SetRepeat(int _repeat){
+		public Tween SetRepeat(int _repeat){
 			RepeatCount = _repeat;
 			return this;
 		}
 
-		public TweenModel SetRepeatForever(){
+		public Tween SetRepeatForever(){
 			RepeatCount = -1;
 			return this;
 		}
 
-		public TweenModel AddChild(TweenModel _tween){
+		public Tween AddChild(Tween _tween){
 			#if UNITY_EDITOR
 			if(this.PlayingIndex > _tween.PlayingIndex){
 				Debug.LogWarning($"[BicTween] Child tween Playing Index({_tween.PlayingIndex}) is bigger then parent({PlayingIndex})");
@@ -652,28 +656,28 @@ namespace BicUtil.Tween
 			return this;
 		}
 
-		public void SetParent(TweenModel _parent){
+		public void SetParent(Tween _parent){
 			_parent.AddChild(this);
 		}
 
-		public TweenModel AddTo(TweenModel _tween){
+		public Tween AddTo(Tween _tween){
 			_tween.AddChild(this);
 			return this;
 		}
 
-		public TweenModel AddTo(MultiTween _maker){
+		public Tween AddTo(MultiTween _maker){
 			_maker.AddChild(this);
 			return this;
 		}
 
-		public TweenModel InsertChild(TweenModel _tween, int _index){
+		public Tween InsertChild(Tween _tween, int _index){
 			_tween.Pause();
 
 			childDataList.Insert(_index, _tween.Id);
 			return this;
 		}
 
-		public void RemoveChild(TweenModel _tween){
+		public void RemoveChild(Tween _tween){
 			if(this.IsGrouped){
 				var _childs = this.GetChildList();
 				for(int i = 0; i < _childs.Count; i++){
@@ -695,7 +699,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-		public TweenModel SetTargetObject(GameObject _target){
+		public Tween SetTargetObject(GameObject _target){
 			TargetObject = _target;
 			return this;
 		}
@@ -707,7 +711,7 @@ namespace BicUtil.Tween
 		}
 
 		[Obsolete("Use SetTracker")]
-		public TweenModel SetCancelObject(TweenCancelObject _cancelObject){
+		public Tween SetCancelObject(TweenCancelObject _cancelObject){
 			_cancelObject.SetTween(this);
 
 			return this;
@@ -717,12 +721,12 @@ namespace BicUtil.Tween
 			get{return new TweenTracker(this);}
 		}
 
-		public TweenModel SetTracker(TweenTracker _tracker){
+		public Tween SetTracker(TweenTracker _tracker){
 			_tracker.SetTween(this);
 			return this;
 		}
 
-		public TweenModel SetTracker(string _id){
+		public Tween SetTracker(string _id){
 			var _tracker = this.pool.GetTracker(_id);
 			this.SetTracker(_tracker);
 			return this;
@@ -734,11 +738,11 @@ namespace BicUtil.Tween
 			return new TweenAwaiter(this);
 		}
 
-		public async Task<TweenModel> GetTask(){
+		public async Task<Tween> GetTask(){
 			return await this;
 		}
 
-		public void SetParent(List<Task<TweenModel>> _taskList){
+		public void SetParent(List<Task<Tween>> _taskList){
 			_taskList.Add(this.GetTask());
 		}
 		#endregion
@@ -747,7 +751,7 @@ namespace BicUtil.Tween
         [NonSerialized]
         public Rect editor_rect;
 		[NonSerialized]
-		public TweenModel editor_parent;
+		public Tween editor_parent;
 		[NonSerialized]
 		public string editor_targetPath;
         #endif
@@ -756,10 +760,10 @@ namespace BicUtil.Tween
 
 // make the interface task-like
 	public class TweenAwaiter : INotifyCompletion {
-		private readonly TweenModel tween;
+		private readonly Tween tween;
 		int tweenIndex = 0;
 		// wrap the async operation
-		public TweenAwaiter (TweenModel _tween) {
+		public TweenAwaiter (Tween _tween) {
 			tweenIndex = _tween.Id;
 			tween = _tween;
 		}
@@ -779,7 +783,7 @@ namespace BicUtil.Tween
 		}
 
 		// return the result
-		public TweenModel GetResult () {
+		public Tween GetResult () {
 			return this.tween;
 		}
 	}

@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using BicUtil.Tween;
-using UnityEngine;
-using BicUtil.UIFlow;
+﻿using UnityEngine;
 using System;
+using BicUtil.Tween;
 
 namespace BicUtil.UI{
     public class DimmedManager : MonoBehaviour
@@ -116,13 +113,13 @@ namespace BicUtil.UI{
             #endif
         }
 
-        public TweenModel PlayAlphaTween(Color _color, float _fromAlpha, float _toAlpha, float _time){
+        public Tween.Tween PlayAlphaTween(Color _color, float _fromAlpha, float _toAlpha, float _time){
             return BicTween.Value(_fromAlpha, _toAlpha, _time).SubscribeUpdate(_value=>{
                 this.image.color = new Color(_color.r, _color.g, _color.b, _value.x);
             }).SetTracker(tweenTracker);
         }
 
-        public TweenModel PlayTransitionTween(Action _transitionAction, float _time = 2f){
+        public Tween.Tween PlayTransitionTween(Action _transitionAction, float _time = 2f){
             var _multi = BicTween.Multi();
             
             Enable(Color.clear);
@@ -140,7 +137,7 @@ namespace BicUtil.UI{
             });
         }
 
-        public TweenModel PlayHalfTransitionTween(Action _transitionAction, float _time = 1f){
+        public Tween.Tween PlayHalfTransitionTween(Action _transitionAction, float _time = 1f){
 
             setMessage("");
             Enable(Color.black);

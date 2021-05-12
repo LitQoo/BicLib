@@ -9,7 +9,7 @@ namespace BicUtil.Tween
 	public partial class BicTweenEditor {
 
         [TweenEditorDrawHandleControl(TweenType.Bezier)]
-        private void drawBezierHandleControl(TweenModel _tween){
+        private void drawBezierHandleControl(Tween _tween){
 			if(_tween.TargetObject == null){
 				return;
 			}
@@ -41,17 +41,17 @@ namespace BicUtil.Tween
             }
         }
 
-		private void setBezierChild(TweenModel _tween, int _index, Vector3 _position){
+		private void setBezierChild(Tween _tween, int _index, Vector3 _position){
 			_tween.childDataList[_index*3] = (int)(_position.x*1000);
 			_tween.childDataList[_index*3+1] = (int)(_position.y*1000);
 			_tween.childDataList[_index*3+2] = (int)(_position.z*1000);
 		}
 
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
         [TweenEditorDrawSetting(TweenType.Bezier)]
-        private void drawBezierSetting(TweenModel _tween){
+        private void drawBezierSetting(Tween _tween){
             var _vectors = BicTween.ChildDataToBezier(_tween.ChildDataList).ToArray();
             for(int i = 0; i < _vectors.Length; i++)
             {
@@ -125,7 +125,7 @@ namespace BicUtil.Tween
         }
 
         [TweenEditorDrawNode(TweenType.Bezier)]
-        private Rect drawBezierNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawBezierNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 

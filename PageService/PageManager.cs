@@ -20,7 +20,7 @@ namespace BicUtil.PageService
         }
 
         public void OnCreatedSingleton(){
-            
+            this.gameObject.name = "PageManager";
         }
 
         public AsyncOperation SceneReplaceAsync(string _sceneName, object _param = null){
@@ -39,16 +39,13 @@ namespace BicUtil.PageService
         }
         
         public async Task SceneBackAsync(){
-            Debug.Log("SceneBackAsync " + sceneStack.Count);
             var _pageController = sceneStack.Pop();
-            Debug.Log("scenename "+ _pageController.SceneName);
             await SceneManager.UnloadSceneAsync(_pageController.SceneName);
             var _currentScene = SceneManager.GetActiveScene();
             setGameObjectsActive(_currentScene.GetRootGameObjects(), true);
         }
 
         public void AddController(PageController _controller){
-            Debug.Log("add pagecontrolelr " + _controller.SceneName);
             this.sceneStack.Push(_controller);
         }
 

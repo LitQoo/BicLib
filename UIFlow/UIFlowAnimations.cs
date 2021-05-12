@@ -7,7 +7,7 @@ using BicUtil.Tween;
 namespace BicUtil.UIFlow
 {
 	static public class UIFlowAnimations {
-		static public Tween.TweenModel OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f){
+		static public Tween.Tween OpenSwipeHorizontal(GameObject _layer, float _firstPosition = -600, float _animationTime = 0.3f){
 			_layer.transform.localPosition = new Vector2 (_firstPosition, 0);
 			return BicTween.MoveLocalX (_layer, 0, _animationTime).SetEase(EaseType.InOutQuart);
 		}
@@ -20,12 +20,12 @@ namespace BicUtil.UIFlow
 		}
 		
 		[Obsolete]
-		static public Tween.TweenModel OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f, Action _finishCallback = null, EaseType _easyType = EaseType.InOutQuart){
+		static public Tween.Tween OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f, Action _finishCallback = null, EaseType _easyType = EaseType.InOutQuart){
 			_layer.transform.localPosition = new Vector2 (0, _firstPosition);
 			return BicTween.MoveLocalY (_layer, 0, _animationTime).SetEase(_easyType).SubscribeComplete(_finishCallback);
 		}
 
-		static public Tween.TweenModel OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f){
+		static public Tween.Tween OpenSwipeVertical(GameObject _layer, float _firstPosition = -1200, float _animationTime = 0.3f){
 			_layer.transform.localPosition = new Vector2 (0, _firstPosition);
 			return BicTween.MoveLocalY (_layer, 0, _animationTime);
 		}
@@ -37,7 +37,7 @@ namespace BicUtil.UIFlow
 			return OnCloseUIResult.WaitForFinishCallbackAndFastDisplayNext;
 		}
 
-		static public Tween.TweenModel OpenScaleDown(GameObject _layer, float _startScale = 1.3f, float _animationTime = 0.15f){
+		static public Tween.Tween OpenScaleDown(GameObject _layer, float _startScale = 1.3f, float _animationTime = 0.15f){
 			_layer.transform.localScale = new Vector2(1.1f, 1.1f);
 			return BicTween.Scale(_layer, new Vector2(1.1f, 1.1f), Vector2.one, _animationTime);
 		}

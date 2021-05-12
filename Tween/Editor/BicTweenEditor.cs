@@ -15,9 +15,9 @@ namespace BicUtil.Tween
 		private GameObject selectedGameObject;
 		private TweenPool selectedTweenPool;
 		private int selectedGroupIndex;
-		private List<TweenModel> selectedTweens = new List<TweenModel>();
+		private List<Tween> selectedTweens = new List<Tween>();
 		private Vector2 pointsScrollPosition;
-		private TweenModel selectedGroup{
+		private Tween selectedGroup{
 			get{
 				if(selectedTweenPool == null || selectedGroupIndex < 0){
 					return null;
@@ -163,7 +163,7 @@ namespace BicUtil.Tween
 
 		}
 
-		private List<TweenModel> copiedTweens = new List<TweenModel>();
+		private List<Tween> copiedTweens = new List<Tween>();
 		private void handleCopyPaste()
 		{
 			if (Event.current.type == EventType.KeyDown && (Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command))
@@ -171,7 +171,7 @@ namespace BicUtil.Tween
 				if (Event.current.keyCode == KeyCode.C)
 				{
 					Event.current.Use();
-					copiedTweens = new List<TweenModel>(selectedTweens.ToArray());
+					copiedTweens = new List<Tween>(selectedTweens.ToArray());
 				}
 				else if (Event.current.keyCode == KeyCode.V)
 				{
@@ -191,20 +191,20 @@ namespace BicUtil.Tween
 			}
 		}
 		
-		private void selectTween(TweenModel _tween){
+		private void selectTween(Tween _tween){
 			selectedTweens.Clear();
 			selectedTweens.Add(_tween);
 		}
 
-		private void unselectTween(TweenModel _tween){
+		private void unselectTween(Tween _tween){
 			selectedTweens.Remove(_tween);
 		}
 
-		private void addToSelectTween(TweenModel _tween){
+		private void addToSelectTween(Tween _tween){
 			selectedTweens.Add(_tween);
 		}
 
-		private void popupMenu(TweenModel _tween){
+		private void popupMenu(Tween _tween){
 			GenericMenu genericMenu = new GenericMenu ();
 			genericMenu.AddItem (new GUIContent ("Remove"), false,delegate() {
 				selectedTweenPool.RemoveTween(selectedGroup, _tween);
@@ -290,9 +290,9 @@ namespace BicUtil.Tween
 		#region Setting
         private Dictionary<TweenType, MethodInfo> drawNodeCache = new Dictionary<TweenType, MethodInfo>();
         private Rect movingPoint;
-		private TweenModel movingTarget;
+		private Tween movingTarget;
 		private bool isPreMoving = false;
-		public Rect DrawNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		public Rect DrawNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             if(_tween == null){
                 Debug.LogWarning("[BicTween] tween is null");
                 return new Rect(0, 0, 0, 0);
@@ -317,7 +317,7 @@ namespace BicUtil.Tween
 			return new Rect(0, 0, 0, 0);
         }
 
-		public bool OnClicked(TweenModel _tween, Event _event){
+		public bool OnClicked(Tween _tween, Event _event){
             switch(_tween.Type){
             case TweenType.Spawn:
             case TweenType.Sequance:
@@ -330,7 +330,7 @@ namespace BicUtil.Tween
         private Dictionary<TweenType, MethodInfo> drawSettingCache = new Dictionary<TweenType, MethodInfo>();
 		private bool isGroupRemove = false;
 		private int selectedGroupSettingTab;
-		public void DrawSetting(List<TweenModel> _tweens){
+		public void DrawSetting(List<Tween> _tweens){
 			bool _isGroupSetting = false;
 			if(_tweens.Count == 1 && selectedGroup == _tweens[0]){
 				selectedGroupSettingTab = GUILayout.Toolbar (selectedGroupSettingTab, new string[] {"Setting", "Initial"});
@@ -375,7 +375,7 @@ namespace BicUtil.Tween
         }
 
         private Dictionary<TweenType, MethodInfo> drawHandleControlCache = new Dictionary<TweenType, MethodInfo>();
-		public void DrawHandleControl(List<TweenModel> _tweens){
+		public void DrawHandleControl(List<Tween> _tweens){
 			
 			for(int i = 0; i < _tweens.Count; i++){
 				var _tween = _tweens[i];
@@ -437,7 +437,7 @@ namespace BicUtil.Tween
 			}
 		}
 
-        private void drawDefaultSetting(List<TweenModel> _tweens){
+        private void drawDefaultSetting(List<Tween> _tweens){
 			if(_tweens.Count == 1){
 				var _tween = _tweens[0];
 				EditorGUILayout.LabelField("ID", _tween.Id.ToString());

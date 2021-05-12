@@ -7,23 +7,23 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		[TweenEditorDrawNode(TweenType.Delay)]
-		private Rect drawDelayNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		private Rect drawDelayNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 			return drawSingleNode(_tween, _startPosition, _timeline);
 		}
 		//[TweenEditorDrawNode(TweenType.?)]
-		//private Rect draw?Node(TweenModel _tween, Vector2 _startPosition, Timeline _timeline)
+		//private Rect draw?Node(Tween _tween, Vector2 _startPosition, Timeline _timeline)
 
 
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
 
 		//[TweenEditorSettingNode(TweenType.?)]
-		//void draw?Setting(TweenModel _tween)
+		//void draw?Setting(Tween _tween)
 
 
 		//[TweenEditorHandleController(TweenType.?)]
-		//private void draw?Preview(TweenModel _tween)
+		//private void draw?Preview(Tween _tween)
 
 	}
 }

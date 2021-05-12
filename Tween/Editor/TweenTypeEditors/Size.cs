@@ -9,21 +9,21 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
         [TweenEditorDrawNode(TweenType.Size)]
-        private Rect drawSizeNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawSizeNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 
 		[TweenEditorDrawSetting(TweenType.Size)]
-		private void drawSizeSetting(TweenModel _tween){
+		private void drawSizeSetting(Tween _tween){
 			_tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
 			_tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
 		}
 
 		[TweenEditorDrawHandleControl(TweenType.Size)]
-		private void drawSizeHandleControl(TweenModel _tween){
+		private void drawSizeHandleControl(Tween _tween){
 			if(_tween.TargetObject == null){
 				return;
 			}
@@ -41,7 +41,7 @@ namespace BicUtil.Tween
 			drawMoveHandle(new Vector2(_diffRect.x + _diffRect.width, _diffRect.y + _diffRect.height), 1, Color.cyan, 10, _tween, setSizePosition);
 		}
 
-		private void setSizePosition(TweenModel _tween, int _index, Vector3 _position)
+		private void setSizePosition(Tween _tween, int _index, Vector3 _position)
         {
 			var _transform = _tween.TargetObject.GetComponent<RectTransform>();
            	if(_index == 1){

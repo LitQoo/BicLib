@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
-		private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		private Rect drawSingleNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time * (_tween.RepeatCount + 1)),20);
             string _title = (_tween.TargetObject != null ? _tween.TargetObject.name : "null") + "." + _tween.Type.ToString();
 			var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : Color.white;
@@ -16,14 +16,14 @@ namespace BicUtil.Tween
             return _tween.editor_rect;
         }
 
-        private Rect drawSingleNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline, Color _backColor, string _title){
+        private Rect drawSingleNode(Tween _tween, Vector2 _startPosition, Timeline _timeline, Color _backColor, string _title){
             _tween.editor_rect =new Rect(_startPosition.x,_startPosition.y, _timeline.SecondsToGUI(_tween.Time * (_tween.RepeatCount + 1)),20);
             var _backgroundColor = selectedTweens.Contains(_tween) ? Color.yellow : _backColor;
             drawNode(_tween, _title, _backgroundColor);
             return _tween.editor_rect;
         }
 
-        private void drawNode(TweenModel _tween, string _text, Color _color){
+        private void drawNode(Tween _tween, string _text, Color _color){
             var _lastColor = GUI.backgroundColor;
             GUI.backgroundColor = _color;
             GUI.Box (_tween.editor_rect,"","TL LogicBar 0");
@@ -49,8 +49,8 @@ namespace BicUtil.Tween
             GUI.backgroundColor = _lastColor;
         }
 
-        private bool isAncestor(TweenModel _child, TweenModel _parent){
-            TweenModel _ancestor = _child;
+        private bool isAncestor(Tween _child, Tween _parent){
+            Tween _ancestor = _child;
             while(true){
                 if(_ancestor == null){
                     return false;
@@ -62,7 +62,7 @@ namespace BicUtil.Tween
             }
         }
 
-        private bool onClickedNodeSingle(TweenModel _tween, Event _event){
+        private bool onClickedNodeSingle(Tween _tween, Event _event){
             if(_tween.editor_rect.Contains(_event.mousePosition)){
                 switch(_event.type){
                     case EventType.MouseUp:

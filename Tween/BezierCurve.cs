@@ -178,7 +178,7 @@
 // 			return _path;
 // 		}
 
-// 		public TweenModel Tween{
+// 		public Tween Tween{
 // 			get{
 //                 var _array = GetPathForLeantween(Vector3.zero).ToArray();
 //                 targetObject.transform.localPosition = _array[0];

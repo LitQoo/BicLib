@@ -30,7 +30,7 @@ namespace Bigjam.Developer
             _ponyDance.Cancel();
         }
 
-        private TweenModel playHansUpDance(IDeveloper _developer){
+        private Tween playHansUpDance(IDeveloper _developer){
             var _spawn = BicTween.Spawn();
 
             var _leftHandSeq = BicTween.Sequance();

@@ -9,22 +9,22 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
 
         [TweenEditorDrawNode(TweenType.MoveLocal)]
-        private Rect drawMoveNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawMoveNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 		
 		[TweenEditorDrawSetting(TweenType.MoveLocal)]
-		private void drawMoveSetting(TweenModel _tween){
+		private void drawMoveSetting(Tween _tween){
 			_tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
 			_tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
 		}
 
         [TweenEditorDrawHandleControl(TweenType.MoveLocal)]
-		private void drawMoveHandleControl(TweenModel _tween){
+		private void drawMoveHandleControl(Tween _tween){
 			if(_tween.TargetObject == null){
 				return;
 			}
@@ -42,7 +42,7 @@ namespace BicUtil.Tween
 
 		}
 
-		private void drawMoveHandle (Vector3 point, int index, Color _pointColor, float _size, TweenModel _tween, Action<TweenModel, int, Vector3> _callback) {
+		private void drawMoveHandle (Vector3 point, int index, Color _pointColor, float _size, Tween _tween, Action<Tween, int, Vector3> _callback) {
             Handles.color = _pointColor;
             
 			EditorGUI.BeginChangeCheck();
@@ -53,7 +53,7 @@ namespace BicUtil.Tween
 			}
         }
 		
-		private void setMovePosition(TweenModel _tween, int _index, Vector3 _position){
+		private void setMovePosition(Tween _tween, int _index, Vector3 _position){
 			var _parentPos = _tween.TargetObject.transform.parent.position;
 			if(_index == 0){
 				//_tween.DiffValue = (Vector3)_tween.OriginValue - ((new Vector3(_position.x, _position.y)) -  (Vector3)_tween.DiffValue);

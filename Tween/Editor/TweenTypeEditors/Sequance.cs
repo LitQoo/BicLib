@@ -9,12 +9,12 @@ namespace BicUtil.Tween
 	public partial class BicTweenEditor {
 
 		[TweenEditorDrawHandleControl(TweenType.Sequance)]
-		private void drawSequanceHandleControl(TweenModel _tween){
+		private void drawSequanceHandleControl(Tween _tween){
 			drawGroupHandleControl(_tween);
 		}
 
 		[TweenEditorDrawNode(TweenType.Sequance)]
-		private Rect drawSequanceNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		private Rect drawSequanceNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 			var _position = _startPosition + new Vector2(0, 20);
 			var _rect = new Rect();
 			float _heightMax = 20;

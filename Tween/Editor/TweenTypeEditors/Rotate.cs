@@ -9,21 +9,21 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
         [TweenEditorDrawNode(TweenType.Rotate)]
-        private Rect drawRotateNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawRotateNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 
 		[TweenEditorDrawSetting(TweenType.Rotate)]
-		private void drawRotateSetting(TweenModel _tween){
+		private void drawRotateSetting(Tween _tween){
             _tween.OriginValue = EditorGUILayout.Vector3Field("Origin Value", _tween.OriginValue);
             _tween.DiffValue = EditorGUILayout.Vector3Field("Diff Value", _tween.DiffValue);
         }
 
 		[TweenEditorDrawHandleControl(TweenType.Rotate)]
-		private void drawRotateHandleControl(TweenModel _tween){
+		private void drawRotateHandleControl(Tween _tween){
 			if(_tween.TargetObject == null){
 				return;
 			}
@@ -38,11 +38,11 @@ namespace BicUtil.Tween
 			// }
 		}
 
-		private void setRotate(TweenModel _tween, int _index, Quaternion _rotate){
+		private void setRotate(Tween _tween, int _index, Quaternion _rotate){
 			_tween.DiffValue = _rotate.eulerAngles;
 		}
 
-		private void DrawRotateHandle (int index, float startAngle, float endAngle, Vector3 point, Color _pointColor, float _size, TweenModel _tween, Action<TweenModel, int, Quaternion> _callback) {
+		private void DrawRotateHandle (int index, float startAngle, float endAngle, Vector3 point, Color _pointColor, float _size, Tween _tween, Action<Tween, int, Quaternion> _callback) {
 
 			EditorGUI.BeginChangeCheck();
 			var _startHandle = new Vector2(40*Mathf.Cos(Mathf.Deg2Rad*(startAngle + 180)),40*Mathf.Sin(Mathf.Deg2Rad*(startAngle + 180)));

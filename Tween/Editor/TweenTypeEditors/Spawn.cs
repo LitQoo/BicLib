@@ -9,12 +9,12 @@ namespace BicUtil.Tween
 	public partial class BicTweenEditor {
 
 		[TweenEditorDrawHandleControl(TweenType.Spawn)]
-		private void drawSpawnHandleControl(TweenModel _tween){
+		private void drawSpawnHandleControl(Tween _tween){
 			drawGroupHandleControl(_tween);
 		}
 
 		[TweenEditorDrawNode(TweenType.Spawn)]
-		private Rect drawSpawnNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+		private Rect drawSpawnNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
 			float _xPos = _startPosition.x;
 			float _height = 20;
 			var _backgroundColor = selectedTweens.Contains(_tween) ? new Color(1f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
@@ -45,11 +45,11 @@ namespace BicUtil.Tween
 		}
 
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event){
+		//private void onClicked?Node(Tween _tween, Event _event){
 		//}
 
 		//[TweenEditorSettingNode(TweenType.?)]
-		//void drawMoveSetting(TweenModel _tween)
+		//void drawMoveSetting(Tween _tween)
 
 		//[TweenEditorHandleController(TweenType.?)]
 

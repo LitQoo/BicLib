@@ -9,15 +9,15 @@ namespace BicUtil.Tween
 {
 	public partial class BicTweenEditor {
 		//[TweenEditorOnClickedNode(TweenType.?)]
-		//private void onClicked?Node(TweenModel _tween, Event _event)
+		//private void onClicked?Node(Tween _tween, Event _event)
 
         [TweenEditorDrawNode(TweenType.TypeWriting)]
-        private Rect drawTypeWritingNode(TweenModel _tween, Vector2 _startPosition, Timeline _timeline){
+        private Rect drawTypeWritingNode(Tween _tween, Vector2 _startPosition, Timeline _timeline){
             return drawSingleNode(_tween, _startPosition, _timeline);
         }
 
 		[TweenEditorDrawSetting(TweenType.TypeWriting)]
-		private void drawTypeWritingSetting(TweenModel _tween){
+		private void drawTypeWritingSetting(Tween _tween){
 			_tween.StringData = EditorGUILayout.TextField("Text", _tween.StringData);
 
 			if(_tween.StringData != null){
