@@ -134,12 +134,17 @@ namespace BicUtil.PageService
                 throw new SystemException("[PageManager] already set base");
             }
 
+            Debug.Log("SetBasePage");
             if(sceneTransitionParameter != null){
                 _param = sceneTransitionParameter;
                 sceneTransitionParameter = null;
             }
             
+
+            Debug.Log("stackpush");
             pageStack.Push(_page);
+
+            Debug.Log("onopenpage " + CurrentPage.GetType().ToString());
             CurrentPage.OnOpenedPage(null, _param);
         }
 
@@ -157,20 +162,21 @@ namespace BicUtil.PageService
             _ = SceneReplaceAsync(_sceneName, _param);
         }
 
-        public AsyncOperation SceneEnterAsync(string _sceneName, object _param = null){
-            return PageManager.Instance.SceneEnterAsync(_sceneName, _param);
+        public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
+            var _result = await PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
+            return _result;
         }
 
-        public void SceneEnter(string _sceneName, object _param = null){
-            _ = PageManager.Instance.SceneEnterAsync(_sceneName, _param);
+        public void SceneEnter(string _sceneName, object _openParam = null){
+            _ = PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
         }
 
-        public async Task SceneBackAsync(){
-            await PageManager.Instance.SceneBackAsync();
+        public async Task SceneBackAsync(object _openParam = null, object _closeParam = null){
+            await PageManager.Instance.SceneBackAsync(_openParam, _closeParam);
         }
 
-        public void SceneBack(){
-            _ = this.SceneBackAsync();
+        public void SceneBack(object _openParam = null, object _closeParam = null){
+            _ = this.SceneBackAsync(_openParam, _closeParam);
         }
 
         public async Task EnterAsync<PageClass>(object _param = null){
@@ -256,6 +262,10 @@ namespace BicUtil.PageService
             _ = this.BackAsync(_transition, _openParam, _closeParam);
         }
 
+        internal async Task reopenFromSceneAsync(string _sceneName, Type _lastPageType, object _openParam){
+            await CurrentPage.OnOpenedPage(new ScenePage(_sceneName, _lastPageType), _openParam);
+        }
+
         private async Task transitionPage(PageTransition _transition, Task _closeTask, Task _openTask)
         {
             if (_transition == PageTransition.Sequance)
@@ -285,6 +295,40 @@ namespace BicUtil.PageService
         public void SetBackKeyAction(Action _action){
             //TODO: setbackkey
             Debug.LogWarning("SetBackeyaction impl");
+        }
+    }
+
+    public class ScenePage : IPage
+    {
+        public string SceneName{get; private set;}
+        public Type LastPageType{get; private set;}
+        public ScenePage(string _name, Type _lastPageType){
+            SceneName = _name;
+            LastPageType = _lastPageType;
+        }
+
+        public int InitializeOrder => throw new NotImplementedException();
+
+        public PageController PageController { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public void DeinitializePage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InitializePage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task OnClosedPage(IPage _fromUI, object _param = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task OnOpenedPage(IPage _fromPage, object _param = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

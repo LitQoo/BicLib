@@ -28,21 +28,32 @@ namespace BicUtil.PageService
             return SceneManager.LoadSceneAsync(_sceneName);
         }
 
-        public AsyncOperation SceneEnterAsync(string _sceneName, object _param = null){
-            this.sceneTransitionParameter = _param;
+        public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
+            this.sceneTransitionParameter = _openParam;
             var _currentScene = SceneManager.GetActiveScene();
             var _nextScene = SceneManager.GetSceneByName(_sceneName);
-            setGameObjectsActive(_currentScene.GetRootGameObjects(), false);
             var _result = SceneManager.LoadSceneAsync(_sceneName, LoadSceneMode.Additive);
+            setGameObjectsActive(_currentScene.GetRootGameObjects(), false);
+            await _result;
             return _result;
             
         }
         
-        public async Task SceneBackAsync(){
+        public async Task SceneBackAsync(object _openParam = null, object _closeParam = null){
             var _pageController = sceneStack.Pop();
+            var _nextPageController = sceneStack.Peek();
+            var _currentSceneName = _pageController.SceneName;
+            var _currentPageType = _pageController.CurrentPage.GetType();
+
+            await _pageController.CurrentPage.OnClosedPage(new ScenePage(_nextPageController.SceneName, _nextPageController.CurrentPage.GetType()), _closeParam);
+
             await SceneManager.UnloadSceneAsync(_pageController.SceneName);
             var _currentScene = SceneManager.GetActiveScene();
             setGameObjectsActive(_currentScene.GetRootGameObjects(), true);
+
+            if(_openParam != null){
+                await _nextPageController.reopenFromSceneAsync(_currentSceneName, _currentPageType, _openParam);
+            }
         }
 
         public void AddController(PageController _controller){
