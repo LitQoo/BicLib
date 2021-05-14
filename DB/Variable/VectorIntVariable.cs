@@ -110,6 +110,10 @@ namespace BicDB.Variable
 			} 
 		}
 
+		public override string ToString(){
+			return this.AsString;
+		}
+
         public int AsInt { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public float AsFloat { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool AsBool { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -139,22 +143,22 @@ namespace BicDB.Variable
 			OnChangedValueActions = null;
 		}
 
-        public void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
+        void IVariableReadOnly.Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
         {
             throw new NotImplementedException();
         }
 
-        public void Unsubscribe(Action<IVariableReadOnly> _callback)
+        void IVariableReadOnly.Unsubscribe(Action<IVariableReadOnly> _callback)
         {
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeAll()
+        void IVariableReadOnly.UnsubscribeAll()
         {
             throw new NotImplementedException();
         }
 
-        public void NotifyChanged(IVariableReadOnly _value)
+        void IVariableReadOnly.NotifyChanged(IVariableReadOnly _value)
         {
             throw new NotImplementedException();
         }

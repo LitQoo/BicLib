@@ -122,7 +122,7 @@ namespace BicUtil.MVCSystem
 		}
 
 		public void BindModelToController (IVariable _variable, Action _func, bool _needFirstCall = false){
-			BindModelToController (_variable, (IVariableReadOnly __variable) => _func (), _needFirstCall);
+			BindModelToController (_variable, _ => _func (), _needFirstCall);
 		}
 
 		public void BindModelToController<U> (IObjectContainer<U> _container, Action<IObjectContainer<U>> _func, bool _needFirstCall = false){
