@@ -23,9 +23,11 @@ namespace BicUtil.PageService
             this.gameObject.name = "PageManager";
         }
 
-        public AsyncOperation SceneReplaceAsync(string _sceneName, object _param = null){
+        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _param = null){
             this.sceneTransitionParameter = _param;
-            return SceneManager.LoadSceneAsync(_sceneName);
+            var _result = SceneManager.LoadSceneAsync(_sceneName);
+            await _result;
+            return _result;
         }
 
         public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){

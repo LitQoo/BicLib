@@ -18,6 +18,7 @@ namespace BicUtil.UI{
         private UnityEngine.UI.Button[] buttons;
         [SerializeField]
         private int defaultIndex = 0;
+        public Action<int> OnChangedTab;
         #endregion
 
         private void Awake(){
@@ -68,6 +69,10 @@ namespace BicUtil.UI{
         public void OpenTab(int _index){
             for(int i = 0; i < viewers.Length; i++){
                 viewers[i].SetActive(_index == i);
+            }
+
+            if(OnChangedTab != null){
+                OnChangedTab(_index);
             }
         }
 

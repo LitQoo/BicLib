@@ -154,12 +154,16 @@ namespace BicUtil.PageService
             pageStack.Clear();
         }
 
-        public AsyncOperation SceneReplaceAsync(string _sceneName, object _param = null){
-            return PageManager.Instance.SceneReplaceAsync(_sceneName, _param);
+        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _param = null){
+            var _result = await PageManager.Instance.SceneReplaceAsync(_sceneName, _param);
+            return _result;
         }
 
         public void SceneReplace(string _sceneName, object _param = null){
-            _ = SceneReplaceAsync(_sceneName, _param);
+            var taskResult = SceneReplaceAsync(_sceneName, _param);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
@@ -168,7 +172,10 @@ namespace BicUtil.PageService
         }
 
         public void SceneEnter(string _sceneName, object _openParam = null){
-            _ = PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
+            var taskResult = PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task SceneBackAsync(object _openParam = null, object _closeParam = null){
@@ -176,7 +183,10 @@ namespace BicUtil.PageService
         }
 
         public void SceneBack(object _openParam = null, object _closeParam = null){
-            _ = this.SceneBackAsync(_openParam, _closeParam);
+            var taskResult = this.SceneBackAsync(_openParam, _closeParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task EnterAsync<PageClass>(object _param = null){
@@ -193,7 +203,10 @@ namespace BicUtil.PageService
         }
 
         public void Enter<PageClass>(object _param = null){
-            _ = this.EnterAsync<PageClass>(_param);
+            var taskResult = this.EnterAsync<PageClass>(_param);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task ChangeAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null)
@@ -215,7 +228,10 @@ namespace BicUtil.PageService
         }
 
         public void Change<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
-            _ = this.ChangeAsync<PageClass>(_transition, _openParam, _closeParam);
+            var taskResult = this.ChangeAsync<PageClass>(_transition, _openParam, _closeParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task ReplaceAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
@@ -236,7 +252,10 @@ namespace BicUtil.PageService
         }
 
         public void Replace<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
-            _ = this.ReplaceAsync<PageClass>(_transition, _openParam, _closeParam);
+            var taskResult = this.ReplaceAsync<PageClass>(_transition, _openParam, _closeParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task BackAsync(object _closeParam = null){
@@ -245,7 +264,10 @@ namespace BicUtil.PageService
         }
 
         public void Back(object _closeParam = null){
-            _ = this.BackAsync(_closeParam);
+            var taskResult = this.BackAsync(_closeParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         public async Task BackAsync(PageTransition _transition, object _openParam = null, object _closeParam = null){
@@ -259,7 +281,10 @@ namespace BicUtil.PageService
         }
 
         public void Back(PageTransition _transition, object _openParam = null, object _closeParam = null){
-            _ = this.BackAsync(_transition, _openParam, _closeParam);
+            var taskResult = this.BackAsync(_transition, _openParam, _closeParam);
+            if(taskResult.Exception != null){
+                throw taskResult.Exception;
+            }
         }
 
         internal async Task reopenFromSceneAsync(string _sceneName, Type _lastPageType, object _openParam){

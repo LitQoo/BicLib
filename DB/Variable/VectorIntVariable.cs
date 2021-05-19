@@ -143,7 +143,7 @@ namespace BicDB.Variable
 			OnChangedValueActions = null;
 		}
 
-        void IVariableReadOnly.Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
+        void IVariableReadOnly.Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall)
         {
             throw new NotImplementedException();
         }
