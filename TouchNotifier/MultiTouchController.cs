@@ -13,7 +13,9 @@ namespace BicUtil.TouchNotifier
         #endregion
 
         #region Instant
-        public bool IsMultiTouch = false;
+        [SerializeField]
+        private bool isEnabled = true;
+        public bool IsMultiTouch{get; private set;} = false;
         public float Scale = 1f;
         private Vector2 lastBoardPosition = Vector2.zero;
         private float distanceBetweenTouches = 0f;
@@ -49,7 +51,7 @@ namespace BicUtil.TouchNotifier
                 return;
             }
 
-            if(this.touchNotifier.TouchCount > 1){
+            if(this.isEnabled == true && this.touchNotifier.TouchCount > 1){
                 if(_touchIndex == 1)
                 {
                     onMultiTouchDown(_currentPosition);
@@ -70,7 +72,7 @@ namespace BicUtil.TouchNotifier
                 return;
             }
 
-            if(this.touchNotifier.TouchCount > 1){
+            if(this.isEnabled == true && this.touchNotifier.TouchCount > 1){
                 if(_touchIndex == 1)
                 {
                     onMultiTouchMove(_startPosition, _currentPosition);
@@ -89,7 +91,7 @@ namespace BicUtil.TouchNotifier
                 return;
             }
 
-            if(_touchIndex == 0 && onSingleTouchUp != null){
+            if(IsMultiTouch == false && _touchIndex == 0 && onSingleTouchUp != null){
                 onSingleTouchUp(_startPosition, _currentPosition);
             }
 
@@ -100,6 +102,10 @@ namespace BicUtil.TouchNotifier
         #endregion
 
         #region MultiTouch
+
+        public void SetEnable(bool _isEnable){
+            this.isEnabled = _isEnable;
+        }
 
         private void onMultiTouchDown(Vector2 _currentPosition)
         {
