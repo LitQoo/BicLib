@@ -309,6 +309,31 @@ namespace BicDB.Storage
 			return _result.Result;
 		}
 
+		public T GetRecordOnMemoryCache<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
+			var _webParam = _param as WebStorageParameter;
+			
+			if(memoryCache.ContainsKey(_webParam.CacheId) == true){
+
+				var _resultRecord = new T();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+
+				var _json = memoryCache[_webParam.CacheId].text;
+				if(_webParam.ShouldEncrypt == true){
+					_json = BicUtil.Crypto.AES256.Decrypt(_json);
+				}
+
+				
+				if(_resultRecord.ParseJson(_json) == true){
+					_resultRecord.Remove("result");
+					return _resultRecord;
+				}else{
+					return null;
+				}
+			}else{
+				return null;
+			}
+		}
+
 		public async Task<(CachingType CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
 			var _webParam = _param as WebStorageParameter;
 			if(_webParam == null){
@@ -317,6 +342,10 @@ namespace BicDB.Storage
 		
 			var _result = await getWebRequestWithCache(_webParam);
 
+			if(string.IsNullOrEmpty(_result.Text) == true){
+				return (_result.CachingType, null);
+			}
+
 			try{
 				if(_webParam.ShouldEncrypt == true){
 					_result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text);
@@ -324,11 +353,23 @@ namespace BicDB.Storage
 			}catch{
 				return (_result.CachingType, null);
 			}
-			
+		
 			var _resultRecord = new T();
 			_resultRecord.AddManagedColumn("result", new IntVariable());
 
 			if(_resultRecord.ParseJson(_result.Text) == true){
+				if(_resultRecord["result"].AsVariable.AsInt != 0){
+					lock(memoryCache){
+						if(memoryCache.ContainsKey(_webParam.CacheId) == true){
+							memoryCache.Remove(_webParam.CacheId);
+						}
+					}
+
+					FileStorageUtil.RemoveFile(CACHE_DIRECTORY + "/" +_webParam.CacheId + ".txt");
+
+					return (_result.CachingType, null); 
+				}
+
 				_resultRecord.Remove("result");
 				return (_result.CachingType, _resultRecord);
 			}else{
@@ -545,7 +586,6 @@ namespace BicDB.Storage
 					// Debug.Log("memory caching");
 					//캐시타임체크
 					if(getTimestamp() - memoryCache[_param.CacheId].timestamp < _param.CacheTime){
-						// Debug.Log("memory cache success");
 						return (CachingType.Memory, memoryCache[_param.CacheId].text);
 					}else{
 						Debug.Log("cache timeout");
@@ -749,9 +789,10 @@ namespace BicDB.Storage
 	public enum CachingType{
 		None,
 		Resource,
+		File,
 		Memory,
-		File
 	}
+
 	public class WebStorageParameter{
 		public string Url = string.Empty;
 		public bool ShouldEncrypt = false;
