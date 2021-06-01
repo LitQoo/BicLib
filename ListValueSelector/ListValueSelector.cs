@@ -43,6 +43,11 @@ namespace BicUtil.ListValueSelector
             SelectAt(index);
         }
 
+        public void RemoveCurrent(){
+            list.RemoveAt(index);
+            SelectAt(index - 1 >= 0 ? index - 1 : 0);
+        }
+
         public bool HasNext(){
             return list.Count - 1 > index;
         }
