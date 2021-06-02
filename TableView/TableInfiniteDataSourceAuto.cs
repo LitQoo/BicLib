@@ -17,8 +17,8 @@ namespace BicUtil.TableView
         private string duplicationCheckFieldName = "";
         private int fistLoadErrorCount = 0;
         private int dataLoadCount = 0;
-        private bool isLoadedFirst = false;
-
+        
+        public bool IsLoadedFirst = false;
         public IVariableReadOnly IsLoading{get=>this.isLoading;}
         public IVariableReadOnly IsLoadedAll{get=>this.isLoadedAll;}
 
@@ -40,7 +40,7 @@ namespace BicUtil.TableView
         }
 
         public async Task LoadFirst(){
-            if(isLoadedFirst == true && fistLoadErrorCount == 0){
+            if(IsLoadedFirst == true && fistLoadErrorCount == 0){
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace BicUtil.TableView
             var _laodIndex = ++dataLoadCount;
             bool _isEnd = false;
             (table, _isEnd) = await dataLoader(0, null);
-            isLoadedFirst = true;
+            IsLoadedFirst = true;
 
             if(_laodIndex != dataLoadCount){
                 return; 
@@ -174,7 +174,7 @@ namespace BicUtil.TableView
             if(table != null){
                 table.Clear();
             }
-            isLoadedFirst = false;
+            IsLoadedFirst = false;
         }
     }
 }
