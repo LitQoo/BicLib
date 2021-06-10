@@ -129,6 +129,12 @@ namespace BicUtil.UI{
             onClickLeftButton = _onClickLeftButton;
         }
 
+        public void NoButton(string _text){
+            diableAllUI();
+            mainMessageText.gameObject.SetActive(true);
+            mainMessageText.text = _text;
+        }
+
         public void Confirm(string _text, Sprite _buttonIcon, Action _onClickLeftButton){
             diableAllUI();
             mainMessageText.gameObject.SetActive(true);
@@ -157,7 +163,6 @@ namespace BicUtil.UI{
             rightButtonText.text = _rightButtonText;
             onClickLeftButton = _onClickLeftButton;
             onClickRightButton = _onClickRightButton;
-
         }
 
         public void Input(string _text, string _buttonText, string _inputText, string _placeholderText, Action _onClickLeftButton, Action _onClickClose){

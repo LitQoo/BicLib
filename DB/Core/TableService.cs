@@ -153,12 +153,12 @@ namespace BicDB.Core
             return _result;
         }
 
-        private static void setStringProperty(string _key, string _value){
+        public static void SetStringProperty(string _key, string _value){
             tableInfo.Property[_key] = new StringVariable(_value);
             PlayerPrefs.SetString(_key, _value);
         }
 
-        private static void setIntProperty(string _key, int _value){
+        public static void SetIntProperty(string _key, int _value){
             tableInfo.Property[_key] = new IntVariable(_value);
             PlayerPrefs.SetInt(_key, _value);
         }
@@ -193,7 +193,7 @@ namespace BicDB.Core
             var _value = getIntProperty(_key);
             _value++;
 
-            setIntProperty(_key, _value);
+            SetIntProperty(_key, _value);
         }
 
         private static void saveProperty(Action<Result> _callback = null){
@@ -211,15 +211,15 @@ namespace BicDB.Core
                 }
 
                 if(hasProperty(PROP_FIELD_USER_ID) == false){
-                    setStringProperty(PROP_FIELD_USER_ID, Guid.NewGuid().ToString());
+                    SetStringProperty(PROP_FIELD_USER_ID, Guid.NewGuid().ToString());
                 }
 
                 if(!hasProperty(PROP_FIELD_IS_SETUP)){
-                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
-                    setStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
-                    setStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
-                    setIntProperty(PROP_FIELD_SESSION_COUNT, 1);
-                    setStringProperty(PROP_FIELD_IS_SETUP, "true");
+                    SetStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    SetStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
+                    SetStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
+                    SetIntProperty(PROP_FIELD_SESSION_COUNT, 1);
+                    SetStringProperty(PROP_FIELD_IS_SETUP, "true");
 
                     saveProperty(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
@@ -231,8 +231,8 @@ namespace BicDB.Core
                         }
                     });
                 }else if(currentVersion != lastVersion){
-                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
-                    setStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    SetStringProperty(PROP_FIELD_VERSION, currentVersion);
+                    SetStringProperty(PROP_FIELD_VERSION, currentVersion);
                     increaseProperty(PROP_FIELD_SESSION_COUNT);
                     
                     saveProperty(_tableInfoSaveResult=>{
@@ -289,7 +289,7 @@ namespace BicDB.Core
 
         static public string GetStringProperty(string _key, string _default){
             if(hasProperty(_key) == false){
-                setStringProperty(_key, _default);
+                SetStringProperty(_key, _default);
                 return _default;
             }
 
@@ -298,7 +298,7 @@ namespace BicDB.Core
 
         static public int GetIntProperty(string _key, int _default){
             if(hasProperty(_key) == false){
-                setIntProperty(_key, _default);
+                SetIntProperty(_key, _default);
                 return _default;
             }
 
@@ -310,7 +310,7 @@ namespace BicDB.Core
             
             if(hasProperty(_key) == false){
                 if(_defaultVariable != null){
-                    setStringProperty(_key, _defaultVariable.AsString);
+                    SetStringProperty(_key, _defaultVariable.AsString);
                     saveProperty();
                 }else{
                     return null;

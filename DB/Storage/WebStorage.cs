@@ -377,7 +377,7 @@ namespace BicDB.Storage
 			}
 		}
 
-		public async Task<Result> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
+		public async Task<(Result Result, RecordContainer Data)> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
 			var _webParam = _param;
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
@@ -387,20 +387,20 @@ namespace BicDB.Storage
 			(var _storageResult, var _json) = buildJson(_downloadText, _webParam);
 
 			if(_storageResult.IsSuccess == false){
-				return _storageResult;
+				return (_storageResult, null);
 			}
 
 			var _resultRecord = new RecordContainer();
 			_resultRecord.AddManagedColumn("result", new IntVariable());
 
 			if(_resultRecord.ParseJson(_json) == false){
-				return new Result((int)ResultCode.FailedConvertJson, "", 0, "FailedConvertJson error");
+				return (new Result((int)ResultCode.FailedConvertJson, "", 0, "FailedConvertJson error"), null);
 			}
 
 			if(_resultRecord["result"].AsVariable.AsInt == 0){
-				return new Result((int)ResultCode.Success);
+				return (new Result((int)ResultCode.Success), _resultRecord);
 			}else{
-				return new Result((int)ResultCode.ServerRequestError, "", 0, _resultRecord.ToString());
+				return (new Result(_resultRecord["result"].AsVariable.AsInt, "", 0, _resultRecord.ToString()), _resultRecord);
 			}
 		}
 
@@ -608,9 +608,12 @@ namespace BicDB.Storage
 					//문제없으면 메모리캐시에 등록 후 리턴
 					if(getTimestamp() - _timestamp < _param.CacheTime){
 						// Debug.Log("file cace done");
-						lock(memoryCache){
-							memoryCache[_param.CacheId] = (_timestamp, _data);
+						if((_param.CachingLevel & CachingLevel.Memory) != 0){
+							lock(memoryCache){
+								memoryCache[_param.CacheId] = (_timestamp, _data);
+							}
 						}
+						
 						return (CachingLevel.File, _data);
 					}else{
 						// Debug.Log("file cache timeout");
