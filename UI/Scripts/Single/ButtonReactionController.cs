@@ -58,19 +58,20 @@ namespace BicUtil.UI{
         #endregion
 
         #region DisableAfterTouch
+        TweenTracker tracker = new TweenTracker();
         private void disableTouch()
         {
             if(disableTouchTimeAfterTouch > 0){
                 targetButton.interactable = false;
                 BicTween.Delay(this.disableTouchTimeAfterTouch).SubscribeComplete(()=>{
                     targetButton.interactable = true;
-                }).SetTargetObject(this.gameObject);
+                }).SetTracker(tracker);
             }
         }
 
         protected void OnDestroy() {
             try{
-                BicTween.Cancel(this.gameObject);
+                tracker.Cancel();
             }catch{
 
             }
