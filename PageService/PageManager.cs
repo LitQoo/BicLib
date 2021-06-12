@@ -23,10 +23,14 @@ namespace BicUtil.PageService
             this.gameObject.name = "PageManager";
         }
 
-        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _param = null){
-            this.sceneTransitionParameter = _param;
-            var _result = SceneManager.LoadSceneAsync(_sceneName);
+        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _openParam = null){
+            this.sceneTransitionParameter = _openParam;
+            var _currentPageController = sceneStack.Pop();
+            var _currentScene = SceneManager.GetActiveScene();
+            var _nextScene = SceneManager.GetSceneByName(_sceneName);
+            var _result = SceneManager.LoadSceneAsync(_sceneName, LoadSceneMode.Additive);
             await _result;
+            await SceneManager.UnloadSceneAsync(_currentScene);
             return _result;
         }
 
@@ -47,6 +51,8 @@ namespace BicUtil.PageService
             var _currentSceneName = _pageController.SceneName;
             var _currentPageType = _pageController.CurrentPage.GetType();
 
+            Debug.Log("SceneBackAsync pop" + _pageController.SceneName);
+            
             await _pageController.CurrentPage.OnClosedPage(new ScenePage(_nextPageController.SceneName, _nextPageController.CurrentPage.GetType()), _closeParam);
 
             await SceneManager.UnloadSceneAsync(_pageController.SceneName);
@@ -59,6 +65,7 @@ namespace BicUtil.PageService
         }
 
         public void AddController(PageController _controller){
+            Debug.Log("sceneStack add " + _controller.SceneName);
             this.sceneStack.Push(_controller);
         }
 

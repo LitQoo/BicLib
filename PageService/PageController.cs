@@ -18,6 +18,7 @@ namespace BicUtil.PageService
         #endregion
 
         #region Instant
+        [HideInInspector]
         public string SceneName;
         private object sceneTransitionParameter = null;
         private Dictionary<Type, IPage> pages = new Dictionary<Type, IPage>();
