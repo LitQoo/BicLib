@@ -340,6 +340,50 @@ namespace BicDB.Core
 
             }
         }
+
+        static public string Backup(){
+            var _backupTable = new RecordContainer();
+            var _corePath = FileStorageUtil.GetPath(FileStorageUtil.GetFileName(tableInfo.Name));
+            _backupTable.AddManagedColumn(tableInfo.Name, new StringVariable(FileStorageUtil.ReadFile(_corePath)));
+
+            for(int i = 0;i <tableInfo.Count; i++){
+                var _table = tableInfo[i];
+                if(_table.StorageType.AsString == FileStorage.GetInstance().StorageType){
+                    var _path = FileStorageUtil.GetPath(FileStorageUtil.GetFileName(_table.Name.AsString));
+                    var _fileData = FileStorageUtil.ReadFile(_path);
+                    if(string.IsNullOrEmpty(_fileData) == false){
+                        _backupTable.AddManagedColumn(_table.Name.AsString, new StringVariable(_fileData));
+                    }
+                }
+            }
+
+
+            return textToBase64(_backupTable.ToString());
+        }
+
+        static private string textToBase64(string _data){
+            if(_data == null){
+                _data = "";    
+            }
+
+            var _byte = System.Text.Encoding.UTF8.GetBytes(_data);
+            return Convert.ToBase64String(_byte);
+        }
+
+        static private string base64ToText(string _data){
+            var encrypted = Convert.FromBase64String(_data);
+            return System.Text.Encoding.UTF8.GetString(encrypted);
+        }
+
+        static public void Restore(string _backupData){
+            var _backupTable = new RecordContainer();
+            _backupTable.ParseJson(base64ToText(_backupData));
+            foreach(var _tableData in _backupTable){
+                Debug.Log("restore " + _tableData.Key);
+                var _path = FileStorageUtil.GetPath(FileStorageUtil.GetFileName(_tableData.Key));
+                FileStorageUtil.WriteFile(_tableData.Value.AsVariable.AsString, _path);
+            }
+        }
         #endregion
 
         #region Query

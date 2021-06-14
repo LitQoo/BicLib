@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BicUtil.UI{
     public class CommonPopup : MonoBehaviour
@@ -210,6 +211,7 @@ namespace BicUtil.UI{
 
         public void Open(){
             this.gameObject.SetActive(true);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetComponent<RectTransform>());
         }
 
         public void Close(){
