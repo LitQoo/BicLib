@@ -120,16 +120,20 @@ namespace BicUtil.UI{
         }
 
         public Tween.Tween PlayTransitionTween(Action _transitionAction, float _time = 2f){
+            return PlayTransitionTween(_transitionAction, Color.black, _time);
+        }
+        
+        public Tween.Tween PlayTransitionTween(Action _transitionAction, Color _color, float _time = 2f){
             var _multi = BicTween.Multi();
             
             Enable(Color.clear);
             setMessage("");
             _multi.Sequance(()=>{
-                PlayAlphaTween(Color.black, 0f, 1f, _time / 2f).SubscribeComplete(()=>{
+                PlayAlphaTween(_color, 0f, 1f, _time / 2f).SubscribeComplete(()=>{
                     _transitionAction();
                 }).AddTo(_multi);
 
-                PlayAlphaTween(Color.black, 1f, 0f, _time / 2f).AddTo(_multi);
+                PlayAlphaTween(_color, 1f, 0f, _time / 2f).AddTo(_multi);
             });
 
             return _multi.Play().SetTracker(tweenTracker).SubscribeComplete(()=>{
