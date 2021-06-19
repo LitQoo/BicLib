@@ -70,8 +70,10 @@ namespace BicUtil.TableView
 				var _childs = transform.GetComponentsInChildren<TableCell>();
 				for(int i = 0; i < _childs.Length; i++){
 					var _tableCell = _childs[i];
-					if(_tableCell != null){
-						Cells.Add(_tableCell);
+					if(_tableCell.transform.parent == this.gameObject.transform){
+						if(_tableCell != null){
+							Cells.Add(_tableCell);
+						}
 					}
 				}
 			}
