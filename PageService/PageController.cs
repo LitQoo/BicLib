@@ -28,6 +28,14 @@ namespace BicUtil.PageService
                 return pageStack.Peek(); 
             }
         }
+
+        public void LogPage(){
+            Debug.Log("[PageController] LogPage - start");
+            foreach(var _v in pageStack){
+                Debug.Log(_v.GetType().ToString());
+            }
+            Debug.Log("[PageController] LogPage - finish");
+        }
         #endregion
 
         #region TweenPool
