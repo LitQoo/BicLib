@@ -8,7 +8,7 @@ namespace BicUtil.Tween{
 		[SerializeField]
 		public List<int> GroupIdList;
 		[SerializeField]
-		public List<Tween> TweenList;
+		public List<Tween> TweenList = null;
 		[SerializeField]
 		public List<InitialInformations> InitialList;
 		
@@ -335,6 +335,11 @@ namespace BicUtil.Tween{
 		}
 
 		public void CancelAll(){
+			if(TweenList == null){
+				DebugForEditor.Log("[BicTween] TweenList is null");
+				return;
+			}
+
 			var _count = TweenList.Count;
 			for(int i = 0; i < TweenList.Count; i++){
 				var _tween = TweenList[i];

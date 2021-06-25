@@ -56,8 +56,8 @@ namespace BicUtil.PageService
 
         #region LifeCycle
         private void Awake(){
-            BicTween.DefaultPool = getTweenPool();
             this.SceneName = gameObject.scene.name;
+            BicTween.DefaultPool = getTweenPool();
             this.sceneTransitionParameter = PageManager.Instance.PopSceneTransitionParameter();
             PageManager.Instance.AddController(this);
             initialize ();
@@ -101,15 +101,17 @@ namespace BicUtil.PageService
         }
 
         private void deinitialize(){
-            if(tweenPool != null){
-                tweenPool.CancelAll();
-                if(BicTween.DefaultPool == tweenPool){
+            if(isDeinitialize == false){
+                DebugForEditor.Log("[PageControlelr.deinitialize] " + this.SceneName);
+
+                if(tweenPool != null){
+                    tweenPool.CancelAll();
+                }
+
+                if(BicTween.IsCurrentDefaultPool(tweenPool)){
                     BicTween.DefaultPool = null;
                 }
-            }
 
-            DebugForEditor.Log("[PageControlelr.deinitialize]");
-            if( isDeinitialize == false){
                 var _orderedList = pages.OrderBy (_object => _object.Value.InitializeOrder);
 
                 foreach (var _page in _orderedList) {

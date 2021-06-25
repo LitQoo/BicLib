@@ -146,6 +146,11 @@ namespace BicUtil.Tween
 		public static float realDeltaTime = 0;
 		private static TweenPool selfCreatedPool = null;
 		private static TweenPool defaultPool = null;
+
+		public static bool IsCurrentDefaultPool(TweenPool _target){
+			return defaultPool == _target;
+		}
+
 		public static TweenPool DefaultPool{
 			get{
 				if(defaultPool == null){
