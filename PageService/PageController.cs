@@ -78,7 +78,7 @@ namespace BicUtil.PageService
 
         #region initialize
         private void initialize(){
-            DebugForEditor.Log("[PageControlelr.initialize]");
+            DebugForEditor.Log("[PageControlelr.initialize] " + this.SceneName);
 
             if(pageParent != null){
                 var _initCount = pages.Count;
@@ -147,17 +147,13 @@ namespace BicUtil.PageService
                 throw new SystemException("[PageManager] already set base");
             }
 
-            Debug.Log("SetBasePage");
             if(sceneTransitionParameter != null){
                 _param = sceneTransitionParameter;
                 sceneTransitionParameter = null;
             }
             
-
-            Debug.Log("stackpush");
             pageStack.Push(_page);
 
-            Debug.Log("onopenpage " + CurrentPage.GetType().ToString());
             CurrentPage.OnOpenedPage(null, _param);
         }
 
