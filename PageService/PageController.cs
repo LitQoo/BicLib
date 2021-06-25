@@ -103,7 +103,9 @@ namespace BicUtil.PageService
         private void deinitialize(){
             if(tweenPool != null){
                 tweenPool.CancelAll();
-                BicTween.DefaultPool = null;
+                if(BicTween.DefaultPool == tweenPool){
+                    BicTween.DefaultPool = null;
+                }
             }
 
             DebugForEditor.Log("[PageControlelr.deinitialize]");
