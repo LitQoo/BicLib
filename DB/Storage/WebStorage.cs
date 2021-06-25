@@ -15,11 +15,11 @@ namespace BicDB.Storage
 {
 	public class WebStorage : MonoBehaviour, ITableStorage {
 		#region Static
-		static public string LOAD_URL_KEY = "webstorageLoadURL";
-		static public string SEND_RECORD_URL = "sendRecordURL";
-		static public string SEND_RECORDS_URL = "sendRecordsURL";
-		static public string DELETE_RECORDS_URL = "deleteRecordsURL";
-		static public string ENCRYPT = "encrypt";
+		// static public string LOAD_URL_KEY = "webstorageLoadURL";
+		// static public string SEND_RECORD_URL = "sendRecordURL";
+		// static public string SEND_RECORDS_URL = "sendRecordsURL";
+		// static public string DELETE_RECORDS_URL = "deleteRecordsURL";
+		// static public string ENCRYPT = "encrypt";
 		#endregion
 
 		public enum ResultCode
@@ -92,12 +92,6 @@ namespace BicDB.Storage
 			
 			if(_webParam == null){
 				_webParam = new WebStorageParameter();
-			}
-
-			if(string.IsNullOrEmpty(_webParam.Url) == true){
-				assertByTableHeader(_table, new string[]{LOAD_URL_KEY, ENCRYPT});
-				_webParam.Url = _table.Header[LOAD_URL_KEY].AsVariable.AsString;
-				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
 			}
 			
             
@@ -207,16 +201,9 @@ namespace BicDB.Storage
 
         public async Task<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
 			var _table = _targetTable;
-
 			var _webParam = _parameter as WebStorageParameter;
 			if(_webParam == null){
 				_webParam = new WebStorageParameter();
-			}
-
-			if(string.IsNullOrEmpty(_webParam.Url) == true){
-				assertByTableHeader(_table, new string[]{LOAD_URL_KEY, ENCRYPT});
-				_webParam.Url = _table.Header[LOAD_URL_KEY].AsVariable.AsString;
-				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
 			}
 
 			var _formData = new RecordContainer();
@@ -233,7 +220,11 @@ namespace BicDB.Storage
 		}
 
 		public void SendWebRequest(UnityWebRequest _request, Action<UnityWebRequest> _callback){
-			StartCoroutine(this.sendWebRequestCoroutine(_request, _callback));
+			if(_request == null){
+				_callback(null);
+			}else{
+				StartCoroutine(this.sendWebRequestCoroutine(_request, _callback));
+			}
 		}
 
 		public void SendRecord<T>(ITableContainer<T> _table, T _record, Action<Result> _callback = null) where T : IRecordContainer, new (){
@@ -248,13 +239,6 @@ namespace BicDB.Storage
 
 			if(_webParam == null){
 				_webParam = new WebStorageParameter();
-			}
-
-			if(string.IsNullOrEmpty(_webParam.Url) == true){
-				assertByTableHeader(_table, new string[]{SEND_RECORD_URL, ENCRYPT, HeaderKey.PrimaryKey});
-				_webParam.Url = _table.Header[SEND_RECORD_URL].AsVariable.AsString;
-				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
-				_webParam.TargetKey = _table.PrimaryKey;
 			}
 
 			var _formData = new RecordContainer();
@@ -414,13 +398,6 @@ namespace BicDB.Storage
 				_webParam = new WebStorageParameter();
 			}
 
-			if(string.IsNullOrEmpty(_webParam.Url) == true){
-				assertByTableHeader(_table, new string[]{SEND_RECORDS_URL, ENCRYPT, HeaderKey.PrimaryKey});
-				_webParam.Url = _table.Header[SEND_RECORDS_URL].AsVariable.AsString;
-				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
-				_webParam.TargetKey = _table.PrimaryKey;
-			}
-
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _records);
 			_formData.AddManagedColumn("primaryKey", new StringVariable(_webParam.TargetKey));
@@ -482,13 +459,6 @@ namespace BicDB.Storage
 				_webParam = new WebStorageParameter();
 			}
 
-			if(string.IsNullOrEmpty(_webParam.Url) == true){
-				assertByTableHeader(_table, new string[]{DELETE_RECORDS_URL, ENCRYPT, HeaderKey.PrimaryKey});
-				_webParam.Url = _table.Header[DELETE_RECORDS_URL].AsVariable.AsString;
-				_webParam.ShouldEncrypt = _table.Header[ENCRYPT].AsVariable.AsBool;
-				_webParam.TargetKey = _table.PrimaryKey;
-			}
-			
 			var _formData = new RecordContainer();
 			var _ids = new ListContainer<StringVariable>();
 			for(int i = 0; i < _records.Count; i++){
@@ -515,7 +485,7 @@ namespace BicDB.Storage
 
 				string _json = _downloadText;
 				try{
-					if(_table.Header[ENCRYPT].AsVariable.AsBool == true){
+					if(_webParam.ShouldEncrypt == true){
 						_json = BicUtil.Crypto.AES256.Decrypt(_json);
 					}
 				}catch{
@@ -589,7 +559,7 @@ namespace BicDB.Storage
 						if(getTimestamp() - memoryCache[_param.CacheId].timestamp < _param.CacheTime){
 							return (CachingLevel.Memory, memoryCache[_param.CacheId].text);
 						}else{
-							Debug.Log("cache timeout");
+							//Debug.Log("cache timeout");
 						}
 					}
 				}
@@ -675,10 +645,13 @@ namespace BicDB.Storage
 				return _cached;
 			}
 			
-			var _request = UnityWebRequest.Get(_param.Url);
-			await _request.SendWebRequest();
+			UnityWebRequest _request = null;
+			if(string.IsNullOrEmpty(_param.Url) == false){
+				_request = UnityWebRequest.Get(_param.Url);
+				await _request.SendWebRequest();
+			}
 
-			if(_request.result == UnityWebRequest.Result.Success){
+			if(_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
 				return (CachingLevel.None, _request.downloadHandler.text);
 			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
@@ -699,7 +672,8 @@ namespace BicDB.Storage
 
         private async Task<string> loadCacheFromResrouceAndCachingAsync(WebStorageParameter _param)
         {
-            var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+
+			var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
             _result = removeFirstLineAndCaching(_param, _result);
             return _result;
         }
@@ -732,11 +706,14 @@ namespace BicDB.Storage
 				return _cached.Result;
 			}
 
-			WWWForm _form = createForm(_param, _formData);
-			var _request = UnityWebRequest.Post(_param.Url, _form);
-			await _request.SendWebRequest();
+			UnityWebRequest _request = null;
+			if(string.IsNullOrEmpty(_param.Url) == false){
+				WWWForm _form = createForm(_param, _formData);
+				_request = UnityWebRequest.Post(_param.Url, _form);
+				await _request.SendWebRequest();
+			}
 
-			if(_request.result == UnityWebRequest.Result.Success){
+			if(_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
 				return _request.downloadHandler.text;
 			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
@@ -759,10 +736,16 @@ namespace BicDB.Storage
 				return;
 			}
 			
-			WWWForm _form = createForm(_param, _formData);
-			var _request = UnityWebRequest.Post(_param.Url, _form);
+			
+			UnityWebRequest _request = null;
+			if(string.IsNullOrEmpty(_param.Url) == false){
+				WWWForm _form = createForm(_param, _formData);
+				_request = UnityWebRequest.Post(_param.Url, _form);
+			}
+
+
 			this.SendWebRequest(_request, _result=>{
-				if(_request.result == UnityWebRequest.Result.Success){
+				if(_request != null && _request.result == UnityWebRequest.Result.Success){
 					setCache(_param, _request.downloadHandler.text);
 					_callback(_request.downloadHandler.text);
 				}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
