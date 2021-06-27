@@ -24,13 +24,13 @@ namespace BicUtil.Ads{
         }
 
         public AdmobManager(string _androidAppId, string _iosAppId){
-            #if UNITY_IOS
-            MobileAds.Initialize(_iosAppId);
-            #endif
+            // #if UNITY_IOS
+            // MobileAds.Initialize();
+            // #endif
 
-            #if UNITY_ANDROID
-            MobileAds.Initialize(_androidAppId);
-            #endif
+            // #if UNITY_ANDROID
+            // MobileAds.Initialize();
+            // #endif
         }
 
         public void SetAdsSettingIOSOnly(string _adsId, object[] _types){
