@@ -21,12 +21,12 @@ namespace BicUtil.SDKUtil
                 _default.Add(_value.Key, _value.Value.AsVariable.AsString);
             }
 
-            Firebase.RemoteConfig.FirebaseRemoteConfig.SetDefaults(_default);
+            Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default);
         }
 
         static private void updateConstant(IRecordContainer _constants){
             foreach(var _value in _constants){
-                var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue(_value.Key).StringValue;
+                var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
@@ -158,9 +158,9 @@ namespace BicUtil.SDKUtil
 
                 await Task.Delay(20);
 
-                var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.FetchAsync(_reloadTime);
+                var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
                 await _fetchTask.ContinueWith(FetchComplete);
-                var _isFetched = Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
+                var _isFetched = await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
 
                 await Task.Delay(20);
 
@@ -233,7 +233,7 @@ namespace BicUtil.SDKUtil
                 //   Debug.Log("Fetch completed successfully!");
               }
 
-              var info = Firebase.RemoteConfig.FirebaseRemoteConfig.Info;
+              var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
 
               switch (info.LastFetchStatus)
               {

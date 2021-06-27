@@ -51,8 +51,6 @@ namespace BicUtil.PageService
             var _currentSceneName = _pageController.SceneName;
             var _currentPageType = _pageController.CurrentPage.GetType();
 
-            Debug.Log("SceneBackAsync pop" + _pageController.SceneName);
-            
             await _pageController.CurrentPage.OnClosedPage(new ScenePage(_nextPageController.SceneName, _nextPageController.CurrentPage.GetType()), _closeParam);
 
             await SceneManager.UnloadSceneAsync(_pageController.SceneName);
@@ -65,7 +63,6 @@ namespace BicUtil.PageService
         }
 
         public void AddController(PageController _controller){
-            Debug.Log("sceneStack add " + _controller.SceneName);
             this.sceneStack.Push(_controller);
         }
 

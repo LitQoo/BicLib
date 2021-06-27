@@ -29,7 +29,7 @@ namespace BicUtil.Analytics
             lock(LOCK_CHECK){
                 var _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
                 try{
-                    _isAvailable = Firebase.FirebaseApp.CheckDependencies();
+                    _isAvailable = Firebase.FirebaseApp.CheckDependenciesAsync().Result;
                 }catch{
                     _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
                 }
