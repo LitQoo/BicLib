@@ -40,6 +40,8 @@ namespace BicUtil.UI{
         private UnityEngine.UI.Image leftButtonIcon;
         [SerializeField]
         private UnityEngine.UI.Image rightButtonIcon;
+
+        private RectTransform backTrasform = null;
         #endregion   
 
         #region Instant
@@ -209,9 +211,24 @@ namespace BicUtil.UI{
             this.onClickDimmed = _callback;
         }
 
-        public void Open(){
+        public void Open()
+        {
             this.gameObject.SetActive(true);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetComponent<RectTransform>());
+
+            rebuild();
+        }
+
+        private void rebuild()
+        {
+            if (backTrasform == null)
+            {
+                backTrasform = header.transform.parent.gameObject.GetComponent<RectTransform>();
+            }
+
+            if (backTrasform != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(backTrasform);
+            }
         }
 
         public void Close(){
