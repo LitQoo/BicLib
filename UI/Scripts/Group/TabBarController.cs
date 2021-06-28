@@ -22,6 +22,7 @@ namespace BicUtil.UI{
         #endregion
 
         private void Awake(){
+            buttons[defaultIndex].Select();
             for(int i = 0; i < viewers.Length; i++){
                 viewers[i].SetActive(defaultIndex == i);
             }
@@ -67,6 +68,7 @@ namespace BicUtil.UI{
         #endif
 
         public void OpenTab(int _index){
+            buttons[_index].Select();
             for(int i = 0; i < viewers.Length; i++){
                 viewers[i].SetActive(_index == i);
             }
