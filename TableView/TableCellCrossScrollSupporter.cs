@@ -70,7 +70,7 @@ namespace BicUtil.TableView
         private void onEndDrag(PointerEventData _data){
             var _distance = Vector2.Distance(_data.position, startDragPosition);
 
-            if(_distance < 2f){
+            if(_distance < 5f){
                 onClickedCellAction.Invoke();
             }
 
