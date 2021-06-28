@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if UNITY_EDITOR
+using System.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -120,3 +121,4 @@ namespace BicUtil.AutoLink{
 		}
 	}
 }
+#endif
