@@ -10,6 +10,7 @@ namespace BicUtil.Splash
     public abstract class SplashBaseAsync : MonoBehaviour
     {
         private async void Start(){
+            OnSetup();
             await loadTableService();
         }
 
@@ -19,7 +20,6 @@ namespace BicUtil.Splash
                 try{
                     _version = Application.version;
                 }catch{
-
                 }
 
                 BicUtil.Analytics.Analytics.Event("Install", new Dictionary<string, object>{
@@ -48,6 +48,7 @@ namespace BicUtil.Splash
 
         }
 
+        protected abstract void OnSetup();
         protected abstract Task OnLoadedTableServiceAsync();
         protected abstract Task OnFailedToLoadAsync(Result _result);
     }

@@ -27,16 +27,8 @@ namespace BicUtil.Analytics
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
             lock(LOCK_CHECK){
-                var _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
-                try{
-                    _isAvailable = Firebase.FirebaseApp.CheckDependenciesAsync().Result;
-                }catch{
-                    _isAvailable = Firebase.DependencyStatus.UnavilableMissing;
-                }
-                
-                if(_isAvailable == Firebase.DependencyStatus.Available){
+                if(BicUtil.SDKUtil.FirebaseUtil.Status == Firebase.DependencyStatus.Available){
                     retrySavedEvent();
-
                     sendEvent(_name, _value, _eventData);
                 }else{
                     if(savedEvent.Count < 100){
@@ -54,6 +46,7 @@ namespace BicUtil.Analytics
                 }
 
                 savedEvent.Clear();
+                
                 needRetryEvent = false;
             }
         }

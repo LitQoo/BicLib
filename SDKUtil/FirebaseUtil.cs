@@ -15,7 +15,6 @@ namespace BicUtil.SDKUtil
     {
         #region FireBase
         static private void setRemoteConfigDefaultValue(IRecordContainer _constants){
-            Debug.Log("setRemoteConfigDefaultValue");
             var _default = new Dictionary<string, object>();
             foreach(var _value in _constants){
                 _default.Add(_value.Key, _value.Value.AsVariable.AsString);
@@ -51,26 +50,18 @@ namespace BicUtil.SDKUtil
                 #endif
             }
         }
-
+        
+        static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
         static private async Task<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
-            Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-            
             var _result = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
-
             if(_result == Firebase.DependencyStatus.Available){
+                Status = Firebase.DependencyStatus.Available;
                 Application.logMessageReceived += log;
             }
-
-            //Debug.Log("firebase init complete "+ _result.ToString());
-            // BicUtil.Analytics.Analytics.Event("FirebaseInit", new Dictionary<string, object> {
-            //     {
-            //         "Result",
-            //         _result.ToString()
-            //     }
-            // });
-
+            
             if(_result == Firebase.DependencyStatus.Available){
                 try{
+                    Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
@@ -119,21 +110,16 @@ namespace BicUtil.SDKUtil
 
                 if(_result == _initTask){
                     if (_initTask.Result == Firebase.DependencyStatus.Available) {
-                        // Debug.Log("firebase init available");
                         return new BicDB.Result(0);
                     }else{
-                        Debug.Log("firebase init not available");
                         return new BicDB.Result(1);
                     }
                 }else if(_result == _timeoutTask){
-                    Debug.Log("firebase init timeout");
                     return new BicDB.Result(2);
                 }else{
-                    Debug.Log("firebase init known");
                     return new BicDB.Result(3);
                 }
             }catch(System.Exception _e){
-                Debug.Log("firebase init exception " + _e.Message);
                 return new BicDB.Result(3, "", 0, _e.Message);
             }
         }
