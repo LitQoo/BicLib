@@ -332,7 +332,8 @@ namespace BicUtil.PageService
 
         public void SetBackKeyAction(Action _action){
             //TODO: setbackkey
-            Debug.LogWarning("SetBackeyaction impl");
+            
+            DebugForEditor.Log("SetBackeyaction impl");
         }
     }
 
