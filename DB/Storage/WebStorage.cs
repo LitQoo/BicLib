@@ -592,7 +592,14 @@ namespace BicDB.Storage
 					// Debug.Log("file cache not found");
 				}
 			}
-			
+
+			if(_param.ResourceCacheEnableBeforeWeb == true){
+				string _result = loadCacheFromResrouceAndCaching(_param);
+				if(string.IsNullOrEmpty(_result) == false){
+					Debug.Log("ResourceCacheEnableBeforeWeb" + _param.CacheId);
+					return (CachingLevel.Resource, _result);
+				}
+			}
 			
 			// Debug.Log("cache not work");
 			return (CachingLevel.None, string.Empty);
@@ -788,10 +795,12 @@ namespace BicDB.Storage
 		public Func<string, string> RequestConvertor = null;
 		public Dictionary<string, string> Param = null;
 		public string ResourceCacheDirectoryPath = string.Empty;
+		public bool ResourceCacheEnableBeforeWeb = false; 
 
 		public CachingLevel CachingLevel = CachingLevel.None;
 		public string CacheId = string.Empty;
 		public long CacheTime = 0;
+		
 		
 		public bool IsEnabledCache{
 			get{
