@@ -57,6 +57,19 @@ namespace BicUtil.Ads{
             adsData[_type] = new AdsPlatformInfo(_adsId, _type);
             #endif
         }
+
+
+        public void SetAdsSettingEditorOnly(string _adsId, object[] _types){
+            for(int i = 0; i < _types.Length; i++){
+                SetAdsSettingEditorOnly(_adsId, _types[i]);
+            }
+        }
+
+        public void SetAdsSettingEditorOnly(string _adsId, object _type){
+            #if UNITY_EDITOR
+            adsData[_type] = new AdsPlatformInfo(_adsId, _type);
+            #endif
+        }
         
         #endregion
 
