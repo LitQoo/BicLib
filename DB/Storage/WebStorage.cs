@@ -210,7 +210,7 @@ namespace BicDB.Storage
 			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
 			var _downloadText = await postWebRequestWithCache(_webParam, _formData); 
 			var _storageResult = buildTable(_downloadText, _table, _webParam);
-
+	
 			return _storageResult;
 		}
 
@@ -619,6 +619,10 @@ namespace BicDB.Storage
 
 		public void AddCacheToFile(string _id, string _data, bool _shouldEncrypt){
 			// Debug.Log("write file cache");
+
+			if(_data == null || _data.Length <= 100){
+				return;
+			}
 
 			if(isExistsDirectory == false && Directory.Exists(CACHE_DIRECTORY) == false){
 				System.IO.Directory.CreateDirectory(CACHE_DIRECTORY);
