@@ -52,9 +52,10 @@ namespace BicUtil.PageService
             var _currentPageType = _pageController.CurrentPage.GetType();
 
             await _pageController.CurrentPage.OnClosedPage(new ScenePage(_nextPageController.SceneName, _nextPageController.CurrentPage.GetType()), _closeParam);
-
             await SceneManager.UnloadSceneAsync(_pageController.SceneName);
-            var _currentScene = SceneManager.GetActiveScene();
+
+            var _currentScene = SceneManager.GetSceneByName(_nextPageController.SceneName);
+            SceneManager.SetActiveScene(_currentScene);
             setGameObjectsActive(_currentScene.GetRootGameObjects(), true);
 
             if(_openParam != null){
@@ -72,6 +73,15 @@ namespace BicUtil.PageService
             {
                 objects[i].gameObject.SetActive(active);
             }
+        }
+
+
+        public void LogScene(){
+            Debug.Log("[PageManager] LogPage - start");
+            foreach(var _v in sceneStack){
+                Debug.Log(_v.SceneName);
+            }
+            Debug.Log("[PageManager] LogPage - finish");
         }
     }
 
