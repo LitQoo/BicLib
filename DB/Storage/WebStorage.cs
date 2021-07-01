@@ -206,9 +206,7 @@ namespace BicDB.Storage
 				_webParam = new WebStorageParameter();
 			}
 
-			var _formData = new RecordContainer();
-			_formData.AddManagedColumn("primaryKey", new StringVariable(_table.PrimaryKey));
-			var _downloadText = await postWebRequestWithCache(_webParam, _formData); 
+			(var _type, var _downloadText) = await getWebRequestWithCache(_webParam); 
 			var _storageResult = buildTable(_downloadText, _table, _webParam);
 	
 			return _storageResult;
@@ -658,7 +656,7 @@ namespace BicDB.Storage
 			
 			UnityWebRequest _request = null;
 			if(string.IsNullOrEmpty(_param.Url) == false){
-				_request = UnityWebRequest.Get(_param.Url);
+				_request = UnityWebRequest.Get(_param.UrlWithParam);
 				await _request.SendWebRequest();
 			}
 
@@ -805,6 +803,27 @@ namespace BicDB.Storage
 		public bool IsEnabledCache{
 			get{
 				return CachingLevel != CachingLevel.None;
+			}
+		}
+
+		public string UrlWithParam{
+			get{
+				var _result = Url;
+				if(Param != null){
+					bool _isFirst = true;
+					foreach(var _param in this.Param){
+						if(_isFirst == true){
+							_result += "?";
+							_isFirst = false; 
+						}else{
+							_result += "&";
+						}
+
+						_result += _param.Key + "=" + UnityWebRequest.EscapeURL(_param.Value);
+					}
+				}
+
+				return _result;
 			}
 		}
 
