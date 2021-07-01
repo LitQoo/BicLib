@@ -8,7 +8,7 @@ using BicDB.Variable;
 
 namespace BicUtil.TableView
 {
-    public class TableInfiniteDataSourceAuto<T> : TableDataSourceAuto<T>  where T : IRecordContainer, new(){
+    public class TableInfiniteDataSourceAuto<T> : TableDataSourceAuto<T>, ITableInfiniteDataSourceAuto  where T : IRecordContainer, new(){
         #region Instant
         private BoolVariable isCancelLoad = new BoolVariable(false);
         private BoolVariable isLoading = new BoolVariable(false);
@@ -18,7 +18,7 @@ namespace BicUtil.TableView
         private int fistLoadErrorCount = 0;
         private int dataLoadCount = 0;
         
-        public bool IsLoadedFirst = false;
+        public bool IsLoadedFirst {get; private set;} = false;
         public IVariableReadOnly IsLoading{get=>this.isLoading;}
         public IVariableReadOnly IsLoadedAll{get=>this.isLoadedAll;}
 
@@ -176,5 +176,12 @@ namespace BicUtil.TableView
             }
             IsLoadedFirst = false;
         }
+    }
+    
+    public interface ITableInfiniteDataSourceAuto
+    {  
+        IVariableReadOnly IsLoading{get;}
+        IVariableReadOnly IsLoadedAll{get;}
+        bool IsLoadedFirst {get;}
     }
 }
