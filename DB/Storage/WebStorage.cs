@@ -594,7 +594,6 @@ namespace BicDB.Storage
 			if(_param.ResourceCacheEnableBeforeWeb == true){
 				string _result = loadCacheFromResrouceAndCaching(_param);
 				if(string.IsNullOrEmpty(_result) == false){
-					Debug.Log("ResourceCacheEnableBeforeWeb" + _param.CacheId);
 					return (CachingLevel.Resource, _result);
 				}
 			}
