@@ -19,11 +19,6 @@ namespace BicUtil.Ads{
 
         public AdmobManager(){
             MobileAds.Initialize(_initState=>{
-                Debug.Log("Admob initstate = " + _initState.ToString());
-                var _stateDict = _initState.getAdapterStatusMap();
-                foreach(var _v in _stateDict){
-                    Debug.Log(_v.Key + "=" + _v.Value.Description + "/" + _v.Value.InitializationState.ToString());
-                }
 
             });   
         }
