@@ -725,7 +725,7 @@ namespace BicDB.Storage
 				}
 
 				#if UNITY_EDITOR
-				DebugForEditor.Log("[WebStorage] Failed Download by web " + _param.ToString());
+				DebugForEditor.Log("[WebStorage] Failed Download by web " + _param.ToString() + "/ request : " + (_request == null?"null":_request.result.ToString()));
 				#endif
 				return (CachingLevel.None, string.Empty);
 			}
