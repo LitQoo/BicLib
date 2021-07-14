@@ -29,45 +29,6 @@ namespace BicDB.Storage
                 _result.Message = "FailedConvertJson some Error BuildTableContainer " + _e.Message;
             }
         }
-        public static async Task<string> GetFileDataWithPathListAsync(string _tableName, string _encryptKey){
-            var _filename = GetFileName(_tableName);
-
-            string _data = await FileStorageUtil.ReadAndDecryptAsync(GetPath(_filename), _encryptKey);
-
-            if (_data == null || _data == string.Empty)
-            {
-                if(_tableName == TableService.TABLENAME){
-                    //Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
-
-                    if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
-                        string _path = PlayerPrefs.GetString(TableService.TABLENAME);
-                        Debug.Log("PlayerPrefs table path = " + _path);
-
-                        if(_path != string.Empty){
-                            _data = await FileStorageUtil.ReadAndDecryptAsync(_path, _encryptKey);
-                        }
-                    }
-                }else{
-                    //Debug.Log("[BicDB] path by bicsystem.path");
-
-                    var _tableInfo = TableService.GetTableInfo(_tableName, false);
-                    if (_tableInfo != null)
-                    {
-                        for (int i = _tableInfo.PathList.Count - 1; i >= 0; i--)
-                        {
-                            _data = await FileStorageUtil.ReadAndDecryptAsync(_tableInfo.PathList[i].AsString, _encryptKey);
-
-                            if (_data != null && _data != string.Empty)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return _data;
-        }
 
         public static string GetFileDataWithPathList(string _tableName, string _encryptKey)
         {
@@ -110,33 +71,7 @@ namespace BicDB.Storage
             return _data;
         }
 
-        public static async Task<Result> LoadByFileAsync<T>(ITableContainer<T> _table, string _encryptKey) where T : IRecordContainer, new (){
-            var _filename = GetFileName(_table.Name);
-            var _result = new Result((int)ResultCode.Success, GetPath(_filename), 0);
-            string _data = null;
-
-            try
-            {
-                _data = await FileStorageUtil.GetFileDataWithPathListAsync(_table.Name, _encryptKey);
-            }
-            catch (System.Exception _e)
-            {
-                Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
-                _result.Code = (int)ResultCode.FileStream;
-                _result.Message = _e.Message;
-            }
-
-            if (_result.Code == (int)ResultCode.Success && !string.IsNullOrEmpty(_data) && _data.Length > 10)
-            {
-                _result.Code = (int)ResultCode.Success;
-                _result.HashCode = _data.GetHashCode();
-                FileStorageUtil.BuildTable(_table, _data, _result);
-            }
-
-            return _result;
-        }
-
-        public static void LoadByFile<T>(ITableContainer<T> _table, Action<Result> _callback, string _encryptKey) where T : IRecordContainer, new ()
+        public static Result LoadByFile<T>(ITableContainer<T> _table, string _encryptKey) where T : IRecordContainer, new ()
         {
             var _filename = GetFileName(_table.Name);
             var _result = new Result((int)ResultCode.Success, GetPath(_filename), 0);
@@ -160,10 +95,7 @@ namespace BicDB.Storage
                 FileStorageUtil.BuildTable(_table, _data, _result);
             }
 
-            if (_callback != null)
-            {
-                _callback(_result);
-            }
+            return _result;
         }
 
         #region static
@@ -207,42 +139,7 @@ namespace BicDB.Storage
                 }
             }
         }
-
-
-        static public async Task WriteAsync(string _data, string _fileName, string _key)
-        {
-#if !WEB_BUILD
-
-            string _path = GetPath(_fileName);
-            if (_key != string.Empty)
-            {
-                _data = AESEncrypt256(_data, _key);
-            }
-
-            await WriteFileAsync(_data, _path);
-
-#else
-
-            throw new System.Exception ("webbuild do not save to file");
-
-#endif
-        }
-
-
-        public static async Task WriteFileAsync(string _data, string _path)
-        {
-            using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
-            {
-                using (System.IO.StreamWriter _streamWriter = new System.IO.StreamWriter(_file))
-                {
-                    await _streamWriter.WriteAsync(_data);
-                    await _streamWriter.FlushAsync();
-                    _streamWriter.Close();
-                    _file.Close();
-                }
-            }
-        }
-
+        
         public static void WriteByte(byte[] _data, string _path)
         {
             using (System.IO.FileStream _file = new System.IO.FileStream(_path, System.IO.FileMode.Create, System.IO.FileAccess.Write))
@@ -259,23 +156,6 @@ namespace BicDB.Storage
 
         static public string ReadByTableName(string _tableName, string _key){
             return ReadAndDecrypt(GetPath(GetFileName(_tableName)), _key);
-        }
-        
-        static public async Task<string> ReadFileAsync(string _path){
-            string _data = null;
-
-            if (System.IO.File.Exists(_path))
-            {
-                using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
-                    using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
-                        _data = await _stream.ReadToEndAsync ();
-                        _stream.Close();
-                        _file.Close();
-                    }
-                }
-            }
-
-            return _data;
         }
 
         static public string ReadFile(string _path){
@@ -320,30 +200,6 @@ namespace BicDB.Storage
             }
 
             return (_head, _data);
-        }
-
-        static public async Task<string> ReadAndDecryptAsync(string _path, string _key){
-            #if !WEB_BUILD
-
-            string _data = await ReadFileAsync(_path);
-
-            if(string.IsNullOrEmpty(_data) == false){
-                if(_key != string.Empty){
-                    try{
-                        var _result = AESDecrypt256(_data, _key);
-                        return _result;
-                    }catch{
-                        return _data;
-                    }
-                }else{
-                    return _data;
-                }
-            }else{
-                return _data;
-            }
-            #else
-            return null;
-            #endif 
         }
 
         static public string ReadAndDecrypt(string _path, string _key){
