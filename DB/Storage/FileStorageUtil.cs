@@ -250,6 +250,7 @@ namespace BicDB.Storage
                 using (System.IO.BinaryWriter _writer = new System.IO.BinaryWriter(_file))
                 {
                     _writer.Write(_data);
+                    _writer.Flush();
                     _writer.Close();
                     _file.Close();
                 }
