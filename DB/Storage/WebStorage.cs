@@ -709,7 +709,7 @@ namespace BicDB.Storage
 					try
 					{
 
-						string _result = await loadCacheFromResrouceAndCachingAsync(_param);
+						string _result = loadCacheFromResrouceAndCaching(_param);
 						if(string.IsNullOrEmpty(_result) == false){
 							#if UNITY_EDITOR
 							DebugForEditor.Log("[WebStorage] Failed Download by web, Use Resource " + _param.ToString());
@@ -731,14 +731,6 @@ namespace BicDB.Storage
 			}
 
 		}
-
-        private async Task<string> loadCacheFromResrouceAndCachingAsync(WebStorageParameter _param)
-        {
-
-			var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
-            _result = removeFirstLineAndCaching(_param, _result);
-            return _result;
-        }
 
 		private string loadCacheFromResrouceAndCaching(WebStorageParameter _param)
         {
@@ -784,7 +776,7 @@ namespace BicDB.Storage
 				return _request.downloadHandler.text;
 			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
 				try{
-					string _result = await loadCacheFromResrouceAndCachingAsync(_param);
+					string _result = loadCacheFromResrouceAndCaching(_param);
 					return _result;
 				}catch{
 					return string.Empty;
