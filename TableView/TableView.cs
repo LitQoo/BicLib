@@ -209,6 +209,20 @@ namespace BicUtil.TableView
             return _result;
         }
 
+        public TableRow GetHeadRow(){
+            var _row = this.GetRow(0); 
+            
+            if(_row == null){
+                _row = GetReusableRow(this.m_dataSource.HeadRowName);
+            }
+
+            if(_row == null){
+                _row = getTableRowForCopy(this.DataSource.HeadRowName);
+            }
+
+            return _row;
+        }
+
         public string PrintVisibleRows(){
             var _string = "{";
             foreach(var _value in m_visibleRows){

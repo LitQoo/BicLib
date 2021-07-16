@@ -24,6 +24,7 @@ namespace BicUtil.TableView
 
         bool HasHeadRow{get;}
         bool HasFootRow{get;}
+        string HeadRowName{get;}
     }
 }
 
