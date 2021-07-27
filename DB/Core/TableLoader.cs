@@ -131,7 +131,7 @@ namespace BicDB.Core
                 }
                 else
                 {
-                    Debug.Log("Task failed load table " + _tableInfo.Table.Name + "/ task.id " + i.ToString() + "/code " + _result[i].Code.ToString());
+                    Debug.Log("Task failed load table " + _tableInfo.Table.Name + "/ task.id " + i.ToString() + "/code " + _result[i].ToString());
                 }
             }
         }
