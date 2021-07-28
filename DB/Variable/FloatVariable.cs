@@ -54,7 +54,11 @@ namespace BicDB.Variable
 			try {
 				return float.Parse(_value);
 			} catch (Exception) {
-				return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
+				try{
+					return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
+				}catch(Exception){
+					throw new SystemException("FloatVariable Parse Exception : " + _value);
+				}
 			}
 		}
 		#endregion

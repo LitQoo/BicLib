@@ -77,6 +77,9 @@ namespace BicDB.Storage{
 				}catch(Exception e){
 					_result.Code = (int)ResultCode.FailedConvertJson;
 					_result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
+					Debug.Log("[BicDB] error json parse file path " + _filePath);
+					Debug.Log("[BicDB] exception : " + e.Message);
+					Debug.Log("[BicDB] failed parse json : " + _data);
 				}
 			}
 
