@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using BicDB;
 using BicDB.Storage;
 
@@ -65,7 +66,7 @@ namespace BicDB.Variable
 				#if UNITY_EDITOR
 				UnityEngine.Debug.LogWarning("[BicDB] int parse warning : " + _value);
 				#endif
-				return (int)float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
+				return (int)float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""), CultureInfo.InvariantCulture.NumberFormat);
 			}
 		}
 		#endregion
