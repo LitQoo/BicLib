@@ -52,12 +52,12 @@ namespace BicDB.Variable
 		#region parser
 		private float parse(string _value){
 			try {
-				return float.Parse(_value);
+				return float.Parse(_value.Trim());
 			} catch (Exception) {
 				try{
-					return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""));
+					return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value.Trim(), "[^0-9.+-]", ""));
 				}catch(Exception){
-					throw new SystemException("FloatVariable Parse Exception : " + _value);
+					throw new SystemException("FloatVariable Parse Exception : '" + _value + "'");
 				}
 			}
 		}
