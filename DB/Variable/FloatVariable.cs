@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using BicDB;
 using BicDB.Storage;
 
@@ -52,10 +53,12 @@ namespace BicDB.Variable
 		#region parser
 		private float parse(string _value){
 			try {
-				return float.Parse(_value.Trim());
+
+				return float.Parse(_value.Trim() , CultureInfo.InvariantCulture.NumberFormat);
 			} catch (Exception) {
 				try{
-					return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value.Trim(), "[^0-9.+-]", ""));
+					
+					return float.Parse(System.Text.RegularExpressions.Regex.Replace(_value.Trim(), "[^0-9.+-]", ""), CultureInfo.InvariantCulture.NumberFormat);
 				}catch(Exception){
 					throw new SystemException("FloatVariable Parse Exception : '" + _value + "'");
 				}
