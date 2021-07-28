@@ -202,7 +202,7 @@ namespace BicUtil.UI{
 
             isSetup = true;
 
-            LoadGdprArea();
+            // LoadGdprArea();
             isAgreedAnaltics = TableService.GetProperty("iaan", new IntVariable(GDPR_STATE_NONE));
             isAgreedAds = TableService.GetProperty("iaad", new IntVariable(GDPR_STATE_NONE));
 
