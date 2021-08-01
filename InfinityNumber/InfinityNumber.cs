@@ -192,6 +192,16 @@ namespace BicUtil.InfinityNumber
             return GetNumberString();
         }
 
+        public string ToStringFullWithComma(){
+            StringBuilder _result = new StringBuilder(); 
+            _result.Append(Quantity.ToString("#,##0"));
+            for(int i = 0; i < this.Unit; i++){
+                _result.Append(",000");
+            }
+
+            return _result.ToString();
+        }
+
         public string GetNumberString(char _splitString = ' '){
             StringBuilder _result = new StringBuilder(); 
             if(Quantity >= 1000 || Quantity <= -1000){

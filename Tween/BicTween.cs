@@ -1012,6 +1012,14 @@ namespace BicUtil.Tween
 		public static void StartCoroutine(IEnumerator _func){
 			defaultPool.StartCoroutine(_func);
 		}
+
+		public static Vector4 ColorToVector4(Color _color){
+			return new Vector4(_color.r, _color.g, _color.b, _color.a);
+		}
+
+		public static Vector4 Vector4ToColor(Vector4 _vector){
+			return new Color(_vector.x, _vector.y, _vector.z, _vector.w);
+		}
 		
 
 		// public static List<Vector3> GetPathFortween(List<int> chidDataList){
