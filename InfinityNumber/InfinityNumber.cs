@@ -192,6 +192,19 @@ namespace BicUtil.InfinityNumber
             return GetNumberString();
         }
 
+        public long AsLong{
+            get{
+                long _result = Quantity;
+                int _unit = this.Unit;
+                while(_unit > 0){
+                    _result = _result * 1000;
+                    _unit--;
+                }
+                
+                return _result; 
+            }
+        }
+
         public string ToStringFullWithComma(){
             StringBuilder _result = new StringBuilder(); 
             _result.Append(Quantity.ToString("#,##0"));
@@ -298,7 +311,7 @@ namespace BicUtil.InfinityNumber
 
         public void Divide(int _quantity, int _unit){
             Quantity /= _quantity;
-            Unit -= unit;
+            Unit -= _unit;
         }
 
         public void Multiply(float _rate){
