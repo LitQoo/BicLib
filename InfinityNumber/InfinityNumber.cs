@@ -188,9 +188,29 @@ namespace BicUtil.InfinityNumber
             adjustmentUnit();
         }
 
-        public override string ToString(){
-            return GetNumberString();
+        public long AsLong{
+            get{
+                long _result = Quantity;
+                int _unit = this.Unit;
+                while(_unit > 0){
+                    _result = _result * 1000;
+                    _unit--;
+                }
+
+                return _result; 
+            }
         }
+
+        public string ToStringFullWithComma(){
+            StringBuilder _result = new StringBuilder(); 
+            _result.Append(Quantity.ToString("#,##0"));
+            for(int i = 0; i < this.Unit; i++){
+                _result.Append(",000");
+            }
+
+            return _result.ToString();
+        }
+
 
         public string GetNumberString(char _splitString = ' '){
             StringBuilder _result = new StringBuilder(); 
@@ -288,7 +308,7 @@ namespace BicUtil.InfinityNumber
 
         public void Divide(int _quantity, int _unit){
             Quantity /= _quantity;
-            Unit -= unit;
+            Unit -= _unit;
         }
 
         public void Multiply(float _rate){
