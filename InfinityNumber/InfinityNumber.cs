@@ -201,6 +201,10 @@ namespace BicUtil.InfinityNumber
             }
         }
 
+        public override string ToString(){
+            return this.GetNumberString();
+        }
+
         public string ToStringFullWithComma(){
             StringBuilder _result = new StringBuilder(); 
             _result.Append(Quantity.ToString("#,##0"));

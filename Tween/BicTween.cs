@@ -884,7 +884,7 @@ namespace BicUtil.Tween
 			return Value(new Vector4(_from, 0, 0, 0), new Vector4(_to, 0, 0, 0), _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 		}
 
-		public static Tween Value(Vector2 _from, Vector2 _to, float _time, TweenPool _pool = null,
+		public static Tween Value2(Vector2 _from, Vector2 _to, float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
