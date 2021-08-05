@@ -30,6 +30,8 @@ namespace BicUtil.UI{
         private UnityEngine.UI.Text message;
         [SerializeField]
         private Color baseColor = Color.clear;
+        [SerializeField]
+        private bool isSingleton = true;
         #endregion
 
         #region InstantData
@@ -69,16 +71,22 @@ namespace BicUtil.UI{
 
         #region Event
         private void OnDestroy() {
-            if(Instance == this){
-                Instance = null;
-            }    
+            if(isSingleton == true){
+                if(Instance == this){
+                    Instance = null;
+                }    
+            }
         }
         private void Awake(){
-            Instance = this;
+            if(isSingleton == true){
+                Instance = this;
+            }
         }
 
         private void OnEnable() {
-            Instance = this;
+            if(isSingleton == true){
+                Instance = this;
+            }
         }
         #endregion
 
