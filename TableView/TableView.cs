@@ -563,6 +563,8 @@ namespace BicUtil.TableView
 		private bool centerPositionMagnet = false;
         [SerializeField]
         private float magnetSpeed = 1000;
+        [SerializeField]
+        private EaseType magnetEaseType = EaseType.OutBack;
 
 		private void checkEnableMagnet(){
 			if (isControlled == false) {
@@ -624,16 +626,7 @@ namespace BicUtil.TableView
                 scrollDistance = _value.x;
             }).SetTracker(scrollTracker).SubscribeComplete(()=>{
                 OnMargnetControl(_selectedRowIndex);
-            });
-
-            switch(this.m_scrollRect.movementType){
-                case ScrollRect.MovementType.Elastic:
-                    _tween.SetEase(EaseType.OutBack);
-                break;
-                default:
-
-                break;
-            }
+            }).SetEase(magnetEaseType);
 		}
 
         public Action<int> OnMargnetControl = null;
