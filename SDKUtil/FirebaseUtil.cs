@@ -62,11 +62,18 @@ namespace BicUtil.SDKUtil
             if(_result == Firebase.DependencyStatus.Available){
                 try{
                     Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version));
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH")));
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version)).ToString());
+                    var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", _installVersion);
+                    var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
+                    var _installDateString = _installDateHour.Substring(0, 6);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", _installDateHour);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDate", _installDateString);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
                     Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateLocal", TableService.InstallDateLocal);
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
+                    
                 }catch(System.Exception _error){
                     Debug.Log("[Firebase] InitializationException property " + _error.Message);
                 }

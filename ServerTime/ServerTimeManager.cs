@@ -113,6 +113,12 @@ namespace BicUtil.ServerTime
             }
         }
 
+        public DateTime UtcNow{
+            get{
+                return System.DateTime.UtcNow;
+            }
+        }
+
         public long Timestamp{
             get{
                 return this.Now.Ticks / TimeSpan.TicksPerSecond;
