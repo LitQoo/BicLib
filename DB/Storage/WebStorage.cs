@@ -396,6 +396,49 @@ namespace BicDB.Storage
 			}
 		}
 
+		public void SendRecord<T>(T _targetRecord, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+			var _resultCallback = _callback;
+			var _record = _targetRecord;
+			var _webParam = _param;
+
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
+			}
+
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("data", _record);
+
+			this.sendWebRequestWithCache(_webParam, _formData, _downloadText=>{
+				(var _storageResult, var _json) = buildJson(_downloadText, _webParam);
+
+				if(_storageResult.IsSuccess == false){
+					_resultCallback(_storageResult);
+					return;
+				}
+
+				var _resultRecord = new RecordContainer();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+
+				if(_resultRecord.ParseJson(_json) == false){
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
+					}
+					return;
+				}
+
+				if(_resultRecord["result"].AsVariable.AsInt != 0){
+					if(_resultCallback != null){
+						_resultCallback(new Result(_resultRecord["result"].AsVariable.AsInt, "", 0, _resultRecord.ToString()));
+					}
+					return;
+				}
+
+				if(_resultCallback != null){
+					_resultCallback(new Result((int)ResultCode.Success));
+				}
+			});
+		}
+
 		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
