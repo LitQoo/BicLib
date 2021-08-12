@@ -73,6 +73,7 @@ namespace BicUtil.SDKUtil
                     Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateLocal", TableService.InstallDateLocal);
                     Firebase.Analytics.FirebaseAnalytics.SetUserProperty("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("Session", TableService.SessionCount.ToString());
                     
                 }catch(System.Exception _error){
                     Debug.Log("[Firebase] InitializationException property " + _error.Message);
