@@ -568,12 +568,24 @@ namespace BicUtil.TableView
 
 		private void checkEnableMagnet(){
 			if (isControlled == false) {
-                    isControlled = true;
-                    MagnetControl ();
+                isControlled = true;
+                MagnetControl();
 			}
 		}
 
         private TweenTracker scrollTracker = new TweenTracker();
+        private RectTransform rectTransform = null;
+        public void ScrollToRowCenter(int _index){
+            if(rectTransform == null){
+                rectTransform = this.GetComponent<RectTransform>();
+            }
+
+            var _centerPosition = this.m_isVertical == true ? rectTransform.rect.height : rectTransform.rect.width;
+            var _distance = DataSource.GetHeightForRowInTableView(_index);
+            var _offset = (_centerPosition - _distance) / 2f;
+            var _scroll = this.GetScrollYForRow(_index, true) - _offset;
+            this.scrollDistance = _scroll;
+        }
 		public void MagnetControl(){
             if(m_isVertical == true){
                 throw new System.NotImplementedException("not support magnet control for vertical table");
