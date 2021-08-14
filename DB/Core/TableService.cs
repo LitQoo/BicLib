@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using BicUtil.Json;
 using System.Threading.Tasks;
+using BicUtil.ServerTime;
 
 namespace BicDB.Core
 {
@@ -88,18 +89,35 @@ namespace BicDB.Core
 
                 if(HasProperty(TableService.PROP_FIELD_INSTALL_DATE_LOCAL) == false){
                     if(HasProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR) == true){
-                        var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
-                        var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
-                        return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                        try{
+                            var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                            var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
+                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                        }catch{
+                            ServerTimeManager.InitArabicCalendarCrashFix();
+                            ServerTimeManager.InitThaiCalendarCrashFix();
+
+                            var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                            var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
+                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                        }
                     }else{
                         return -1;
                     }
                 }
 
                 try{
-                    var _installDate = DateTime.ParseExact(InstallDateLocal, "yyMMdd", null);
+                    try{
+                        var _installDate = DateTime.ParseExact(InstallDateLocal, "yyMMdd", null);
 
-                    return (int)(DateTime.Now - _installDate).TotalDays;
+                        return (int)(DateTime.Now - _installDate).TotalDays;
+                    }catch{
+                        ServerTimeManager.InitArabicCalendarCrashFix();
+                        ServerTimeManager.InitThaiCalendarCrashFix();
+                        var _installDate = DateTime.ParseExact(InstallDateLocal, "yyMMdd", null);
+
+                        return (int)(DateTime.Now - _installDate).TotalDays;
+                    }
                 }catch{
                     return -1;
                 }
