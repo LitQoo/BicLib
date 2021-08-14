@@ -39,6 +39,17 @@ namespace BicUtil.UI{
             }
         }
 
+        public void SetValueWithoutNotify(bool _value){
+            this.value = _value;
+
+            if(this.value == true){
+                on();
+            }else{
+                off();
+            }
+
+        }
+
         private void Awake() {
             this.Value = this.value;     
         }
