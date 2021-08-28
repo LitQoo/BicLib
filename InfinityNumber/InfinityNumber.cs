@@ -371,5 +371,13 @@ namespace BicUtil.InfinityNumber
 
 
         #endregion
+
+        static public (long Min, long Max, long Value) CaculateForGarph(InfinityNumber _from, InfinityNumber _to, InfinityNumber _current){
+            var _lowFieldUnit = _from.Unit;
+            var _lowNumber = new InfinityNumber(_from.Quantity, 0);
+            var _highNumber = new InfinityNumber(_to.Quantity, _to.Unit - _lowFieldUnit);
+            var _currentNumber = new InfinityNumber(_current.Quantity, _current.Unit - _lowFieldUnit);
+            return (_lowNumber.AsLong, _highNumber.AsLong, _currentNumber.AsLong);
+        }
     }
 }
