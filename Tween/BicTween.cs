@@ -973,7 +973,9 @@ namespace BicUtil.Tween
 			if(_pool != null){
 				_pool.CancelAll();
 			}else{
-				defaultPool.CancelAll();
+				if(defaultPool != null){
+					defaultPool.CancelAll();
+				}
 			}
 		}
 		#endregion
