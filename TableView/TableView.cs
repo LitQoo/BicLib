@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using UnityEngine.SocialPlatforms;
 using BicDB.Container;
 using BicDB;
 using System;
@@ -221,7 +220,7 @@ namespace BicUtil.TableView
         /// <summary>
         /// Get the range of the currently visible rows
         /// </summary>
-        public Range visibleRowRange {
+        public UnityEngine.SocialPlatforms.Range visibleRowRange {
             get { return m_visibleRowRange; }
         }
 
@@ -377,8 +376,8 @@ namespace BicUtil.TableView
         private int m_cleanCumulativeIndex;
 
         private Dictionary<int, TableRow> m_visibleRows;
-		private Range m_visibleRowRange;
-        public Range VisibleRowRange{
+		private UnityEngine.SocialPlatforms.Range m_visibleRowRange;
+        public UnityEngine.SocialPlatforms.Range VisibleRowRange{
             get{ return m_visibleRowRange;}
         }
 
@@ -418,7 +417,7 @@ namespace BicUtil.TableView
             while (m_visibleRows.Count > 0) {
                 HideRow(false);
             }
-            m_visibleRowRange = new Range(0, 0);
+            m_visibleRowRange = new UnityEngine.SocialPlatforms.Range(0, 0);
         }
 
         void Awake()
@@ -629,7 +628,7 @@ namespace BicUtil.TableView
         }
 		#endregion
         
-        private Range CalculateCurrentVisibleRowRange()
+        private UnityEngine.SocialPlatforms.Range CalculateCurrentVisibleRowRange()
         {
             float startY = 0;
 			float endY = 0;
@@ -644,12 +643,12 @@ namespace BicUtil.TableView
 
 			int startIndex = FindIndexOfRowAtY(startY);
             int endIndex = FindIndexOfRowAtY(endY);
-            return new Range(startIndex, endIndex - startIndex + 1);
+            return new UnityEngine.SocialPlatforms.Range(startIndex, endIndex - startIndex + 1);
         }
 
         private void SetInitialVisibleRows()
         {
-            Range visibleRows = CalculateCurrentVisibleRowRange();
+            UnityEngine.SocialPlatforms.Range visibleRows = CalculateCurrentVisibleRowRange();
 
             for (int i = 0; i < visibleRows.count; i++)
             {   
@@ -701,7 +700,7 @@ namespace BicUtil.TableView
                 return;
             }
 
-            Range newVisibleRows = CalculateCurrentVisibleRowRange();
+            UnityEngine.SocialPlatforms.Range newVisibleRows = CalculateCurrentVisibleRowRange();
 
 			int oldTo = m_visibleRowRange.Last();
             int newTo = newVisibleRows.Last();
@@ -879,7 +878,7 @@ namespace BicUtil.TableView
 
     internal static class RangeExtensions
     {
-        public static int Last(this Range range)
+        public static int Last(this UnityEngine.SocialPlatforms.Range range)
         {
             if (range.count == 0)
             {
@@ -888,7 +887,7 @@ namespace BicUtil.TableView
             return (range.from + range.count - 1);
         }
 
-        public static bool Contains(this Range range, int num) {
+        public static bool Contains(this UnityEngine.SocialPlatforms.Range range, int num) {
             return num >= range.from && num < (range.from + range.count);
         }
     }
