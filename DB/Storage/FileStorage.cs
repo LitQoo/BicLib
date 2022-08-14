@@ -151,12 +151,16 @@ namespace BicDB.Storage
 
 		public void Pull<T>(ITableContainer<T> _table, Action<Result> _callback, object _parameter) where T : IRecordContainer, new ()
 		{
-			FileStorageUtil.LoadByFile(_table, _callback, getEncryptKey(_table, _parameter));
+			var _result = FileStorageUtil.LoadByFile(_table, getEncryptKey(_table, _parameter));
+
+			if(_callback != null){
+				_callback(_result);
+			}
 		}
 
 		public void Load<T>(ITableContainer<T> _table, Action<Result> _callback = null, object _parameter = null) where T : IRecordContainer, new() {
 			_table.Clear();
-			FileStorageUtil.LoadByFile(_table, _callback, getEncryptKey(_table, _parameter));
+			this.Pull(_table, _callback, _parameter);
 		}
 
         public void Push<T>(ITableContainer<T> _table, Action<Result> _callback) where T : IRecordContainer, new()
@@ -167,11 +171,12 @@ namespace BicDB.Storage
         public async Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
         {
             _table.Clear();
-			var _result = await FileStorageUtil.LoadByFileAsync(_table, getEncryptKey(_table, _parameter));
+			var _result = FileStorageUtil.LoadByFile(_table, getEncryptKey(_table, _parameter));
+			
 			return _result;
 		}
 
-		public async Task<Result> SaveRecordAsync<T>(T _record, object _parameter)  where T : IRecordContainer, new()
+		public Result SaveRecord<T>(T _record, object _parameter)  where T : IRecordContainer, new()
 		{
 			try{
 				var _fileParam = _parameter as FileStorageParameter;
@@ -181,7 +186,7 @@ namespace BicDB.Storage
 					_data = FileStorageUtil.AESEncrypt256(_data, _fileParam.EncryptKey);
 				}
 
-				await FileStorageUtil.WriteFileAsync(_data, _fileParam.FilePath);
+				FileStorageUtil.WriteFile(_data, _fileParam.FilePath);
 				return new Result(0);
 			}catch(System.Exception _e){
 				return new Result(1, _e.Message);
@@ -189,11 +194,11 @@ namespace BicDB.Storage
 		}
 
 
-		public async Task<T> LoadRecordAsync<T>(object _parameter)  where T : IRecordContainer, new()
+		public T LoadRecord<T>(object _parameter)  where T : IRecordContainer, new()
 		{
 			try{
 				var _fileParam = _parameter as FileStorageParameter;
-				var _data = await FileStorageUtil.ReadFileAsync(_fileParam.FilePath);
+				var _data = FileStorageUtil.ReadFile(_fileParam.FilePath);
 				
 				if(string.IsNullOrEmpty(_fileParam.EncryptKey) == false){
 					_data = FileStorageUtil.AESDecrypt256(_data, _fileParam.EncryptKey);

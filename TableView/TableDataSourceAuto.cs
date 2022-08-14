@@ -201,6 +201,7 @@ namespace BicUtil.TableView
 
 		#region Head and Foot
 		public bool HasHeadRow{get=>headRowName != string.Empty;}
+		public string HeadRowName{get=>this.headRowName;}
 		private string headRowName = "";
 
 		public void SetHeadRow(string _rowName){

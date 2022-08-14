@@ -113,6 +113,12 @@ namespace BicUtil.ServerTime
             }
         }
 
+        public DateTime UtcNow{
+            get{
+                return System.DateTime.UtcNow;
+            }
+        }
+
         public long Timestamp{
             get{
                 return this.Now.Ticks / TimeSpan.TicksPerSecond;
@@ -123,6 +129,45 @@ namespace BicUtil.ServerTime
             get{
                 return (int)Math.Truncate((this.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
             }
+        }
+
+
+        public static void InitArabicCalendarCrashFix()
+        {
+            // Two Letter ISO Language
+            string strTwoLetterISOLanguage = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
+            Debug.LogFormat("[CurrentCulture.strTwoLetterISOLanguage] {0}", strTwoLetterISOLanguage);
+            if (strTwoLetterISOLanguage == "ar")
+            {
+                new System.Globalization.UmAlQuraCalendar();
+            }
+
+            // CultureName
+            //string strCurrentCultureName = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+            //Debug.LogFormat("[CurrentCulture.Name] {0}", strCurrentCultureName);
+            //if (strCurrentCultureName == "ar-SA")
+            //{
+            //    new System.Globalization.UmAlQuraCalendar();
+            //}
+        }
+
+        public static void InitThaiCalendarCrashFix()
+        {
+            // Two Letter ISO Language
+            string strTwoLetterISOLanguage = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
+            Debug.LogFormat("[CurrentCulture.strTwoLetterISOLanguage] {0}", strTwoLetterISOLanguage);
+            if (strTwoLetterISOLanguage == "th")
+            {
+                new System.Globalization.ThaiBuddhistCalendar();
+            }
+
+            // CultureName
+            //string strCurrentCultureName = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+            //Debug.LogFormat("[CurrentCulture.Name] {0}", strCurrentCultureName);
+            //if (strCurrentCultureName == "th-TH")
+            //{
+            //    new System.Globalization.ThaiBuddhistCalendar();
+            //}
         }
     }
 

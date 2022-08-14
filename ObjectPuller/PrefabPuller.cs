@@ -5,6 +5,9 @@ using System;
 namespace BicUtil.ObjectPuller
 {
     public class PrefabPuller<T> where T : class{
+		public IReadOnlyList<T> UsingObjectList{
+			get=>usingObjects;
+		}
 
 		private List<T> pullingObjects = new List<T>();
 		private List<T> usingObjects = new List<T>();

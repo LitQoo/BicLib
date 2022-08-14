@@ -21,7 +21,9 @@ namespace BicUtil
 		#endregion
 
 		#region Interface
-
+		public void SetBackImage(UnityEngine.UI.Image _image){
+			this.backImage = _image;
+		}
 
 		public void SetMask(int _maskIndex, Vector2 _position, Vector2 _size){
 			if (maskList.Count <= _maskIndex) {

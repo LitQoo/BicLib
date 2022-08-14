@@ -208,6 +208,20 @@ namespace BicUtil.TableView
             return _result;
         }
 
+        public TableRow GetHeadRow(){
+            var _row = this.GetRow(0); 
+            
+            if(_row == null){
+                _row = GetReusableRow(this.m_dataSource.HeadRowName);
+            }
+
+            if(_row == null){
+                _row = getTableRowForCopy(this.DataSource.HeadRowName);
+            }
+
+            return _row;
+        }
+
         public string PrintVisibleRows(){
             var _string = "{";
             foreach(var _value in m_visibleRows){
@@ -548,15 +562,29 @@ namespace BicUtil.TableView
 		private bool centerPositionMagnet = false;
         [SerializeField]
         private float magnetSpeed = 1000;
+        [SerializeField]
+        private EaseType magnetEaseType = EaseType.OutBack;
 
 		private void checkEnableMagnet(){
 			if (isControlled == false) {
-                    isControlled = true;
-                    MagnetControl ();
+                isControlled = true;
+                MagnetControl();
 			}
 		}
 
         private TweenTracker scrollTracker = new TweenTracker();
+        private RectTransform rectTransform = null;
+        public void ScrollToRowCenter(int _index){
+            if(rectTransform == null){
+                rectTransform = this.GetComponent<RectTransform>();
+            }
+
+            var _centerPosition = this.m_isVertical == true ? rectTransform.rect.height : rectTransform.rect.width;
+            var _distance = DataSource.GetHeightForRowInTableView(_index);
+            var _offset = (_centerPosition - _distance) / 2f;
+            var _scroll = this.GetScrollYForRow(_index, true) - _offset;
+            this.scrollDistance = _scroll;
+        }
 		public void MagnetControl(){
             if(m_isVertical == true){
                 throw new System.NotImplementedException("not support magnet control for vertical table");
@@ -609,16 +637,7 @@ namespace BicUtil.TableView
                 scrollDistance = _value.x;
             }).SetTracker(scrollTracker).SubscribeComplete(()=>{
                 OnMargnetControl(_selectedRowIndex);
-            });
-
-            switch(this.m_scrollRect.movementType){
-                case ScrollRect.MovementType.Elastic:
-                    _tween.SetEase(EaseType.OutBack);
-                break;
-                default:
-
-                break;
-            }
+            }).SetEase(magnetEaseType);
 		}
 
         public Action<int> OnMargnetControl = null;

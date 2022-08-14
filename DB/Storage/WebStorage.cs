@@ -206,9 +206,19 @@ namespace BicDB.Storage
 				_webParam = new WebStorageParameter();
 			}
 
+
+			#if UNITY_EDITOR
+			var _pullId = UnityEngine.Random.Range(0, 100000); 
+			Debug.Log("[WebStorage] PullAsync("+_pullId+") " + _targetTable.Name + "\n" + _webParam.ToString());
+			#endif
+
 			(var _type, var _downloadText) = await getWebRequestWithCache(_webParam); 
 			var _storageResult = buildTable(_downloadText, _table, _webParam);
-	
+
+			#if UNITY_EDITOR
+			Debug.Log("[WebStorage] PullAsync("+_pullId+") Result Cached by " + _type.ToString() + " & " + _targetTable.Count.ToString());
+			#endif
+
 			return _storageResult;
 		}
 
@@ -386,6 +396,49 @@ namespace BicDB.Storage
 			}
 		}
 
+		public void SendRecord<T>(T _targetRecord, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
+			var _resultCallback = _callback;
+			var _record = _targetRecord;
+			var _webParam = _param;
+
+			if(_webParam == null){
+				_webParam = new WebStorageParameter();
+			}
+
+			var _formData = new RecordContainer();
+			_formData.AddManagedColumn("data", _record);
+
+			this.sendWebRequestWithCache(_webParam, _formData, _downloadText=>{
+				(var _storageResult, var _json) = buildJson(_downloadText, _webParam);
+
+				if(_storageResult.IsSuccess == false){
+					_resultCallback(_storageResult);
+					return;
+				}
+
+				var _resultRecord = new RecordContainer();
+				_resultRecord.AddManagedColumn("result", new IntVariable());
+
+				if(_resultRecord.ParseJson(_json) == false){
+					if(_resultCallback != null){
+						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
+					}
+					return;
+				}
+
+				if(_resultRecord["result"].AsVariable.AsInt != 0){
+					if(_resultCallback != null){
+						_resultCallback(new Result(_resultRecord["result"].AsVariable.AsInt, "", 0, _resultRecord.ToString()));
+					}
+					return;
+				}
+
+				if(_resultCallback != null){
+					_resultCallback(new Result((int)ResultCode.Success));
+				}
+			});
+		}
+
 		public void SendRecords<T>(ITableContainer<T> _targetTable, ListContainer<T> _targetRecords, WebStorageParameter _param, Action<Result> _callback = null) where T : IRecordContainer, new (){
 			var _resultCallback = _callback;
 			var _table = _targetTable;
@@ -537,6 +590,21 @@ namespace BicDB.Storage
 		private bool isExistsDirectory = false;
 		public static CachingLevel ENABLE_CACHE_LEVEL = CachingLevel.None;
 		
+		private bool hasCacheFoced(WebStorageParameter _param){
+			if((_param.CachingLevel & CachingLevel.File) != 0 && File.Exists(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt") == true){
+				return true;
+			}
+
+			if((_param.CachingLevel & CachingLevel.Resource) != 0){
+				var _result = ResourceStorage.ReadAsset(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+				if(string.IsNullOrEmpty(_result) == false){
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		private (CachingLevel CachingType, string Result) getCache(WebStorageParameter _param){
 			if(ENABLE_CACHE_LEVEL == CachingLevel.None){
 				// Debug.Log("cache is disable");
@@ -594,7 +662,6 @@ namespace BicDB.Storage
 			if(_param.ResourceCacheEnableBeforeWeb == true){
 				string _result = loadCacheFromResrouceAndCaching(_param);
 				if(string.IsNullOrEmpty(_result) == false){
-					Debug.Log("ResourceCacheEnableBeforeWeb" + _param.CacheId);
 					return (CachingLevel.Resource, _result);
 				}
 			}
@@ -653,39 +720,60 @@ namespace BicDB.Storage
 			if(_cached.CachingType != CachingLevel.None){
 				return _cached;
 			}
+
 			
 			UnityWebRequest _request = null;
 			if(string.IsNullOrEmpty(_param.Url) == false){
 				_request = UnityWebRequest.Get(_param.UrlWithParam);
+				setTimeout(_param, _request);
 				await _request.SendWebRequest();
 			}
 
 			if(_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
+				#if UNITY_EDITOR
+				DebugForEditor.Log("[WebStorage] Success Download by web " + _param.ToString());
+				#endif
 				return (CachingLevel.None, _request.downloadHandler.text);
-			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
-				try
-                {
-                    string _result = await loadCacheFromResrouceAndCachingAsync(_param);
-                    return (CachingLevel.Resource, _result);
-                }
-                catch
-                {
-					return (CachingLevel.None, string.Empty);
-				}
 			}else{
+				
+
+				if((_param.CachingLevel & CachingLevel.File) != 0){
+					(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt");
+					if(_data != null){
+						#if UNITY_EDITOR
+						DebugForEditor.Log("[WebStorage] Failed Download by web, Use File " + _param.ToString());
+						#endif
+						return (CachingLevel.File, _data);
+					}
+				}
+				
+				if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
+					try
+					{
+
+						string _result = loadCacheFromResrouceAndCaching(_param);
+						if(string.IsNullOrEmpty(_result) == false){
+							#if UNITY_EDITOR
+							DebugForEditor.Log("[WebStorage] Failed Download by web, Use Resource " + _param.ToString());
+							#endif
+							return (CachingLevel.Resource, _result);
+						}
+					}
+					catch
+					{
+						DebugForEditor.Log("[WebStorage] Error loadCacheFromResrouceAndCachingAsync");
+						return (CachingLevel.None, string.Empty);
+					}
+				}
+
+				#if UNITY_EDITOR
+				DebugForEditor.Log("[WebStorage] Failed Download by web " + _param.ToString() + "/ request : " + (_request == null?"null":_request.result.ToString()));
+				#endif
 				return (CachingLevel.None, string.Empty);
 			}
 
 		}
-
-        private async Task<string> loadCacheFromResrouceAndCachingAsync(WebStorageParameter _param)
-        {
-
-			var _result = await ResourceStorage.ReadAssetAsync(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
-            _result = removeFirstLineAndCaching(_param, _result);
-            return _result;
-        }
 
 		private string loadCacheFromResrouceAndCaching(WebStorageParameter _param)
         {
@@ -716,18 +804,22 @@ namespace BicDB.Storage
 			}
 
 			UnityWebRequest _request = null;
-			if(string.IsNullOrEmpty(_param.Url) == false){
-				WWWForm _form = createForm(_param, _formData);
-				_request = UnityWebRequest.Post(_param.Url, _form);
-				await _request.SendWebRequest();
-			}
+			if(string.IsNullOrEmpty(_param.Url) == false)
+            {
+                WWWForm _form = createForm(_param, _formData);
+                _request = UnityWebRequest.Post(_param.Url, _form);
 
-			if(_request != null && _request.result == UnityWebRequest.Result.Success){
+                setTimeout(_param, _request);
+
+                await _request.SendWebRequest();
+            }
+
+            if (_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
 				return _request.downloadHandler.text;
 			}else if(string.IsNullOrEmpty(_param.ResourceCacheDirectoryPath) == false){
 				try{
-					string _result = await loadCacheFromResrouceAndCachingAsync(_param);
+					string _result = loadCacheFromResrouceAndCaching(_param);
 					return _result;
 				}catch{
 					return string.Empty;
@@ -737,7 +829,27 @@ namespace BicDB.Storage
 			}
 		}
 
-		private void sendWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData, Action<string> _callback){
+        private void setTimeout(WebStorageParameter _param, UnityWebRequest _request)
+        {
+            if (_param.ForcedCacheWebTimeout > 0)
+            {
+                var _hasCache = hasCacheFoced(_param);
+                if (_hasCache == true)
+                {
+                    _request.timeout = _param.ForcedCacheWebTimeout;
+                }
+                else
+                {
+					_request.timeout = _param.DefaultWebTimeout;
+                }
+            }
+            else
+            {
+				_request.timeout = _param.DefaultWebTimeout;
+            }
+        }
+
+        private void sendWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData, Action<string> _callback){
 			
 			var _cached = getCache(_param);
 			if(_cached.CachingType != CachingLevel.None){
@@ -798,6 +910,8 @@ namespace BicDB.Storage
 		public CachingLevel CachingLevel = CachingLevel.None;
 		public string CacheId = string.Empty;
 		public long CacheTime = 0;
+		public int ForcedCacheWebTimeout = 0;
+		public int DefaultWebTimeout = 0;
 		
 		
 		public bool IsEnabledCache{
@@ -829,7 +943,7 @@ namespace BicDB.Storage
 
 
 		public override string ToString(){
-			return "Webparam : " + Url + " & cache : " + CacheId; 
+			return "Webparam : " + Url + " & cache : " + CacheId + " & " + CachingLevel.ToString(); 
 		}
 	}
 }

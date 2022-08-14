@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using BicUtil.Json;
 using System.Threading.Tasks;
+using BicUtil.ServerTime;
 
 namespace BicDB.Core
 {
@@ -18,6 +19,7 @@ namespace BicDB.Core
         private const string PROP_FIELD_VERSION = "version";
         public const string PROP_FIELD_INSTALL_VERSION = "installVersion";
         public const string PROP_FIELD_INSTALL_DATEHOUR = "installDateHour";
+        public const string PROP_FIELD_INSTALL_DATE_LOCAL = "installDateLocal";
         private const string PROP_FIELD_IS_SETUP = "isSetup";
         #region Const
         static public readonly string TABLENAME = "BICSYSTEM";
@@ -76,6 +78,65 @@ namespace BicDB.Core
             
             return getIntProperty(PROP_FIELD_SESSION_COUNT);
         ;}} 
+
+        static public int DaysAfterInstall{
+            get{
+                Init();
+
+                if(tableInfo == null){
+                    return -1;
+                }
+
+                if(HasProperty(TableService.PROP_FIELD_INSTALL_DATE_LOCAL) == false){
+                    if(HasProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR) == true){
+                        try{
+                            var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                            var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
+                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                        }catch{
+                            ServerTimeManager.InitArabicCalendarCrashFix();
+                            ServerTimeManager.InitThaiCalendarCrashFix();
+
+                            var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                            var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
+                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                        }
+                    }else{
+                        return -1;
+                    }
+                }
+
+                try{
+                    try{
+                        var _installDate = DateTime.ParseExact(InstallDateLocal, "yyMMdd", null);
+
+                        return (int)(DateTime.Now - _installDate).TotalDays;
+                    }catch{
+                        ServerTimeManager.InitArabicCalendarCrashFix();
+                        ServerTimeManager.InitThaiCalendarCrashFix();
+                        var _installDate = DateTime.ParseExact(InstallDateLocal, "yyMMdd", null);
+
+                        return (int)(DateTime.Now - _installDate).TotalDays;
+                    }
+                }catch{
+                    return -1;
+                }
+            }
+        }
+
+        static public string InstallDateLocal{
+            get{
+                Init();
+
+                if(tableInfo == null){
+                    return "";
+                }
+                
+                var _installDateLocal = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATE_LOCAL, DateTime.Now.ToString("yyMMdd"));
+
+                return _installDateLocal;
+            }
+        }
 
         static public string UserId{
             get{
@@ -218,6 +279,8 @@ namespace BicDB.Core
                     SetStringProperty(PROP_FIELD_VERSION, currentVersion);
                     SetStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
                     SetStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
+                    SetStringProperty(PROP_FIELD_INSTALL_DATE_LOCAL, DateTime.Now.ToString("yyMMdd"));
+                    
                     SetIntProperty(PROP_FIELD_SESSION_COUNT, 1);
                     SetStringProperty(PROP_FIELD_IS_SETUP, "true");
 
