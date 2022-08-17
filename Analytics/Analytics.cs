@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace BicUtil.Analytics
 {
@@ -57,7 +58,11 @@ namespace BicUtil.Analytics
         }
 
         static public void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
-            Instance.sendEvent(_eventName, _eventData, _count);
+            try{
+                Instance.sendEvent(_eventName, _eventData, _count);
+            }catch(Exception e){
+                Debug.LogWarning("[Analytics Error] " + e.ToString());
+            }
         }
 
         public List<string> GetTerms(){
