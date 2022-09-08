@@ -162,7 +162,7 @@ namespace BicUtil.CameraScaler
 
 		public void SetManageFullSizeOffset(Vector2 _offset){
 			manageFullSizeOffset = _offset;
-			init();
+			init(true);
 		}
 		#endregion
 

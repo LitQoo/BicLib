@@ -62,14 +62,18 @@ namespace BicUtil.UI{
         }
 
         public bool ShouldOpen(){
-            var _currentDate = DateTime.Now;
-            var _lastDate = DateTime.ParseExact(lastCheckDate.AsString ,DATE_SAVE_FORMAT, null);
+            try{
+                var _currentDate = DateTime.Now;
+                var _lastDate = DateTime.ParseExact(lastCheckDate.AsString ,DATE_SAVE_FORMAT, null);
 
-            if(_lastDate.CompareTo(_currentDate) > 0){
-                return false;
-            }
+                if(_lastDate.CompareTo(_currentDate) > 0){
+                    return false;
+                }
 
-            if(isEqualDate(_currentDate, _lastDate) == true){
+                if(isEqualDate(_currentDate, _lastDate) == true){
+                    return false;
+                }
+            }catch{
                 return false;
             }
 
