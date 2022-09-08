@@ -35,6 +35,7 @@ namespace BicUtil.UI{
         private int firstReviewSession = 1;
         private bool isFastReviewReqeust = false;
         private Func<string, string> translator;
+        public Action OnClose = null;
         #endregion
 
         #region ClassInitialiszer
@@ -253,6 +254,9 @@ namespace BicUtil.UI{
 
             developer.StopDance();
             this.gameObject.SetActive(false);
+            if(OnClose != null){
+                OnClose();
+            }
         }
 
         public void SetTranslator(Func<string, string> _translator){
