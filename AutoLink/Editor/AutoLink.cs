@@ -50,7 +50,7 @@ namespace BicUtil.AutoLink{
 		static void autoLinkSerialField(object _object){
 			var _gameObject = _object as GameObject;
 			var _components = _gameObject.GetComponents(typeof(MonoBehaviour));
-
+		
 			foreach(var _component in _components){
 				var _fields = _component.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public| BindingFlags.Instance);
 				foreach(var _field in _fields){
@@ -63,6 +63,8 @@ namespace BicUtil.AutoLink{
                     }
                 }
 			}
+
+			UnityEditor.EditorUtility.SetDirty(_gameObject);
 		}
 
         private static void setField(Component _component, FieldInfo _field, List<GameObject> _childList)
