@@ -13,6 +13,10 @@ namespace BicUtil.PageService
             get=>this.sceneStack.Peek();
         }
 
+        static public void LoadScene(string _sceneName){
+            UnityEngine.SceneManagement.SceneManager.LoadScene (_sceneName);
+        }
+
         public object PopSceneTransitionParameter(){
             var _result = sceneTransitionParameter;
             sceneTransitionParameter = null;
@@ -63,7 +67,7 @@ namespace BicUtil.PageService
             }
         }
 
-        public void AddController(PageController _controller){
+        internal void AddController(PageController _controller){
             this.sceneStack.Push(_controller);
         }
 

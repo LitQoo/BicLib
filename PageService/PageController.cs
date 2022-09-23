@@ -90,14 +90,21 @@ namespace BicUtil.PageService
                         pages[_type] = _page;
                     }
                 }
+            }else{
+                DebugForEditor.Log("[PageControlelr.initialize] PageParent not found!");
             }
 
             var _orderedList = pages.OrderBy (_object => _object.Value.InitializeOrder);
 
             foreach (var _page in _orderedList) {
+                #if UNITY_EDITOR
+                DebugForEditor.Log("[IPage.InitializePage] " +  _page.Key.ToString());
+                #endif
                 _page.Value.PageController = this;
                 _page.Value.InitializePage();
             }
+
+            DebugForEditor.Log("[PageControlelr.initialize] Complete");
         }
 
         private void deinitialize(){
@@ -249,13 +256,13 @@ namespace BicUtil.PageService
             await this.ReplaceAsync<PageClass>(_transition, _openParam, _closeParam);
         }
 
-        public async Task BackAsync(object _closeParam = null){
+        public async Task CloseAsync(object _closeParam = null){
             var _lastPage = pageStack.Pop();
             await _lastPage.OnClosedPage(CurrentPage, _closeParam);
         }
 
-        public async void Back(object _closeParam = null){
-            await this.BackAsync(_closeParam);
+        public async void Close(object _closeParam = null){
+            await this.CloseAsync(_closeParam);
         }
 
         public async Task BackAsync(PageTransition _transition, object _openParam = null, object _closeParam = null){
