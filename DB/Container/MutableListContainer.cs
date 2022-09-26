@@ -128,6 +128,11 @@ namespace BicDB.Container
 			}
 		}
 
+		public object GetObject(int _index){
+			return data[_index];
+		}
+
+		public int ObjectCount=>this.Count;
 		#endregion
 
 		public MutableListContainer() : base(){

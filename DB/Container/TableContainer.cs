@@ -53,6 +53,15 @@ namespace BicDB.Container
 		}
 		#endregion
 
+		#region IListContainerReadObject
+
+		public object GetObject(int _index){
+			return this[_index];
+		}
+
+		public int ObjectCount=>this.Count;
+		#endregion
+
 
 		#region ITableContainer
 		public virtual Action<T> OnAddedRowActions { get; set; }
@@ -80,6 +89,9 @@ namespace BicDB.Container
 		#region LifeCycle
 		public TableContainer(string _name){
 			TableService.Init();
+			#if UNITY_EDITOR
+			TableService.Inspector.Track("Table."+_name, this);
+			#endif
 			Name = _name;
 		}
 		#endregion

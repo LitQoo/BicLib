@@ -76,6 +76,14 @@ namespace BicDB.Container
 		public OnChangedElementDelegator<int, T> OnChangedElementActions{ get; set;}
 		#endregion
 
+		#region IListContainerReadObject
+		public object GetObject(int _index){
+			return this[_index];
+		}
+
+		public int ObjectCount=>this.Count;
+		#endregion
+
 		#region IDataBase
 		public DataType Type { get { return DataType.List; }}
 
