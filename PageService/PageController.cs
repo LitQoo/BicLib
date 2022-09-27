@@ -279,47 +279,19 @@ namespace BicUtil.PageService
             await this.BackAsync(_transition, _openParam, _closeParam);
         }
 
-        public async void BackTo<PageClass>(PageTransition _transition, object _openParam = null){
-            await this.BackToAsync<PageClass>(_transition, _openParam);
+        public async void BackTo<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
+            await this.BackToAsync<PageClass>(_transition, _openParam, _closeParam);
         }
 
-        public async Task BackToAsync<PageClass>(PageTransition _transition, object _openParam = null){
+        public async Task BackToAsync<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
             Task _openTask = null; 
             Task _closeTask = null;
             while(true){
                 var _lastPage = pageStack.Pop();
-                _closeTask = _lastPage.OnClosedPage(CurrentPage, null);
+                _closeTask = _lastPage.OnClosedPage(CurrentPage, _closeParam);
 
                 if(this.CurrentPage is PageClass){
                     _openTask = this.CurrentPage.OnOpenedPage(_lastPage, _openParam);
-
-                    break;
-                }
-
-                if(pageStack.Count == 1){
-                    Debug.LogError("[PageManager] BackToAsync is Fail");
-                    break;
-                }
-            }
-
-            await transitionPage(_transition, _closeTask, _openTask);
-        }
-
-        public async void CloseTo<PageClass>(PageTransition _transition, object _openParam = null){
-            await this.CloseToAsync<PageClass>(_transition, _openParam);
-        }
-
-        public async Task CloseToAsync<PageClass>(PageTransition _transition, object _openParam = null){
-            Task _openTask = null; 
-            Task _closeTask = null;
-            while(true){
-                var _lastPage = pageStack.Pop();
-                _closeTask = _lastPage.OnClosedPage(CurrentPage, null);
-
-                if(this.CurrentPage is PageClass){
-                    if(_openParam != null){
-                        _openTask = this.CurrentPage.OnOpenedPage(_lastPage, _openParam);
-                    }
 
                     break;
                 }
