@@ -497,6 +497,14 @@ namespace BicUtil.Tween
 			return this;
 		}
 
+		public Tween InitialUpdate(){
+			if(this.Rate == 0){
+				this.Update();
+			}
+
+			return this;
+		}
+
 		public Tween Pause(){
 			IsPlaying = false;
 			return this;
