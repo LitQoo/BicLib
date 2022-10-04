@@ -469,7 +469,7 @@ namespace BicDB.Storage
 
 				if(_resultRecord.ParseJson(_json) == false){
 					if(_resultCallback != null){
-						_resultCallback(new Result((int)ResultCode.FailedConvertJson));
+						_resultCallback(new Result((int)ResultCode.FailedConvertJson, _message:_json));
 					}
 					return;
 				}

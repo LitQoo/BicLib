@@ -336,6 +336,10 @@ namespace BicUtil.Json
 
         private void makeModelByRegularJson<T>(ITableContainer<T> _table, ref string _json, ref int _counter) where T : IRecordContainer, new()
         {
+			#if UNITY_EDITOR
+			Debug.Log("[BicDB] makeModelByRegularJson " + _table.Name);
+			#endif
+
             while (_counter < _json.Length)
             {
 
@@ -343,7 +347,7 @@ namespace BicUtil.Json
                 _model.BuildVariable(ref _json, ref _counter, this);
                 
 				addRowToTable(_table, _model);
-
+				
                 if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",", "\n\t "))
                 {
                     break;
@@ -437,7 +441,10 @@ namespace BicUtil.Json
 				_result.BuildVariable(ref _json, ref _counter, this);
 				return _result;
 			} else if (_json[_counter] == '[') {
-				var _result = BuildMutableListContainer (ref _json, ref _counter);
+				MutableListContainer _result = new MutableListContainer();
+				_result.BuildVariable(ref _json, ref _counter, this);
+
+				//var _result = BuildMutableListContainer (ref _json, ref _counter);
 				return _result;
 			} else if (_json[_counter] == '{') {
 				MutableDictionaryContainer _result = new MutableDictionaryContainer();
@@ -479,33 +486,6 @@ namespace BicUtil.Json
 			return true;
 		}
 
-
-		public IDataBase BuildMutableListContainer(ref string _json, ref int _counter){
-			int _startCounter = _counter;
-			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
-				throw new SystemException("BuildListContainer fail find [");
-			}
-
-			_counter++;
-
-
-			if (!increaseCounterUntilNotFoundChars(ref _json, ref _counter, " \t\n")) {
-				throw new SystemException("not found value");
-			}
-
-			if (_json [_counter] == ']') {
-				return new MutableListContainer ();
-			}
-
-			char _checkString = _json [_counter];
-			_counter = _startCounter;
-
-			var _result = new MutableListContainer ();
-			BuildMutableListContainer (_result, ref _json, ref _counter);
-			return _result;
-		}
-
-
 		public IDataBase BuildListContainer(ref string _json, ref int _counter){
 			int _startCounter = _counter;
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
@@ -532,7 +512,6 @@ namespace BicUtil.Json
 				BuildListContainer (_result, ref _json, ref _counter);
 				return _result;
 			} else if (_checkString == '[') {
-
 				var _result = new ListContainer<MutableListContainer> ();
 				BuildListContainer (_result, ref _json, ref _counter);
 				return _result;
@@ -573,6 +552,14 @@ namespace BicUtil.Json
 			_list.Clear();
 				
 			_counter++;
+
+
+			increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
+
+			if(_json[_counter] == ']'){
+				_counter++;
+				return;
+			}
 
 			while (_counter < _json.Length) {
 				_list.Add (BuildVariable (ref _json, ref _counter));
@@ -732,7 +719,6 @@ namespace BicUtil.Json
 
 			while(_counter < _json.Length){
 				string _fieldName = getNextDictionaryKeyName(ref _json, ref _counter);
-
 				increaseCounterUntilFoundChar(ref _json, ref _counter, ':');
 				_counter++;
 

@@ -200,7 +200,7 @@ namespace BicDB.Core
             
             var _loader = new TableLoader();
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
-            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
+            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), _result=>true);
             _loader.Load(_callback, 3);
         }
 
@@ -209,7 +209,7 @@ namespace BicDB.Core
 
             var _loader = new TableLoader();
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
-            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"));
+            _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), _result=>true);
             var _result = await _loader.LoadAsync(3);
             return _result;
         }

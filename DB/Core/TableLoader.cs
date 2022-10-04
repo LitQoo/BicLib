@@ -123,9 +123,9 @@ namespace BicDB.Core
             for (int i = tableList.Count - 1; i >= 0; i--)
             {
                 var _tableInfo = tableList[i];
-                var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : true;
+                var _isComplete = _tableInfo.PassCallback != null ? _tableInfo.PassCallback(_result[i]) : false;
 
-                if (_result[i].IsSuccess == true && _isComplete == true)
+                if (_result[i].IsSuccess == true || _isComplete == true)
                 {
                     tableList.RemoveAt(i);
                 }

@@ -405,8 +405,8 @@ namespace BicUtil.Json
 		public void BuildListContainerTest(){
 			string _json = "[\"test\" , \"test2\",\t\n \"test3\"]";
 			int _counter = 0;
-
-			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
+			MutableListContainer _value = new MutableListContainer();
+			JsonConvertor.GetInstance ().BuildMutableListContainer(_value, ref _json, ref _counter);
 
 			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
 			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsString, "test");
@@ -419,7 +419,8 @@ namespace BicUtil.Json
 			string _json = "[222 , 333,\t\n 444]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
+			MutableListContainer _value = new MutableListContainer();
+			JsonConvertor.GetInstance ().BuildMutableListContainer(_value, ref _json, ref _counter);
 
 			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
 			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsInt, 222);
@@ -432,7 +433,8 @@ namespace BicUtil.Json
 			string _json = "[222.1 , 333.0,\t\n 444.5]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
+			MutableListContainer _value = new MutableListContainer();
+			JsonConvertor.GetInstance ().BuildMutableListContainer(_value, ref _json, ref _counter);
 
 			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
 			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsFloat, 222.1f);
@@ -458,7 +460,8 @@ namespace BicUtil.Json
 			string _json = "[]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
+			MutableListContainer _value = new MutableListContainer();
+			JsonConvertor.GetInstance ().BuildMutableListContainer(_value, ref _json, ref _counter);
 
 			Assert.AreEqual (_value.As<MutableListContainer> ().Count, 0);
 		}
@@ -469,7 +472,8 @@ namespace BicUtil.Json
 			string _json = "[true , false,\t\n false]";
 			int _counter = 0;
 
-			var _value = JsonConvertor.GetInstance ().BuildMutableListContainer (ref _json, ref _counter);
+			MutableListContainer _value = new MutableListContainer();
+			JsonConvertor.GetInstance ().BuildMutableListContainer(_value, ref _json, ref _counter);
 
 			Assert.AreEqual (_value.As<MutableListContainer> () .Count, 3);
 			Assert.AreEqual (_value.As<MutableListContainer> () [0].AsVariable.AsBool, true);

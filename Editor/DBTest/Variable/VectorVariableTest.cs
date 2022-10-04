@@ -41,7 +41,7 @@ namespace BicDB.Variable
 			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 			_var.BuildFormattedString(_stringBuilder, JsonConvertor.GetInstance());
 
-			Assert.AreEqual (_stringBuilder.ToString(), "{\"x\":99,\"y\":-100}");
+			Assert.AreEqual (_stringBuilder.ToString(), "\"99,-100\"");
 		}
 	}
 }
