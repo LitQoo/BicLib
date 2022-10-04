@@ -763,15 +763,12 @@ namespace BicUtil.Tween
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			var _tween = CreateModel(_pool);
-			_tween.TargetObject = _object;
-			_tween.DiffValue = _range;
-			_tween.Time = _time;
-			_tween.Type = TweenType.Size;
-			_tween.UpdateFunc = UpdateFuncs.Size;
-			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
-
-			return _tween;
+			var _currentPosition = _object.transform.localPosition;
+			return BicTween.Delay(_time, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
+				_object.transform.localPosition = _currentPosition + new Vector3(_range.x == 0 ? 0:UnityEngine.Random.Range(-_range.x/2f, _range.x/2f), _range.y == 0 ? 0:UnityEngine.Random.Range(-_range.y/2f, _range.y/2f), _range.z == 0 ? 0:UnityEngine.Random.Range(-_range.z/2f, _range.z/2f));
+			}).SubscribeComplete(()=>{
+				_object.transform.localPosition = _currentPosition;
+			});
 		}
 
 		public static Tween ShakeUpDown(GameObject _object, float _height, float _time, TweenPool _pool = null,
@@ -782,6 +779,18 @@ namespace BicUtil.Tween
 			var _currentPosition = _object.transform.localPosition;
 			return BicTween.Delay(_time, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
 				_object.transform.localPosition = _currentPosition + new Vector3(0, UnityEngine.Random.Range(-_height/2f, _height/2f));
+			}).SubscribeComplete(()=>{
+				_object.transform.localPosition = _currentPosition;
+			});
+		}
+
+		public static Tween Blink(GameObject _object, float _time, int _count, TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			_object.SetActive(false);
+			return BicTween.Interval(_time / (_count * 2f), _count * 2 - 1,_pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeRepeat((_tween, _count)=>{
+				_object.SetActive(_count % 2 == 1);
 			});
 		}
 
