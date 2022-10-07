@@ -16,6 +16,10 @@ namespace BicUtil.SDKUtil
     {
         #region FireBase
         static private void setRemoteConfigDefaultValue(IRecordContainer _constants){
+            if(_constants == null){
+                return;
+            }
+            
             var _default = new Dictionary<string, object>();
             foreach(var _value in _constants){
                 _default.Add(_value.Key, _value.Value.AsVariable.AsString);
@@ -25,6 +29,10 @@ namespace BicUtil.SDKUtil
         }
 
         static private void updateConstant(IRecordContainer _constants){
+            if(_constants == null){
+                return;
+            }
+
             foreach(var _value in _constants){
                 var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key).StringValue;
                 if(string.IsNullOrEmpty(_stringValue) == false){
@@ -81,7 +89,9 @@ namespace BicUtil.SDKUtil
 
                     if(_task.Result == Firebase.DependencyStatus.Available){
                         try{
-                            await remoteConfigAsync(_constants, 2f);
+                            if(_constants != null){
+                                await remoteConfigAsync(_constants, 2f);
+                            }
                         }catch(System.Exception _error){
                             Debug.Log("[Firebase] InitializationException " + _error.Message);
                         }
