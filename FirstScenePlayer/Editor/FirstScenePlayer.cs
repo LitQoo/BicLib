@@ -62,6 +62,7 @@ namespace BicLib.FirstScenePlayer{
         {
             GUILayout.FlexibleSpace();
 
+            GUILayout.Label("v"+PlayerSettings.bundleVersion + "(" + PlayerSettings.Android.bundleVersionCode +")");
             if(GUILayout.Button(new GUIContent("1►", "Play Default Scene"), ToolbarStyles.commandButtonStyle))
             {
                 if(EditorApplication.isPlaying == true){

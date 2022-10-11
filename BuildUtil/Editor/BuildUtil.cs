@@ -9,7 +9,7 @@ namespace BicLib.BuildUtil{
     [InitializeOnLoad]
     static public class BuildUtil{
 
-        [MenuItem("Build/Increase BuildNumber")]
+        [MenuItem("BicLib/Increase BuildNumber", false, 100)]
         static void IncreaseBuildNumber(){
             int _buildNumber = PlayerSettings.Android.bundleVersionCode + 1;
             Debug.Log("[BuildUtil] buildNumber " + _buildNumber);
@@ -26,8 +26,18 @@ namespace BicLib.BuildUtil{
             string[] lines = PlayerSettings.bundleVersion.Split('.');
 
             int MajorVersion = int.Parse(lines[0]) + majorIncr;
+
             int MinorVersion = int.Parse(lines[1]) + minorIncr;
             int Build = int.Parse(lines[2]) + buildIncr;
+
+            if(majorIncr > 0){
+                MinorVersion = 0;
+                Build = 0;
+            }
+
+            if(minorIncr > 0){
+                Build = 0;
+            }
 
             PlayerSettings.bundleVersion = MajorVersion.ToString("0") + "." +
                                             MinorVersion.ToString("0") + "." +
@@ -40,19 +50,19 @@ namespace BicLib.BuildUtil{
         }
 
 
-        [MenuItem("Build/Increase v0.0.+")]
+        [MenuItem("BicLib/Increase v0.0.+", false, 101)]
         private static void IncreaseLast()
         {
             IncrementVersion(0, 0, 1);
         }
 
-        [MenuItem("Build/Increase v0.+.0")]
+        [MenuItem("BicLib/Increase v0.+.0", false, 102)]
         private static void IncreaseMinor()
         {
             IncrementVersion(0, 1, 0);
         }
 
-        [MenuItem("Build/Increase v+.0.0")]
+        [MenuItem("BicLib/Increase v+.0.0", false, 103)]
         private static void IncreaseMajor()
         {
             IncrementVersion(1, 0, 0);

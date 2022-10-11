@@ -30,7 +30,7 @@ namespace BicUtil.Core{
 
         Vector2 scroll = new Vector2(0, 0);
 
-        [MenuItem("Window/BicLib/Setting")]
+        [MenuItem("BicLib/Setting", false, 0)]
         private static void ShowWindow() {
             var window = GetWindow<Setting>("BicLib Setting");
             window.titleContent = new GUIContent("BicLib Setting");
