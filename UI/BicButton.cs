@@ -19,7 +19,7 @@ namespace BicUtil.UI{
         [SerializeField]
         private string buttonName = "";
         [SerializeField]
-        private Button button;
+        private UnityEngine.UI.Button button;
         [SerializeField]
         private float onClickScaleUpRate = 1.1f;
         [SerializeField]
@@ -31,7 +31,7 @@ namespace BicUtil.UI{
         #region LifeCycle
         private void Awake() {
             if(button == null){
-                button = GetComponent<Button>();
+                button = GetComponent<UnityEngine.UI.Button>();
             }
             button.onClick.AddListener(playScaleTween);    
             button.onClick.AddListener(disableTouch);    
