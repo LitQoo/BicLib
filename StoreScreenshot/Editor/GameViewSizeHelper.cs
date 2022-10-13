@@ -116,6 +116,32 @@ namespace Kyusyukeigo.Helper {
             }
         }
 
+        public static void ChangeGameViewSizeWithoutName(GameViewSizeGroupType groupType, GameViewSize gameViewSize) {
+            _gameViewSize = gameViewSize;
+            EditorWindow gameView = EditorWindow.GetWindow(Types.gameView);
+            PropertyInfo currentSizeGroupType = Types.gameView.GetProperty("currentSizeGroupType", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
+            GameViewSizeGroupType currentType = (GameViewSizeGroupType)currentSizeGroupType.GetValue(gameView, null);
+            if (groupType != currentType) {
+                Debug.LogError(string.Format("GameViewSizeGroupType is {0}. but Current GameViewSizeGroupType is {1}.", groupType, currentType));
+                return;
+            }
+            object group = GetGroup(groupType, instance);
+            int totalCount = GetTotalCount(group);
+            int gameViewSizeLength = GetCustomCount(group);
+            int index = -1;
+            for (int i = totalCount - gameViewSizeLength; i < totalCount; i++) {
+                object other_gameViewSize = GetGameViewSize(group, i);
+                if (GameViewSize_EqualsWithoutName(_gameViewSize, other_gameViewSize)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index != -1) {
+                PropertyInfo selectedSizeIndex = Types.gameView.GetProperty("selectedSizeIndex", BindingFlags.Instance | BindingFlags.NonPublic);
+                selectedSizeIndex.SetValue(gameView, index, null);
+            }
+        }
+
         #endregion public Method
 
         #region private Method
@@ -151,6 +177,15 @@ namespace Kyusyukeigo.Helper {
             GameViewSizeType b_sizeType = (GameViewSizeType)Enum.Parse(typeof(GameViewSizeType), GetGameSizeProperty(b, "sizeType").ToString());
 
             return a.type == b_sizeType && a.width == b_width && a.height == b_height && a.baseText == b_baseText;
+        }
+
+        private static bool GameViewSize_EqualsWithoutName(GameViewSize a, object b) {
+            int b_width = (int)GetGameSizeProperty(b, "width");
+            int b_height = (int)GetGameSizeProperty(b, "height");
+            string b_baseText = (string)GetGameSizeProperty(b, "baseText");
+            GameViewSizeType b_sizeType = (GameViewSizeType)Enum.Parse(typeof(GameViewSizeType), GetGameSizeProperty(b, "sizeType").ToString());
+
+            return a.type == b_sizeType && a.width == b_width && a.height == b_height;
         }
 
         static object GetGameSizeProperty(object instance, string name) {

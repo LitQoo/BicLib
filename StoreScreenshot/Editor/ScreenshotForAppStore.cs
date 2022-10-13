@@ -22,10 +22,12 @@ namespace ScreenshotForAppStore
         }
         
         static int number = 0;
+        static string dir = "";
         private static void resetNumber(PlayModeStateChange obj)
         {
             if(obj == PlayModeStateChange.EnteredPlayMode){
                 number = 0;
+                dir = DateTime.Now.ToString(PlayerSettings.Android.bundleVersionCode + "_yyyyMMdd_HHmmss");
             }
         }
 
@@ -53,27 +55,37 @@ namespace ScreenshotForAppStore
             new GameViewSize(1080, 1920, "GooglePlay_16v9_1080p"),
         };
 
-        static IEnumerator CaptureScreenshot(int number)
+        static IEnumerator CaptureScreenshot(int number, string _directory)
         {
 
-            string directoryName = "screenshots_"+PlayerSettings.Android.bundleVersionCode;
+            string directoryName = "Screenshots";
 
             if (!Directory.Exists(directoryName))
             {
                 Directory.CreateDirectory(directoryName);
             }
 
+            directoryName = Path.Combine(directoryName, _directory);
+
+            if (!Directory.Exists(directoryName))
+            {
+                Directory.CreateDirectory(directoryName);
+            }
+            
             var editorWindowAssembly = typeof(EditorWindow).Assembly;
             var currentSizeGroupType = GetCurrentSizeGroupType(editorWindowAssembly);
             var gameViewType = editorWindowAssembly.GetType("UnityEditor.GameView");
             var gameViewWindow = EditorWindow.GetWindow(gameViewType);
-
+            bool isLandscape = Screen.height < Screen.width;
+            var lastScreenSize = new Vector2Int(Screen.width, Screen.height);
             foreach (var customSize in _customSizes)
             {
                 var _size = customSize;
+                var _name = customSize.baseText; 
 
-                if(Screen.height < Screen.width){
+                if(isLandscape == true){
                     _size = customSize.ToLandScape();
+                    _name = _name + "_Landscape";
                 }
 
                 if (!GameViewSizeHelper.Contains(currentSizeGroupType, _size))
@@ -83,7 +95,7 @@ namespace ScreenshotForAppStore
 
                 GameViewSizeHelper.ChangeGameViewSize(currentSizeGroupType, _size);
 
-                var filename = Path.Combine(directoryName, $"{_size.baseText}_{number}.png");
+                var filename = Path.Combine(directoryName, $"{_name}_{number}.png");
                 EditorApplication.Step();
                 EditorApplication.Step();
                 ScreenCapture.CaptureScreenshot(filename);
@@ -91,6 +103,8 @@ namespace ScreenshotForAppStore
                 Debug.Log($">> ScreenshotForAppStore : save to {filename}");
                 yield return null;
             }
+
+            GameViewSizeHelper.ChangeGameViewSizeWithoutName(currentSizeGroupType, new GameViewSize(lastScreenSize.x, lastScreenSize.y, "origin"));
         }
 
         static GameViewSizeGroupType GetCurrentSizeGroupType(Assembly assembly)
@@ -102,8 +116,9 @@ namespace ScreenshotForAppStore
 
         #region MenuItem methods
         [MenuItem("BicLib/CaptureScreenshot #%e", false, 201)]
-        static void CaptureScreenshot1()
-            => EditorCoroutine.Start(CaptureScreenshot(++number));
+        static void CaptureScreenshot1(){
+            EditorCoroutine.Start(CaptureScreenshot(++number, dir));
+        }
         #endregion
     }
 }

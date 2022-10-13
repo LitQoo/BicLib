@@ -14,7 +14,7 @@ namespace BicUtil.Core{
     public class InspectorEditor : EditorWindow
     {
         
-        [MenuItem("Window/BicLib/Inspector")]
+        [MenuItem("BicLib/Inspector", false, 300)]
         private static void ShowWindow() {
             var window = GetWindow<InspectorEditor>("BicDB Inspector");
             window.titleContent = new GUIContent("BicDB Inspector");
