@@ -18,8 +18,56 @@ namespace BicUtil.Tween
 			return id;
 		}
 		
-
 		#if BICUTIL_UNITY_ANIMATOR
+		static public Tween MecanimState(Animator _animator, string _stateName, bool _playAfterOneframe = true, int _layerIndex = 0){
+			var _mecanimTracker = BicTween.Delay(0.5f);
+			
+			if(_playAfterOneframe == true){
+				_mecanimTracker.SubscribeStart(()=>{
+					_animator.Play(_stateName);
+				});
+			}else{
+				_animator.Play(_stateName);
+			}
+			
+			var _trackerId = _mecanimTracker.Id;
+			bool _isStart = false;
+			_mecanimTracker.SubscribeUpdate(_v=>{
+				var _currentState = _animator.GetCurrentAnimatorStateInfo(_layerIndex);
+
+				if(_isStart == false){
+					if(_currentState.IsName(_stateName) == true){
+						_isStart = true;
+						_mecanimTracker.Time = _currentState.length / _currentState.speed;
+						if(_currentState.loop == true){
+							_mecanimTracker.SetRepeatForever();
+						}
+					}
+				}else{
+					if(_currentState.IsName(_stateName) == false){
+						if(_mecanimTracker.RepeatCount == -1 || (_mecanimTracker.Rate < 0.95f && _mecanimTracker.RepeatCount <= _mecanimTracker.CurrentRepeatCount)){
+							#if UNITY_EDITOR
+							Debug.LogWarning("[Tween] Cancel Mecanim " + _animator.name + "." + _stateName);
+							#endif
+							_mecanimTracker.Cancel(_trackerId);
+						}else{
+							_mecanimTracker.Rate = 1f;
+						}
+					}
+				}
+			});
+
+			#if UNITY_EDITOR
+			_mecanimTracker.SubscribeComplete(()=>{
+				if(_isStart == false){
+					Debug.LogError("[Tween] Mecanim does not play");
+				}
+			});
+			#endif
+
+			return _mecanimTracker;
+		}
+
 		public static void PlayMecanimAnimation(Animator _animator, string _stateHashName){
 			#if UNITY_EDITOR
 			if(Application.isPlaying){
@@ -1028,7 +1076,7 @@ namespace BicUtil.Tween
 		}
 
 		public static void StartCoroutine(IEnumerator _func){
-			defaultPool.StartCoroutine(_func);
+			DefaultPool.StartCoroutine(_func);
 		}
 
 		public static Vector4 ColorToVector4(Color _color){
