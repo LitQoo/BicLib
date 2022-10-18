@@ -16,13 +16,19 @@ namespace BicLib.GitVersions{
             var _gitStatus = GitUtil.Command("status");
             
             if(_gitStatus.Contains("nothing to commit") == false){
-                // if(_gitStatus.Contains("by 3 commit") == true && _gitStatus.Contains("UnityServicesProjectConfiguration.json") == true){
-                    Debug.Log("line " + _gitStatus.Split('\n').Length);
-                // }else{
+                if(_gitStatus.Contains("Changes not staged for commit") == true){
                     Debug.LogError(_gitStatus);
                     throw new BuildFailedException("Can't build, commit first");
-                // }
+                }
+
+                if(_gitStatus.Split('\n').Length <= 11 && _gitStatus.Contains("nothing added to commit but untracked files present") == true && _gitStatus.Contains("UnityServicesProjectConfiguration.json") == true){
+                    
+                }else{
+                    Debug.LogError(_gitStatus);
+                    throw new BuildFailedException("Can't build, commit first");
+                }
             }
+            Debug.LogError(_gitStatus);
         }
     }
 }
