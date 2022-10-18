@@ -2,19 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using BicLib.BuildUtil;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug; 
 
 public static class GitUtil
-{
-    [MenuItem("BicLib/GitTest")]
-    public static void LogCommit()
-    {
-        var result = Command("status");
-        Debug.Log(result);
-    }
-    
+{   
     public static string Command(string gitCommand)
     {
         // Strings that will catch the output from our process.
@@ -55,35 +49,16 @@ public static class GitUtil
         process.Close();        // Close the process ensuring it frees it resources.
 
         // Check for failure due to no git setup in the project itself or other fatal errors from git.
-        if (output.Contains("fatal") || output == "no-git" || output == "")
+        if (output.Contains("fatal") || output == "no-git")
         {
             throw new Exception("Command: git " + @gitCommand + " Failed\n" + output + errorOutput);
         }
         // Log any errors.
         if (errorOutput != "")
         {
-            Debug.LogError("Git Error: " + errorOutput);
+            Debug.LogWarning("Git Error: " + errorOutput);
         }
 
         return output;  // Return the output from git.
     }
 }
-
-
-// On branch master
-// Your branch is ahead of 'Github/master' by 1 commit.
-//   (use "git push" to publish your local commits)
-
-// Changes to be committed:
-//   (use "git restore --staged <file>..." to unstage)
-// 	modified:   Assembly-CSharp-Editor.csproj
-
-// Changes not staged for commit:
-//   (use "git add <file>..." to update what will be committed)
-//   (use "git restore <file>..." to discard changes in working directory)
-//   (commit or discard the untracked or modified content in submodules)
-// 	modified:   Assets/BicLIb (untracked content)
-
-
-// UnityEngine.Debug:Log (object)
-// GitUtil:LogCommit () (at Assets/BicLIb/GitVersions/Editor/GitUtil.cs:15)

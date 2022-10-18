@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
@@ -10,11 +7,9 @@ namespace BicLib.GitVersions{
     {
         [PostProcessBuild(0)]
         public static void PostProcessBuild(BuildTarget buildTarget, string _pathToBuiltProject){
-            GitUtil.Command("");
-
-            
-            // Causes a log in the Unity editor, but the build still succeeds
-            //throw new BuildFailedException("Forced fail");
+            var _tag = buildTarget.ToString()+"_"+BicLib.BuildUtil.BuildUtil.GetBuildString();
+            GitUtil.Command("tag " + _tag);
+            Debug.Log("[BuildUtil] git tag " + _tag);
         }
     }
 }

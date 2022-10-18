@@ -13,8 +13,12 @@ namespace BicLib.GitVersions{
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            Debug.Log("build start");
-            throw new BuildFailedException("Forced fail");
+            var _gitStatus = GitUtil.Command("status");
+
+            if(_gitStatus.Contains("nothing to commit") == false){
+                Debug.LogError(_gitStatus);
+                throw new BuildFailedException("Can't build, commit first");
+            }
         }
     }
 }

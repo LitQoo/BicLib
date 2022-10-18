@@ -18,6 +18,18 @@ namespace BicLib.BuildUtil{
             AssetDatabase.SaveAssets();
         }
 
+
+        public static string GetBuildString(){
+            int _iosNumber = 0;
+            try{
+                _iosNumber = int.Parse(PlayerSettings.iOS.buildNumber);
+            }catch{
+
+            }
+
+            return "v" + PlayerSettings.bundleVersion + "(" + Mathf.Max(PlayerSettings.Android.bundleVersionCode, _iosNumber) + ")";
+        }
+
         static void IncrementVersion(int majorIncr, int minorIncr, int buildIncr)
         {
             var _oldVersion = PlayerSettings.bundleVersion;
