@@ -28,7 +28,6 @@ namespace BicLib.GitVersions{
                     throw new BuildFailedException("Can't build, commit first");
                 }
             }
-            Debug.LogError(_gitStatus);
         }
     }
 }
