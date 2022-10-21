@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BicDB;
 using BicDB.Container;
 using BicDB.Storage;
@@ -33,18 +34,18 @@ namespace BicUtil.Ads{
         public void InitializeInterstitialAds()
         {
             // Attach callback
-            MaxSdkCallbacks.OnInterstitialLoadedEvent += OnInterstitialLoadedEvent;
-            MaxSdkCallbacks.OnInterstitialLoadFailedEvent += OnInterstitialFailedEvent;
-            MaxSdkCallbacks.OnInterstitialAdFailedToDisplayEvent += InterstitialFailedToDisplayEvent;
-            MaxSdkCallbacks.OnInterstitialHiddenEvent += OnInterstitialDismissedEvent;
+            MaxSdkCallbacks.Interstitial.OnAdLoadedEvent += OnInterstitialLoadedEvent;
+            MaxSdkCallbacks.Interstitial.OnAdLoadFailedEvent += OnInterstitialFailedEvent;
+            MaxSdkCallbacks.Interstitial.OnAdDisplayFailedEvent += InterstitialFailedToDisplayEvent;
+            MaxSdkCallbacks.Interstitial.OnAdHiddenEvent += OnInterstitialDismissedEvent;
         }
 
-        private void OnInterstitialLoadedEvent(string adUnitId)
+        private void OnInterstitialLoadedEvent(string adUnitId, MaxSdkBase.AdInfo _adInfo)
         {
             // Interstitial ad is ready to be shown. MaxSdk.IsInterstitialReady(interstitialAdUnitId) will now return 'true'
         }
 
-        private void OnInterstitialFailedEvent(string adUnitId, int errorCode)
+        private void OnInterstitialFailedEvent(string adUnitId, MaxSdkBase.ErrorInfo _errorInfo)
         {
             var _adId = adUnitId;
             BicTween.Delay(3f).SubscribeComplete(()=>{
@@ -52,7 +53,7 @@ namespace BicUtil.Ads{
             });
         }
 
-        private void InterstitialFailedToDisplayEvent(string adUnitId, int errorCode)
+        private void InterstitialFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo _errorInfo, MaxSdkBase.AdInfo _adInfo)
         {
             if(callback != null){
                 callback(AdsResult.Failed);
@@ -62,7 +63,7 @@ namespace BicUtil.Ads{
             MaxSdk.LoadInterstitial(adUnitId);
         }
 
-        private void OnInterstitialDismissedEvent(string adUnitId)
+        private void OnInterstitialDismissedEvent(string adUnitId, MaxSdkBase.AdInfo _adInfo)
         {
             if(callback != null){
                 callback(AdsResult.Finished);
@@ -78,24 +79,24 @@ namespace BicUtil.Ads{
         private void initializeRewardedAds()
         {
             // Attach callback
-            MaxSdkCallbacks.OnRewardedAdLoadedEvent += OnRewardedAdLoadedEvent;
-            MaxSdkCallbacks.OnRewardedAdHiddenEvent += OnRewardedAdDismissedEvent;
-            MaxSdkCallbacks.OnRewardedAdLoadFailedEvent += OnRewardedAdFailedLoadEvent;
-            MaxSdkCallbacks.OnRewardedAdReceivedRewardEvent += OnRewardedAdReceivedRewardEvent;
-            MaxSdkCallbacks.OnRewardedAdFailedToDisplayEvent += RewardedAdFailedToDisplayEvent;
+            MaxSdkCallbacks.Rewarded.OnAdLoadedEvent += OnRewardedAdLoadedEvent;
+            MaxSdkCallbacks.Rewarded.OnAdHiddenEvent += OnRewardedAdDismissedEvent;
+            MaxSdkCallbacks.Rewarded.OnAdLoadFailedEvent += OnRewardedAdFailedLoadEvent;
+            MaxSdkCallbacks.Rewarded.OnAdReceivedRewardEvent += OnRewardedAdReceivedRewardEvent;
+            MaxSdkCallbacks.Rewarded.OnAdDisplayFailedEvent += RewardedAdFailedToDisplayEvent;
         }
 
-        private void OnRewardedAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2)
+        private void OnRewardedAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2, MaxSdkBase.AdInfo arg3)
         {
             isSuccessRewarded = true;
         }
 
-        private void OnRewardedAdLoadedEvent(string adUnitId)
+        private void OnRewardedAdLoadedEvent(string adUnitId, MaxSdkBase.AdInfo _adInfo)
         {
             // Rewarded ad is ready to be shown. MaxSdk.IsRewardedAdReady(rewardedAdUnitId) will now return 'true'
         }
 
-        private void OnRewardedAdDismissedEvent(string adUnitId)
+        private void OnRewardedAdDismissedEvent(string adUnitId, MaxSdkBase.AdInfo _adInfo)
         {
             if(callback != null){
                 if(isSuccessRewarded == true){
@@ -110,7 +111,7 @@ namespace BicUtil.Ads{
 
         }
 
-        private void OnRewardedAdFailedLoadEvent(string adUnitId, int errorCode)
+        private void OnRewardedAdFailedLoadEvent(string adUnitId, MaxSdkBase.ErrorInfo _errorInfo)
         {
             isSuccessRewarded = false;
             var _adId = adUnitId;
@@ -120,7 +121,7 @@ namespace BicUtil.Ads{
             });
         }
 
-        private void RewardedAdFailedToDisplayEvent(string adUnitId, int errorCode)
+        private void RewardedAdFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo _errorInfo, MaxSdkBase.AdInfo _adInfo)
         {
             if(callback != null){
                 callback(AdsResult.Failed);
@@ -208,6 +209,13 @@ namespace BicUtil.Ads{
             }else{
                 return null;
             }
+        }
+
+
+        public string TermsURL => "https://www.applovin.com/terms/";
+        public void SetUserConsent(bool _isEnabled)
+        {
+            
         }
         #endregion
     }
@@ -301,45 +309,51 @@ namespace BicUtil.Ads{
         private bool isLoaded = false;
         private static void loadData<T>(ITableContainer<T> _table, Action<Result> _callback, string _abTestKey, string _defultData, Func<string, string> _valueSetter) where T : IRecordContainer, new()
         {
-            string _data = MaxSdk.VariableService.GetString(_abTestKey, _defultData);
-            var _result = new Result((int)ResultCode.Success, string.Empty);
-            int _counter = 0;
+            throw new NotImplementedException();
+            // string _data = MaxSdk.VariableService.GetString(_abTestKey, _defultData);
+            // var _result = new Result((int)ResultCode.Success, string.Empty);
+            // int _counter = 0;
 
 
-            try{
-                if(_data == _defultData){
-                    //load by file if exist
-                    var _dataFromFile = FileStorage.ReadByPath(FileStorage.GetPath("maxab_"+_table.Name), "abtestkey");
-                    if(string.IsNullOrEmpty(_dataFromFile) == false){
-                        _data = _dataFromFile;
-                    }
-                }else if(string.IsNullOrEmpty(_data) == false){
-                    //save to file
-                    FileStorage.Write(_data, "maxab_"+_table.Name, "abtestkey");
-                }
-            }catch{
+            // try{
+            //     if(_data == _defultData){
+            //         //load by file if exist
+            //         var _dataFromFile = FileStorage.ReadByPath(FileStorage.GetPath("maxab_"+_table.Name), "abtestkey");
+            //         if(string.IsNullOrEmpty(_dataFromFile) == false){
+            //             _data = _dataFromFile;
+            //         }
+            //     }else if(string.IsNullOrEmpty(_data) == false){
+            //         //save to file
+            //         FileStorage.Write(_data, "maxab_"+_table.Name, "abtestkey");
+            //     }
+            // }catch{
 
-            }
+            // }
 
-            string _jsonData = _valueSetter(_data);
+            // string _jsonData = _valueSetter(_data);
 
-            if (!string.IsNullOrEmpty(_jsonData))
-            {
-                try
-                {
-                    JsonConvertor.GetInstance().BuildTableContainer(_table, ref _jsonData, ref _counter);
-                }
-                catch (Exception e)
-                {
-                    _result.Code = (int)ResultCode.FailedConvertJson;
-                    _result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
-                }
-            }
+            // if (!string.IsNullOrEmpty(_jsonData))
+            // {
+            //     try
+            //     {
+            //         JsonConvertor.GetInstance().BuildTableContainer(_table, ref _jsonData, ref _counter);
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         _result.Code = (int)ResultCode.FailedConvertJson;
+            //         _result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
+            //     }
+            // }
 
-            if (_callback != null)
-            {
-                _callback(_result);
-            }
+            // if (_callback != null)
+            // {
+            //     _callback(_result);
+            // }
+        }
+
+        public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
