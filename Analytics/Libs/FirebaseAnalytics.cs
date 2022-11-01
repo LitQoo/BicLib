@@ -12,6 +12,16 @@ namespace BicUtil.Analytics
         static public object LOCK_CHECK{get;} = new object();
         public string TermsURL => "https://policies.google.com/privacy/update";
         
+
+        public FirebaseAnalytics(){
+            Application.logMessageReceived += sendLog;
+        }
+
+        private void sendLog(string _condition, string _stackTrace, LogType _logType)
+        {
+            Firebase.Crashlytics.Crashlytics.Log(string.Format("{0}\n{1}", _condition, _stackTrace));
+        }
+
         private struct SavedEvent{
             public string Name;
             public Dictionary<string, object> EventData;
@@ -26,6 +36,7 @@ namespace BicUtil.Analytics
         private bool needRetryEvent = false;
         private List<SavedEvent> savedEvent = new List<SavedEvent>();
         public void Event(string _name, Dictionary<string, object> _eventData = null, int _value = 1){
+           
             lock(LOCK_CHECK){
                 if(BicUtil.SDKUtil.FirebaseUtil.Status == Firebase.DependencyStatus.Available){
                     retrySavedEvent();
@@ -37,6 +48,11 @@ namespace BicUtil.Analytics
                     }
                 }
             }
+        }
+
+        public void SetCustomData(string _key, string _value){
+            Firebase.Analytics.FirebaseAnalytics.SetUserProperty(_key, _value);
+            Firebase.Crashlytics.Crashlytics.SetCustomKey(_key, _value);
         }
 
         private void retrySavedEvent(){
@@ -68,6 +84,16 @@ namespace BicUtil.Analytics
 
         public void SetUserConsent(bool _isEnabled){
             //Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(_isEnabled);
+        }
+
+        public static void SetCustomKey(string _key, string _value){
+            Firebase.Analytics.FirebaseAnalytics.SetUserProperty(_key, _value);
+            Firebase.Crashlytics.Crashlytics.SetCustomKey(_key, _value);
+        }
+
+        public static void SetUserId(string _id){
+            Firebase.Analytics.FirebaseAnalytics.SetUserId(_id);
+            Firebase.Crashlytics.Crashlytics.SetUserId(_id);
         }
     }
 }

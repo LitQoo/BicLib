@@ -71,17 +71,17 @@ namespace BicUtil.SDKUtil
                         //await Task.Delay(3000);
                         Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersion", _installVersion);
+                        FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
                         var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
                         var _installDateString = _installDateHour.Substring(0, 6);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateHour", _installDateHour);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDate", _installDateString);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("IsSetupNow", TableService.IsSetup.ToString());
-                        Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("SetupDateLocal", TableService.InstallDateLocal);
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
-                        Firebase.Analytics.FirebaseAnalytics.SetUserProperty("Session", TableService.SessionCount.ToString());
+                        FirebaseAnalytics.SetCustomKey("SetupDateHour", _installDateHour);
+                        FirebaseAnalytics.SetCustomKey("SetupDate", _installDateString);
+                        FirebaseAnalytics.SetCustomKey("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
+                        FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());
+                        FirebaseAnalytics.SetUserId(TableService.UserId);
+                        FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);
+                        FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
+                        FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
 
                     }catch(System.Exception _error){
                         Debug.Log("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);

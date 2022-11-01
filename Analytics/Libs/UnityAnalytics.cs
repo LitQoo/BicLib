@@ -24,6 +24,10 @@ namespace BicUtil.Analytics
 
         public void SetUserConsent(bool _isEnabled){
         }
+
+        public void SetCustomData(string _key, string _value){
+            UnityEngine.CrashReportHandler.CrashReportHandler.SetUserMetadata(_key, _value);
+        }
     }
 }
 #endif

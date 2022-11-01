@@ -10,6 +10,7 @@ namespace BicUtil.Analytics
     {
         private List<IAnalyticsLib> libList = new List<IAnalyticsLib>();
         private bool isEnable = false;
+
         public override void Initialize()
         {
             #if BICUTIL_ANALYTICS_APPSFLYER
@@ -80,11 +81,21 @@ namespace BicUtil.Analytics
             }
         }
 
+        public void setCustomData(string _key, string _value){
+            for(int i = 0; i < libList.Count; i++){
+                libList[i].SetCustomData(_key, _value);
+            }
+        }
+
+        static public void SetCustomData(string _key, string _value){
+            Instance.setCustomData(_key, _value);
+        }
     }
 
     public interface IAnalyticsLib{
         void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1);
         string TermsURL{get;}
         void SetUserConsent(bool _isEnabled);
+        void SetCustomData(string _key, string _value);
     }
 }
