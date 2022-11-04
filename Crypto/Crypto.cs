@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Configuration;
-
-using System.Diagnostics;
+using UnityEngine;
 
 namespace BicUtil.Crypto
 {
@@ -13,6 +12,10 @@ namespace BicUtil.Crypto
         public static string IV = "1234567890123456"; 
 
         public static void SetKey(string _key){
+            if(string.IsNullOrEmpty(KEY) == false && _key != KEY){
+                Debug.LogError("BicUtil.Crypto.AES256 Key error " + _key + "!=" + KEY);
+            }
+            
             KEY = _key;
         }
         
