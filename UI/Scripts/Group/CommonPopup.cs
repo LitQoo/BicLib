@@ -186,6 +186,7 @@ namespace BicUtil.UI{
 
         public void SetTitle(string _text){
             this.titleText.text = _text;
+            this.titleText.gameObject.SetActive(true);
             this.header.gameObject.SetActive(titleText);
         }
 
