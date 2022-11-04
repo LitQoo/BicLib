@@ -120,7 +120,7 @@ namespace BicLib.BuildUtil{
         public void AddFrameworkToMainTarget(string _framework){
             var _targetGuid = pbxProject.GetUnityMainTargetGuid();
             
-            pbxProject.AddFrameworkToProject(_targetGuid, _framework, false);
+            pbxProject.AddFrameworkToProject(_targetGuid, _framework, true);
         }
 
         public void SetAttMessage(string _message = "This identifier will be used to deliver personalized ads to you."){
