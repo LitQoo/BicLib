@@ -117,6 +117,11 @@ namespace BicLib.BuildUtil{
             pbxProject.SetBuildProperty(targetGuids, "ENABLE_BITCODE", _isEnabled == true ? "YES" : "NO");
         }
 
+        public void AddFrameworkToMainTarget(string _framework){
+            var _targetGuid = pbxProject.GetUnityMainTargetGuid();
+            pbxProject.AddFrameworkToProject(_targetGuid, _framework, true);
+        }
+
         public void SetAttMessage(string _message = "This identifier will be used to deliver personalized ads to you."){
             Debug.Log("[BuildUtil] SetAttMessage " + _message);
             plistObj.root.SetString("NSUserTrackingUsageDescription", _message);
