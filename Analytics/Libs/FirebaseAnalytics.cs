@@ -11,16 +11,6 @@ namespace BicUtil.Analytics
 
         static public object LOCK_CHECK{get;} = new object();
         public string TermsURL => "https://policies.google.com/privacy/update";
-        
-
-        public FirebaseAnalytics(){
-            Application.logMessageReceived += sendLog;
-        }
-
-        private void sendLog(string _condition, string _stackTrace, LogType _logType)
-        {
-            Firebase.Crashlytics.Crashlytics.Log(string.Format("{0}\n{1}", _condition, _stackTrace));
-        }
 
         private struct SavedEvent{
             public string Name;

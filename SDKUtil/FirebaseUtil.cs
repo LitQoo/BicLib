@@ -68,6 +68,8 @@ namespace BicUtil.SDKUtil
             await _fbInitTask.ContinueWithOnMainThread(async _task=>{
                 if(_task.Result == Firebase.DependencyStatus.Available){
                     try{
+                        Status = Firebase.DependencyStatus.Available;
+
                         //await Task.Delay(3000);
                         Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
@@ -82,6 +84,8 @@ namespace BicUtil.SDKUtil
                         FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
+
+                        Application.logMessageReceived += log;
 
                     }catch(System.Exception _error){
                         Debug.Log("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
@@ -279,7 +283,10 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
+
                 var dependencyStatus = task.Result;
+                FirebaseUtil.Status = task.Result;
+                
                 if (dependencyStatus == Firebase.DependencyStatus.Available) {
                     Application.logMessageReceived += log;
                 }
