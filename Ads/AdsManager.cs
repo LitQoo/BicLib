@@ -20,6 +20,7 @@ namespace BicUtil.Ads
         public bool IsShowingInterstital {get; private set;}
         public bool IsShowingRewardBased {get; private set;}
         public bool IsShowingAds{get{return IsShowingInterstital || IsShowingRewardBased;}}
+        public float admitRewardTime = 14f;
         #endregion
 
         #region Event
@@ -46,6 +47,10 @@ namespace BicUtil.Ads
             }else{
                 isReadyInterstitialFunc[_id] = _callback;
             }
+        }
+
+        public void SetAdmitRewardTime(float _time){
+            this.admitRewardTime = _time;
         }
 
         internal void AddAdsPlatform()
@@ -250,28 +255,34 @@ namespace BicUtil.Ads
         public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
         {
             IsShowingRewardBased = true;
-
+            
             if(isPossiblePlayAds(_adsPlacement) == false){
                 IsShowingRewardBased = false;
                 _callback(AdsResult.Failed);
                 return;
             }
 
+            var _startTime = Time.realtimeSinceStartup;
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
                 IsShowingRewardBased = false;
+                var _result = _adsResult;
+ 
+                if(Time.realtimeSinceStartup - _startTime >= admitRewardTime){
+                    _result = AdsResult.Finished;
+                }
                 
-                if(_adsResult != AdsResult.Failed){ 
+                if(_result != AdsResult.Failed){ 
                     UpdateLastPlayedAdsTime(_adsPlacement);
                 } 
 
                 if(OnAfterPlayedAdsCallback != null){
-                    OnAfterPlayedAdsCallback(_adsPlacement, AdsType.RewardBase, _adsResult);
+                    OnAfterPlayedAdsCallback(_adsPlacement, AdsType.RewardBase, _result);
                 }
 
                 selectedRewardBasedPlatform = -1;
-                _callback(_adsResult);
+                _callback(_result);
 
-                increaseCount(AdsStat.REWARD, _adsResult);
+                increaseCount(AdsStat.REWARD, _result);
             };
 
 
