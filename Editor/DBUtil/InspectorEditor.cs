@@ -14,11 +14,21 @@ namespace BicUtil.Core{
     public class InspectorEditor : EditorWindow
     {
         
-        [MenuItem("BicLib/Inspector", false, 300)]
+        [MenuItem("BicLib/BicDB Inspector", false, 300)]
         private static void ShowWindow() {
             var window = GetWindow<InspectorEditor>("BicDB Inspector");
             window.titleContent = new GUIContent("BicDB Inspector");
             UnityEngine.Object.DontDestroyOnLoad(window);
+        }
+
+        [MenuItem("BicLib/Remove AllData", false, 301)]
+        private static void RemoveAllData() {
+            bool _doRemove = EditorUtility.DisplayDialog("Confirm delete", "Are you sure you want to delete the all data?", "Yes", "No");
+            if(_doRemove == true){
+                System.IO.Directory.Delete(Application.persistentDataPath, true);
+                PlayerPrefs.DeleteAll();
+                EditorUtility.DisplayDialog("BicDB", "Complete", "OK");
+            }
         }
 
 
