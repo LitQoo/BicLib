@@ -262,12 +262,12 @@ namespace BicUtil.Ads
                 return;
             }
 
-            var _startTime = Time.realtimeSinceStartup;
+            var _startTime = getTimestamp();
             Action<AdsResult> _func = (AdsResult _adsResult)=>{
                 IsShowingRewardBased = false;
                 var _result = _adsResult;
  
-                if(Time.realtimeSinceStartup - _startTime >= admitRewardTime){
+                if(getTimestamp() - _startTime >= admitRewardTime){
                     _result = AdsResult.Finished;
                 }
                 
