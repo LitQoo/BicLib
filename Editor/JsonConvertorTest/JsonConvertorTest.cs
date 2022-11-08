@@ -231,6 +231,17 @@ namespace BicUtil.Json
 			Assert.AreEqual(_model.GetValue<IVariable>("age").AsInt, 13);
 		}
 
+
+		[Test]
+		public void JsonToModel4(){
+			TestClass5 _model = new TestClass5();
+			string _json1 = "{\"v\":\"12,123.13\"}";
+			int _counter1 = 0;
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_model.ToString(), "{\"v\":\"12,123.13\"}");
+		}
+
 		[Test]
 		public void JsonToTable1(){
 			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
@@ -627,7 +638,6 @@ namespace BicUtil.Json
 		}
 
 
-
 		class TestClass : RecordContainer{
 			public IntVariable member1 = new IntVariable(0);
 			public StringVariable member2 = new StringVariable("");
@@ -689,6 +699,15 @@ namespace BicUtil.Json
 				AddManagedColumn(TIME_RECORD, this.TimeRecord);
 			}
 			#endregion
+		}
+
+
+		public class TestClass5 : RecordContainer{
+			public Vector2Variable vector = new Vector2Variable(0, 0);
+
+			public TestClass5(){
+				AddManagedColumn("v", this.vector); 
+			}
 		}
 
 		enum TestEnum 

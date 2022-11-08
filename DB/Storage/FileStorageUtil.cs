@@ -24,6 +24,7 @@ namespace BicDB.Storage
             {
                 #if UNITY_EDITOR
                 Debug.LogError("[BicDB] Fail load " + _table.Name + "/" + _e.Message + "/" + _e.ToString());
+                Debug.Log(_data);
                 #endif
                 _result.Code = (int)ResultCode.FailedConvertJson;
                 _result.Message = "FailedConvertJson some Error BuildTableContainer " + _e.Message;

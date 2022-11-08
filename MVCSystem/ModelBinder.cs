@@ -32,6 +32,19 @@ namespace BicUtil.MVCSystem
 			_variable.Subscribe(_func, _needFirstCall);
 		}
 
+
+		public void BindModelToController (Vector2Variable _variable, Action<IVector2VariableReadOnly> _func, bool _needFirstCall = false){
+			bindRemoverList.Add (()=>{
+				_variable.Unsubscribe(_func);
+			});
+
+			_variable.Subscribe(_func);
+
+			if (_needFirstCall == true) {
+				_func (_variable);
+			}
+		}
+
 		public void BindModelToController (VectorVariable _variable, Action<VectorVariable> _func, bool _needFirstCall = false){
 			bindRemoverList.Add (()=>{
 				_variable.OnChangedValueActions -= _func;

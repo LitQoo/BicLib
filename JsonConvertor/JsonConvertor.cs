@@ -184,7 +184,7 @@ namespace BicUtil.Json
 		}
 
 		public void BuildFormattedString(IVariable _variable, StringBuilder _stringBuilder){
-			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum || _variable.Type == DataType.Dictionary) {
+			if (_variable.Type == DataType.String || _variable.Type == DataType.Enum || _variable.Type == DataType.Vector2 || _variable.Type == DataType.Vector3  || _variable.Type == DataType.Vector2Int   || _variable.Type == DataType.Dictionary) {
 				_stringBuilder.AppendFormat("\"{0}\"", _variable.AsString.Replace("\"","\\\""));
 			} else {
 				_stringBuilder.Append(_variable.AsString);

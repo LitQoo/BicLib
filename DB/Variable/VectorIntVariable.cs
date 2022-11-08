@@ -8,7 +8,7 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-	public class VectorIntVariable : DictionaryContainer<IntVariable>, IBindRmover, IDataBase, IVariable
+	public class VectorIntVariable : DictionaryContainer<IntVariable>, IVariable
 	{
 		#region Event
 		public event Action<VectorIntVariable> OnChangedValueActions;

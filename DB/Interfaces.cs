@@ -34,7 +34,10 @@ namespace BicDB
 		Table,
 		DataStore,
 		Object,
-		None
+		None,
+		Vector2,
+		Vector3,
+		Vector2Int
 	}
 
 

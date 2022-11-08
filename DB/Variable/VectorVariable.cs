@@ -8,13 +8,29 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-	public class VectorVariable : DictionaryContainer<FloatVariable>, IBindRmover, IDataBase, IVariable
+	public class VectorVariable : DictionaryContainer<FloatVariable>, IVariable
 	{
 		#region Event
 		public event Action<VectorVariable> OnChangedValueActions;
+
+		public void Subscribe(Action<VectorVariable> _callback, bool _needFirstCall = false){
+			OnChangedValueActions += _callback;
+			if(_needFirstCall == true){
+				_callback(this);
+			}
+		}
+
+		public void Unsubscribe(Action<VectorVariable> _callback){
+			OnChangedValueActions -= _callback;
+		}
 		#endregion
 
 		#region LifeCycle
+		public VectorVariable(){
+			this ["x"] = new FloatVariable (0);
+			this ["y"] = new FloatVariable (0);
+		}
+
 		public VectorVariable(float x, float y) : base(){
 			this ["x"] = new FloatVariable (x);
 			this ["y"] = new FloatVariable (y);
@@ -47,7 +63,7 @@ namespace BicDB.Variable
 			}
 		}
 
-		public Vector2 AsVector{
+		public Vector2 AsVectorWithoutNotify{
 			get{
 				return new Vector2 (this ["x"].AsFloat, this ["y"].AsFloat);
 			}
@@ -55,6 +71,13 @@ namespace BicDB.Variable
 			set{ 
 				this ["x"].AsFloat = value.x;
 				this ["y"].AsFloat = value.y;
+			}
+		}
+
+		public Vector2 AsVector{
+			get => AsVectorWithoutNotify;
+			set{ 
+				AsVectorWithoutNotify = value;
 				NotifyChanged ();
 			}
 		}
@@ -107,22 +130,22 @@ namespace BicDB.Variable
 			OnChangedValueActions = null;
 		}
 
-        public void Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
+        void IVariableReadOnly.Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)
         {
             throw new NotImplementedException();
         }
 
-        public void Unsubscribe(Action<IVariableReadOnly> _callback)
+        void IVariableReadOnly.Unsubscribe(Action<IVariableReadOnly> _callback)
         {
             throw new NotImplementedException();
         }
 
-        public void UnsubscribeAll()
+        void IVariableReadOnly.UnsubscribeAll()
         {
             throw new NotImplementedException();
         }
 
-        public void NotifyChanged(IVariableReadOnly _value)
+        void IVariableReadOnly.NotifyChanged(IVariableReadOnly _value)
         {
             throw new NotImplementedException();
         }
