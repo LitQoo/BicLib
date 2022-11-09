@@ -1021,7 +1021,7 @@ namespace BicUtil.Tween
 		public static void Cancel(GameObject _targetObject, TweenPool _pool = null){
 			if(_pool != null){
 				_pool.Cancel(_targetObject);
-			}else{
+			}else if(defaultPool != null){
 				defaultPool.Cancel(_targetObject);
 			}
 		}
@@ -1029,10 +1029,8 @@ namespace BicUtil.Tween
 		public static void CancelAll(TweenPool _pool = null){
 			if(_pool != null){
 				_pool.CancelAll();
-			}else{
-				if(defaultPool != null){
-					defaultPool.CancelAll();
-				}
+			}else if(defaultPool != null){
+				defaultPool.CancelAll();
 			}
 		}
 		#endregion
