@@ -10,34 +10,34 @@ using System.Text;
 namespace BicDB.Variable
 {
     public interface IVector2VariableReadOnly{
-        IVariableReadOnly X {get;}
-        IVariableReadOnly Y {get;}
+        float X {get;}
+        float Y {get;}
         Vector2 AsVector{get;}
     }
 
     public class Vector2Variable : IVariable, IVector2VariableReadOnly
     {
-        private FloatVariable x = new FloatVariable(0);
-        private FloatVariable y = new FloatVariable(0);
+        private float x = 0;
+        private float y = 0;
 
-        public IVariableReadOnly X {get=>x;}
-        public IVariableReadOnly Y {get=>y;}
+        public float X {get=>x;}
+        public float Y {get=>y;}
 
         public string AsString { 
             get{
-                return string.Format("{0},{1}", this.X.AsString, this.Y.AsString);
+                return string.Format("{0},{1}", this.X, this.Y);
             } 
 
             set {
                 var _strings = value.Split(',');
                 float _x;
                 if(float.TryParse(_strings[0], out _x) == true){
-                    this.x.AsFloat = _x;
+                    this.x = _x;
                 }
 
                 float _y;
                 if(float.TryParse(_strings[1], out _y) == true){
-                    this.y.AsFloat = _y;
+                    this.y = _y;
                 }
             } 
         }
@@ -53,12 +53,12 @@ namespace BicDB.Variable
 
         public Vector2 AsVectorWithoutNotify{
             get{
-                return new Vector2 (this.X.AsFloat, this.Y.AsFloat);
+                return new Vector2 (this.X, this.Y);
             }
 
             set{ 
-                this.x.AsFloat = value.x;
-                this.y.AsFloat = value.y;
+                this.x = value.x;
+                this.y = value.y;
             }
         }
 
@@ -68,11 +68,11 @@ namespace BicDB.Variable
 
         public DataType Type => DataType.Vector2;
 
-        public IVariable AsVariable => throw new NotImplementedException();
+        public IVariable AsVariable => this;
 
         public Vector2Variable(float _x, float _y) : base(){
-            this.x.AsFloat = _x;
-            this.y.AsFloat = _y;
+            this.x = _x;
+            this.y = _y;
         }
 
         public Vector2Variable(){
@@ -148,7 +148,7 @@ namespace BicDB.Variable
 
         public bool Equals(Vector2 _target)
         {
-            return _target.x == this.X.AsFloat && _target.y == this.Y.AsFloat;
+            return _target.x == this.X && _target.y == this.Y;
         }
 
         T IDataBase.As<T>()

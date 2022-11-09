@@ -13,8 +13,8 @@ namespace BicDB.Variable
 		[Test]
 		public void CreateTest(){
 			Vector2Variable _var = new Vector2Variable (0, 0);
-			Assert.AreEqual (_var.X.AsFloat, 0);
-			Assert.AreEqual (_var.Y.AsFloat, 0);
+			Assert.AreEqual (_var.X, 0);
+			Assert.AreEqual (_var.Y, 0);
 		}
 
 		[Test]
@@ -31,8 +31,8 @@ namespace BicDB.Variable
 			int _counter = 0;
 			_var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
-			Assert.AreEqual (_var.X.AsFloat, 1.12f);
-			Assert.AreEqual (_var.Y.AsFloat, -10);
+			Assert.AreEqual (_var.X, 1.12f);
+			Assert.AreEqual (_var.Y, -10);
 		}
 
         [Test]
@@ -42,8 +42,8 @@ namespace BicDB.Variable
             int _counter = 0;
             _var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
 
-            Assert.AreEqual (_var.X.AsFloat, 1);
-            Assert.AreEqual (_var.Y.AsFloat, -10.123f);
+            Assert.AreEqual (_var.X, 1);
+            Assert.AreEqual (_var.Y, -10.123f);
         }
 
 		[Test]
