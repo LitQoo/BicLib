@@ -159,7 +159,6 @@ namespace BicDB.Container
 		public void Clear()
 		{
 			if(onRemovedValueActions != null){
-				Debug.LogWarning("[BicDB] 콜백순서 확인 필요");
 				for(int i = 0; i < data.Count; i ++){
 					onRemovedValueActions(data[i]);
 				}
