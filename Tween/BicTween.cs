@@ -903,12 +903,26 @@ namespace BicUtil.Tween
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
+		public static Tween DelayFrame(int _frame, TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			var _tween = Delay(_frame/(float)Application.targetFrameRate + 1f, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
+			var _lastFrame = Time.frameCount + _frame;
+			_tween.SubscribeUpdate(_v=>{
+				if(_lastFrame <= Time.frameCount){
+					_tween.Rate = 1f;
+				}
+			});
+			return _tween;
+		}
 
 		public static Tween DelayOneFrame(TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			return Delay(0f, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
+			var _tween = DelayFrame(1, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
+			return _tween;
 		}
 
 		
