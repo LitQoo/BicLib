@@ -46,6 +46,17 @@ namespace BicDB.Variable
             Assert.AreEqual (_var.Y, -10.123f);
         }
 
+        [Test]
+        public void createByStringTest3(){
+            Vector2Variable _var = new Vector2Variable (99, -100);
+            string _json = "{\"y\":1,\"x\":-10.123}";
+            int _counter = 0;
+            _var.BuildVariable(ref _json, ref _counter, JsonConvertor.GetInstance());
+
+            Assert.AreEqual (_var.Y, 1);
+            Assert.AreEqual (_var.X, -10.123f);
+        }
+
 		[Test]
 		public void buildStringTest(){
 			Vector2Variable _var = new Vector2Variable (99.1f, -100);

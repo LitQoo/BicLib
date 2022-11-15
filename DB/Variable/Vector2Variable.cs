@@ -30,6 +30,7 @@ namespace BicDB.Variable
 
             set {
                 var _strings = value.Split(',');
+                
                 float _x;
                 if(float.TryParse(_strings[0], out _x) == true){
                     this.x = _x;
@@ -138,7 +139,30 @@ namespace BicDB.Variable
 
         public void BuildVariable(ref string _json, ref int _counter, IStringParser _parser)
         {
-            _parser.BuildStringVariable(this, ref _json, ref _counter);
+            if(_json[_counter] == '"'){
+                _parser.BuildStringVariable(this, ref _json, ref _counter);
+            }else{
+                var _str = "";
+                while(true){
+                    _str += (_json[_counter]);
+                    if(_json[_counter] == '}'){
+                        break;
+                    }
+                    _counter++;
+                }
+
+                var _match = System.Text.RegularExpressions.Regex.Matches(_str, @"""([xy])"":([-+]?\d+(.\d+)?)");
+                
+                if(_match[0].Result("$1") == "x"){
+                    this.x = float.Parse(_match[0].Result("$2"));
+                    this.y = float.Parse(_match[1].Result("$2"));
+                }else{
+                    this.x = float.Parse(_match[1].Result("$2"));
+                    this.y = float.Parse(_match[0].Result("$2"));
+                }
+                
+                _counter++;
+            }
         }
 
         public bool IsEqual(IVariable _variable)

@@ -242,6 +242,17 @@ namespace BicUtil.Json
 			Assert.AreEqual(_model.ToString(), "{\"v\":\"12,123.13\"}");
 		}
 
+
+		[Test]
+		public void JsonToModel5(){
+			TestClass5 _model = new TestClass5();
+			string _json1 = "{\"v\":\"12,123.13\", \"qest\":[], \"t\":\"sts\"}";
+			int _counter1 = 0;
+			JsonConvertor.GetInstance().BuildModelContainer(_model, ref _json1, ref _counter1);
+
+			Assert.AreEqual(_model.ToString(), "{\"v\":\"12,123.13\",\"qest\":[],\"t\":\"sts\"}");
+		}
+
 		[Test]
 		public void JsonToTable1(){
 			ITableContainer<TestClass> _table = new TableContainer<TestClass>("test");
