@@ -101,7 +101,7 @@ namespace BicDB.Storage
 
         #region static
         static public string GetPath(string _fileName){
-            return Application.persistentDataPath + "/" + _fileName;
+            return Path.Combine(Application.persistentDataPath, _fileName);
         }
 
         static System.Object locker = new System.Object();

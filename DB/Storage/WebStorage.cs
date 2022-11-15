@@ -357,7 +357,7 @@ namespace BicDB.Storage
 						}
 					}
 
-					FileStorageUtil.RemoveFile(CACHE_DIRECTORY + "/" +_webParam.CacheId + ".txt");
+					FileStorageUtil.RemoveFile(Path.Combine(CACHE_DIRECTORY,_webParam.CacheId + ".txt"));
 
 					return (_result.CachingType, null); 
 				}
@@ -365,6 +365,7 @@ namespace BicDB.Storage
 				_resultRecord.Remove("result");
 				return (_result.CachingType, _resultRecord);
 			}else{
+				Debug.Log("parse error");
 				return (_result.CachingType, null);
 			}
 		}
@@ -584,19 +585,18 @@ namespace BicDB.Storage
         #endregion
 
 		#region Cache
-		static private string CACHE_DIRECTORY{ get=>Application.persistentDataPath+"/webcache";}
+		static private string CACHE_DIRECTORY{ get=>Path.Combine(Application.persistentDataPath, "webcache");}
 	
 		private Dictionary<string, (long timestamp, string text)> memoryCache = new Dictionary<string, (long, string)>();
 		private bool isExistsDirectory = false;
-		public static CachingLevel ENABLE_CACHE_LEVEL = CachingLevel.None;
 		
 		private bool hasCacheFoced(WebStorageParameter _param){
-			if((_param.CachingLevel & CachingLevel.File) != 0 && File.Exists(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt") == true){
+			if((_param.CachingLevel & CachingLevel.File) != 0 && File.Exists(Path.Combine(CACHE_DIRECTORY, _param.CacheId + ".txt")) == true){
 				return true;
 			}
 
 			if((_param.CachingLevel & CachingLevel.Resource) != 0){
-				var _result = ResourceStorage.ReadAsset(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+				var _result = ResourceStorage.ReadAsset(Path.Combine(_param.ResourceCacheDirectoryPath,_param.CacheId));
 				if(string.IsNullOrEmpty(_result) == false){
 					return true;
 				}
@@ -606,11 +606,6 @@ namespace BicDB.Storage
 		}
 
 		private (CachingLevel CachingType, string Result) getCache(WebStorageParameter _param){
-			if(ENABLE_CACHE_LEVEL == CachingLevel.None){
-				// Debug.Log("cache is disable");
-				return (CachingLevel.None, string.Empty);
-			}
-
 			if(_param.IsEnabledCache == false){
 				// Debug.Log("cache is disable");
 				return (CachingLevel.None, string.Empty);
@@ -635,7 +630,8 @@ namespace BicDB.Storage
 			if((_param.CachingLevel & CachingLevel.File) != 0){
 				// Debug.Log("file caching");
 				//파일에서 읽어오고
-				(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt");
+				
+				(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(Path.Combine(CACHE_DIRECTORY, _param.CacheId + ".txt"));
 				if(_data != null){
 
 					// Debug.Log("file founded");
@@ -671,11 +667,6 @@ namespace BicDB.Storage
 		}
 
 		private void setCache(WebStorageParameter _param, string _text){
-			if(ENABLE_CACHE_LEVEL == CachingLevel.None){
-				// Debug.Log("cache is disable");
-				return;
-			}
-
 			if((_param.CachingLevel & CachingLevel.Memory) != 0){
 				// Debug.Log("meorycache enable set-");
 				lock(memoryCache){
@@ -706,7 +697,7 @@ namespace BicDB.Storage
 				_data = BicUtil.Crypto.AES256.Encrypt(_data);
 			}
 
-			FileStorageUtil.WriteFile(getTimestamp().ToString()+'\n'+_data, CACHE_DIRECTORY + "/" +_id + ".txt");
+			FileStorageUtil.WriteFile(getTimestamp().ToString()+'\n'+_data, Path.Combine(CACHE_DIRECTORY,_id + ".txt"));
 		}
 		
 
@@ -739,7 +730,7 @@ namespace BicDB.Storage
 				
 
 				if((_param.CachingLevel & CachingLevel.File) != 0){
-					(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(CACHE_DIRECTORY + "/" +_param.CacheId + ".txt");
+					(var _head, var _data) = FileStorageUtil.ReadFileHeadLineAndData(Path.Combine(CACHE_DIRECTORY,_param.CacheId + ".txt"));
 					if(_data != null){
 						#if UNITY_EDITOR
 						DebugForEditor.Log("[WebStorage] Failed Download by web, Use File " + _param.ToString());
@@ -777,7 +768,7 @@ namespace BicDB.Storage
 
 		private string loadCacheFromResrouceAndCaching(WebStorageParameter _param)
         {
-            var _result = ResourceStorage.ReadAsset(_param.ResourceCacheDirectoryPath + "/" + _param.CacheId);
+            var _result = ResourceStorage.ReadAsset(Path.Combine(_param.ResourceCacheDirectoryPath, _param.CacheId));
             _result = removeFirstLineAndCaching(_param, _result);
             return _result;
         }
@@ -879,6 +870,8 @@ namespace BicDB.Storage
 				}else{
 					_callback(string.Empty);
 				}
+
+				_request.Dispose();
 			});
 		}
 
