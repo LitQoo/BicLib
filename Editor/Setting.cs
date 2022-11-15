@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Unity.Collections;
 
 namespace BicUtil.Core{
     
@@ -35,6 +36,24 @@ namespace BicUtil.Core{
             var window = GetWindow<Setting>("BicLib Setting");
             window.titleContent = new GUIContent("BicLib Setting");
             UnityEngine.Object.DontDestroyOnLoad(window);
+        }
+
+        [MenuItem("BicLib/Memory Leak/Leak Detection", false, 1)]
+        private static void LeakDetection()
+        {
+            NativeLeakDetection.Mode = NativeLeakDetectionMode.Enabled;
+        }
+
+        [MenuItem("BicLib/Memory Leak/Leak Detection With Stack Trace", false, 2)]
+        private static void LeakDetectionWithStackTrace()
+        {
+            NativeLeakDetection.Mode = NativeLeakDetectionMode.EnabledWithStackTrace;
+        }
+
+        [MenuItem("BicLib/Memory Leak/No Leak Detection", false, 3)]
+        private static void NoLeakDetection()
+        {
+            NativeLeakDetection.Mode = NativeLeakDetectionMode.Disabled;
         }
         
         private void OnGUI()
