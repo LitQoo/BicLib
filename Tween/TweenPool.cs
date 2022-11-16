@@ -382,12 +382,21 @@ namespace BicUtil.Tween{
 
 			lock(funcOnMainList){
 				var _count = funcOnMainList.Count;
+				Exception _exception = null;
 				for(int i = 0; i < _count; i++){
-					funcOnMainList[i]();
+					try{
+						funcOnMainList[i]();
+					}catch(Exception _e){
+						_exception = _e;
+					}
 				}
 
 				funcOnMainList.Clear();
 				useThreadDispather = false;
+
+				if(_exception != null){
+					throw _exception;
+				}
 			}
 		}
 		#endregion
