@@ -54,6 +54,11 @@ namespace BicUtil.UIFlow
 		private IUIFlowObject baseUi = null;
 		private BoolVariable isWait = new BoolVariable(false);
 		private object sceneTransitionParameter = null;
+		public object GetSceneTransitionParameterAndClear(){
+			var _param = this.sceneTransitionParameter;
+			this.sceneTransitionParameter = null;
+			return _param;
+		}
 
 		public void LoadScene(string _sceneName, object _param = null){
 			cleaningValriables();
@@ -358,9 +363,9 @@ namespace BicUtil.UIFlow
 
 		public void SetBase(IUIFlowObject _ui, OpenMode _openMode, object _param = null){
 			baseUi = _ui;
-			if(sceneTransitionParameter != null){
-				_param = sceneTransitionParameter;
-				sceneTransitionParameter = null;
+			var _sceneParam = GetSceneTransitionParameterAndClear();
+			if(_sceneParam != null){
+				_param = _sceneParam;
 			}
 
 			open(_ui, _openMode, _param);
