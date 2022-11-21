@@ -139,43 +139,57 @@ namespace BicUtil.TouchNotifier
             if(TOUCH_SIZE < _touchCount){
                 return;
             }
+
+            if(_touchCount <= 0){
+                return;
+            }
             
             _touchCount = Mathf.Min(_touchCount, 5);
 
             Touch _touch = default(Touch);
             touchUpNotify = null;
+            int _errorCheck = 0; 
             try{
             for (int i = 0; i < _touchCount; i++)
             {
-                
+                _errorCheck = 1;
                 _touch = Input.GetTouch(i);
+                _errorCheck = 2;
                 var _index = _touch.fingerId;
-
+                _errorCheck = 3;
                 if(_index >= TOUCH_SIZE){
                     continue;
                 }
                 
+                _errorCheck = 4;
                 if (_touch.phase == TouchPhase.Began)
                 {
+                    _errorCheck = 5;
                     notifyOnTouchDown(_touch.fingerId, _touch);
                 }
                 else if (_touch.phase == TouchPhase.Ended && isTouchIn[_index] == true)
                 {
+                    _errorCheck = 6;
                     isTouchIn[_index] = false;
                     int _i = _index;
+                    _errorCheck = 7;
                     touchUpNotify += ()=>notifyOnTouchUp(_i, _touch);
                 }
                 else if (isTouchIn[_index] == true)
                 {
+                    _errorCheck = 8;
                     notifyOnTouchMove(_index, _touch);
                 }
             }
 
+            _errorCheck = 9;
             if(touchUpNotify != null){
+                _errorCheck = 10;
                 touchUpNotify();
             }
+
             }catch(System.Exception _e){
-                Debug.Log("touchProcess error " + _touch.fingerId.ToString() + ", touch Count " + _touchCount.ToString() + ", touchinsize "+ isTouchIn.Length.ToString());
+                Debug.Log("touchProcess error " + _touch.fingerId.ToString() + ", touch Count " + _touchCount.ToString() + ", touchinsize "+ isTouchIn.Length.ToString() + ", errorCheck = " + _errorCheck);
                 throw _e;
             }
         }
