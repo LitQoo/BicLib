@@ -146,6 +146,19 @@ namespace BicDB.Variable
 				NotifyChanged ();
 			}
 		}
+
+		public Color AsColorWithoutNotify{
+			get{
+				return new Color(this.R, this.G, this.B, this.A);
+			}
+
+			set{ 
+				this ["r"].AsFloat = value.r;
+				this ["g"].AsFloat = value.g;
+				this ["b"].AsFloat = value.b;
+				this ["a"].AsFloat = value.a;
+			}
+		}
 		
 
 		public string AsString { 
