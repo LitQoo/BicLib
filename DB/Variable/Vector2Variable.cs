@@ -125,6 +125,10 @@ namespace BicDB.Variable
         {
             throw new NotImplementedException();
         }
+        
+        public void SetFloor(){
+            this.AsVector = new Vector2((int)this.X, (int)this.Y);
+        }
 
         public void UnsubscribeAll()
         {
