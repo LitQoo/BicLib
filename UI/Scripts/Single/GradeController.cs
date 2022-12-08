@@ -9,6 +9,8 @@ namespace BicUtil.UI{
     {
         #region DI
         [SerializeField]
+        private GameObject[] perfactObjects;
+        [SerializeField]
         private GameObject[] gradeObjects;
         [SerializeField]
         private GameObject[] gradeLifeObjects;
@@ -17,6 +19,12 @@ namespace BicUtil.UI{
         #region Data
         public IVariableReadOnly Grade {get=>this.grade;}
         public IVariableReadOnly GradeLife {get=>this.gradeLife;}
+        public bool IsPerfact{
+            get{
+                return this.grade.AsInt == this.gradeLifeMax.Length 
+                        && this.gradeLife.AsInt == this.gradeLifeMax[this.gradeLifeMax.Length - 1];
+            }
+        }
 
         private EncryptedIntVariable grade = new EncryptedIntVariable(1);
         private EncryptedIntVariable gradeLife = new EncryptedIntVariable(0);  
@@ -32,6 +40,14 @@ namespace BicUtil.UI{
             }
 
             this.gradeLife.AsInt = this.gradeLifeMax[this.grade.AsInt - 1];
+
+        }
+
+        private void updatePerfact()
+        {
+            for(int i = 0;i < perfactObjects.Length; i++){
+                    perfactObjects[i].SetActive(this.IsPerfact);
+            }
         }
 
         private void updateGradeLife(IVariableReadOnly _gradeLife)
@@ -39,6 +55,8 @@ namespace BicUtil.UI{
             for(int i = 0;i < gradeLifeObjects.Length; i++){
                     gradeLifeObjects[i].SetActive(_gradeLife.AsInt > i);
             }
+
+            updatePerfact();
         }
 
         public void Setup(int[] _gradeLifeMax){
