@@ -236,6 +236,20 @@ namespace BicDB.Container
             BicUtil.Json.JsonConvertor.GetInstance().BuildListContainer(this, ref _defaultValue, ref _counter);
 		}
 
+		public ListContainer(T[] _array) : this(){
+			foreach(var _v in _array){
+				this.Add(_v);
+			}
+		}
+
+		public ListContainer(string[] _array) : this(){
+			foreach(var _v in _array){
+				var _value = new T();
+				_value.AsVariable.AsString = _v;
+				this.Add(_value);
+			}
+		}
+
 		public override string ToString(){
 			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 			BuildFormattedString (_stringBuilder, BicUtil.Json.JsonConvertor.GetInstance ());
