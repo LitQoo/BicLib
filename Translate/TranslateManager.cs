@@ -6,6 +6,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using System.Linq;
 using BicDB.Storage;
+using BicDB.Core;
 
 namespace BicUtil.Translate
 {
@@ -25,7 +26,7 @@ namespace BicUtil.Translate
         #endregion
 
         #region InstantData
-        private TableContainer<TranslateValue> Table;
+        private Translator transltor;
         #endregion
 
         #region LifeCycle
@@ -45,16 +46,7 @@ namespace BicUtil.Translate
 #if UNITY_WEBGL
             language = "English";
 #endif
-
-            this.Table = new TableContainer<TranslateValue>("translate");
-            this.Table.SetStorage(ResourceStorage.GetInstance());
-            this.Table.Load(_result =>
-            {
-                if (_result.Code != (int)ResourceStorage.ResultCode.Success)
-                {
-                    throw new System.Exception("not load TranslateValue " + _result.Message);
-                }
-            }, new ResourceStorageParameter(this.resourceFilePath));
+            transltor = new Translator("translate", this.resourceFilePath, language);
             
             translateTexts();
             translateImages();
@@ -106,6 +98,38 @@ namespace BicUtil.Translate
         }
 
         public string GetText(string _id){
+            return transltor.Get(_id);
+        }
+        #endregion
+    }
+
+    public class Translator{
+        private string language;
+        private TableContainer<TranslateValue> Table;
+
+        public Translator(string _tableName, string _translateFilePath, string _language = null){
+            if(string.IsNullOrEmpty(_language) == true){
+                language = Application.systemLanguage.ToString();
+            }else{
+                language = _language;
+            }
+            
+            this.Table = new TableContainer<TranslateValue>(_tableName);
+            this.Table.SetStorage(ResourceStorage.GetInstance());
+            this.Table.Load(_result =>
+            {
+                if (_result.Code != (int)ResourceStorage.ResultCode.Success)
+                {
+                    throw new System.Exception("not load TranslateValue " + _result.Message);
+                }
+            }, new ResourceStorageParameter(_translateFilePath));
+        }
+
+        public void SetLanguage(string _language){
+            this.language = _language;
+        }
+
+        public string Get(string _id){
             var _value = this.Table.FirstOrDefault(_row=>_row.Id.AsString == _id);
 
             if(_value == null){
@@ -126,7 +150,6 @@ namespace BicUtil.Translate
             Debug.LogWarning("[Translate] Not support " + _id);
             return string.Empty;
         }
-        #endregion
     }
     
     [System.Serializable]

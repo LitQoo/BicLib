@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using BicDB.Core;
 using BicDB.Variable;
-using BicUtil.ClassInitializer;
 using BicUtil.Translate;
 using BicUtil.Tween;
-using BicUtil.UIFlow;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BicUtil.UI{
-    public class ReviewPopup : MonoBehaviour, IClassInitializerObject, IUIFlowObject
+    public class ReviewPopupBase : MonoBehaviour
     {
         #region DI
         [SerializeField]
@@ -34,41 +31,26 @@ namespace BicUtil.UI{
         private IVariable isWroteReview;
         private int firstReviewSession = 1;
         private bool isFastReviewReqeust = false;
-        private Func<string, string> translator;
+        private Translator translator;
         public Action OnClose = null;
         #endregion
 
         #region ClassInitialiszer
-        public void Deinitialize()
-        {
-            UIFlow.UIFlow.Instance.UnregisterUI(this);	
-        }
 
-        public void Initialize()
+        public void Init()
         {
+
+            translator = new Translator("ReviewTranslate", "ReviewTranslateText");
             this.gameObject.SetActive(false);
-            UIFlow.UIFlow.Instance.RegisterUI(this);
 
             #if UNITY_EDITOR
             BicTween.Delay(0.5f).SubscribeComplete(()=>{
-                var _check = TranslateManager.Instance.GetText("review_enjoy");
+                var _check = translator.Get("review_enjoy");
                 if(string.IsNullOrEmpty(_check) == true){
                     Debug.LogError("Setup translate for review");
                 }
             });
             #endif
-        }
-        #endregion
-
-        #region IUIFlowObject
-        public OnCloseUIResult OnClosedUI(IUIFlowObject _fromUI, Action _finishCallback, object _parameter)
-        {
-            return OnCloseUIResult.DoNotWait;
-        }
-
-        public void OnOpenedUI(IUIFlowObject _fromUI, object _paramter)
-        {
-            Open();
         }
         #endregion
 
@@ -148,6 +130,10 @@ namespace BicUtil.UI{
             #elif UNITY_ANDROID
                 appId = _androidAppId;
             #endif
+
+            if(string.IsNullOrEmpty(_iosAppId) == true || string.IsNullOrEmpty(_androidAppId)){
+                Debug.LogError("[ReviewPopup] Not Setup appid");
+            }
             
             firstReviewSession = _firstReviewSession;
             isWroteReview = TableService.GetProperty("isWriteReview", new BoolVariable(false));
@@ -175,12 +161,12 @@ namespace BicUtil.UI{
         }
 
         public void Open(){
-            if(translator == null){
-                translator = TranslateManager.Instance.GetText;
-            }
-
             if(string.IsNullOrEmpty(appId) == true){
+                #if UNITY_EDITOR
+                Debug.LogError("[ReviewPopup] Not Setup appid");
+                #else
                 throw new System.Exception("[ReviewPopup] Not Setup appid");
+                #endif
             }
 
             isOpend = true;
@@ -224,15 +210,16 @@ namespace BicUtil.UI{
 
         private void setEnjoy(){
             
-            messageText.text = translator("review_enjoy");
-            leftButtonText.text = translator("review_not_really");
-            rightButtonText.text = translator("review_yes");
+            messageText.text = translator.Get("review_enjoy");
+            leftButtonText.text = translator.Get("review_not_really");
+            rightButtonText.text = translator.Get("review_yes");
+            developer.PlayHadsUpDance();
         }
 
         private void setFeedback(){
-            messageText.text = translator("review_feedback");
-            leftButtonText.text = translator("review_no");
-            rightButtonText.text = translator("review_yes");
+            messageText.text = translator.Get("review_feedback");
+            leftButtonText.text = translator.Get("review_no");
+            rightButtonText.text = translator.Get("review_yes");
         }
 
         private void setReview(){
@@ -240,27 +227,18 @@ namespace BicUtil.UI{
             if(isFastReviewReqeust == true){
                 openReviewAndClose();
             }else{
-                developer.PlayHadsUpDance();
-                messageText.text = translator("review_request");
-                leftButtonText.text = translator("review_later");
-                rightButtonText.text = translator("review_ok");
+                messageText.text = translator.Get("review_request");
+                leftButtonText.text = translator.Get("review_later");
+                rightButtonText.text = translator.Get("review_ok");
             }
         }
 
         public void Close(){
-            if(UIFlow.UIFlow.Instance.CurrentUI == this as UIFlow.IUIFlowObject){
-                UIFlow.UIFlow.Instance.Back(CloseMode.Disable);
-            }
-
             developer.StopDance();
             this.gameObject.SetActive(false);
             if(OnClose != null){
                 OnClose();
             }
-        }
-
-        public void SetTranslator(Func<string, string> _translator){
-            translator = _translator;
         }
 
         private enum Mode{
