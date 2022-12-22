@@ -324,6 +324,10 @@ namespace BicUtil.Ads
             adsPlatforms.Add(_platform);
         }
 
+        public void AddAdsPlatformFirst(IAdsPlatform _platform){
+            adsPlatforms.Insert(0, _platform);
+        }
+
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
         public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadAction){

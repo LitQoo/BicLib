@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using BicDB.Core;
 using BicDB.Variable;
+using BicUtil.Ads;
 using BicUtil.Translate;
 using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BicUtil.UI{
-    public class ReviewPopupBase : MonoBehaviour
+    public class ReviewPopupBase : MonoBehaviour, IAdsPlatform
     {
         #region DI
         [SerializeField]
@@ -30,6 +31,7 @@ namespace BicUtil.UI{
         private IVariable reviewCounting;
         private IVariable isWroteReview;
         private int firstReviewSession = 1;
+        private int showTerm = 1;
         private bool isFastReviewReqeust = false;
         private Translator translator;
         public Action OnClose = null;
@@ -56,6 +58,7 @@ namespace BicUtil.UI{
 
         #region Event
         private void Awake(){
+
         }
 
         public void OnClickedLeftButton(){
@@ -124,7 +127,7 @@ namespace BicUtil.UI{
         #endregion
 
         #region Logic
-        public void Setup(int _firstReviewSession, string _iosAppId, string _androidAppId, bool _isFastReviewRequest){
+        public void Setup(int _firstReviewSession, int _showTerm, string _iosAppId, string _androidAppId, bool _isFastReviewRequest){
             #if UNITY_IOS
                 appId = _iosAppId;
             #elif UNITY_ANDROID
@@ -139,6 +142,7 @@ namespace BicUtil.UI{
             isWroteReview = TableService.GetProperty("isWriteReview", new BoolVariable(false));
             reviewCounting = TableService.GetProperty("reviewCount", new IntVariable(1));
             isFastReviewReqeust = _isFastReviewRequest;
+            showTerm = _showTerm;
 
             mode.Subscribe(setMode);
         }
@@ -174,29 +178,35 @@ namespace BicUtil.UI{
             this.mode.AsEnum = Mode.Enjoy;
         }
 
-        public bool ShouldOpen(int _term, bool _isCouting){
+        public bool ShouldOpen(bool _isCouting){
             if(isOpend == true){
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen false - isOpend true");
                 return false;
             }
 
             #if UNITY_EDITOR
             if(openAlwaysOnEditor == true){
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen false - openAlwaysOnEditor true");
                 return true;
             }
             #endif
 
             if(firstReviewSession > TableService.SessionCount){
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen false - firstReviewSession > TableService.SessionCount");
                 return false;
             }
 
             if(isWroteReview.AsBool == true){
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen false - isWroteReview.AsBool == true");
                 return false;
             }
             
             var _result = false;
-            if(reviewCounting.AsInt > 0 && reviewCounting.AsInt % _term != 0){
+            if(reviewCounting.AsInt > 0 && reviewCounting.AsInt % this.showTerm != 0){
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen false - reviewCounting.AsInt > 0 && reviewCounting.AsInt % this.showTerm != 0");
                 _result = false;
             }else{
+                DebugForEditor.Log("[ReviewPopup] ShouldOpen true");
                 _result = true;
             }
 
@@ -239,6 +249,11 @@ namespace BicUtil.UI{
             if(OnClose != null){
                 OnClose();
             }
+
+            if(onCloseByAds != null){
+                onCloseByAds(AdsResult.Finished);
+                onCloseByAds = null;
+            }
         }
 
         private enum Mode{
@@ -246,6 +261,80 @@ namespace BicUtil.UI{
             Feedback,
             Review
         } 
+        #endregion
+
+        #region IAdsPlatform
+        public string TermsURL => string.Empty;
+        object[] adsTypesForShow = null;
+
+        public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsReadyBanner(object _adsPlacement)
+        {
+            return false;
+        }
+
+        public void SetAdsPlacementForShow(object[] _adsPlacements){
+            this.adsTypesForShow = _adsPlacements;
+        }
+
+        public bool IsReadyInterstitial(object _adsPlacement)
+        {
+            if(adsTypesForShow != null){
+                bool _containKey = false;
+                for(int i = 0; i < adsTypesForShow.Length; i++){
+                    if(adsTypesForShow[i].Equals(_adsPlacement)){
+                        _containKey = true;
+                        break;
+                    }
+                }
+
+                if(_containKey == false){
+                    DebugForEditor.Log("[ReviewPopup] IsReadyInterstitial false - not contain " +_adsPlacement.ToString());
+                    return false;
+                }
+            }
+
+            var _result = this.ShouldOpen(true);
+            DebugForEditor.Log("[ReviewPopup] IsReadyInterstitial - " + _result.ToString());
+
+            return _result;
+        }
+
+        public bool IsReadyRewardBased(object _adsPlacement)
+        {
+            return false;
+        }
+
+        public void LoadInterstitial(object _adsPlacement)
+        {
+        }
+
+        public void LoadRewardBased(object _adsPlacement)
+        {
+
+        }
+
+        public void SetUserConsent(bool _isEnabled)
+        {
+
+        }
+
+
+        private Action<AdsResult> onCloseByAds = null;
+        public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)
+        {
+            this.onCloseByAds = _callback;
+            this.Open();
+        }
+
+        public void ShowRewardBased(object _adsPlacement, Action<AdsResult> _callback)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
