@@ -291,6 +291,20 @@ namespace BicUtil.Tween
 		}
 
 		private int sequanceIndex = 0;
+		
+		public Tween GetPlayingChild(){
+			if(this.Type == TweenType.Sequance){
+				if(this.Data == null){
+					return null;
+				}else{
+					var _list = Data as List<Tween>;
+					return _list[sequanceIndex];
+				}
+			}else{
+				return null;
+			}
+		}
+
 		private void updateForSequance(){
 			
 			if(Rate == 0f){

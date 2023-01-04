@@ -890,6 +890,24 @@ namespace BicUtil.Tween
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
+		
+		public static Tween WaitInputData(TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = null;
+			_tween.Time = float.MaxValue;
+			_tween.Type = TweenType.WaitInput;
+			_tween.Data = null;
+			_tween.UpdateFunc = _update=>{
+				if(_update.Data != null){
+					_update.Rate = 1;
+				}
+			};
+			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
+			return _tween;
+		}
 
 		public static Tween Delay(float _time, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
@@ -903,6 +921,7 @@ namespace BicUtil.Tween
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
+
 		public static Tween DelayFrame(int _frame, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",

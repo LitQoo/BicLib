@@ -26,7 +26,8 @@ namespace BicUtil.Tween
         MoveWorld,
         AlphaSprite,
         AlphaUIGraphic,
-        BezierWorld
+        BezierWorld,
+        WaitInput
     }
 
     public static class UpdateFuncs{
