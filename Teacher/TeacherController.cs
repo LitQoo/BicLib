@@ -164,7 +164,7 @@ namespace BicUtil.Teacher{
         private Vector2 touchBeganPosition;
         public void SetPointerWithScaleUp(TeachPointerType _type){
             this.SetPointerWithTween(_type, _pointer=>{
-                return BicTween.Scale(_pointer, Vector2.zero, Vector2.one, 0.3f).SubscribeStart(()=>{
+                return BicTween.Scale(_pointer, Vector2.zero, Vector2.one, 0.2f).SubscribeStart(()=>{
                     _pointer.transform.localScale = Vector2.zero;
                 }).SetEase(EaseType.OutBack);
             });
@@ -242,7 +242,7 @@ namespace BicUtil.Teacher{
 
         public void HidePointerWithScaleDown(TeachPointerType _type){
             this.SetPointerWithTween(_type, _pointer=>{
-                var _tween = BicTween.Scale(_pointer, Vector2.one, Vector2.zero, 0.3f);
+                var _tween = BicTween.Scale(_pointer, Vector2.one, Vector2.zero, 0.2f);
                 _tween.SubscribeStart(()=>{
                     _tween.OriginValue = _pointer.transform.localScale;
                     _tween.DiffValue = Vector2.zero - (Vector2)_tween.OriginValue;
@@ -259,6 +259,16 @@ namespace BicUtil.Teacher{
             _tween.SubscribeStart(()=>{
                 setPointer(_type);
             }).AddTo(controller.parentTween);
+        }
+
+        public void DoubleTapWithSimulate(){
+            this.SetPointer(TeachPointerType.OneDownWithSimulate);
+            this.Delay(0.05f);
+            this.SetPointer(TeachPointerType.OneUpWithSimulate);
+            this.Delay(0.05f);
+            this.SetPointer(TeachPointerType.OneDownWithSimulate);
+            this.Delay(0.05f);
+            this.SetPointer(TeachPointerType.OneUpWithSimulate);
         }
 
         public void SetPointer(TeachPointerType _type){
@@ -419,7 +429,7 @@ namespace BicUtil.Teacher{
         }
 
         public void SetSpotlightWithScaleUp(int _index, Vector2 _position, Vector2 _size){
-            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.zero, Vector2.one, 0.3f).SubscribeStart(()=>{
+            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.zero, Vector2.one, 0.2f).SubscribeStart(()=>{
                 controller.Spotlights[_index].transform.localScale = Vector2.zero;
                 controller.Spotlights[_index].gameObject.SetActive(true);
                 setSpotlight(_index, _position, _size);
@@ -427,7 +437,7 @@ namespace BicUtil.Teacher{
         }
 
         public void HideSpotlightWithScaleDown(int _index){
-            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.one, Vector2.zero, 0.3f).SubscribeStart(()=>{
+            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.one, Vector2.zero, 0.2f).SubscribeStart(()=>{
                 controller.Spotlights[_index].transform.localScale = Vector2.one;
                 controller.Spotlights[_index].gameObject.SetActive(true);
             }).AddTo(controller.parentTween).SetEase(EaseType.OutBack).SubscribeComplete(()=>{
