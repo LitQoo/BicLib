@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BicUtil.Tween;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace BicUtil.Teacher{
     [Serializable]
@@ -271,6 +272,12 @@ namespace BicUtil.Teacher{
             this.SetPointer(TeachPointerType.OneUpWithSimulate);
         }
 
+        public void SingleTapWithSimulate(){
+            this.SetPointer(TeachPointerType.OneDownWithSimulate);
+            this.Delay(0.05f);
+            this.SetPointer(TeachPointerType.OneUpWithSimulate);
+        }
+
         public void SetPointer(TeachPointerType _type){
             BicTween.Delay(0f).SubscribeStart(()=>
             {
@@ -461,6 +468,11 @@ namespace BicUtil.Teacher{
                 _tween.OriginValue = _spot.transform.position;
                 _tween.DiffValue = _position - (Vector2)_tween.OriginValue; 
             }).AddTo(controller.parentTween);
+        }
+
+        public void Action(Action _action){
+            var _tween = BicTween.Delay(0f);
+            _tween.SubscribeStart(_action).AddTo(controller.parentTween);
         }
 
     }
