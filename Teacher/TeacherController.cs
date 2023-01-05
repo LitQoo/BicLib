@@ -30,7 +30,7 @@ namespace BicUtil.Teacher{
         [SerializeField]
         internal UnityEngine.UI.Text discription;
         [SerializeField]
-        internal UnityEngine.UI.Image[] SpotLights;
+        internal UnityEngine.UI.Image[] Spotlights;
         [SerializeField]
         internal TouchNotifier.TouchNotifier touchModule;
         [SerializeField]
@@ -57,7 +57,7 @@ namespace BicUtil.Teacher{
             this.discription.gameObject.SetActive(false);
             this.button.gameObject.SetActive(false);
             
-            foreach(var _spot in SpotLights){
+            foreach(var _spot in Spotlights){
                 _spot.gameObject.SetActive(false);
             }
         }
@@ -96,6 +96,10 @@ namespace BicUtil.Teacher{
         }
 
         internal void spawn(Action _func){
+            if(parentTween != scenarioTween){
+                throw new SystemException("not support spawn in spawn");
+            }
+
             parentTween = BicTween.Spawn();
             _func();
             parentTween.AddTo(scenarioTween);
@@ -131,6 +135,8 @@ namespace BicUtil.Teacher{
         One,
         OneDown,
         OneUp,
+        OneDownWithSimulate,
+        OneUpWithSimulate,
         Two,
         ZoomIn,
         ZoomOut,
@@ -268,22 +274,22 @@ namespace BicUtil.Teacher{
             switch (_type)
             {
                 case TeachPointerType.None: controller.pointer.gameObject.SetActive(false); break;
-                case
-                    TeachPointerType.One:
+                case TeachPointerType.One:
                     controller.pointer.sprite = controller.pointerOne;
                     break;
-                case
-                    TeachPointerType.OneUp:
+                case TeachPointerType.OneUp:
+                case TeachPointerType.OneUpWithSimulate:
                     controller.pointer.sprite = controller.pointerOne;
-                    if (controller.touchModule != null)
+                    if (controller.touchModule != null &&  _type == TeachPointerType.OneUpWithSimulate)
                     {
                         controller.touchModule.OnTouchUp.Invoke(controller.pointer.transform.position, controller.pointer.transform.position, 0);
                     }
 
                     break;
                 case TeachPointerType.OneDown:
+                case TeachPointerType.OneDownWithSimulate:
                     controller.pointer.sprite = controller.pointerOneDown;
-                    if (controller.touchModule != null)
+                    if (controller.touchModule != null &&  _type == TeachPointerType.OneDownWithSimulate)
                     {
                         touchBeganPosition = controller.pointer.transform.position;
                         controller.touchModule.OnTouchDown.Invoke(controller.pointer.transform.position, 0);
@@ -308,14 +314,49 @@ namespace BicUtil.Teacher{
             }).AddTo(controller.parentTween);
         }
 
-        public void MovePointerTo(Vector2 _position, float _time){
+        public void ZoomWithSimulate(float _size, float _time){
+            var _firstTouchSize = 30f*Vector2.one;
+            BicTween.Value(0, _size, _time).SubscribeStart(()=>
+            {
+                if(_size > 0){
+                    setPointer(TeachPointerType.ZoomIn);
+                }else{
+                    setPointer(TeachPointerType.ZoomOut);
+                }
+                touchBeganPosition = controller.pointer.transform.position;
+            
+                controller.touchModule.GetTouchReturnForced = true;
+                controller.touchModule.SetTouchCountForced(2);
+                controller.touchModule.SetStartPositionForced(0, touchBeganPosition + _firstTouchSize);
+                controller.touchModule.OnTouchDown.Invoke(touchBeganPosition + _firstTouchSize, 0);
+                controller.touchModule.OnTouchDown.Invoke(touchBeganPosition - _firstTouchSize, 1);
+            }).SubscribeUpdate(_value=>{
+                if(controller.touchModule != null){
+                    controller.touchModule.SetTouchCountForced(2);
+                    controller.touchModule.SetStartPositionForced(0, touchBeganPosition + _firstTouchSize);
+                    controller.touchModule.OnTouchMove.Invoke(touchBeganPosition + _firstTouchSize, touchBeganPosition + _firstTouchSize + Vector2.one*_value.x, 0);
+                    controller.touchModule.OnTouchMove.Invoke(touchBeganPosition - _firstTouchSize, touchBeganPosition - _firstTouchSize - Vector2.one*_value.x, 1);
+                }
+            }).SubscribeComplete(()=>{
+                setPointer(TeachPointerType.ZoomReady);
+                controller.touchModule.SetTouchCountForced(2);
+                controller.touchModule.OnTouchUp.Invoke(touchBeganPosition + _firstTouchSize, touchBeganPosition + _firstTouchSize + Vector2.one * _size, 0);
+                controller.touchModule.OnTouchUp.Invoke(touchBeganPosition - _firstTouchSize, touchBeganPosition - _firstTouchSize - Vector2.one * _size, 1);
+                controller.touchModule.SetTouchCountForced(0);
+                controller.touchModule.GetTouchReturnForced = false;
+            }).AddTo(controller.parentTween);
+
+            
+        }
+
+        public void MovePointerTo(Vector2 _position, float _time, bool _simulateTouch){
             var _tween = BicTween.MoveWorld(controller.pointer.gameObject, _position, _time);
 
             _tween.SubscribeStart(()=>{
                 _tween.OriginValue = this.controller.pointer.transform.position;
                 _tween.DiffValue = _position - (Vector2)_tween.OriginValue; 
             }).SubscribeUpdate(_position=>{
-                if(controller.touchModule != null){
+                if(controller.touchModule != null && _simulateTouch == true){
                     controller.touchModule.OnTouchMove.Invoke(touchBeganPosition, _position, 0);
                 }
             }).AddTo(controller.parentTween);
@@ -369,41 +410,41 @@ namespace BicUtil.Teacher{
             }).AddTo(controller.parentTween);
         }
 
-        public void SetSpotLight(int _index, Vector2 _position, Vector2 _size){
+        public void SetSpotlight(int _index, Vector2 _position, Vector2 _size){
             BicTween.Delay(0).SubscribeStart(()=>
             {
-                setSpotLight(_index, _position, _size);
+                setSpotlight(_index, _position, _size);
             }).AddTo(controller.parentTween);
 
         }
 
-        public void SetSpotLightWithScaleUp(int _index, Vector2 _position, Vector2 _size){
-            BicTween.Scale(controller.SpotLights[_index].gameObject, Vector2.zero, Vector2.one, 0.3f).SubscribeStart(()=>{
-                controller.SpotLights[_index].transform.localScale = Vector2.zero;
-                controller.SpotLights[_index].gameObject.SetActive(true);
-                setSpotLight(_index, _position, _size);
+        public void SetSpotlightWithScaleUp(int _index, Vector2 _position, Vector2 _size){
+            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.zero, Vector2.one, 0.3f).SubscribeStart(()=>{
+                controller.Spotlights[_index].transform.localScale = Vector2.zero;
+                controller.Spotlights[_index].gameObject.SetActive(true);
+                setSpotlight(_index, _position, _size);
             }).AddTo(controller.parentTween).SetEase(EaseType.OutBack);
         }
 
-        public void HideSpotLightWithScaleDown(int _index){
-            BicTween.Scale(controller.SpotLights[_index].gameObject, Vector2.one, Vector2.zero, 0.3f).SubscribeStart(()=>{
-                controller.SpotLights[_index].transform.localScale = Vector2.one;
-                controller.SpotLights[_index].gameObject.SetActive(true);
+        public void HideSpotlightWithScaleDown(int _index){
+            BicTween.Scale(controller.Spotlights[_index].gameObject, Vector2.one, Vector2.zero, 0.3f).SubscribeStart(()=>{
+                controller.Spotlights[_index].transform.localScale = Vector2.one;
+                controller.Spotlights[_index].gameObject.SetActive(true);
             }).AddTo(controller.parentTween).SetEase(EaseType.OutBack).SubscribeComplete(()=>{
-                controller.SpotLights[_index].transform.localScale = Vector2.one;
-                controller.SpotLights[_index].gameObject.SetActive(false);
+                controller.Spotlights[_index].transform.localScale = Vector2.one;
+                controller.Spotlights[_index].gameObject.SetActive(false);
             });
         }
 
-        private void setSpotLight(int _index, Vector2 _position, Vector2 _size)
+        private void setSpotlight(int _index, Vector2 _position, Vector2 _size)
         {
-            controller.SpotLights[_index].gameObject.SetActive(true);
-            controller.SpotLights[_index].transform.position = _position;
-            controller.SpotLights[_index].rectTransform.sizeDelta = _size;
+            controller.Spotlights[_index].gameObject.SetActive(true);
+            controller.Spotlights[_index].transform.position = _position;
+            controller.Spotlights[_index].rectTransform.sizeDelta = _size;
         }
 
         public void MoveSpotlight(int _index, Vector2 _position, float _time){
-            var _spot = controller.SpotLights[_index];
+            var _spot = controller.Spotlights[_index];
             var _tween = BicTween.MoveWorld(_spot.gameObject, _position, _time);
 
             _tween.SubscribeStart(()=>{

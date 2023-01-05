@@ -64,7 +64,17 @@ namespace BicUtil.TouchNotifier
             return this.startTouchPosition[_touchIndex];
         }
 
+        public bool GetTouchReturnForced{get;set;}=false;
+
+        public void SetStartPositionForced(int _index, Vector2 _position){
+            this.startTouchPosition[_index] = _position;
+        }
+
 		public Vector2 GetTouch(int _touchIndex){
+            if(GetTouchReturnForced == true){
+                return this.startTouchPosition[_touchIndex];
+            }
+
 			#if UNITY_EDITOR
                 bool _useGetTouch = false;
 
@@ -226,6 +236,12 @@ namespace BicUtil.TouchNotifier
             }catch(System.Exception _e){
                 Debug.Log("notifyOnTouchDown fingerid = " + _index + ", line = " + _line.ToString() + ", touchnisize " + isTouchIn.Length.ToString() + ", startTouchPosition size "+ startTouchPosition.Length.ToString());
                 throw _e;
+            }
+        }
+
+        public void SetTouchCountForced(int _count){
+            for(int i = 0; i < isTouchIn.Length; i++){
+                this.isTouchIn[i] = i < _count;
             }
         }
 		#endregion
