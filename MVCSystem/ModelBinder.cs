@@ -6,6 +6,7 @@ using System;
 using BicDB;
 using BicDB.Container;
 using BicUtil.ListValueSelector;
+using UnityEngine.Events;
 
 namespace BicUtil.MVCSystem
 {
@@ -251,6 +252,54 @@ namespace BicUtil.MVCSystem
 			});
 			
 			_variable.Getter = _func;
+		}
+
+		public void BindController(TMPro.TMP_Dropdown _dropdown, UnityAction<int> _func){
+			bindRemoverList.Add (()=>{
+				_dropdown.onValueChanged.RemoveListener(_func);
+			});
+
+			_dropdown.onValueChanged.AddListener(_func);
+		}
+
+		public void BindController(TMPro.TMP_Dropdown _dropdown, IVariable _variable, bool _setValueToControllerFirst){
+			if(_setValueToControllerFirst == true){
+				_dropdown.value = _variable.AsInt;
+			}
+
+			UnityAction<int> _func = _string=>{
+                try{
+                    _variable.AsInt = _string;
+                }catch{
+					
+                }
+            };
+			
+			BindController(_dropdown, _func);
+		}
+
+		public void BindController(TMPro.TMP_InputField _inputField, UnityAction<string> _func){
+			bindRemoverList.Add (()=>{
+				_inputField.onValueChanged.RemoveListener(_func);
+			});
+
+			_inputField.onValueChanged.AddListener(_func);
+		}
+
+		public void BindController(TMPro.TMP_InputField _inputField, IVariable _variable, bool _setValueToInputFieldFirst){
+			if(_setValueToInputFieldFirst == true){
+				_inputField.text = _variable.AsString;
+			}
+
+			UnityAction<string> _func = _string=>{
+                try{
+                    _variable.AsString = _string;
+                }catch{
+					
+                }
+            };
+			
+			BindController(_inputField, _func);
 		}
 		#endregion
 
