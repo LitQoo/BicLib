@@ -604,6 +604,9 @@ namespace BicDB.Storage
 
 			return false;
 		}
+		public void RemoveCacheAll(){
+			System.IO.Directory.Delete(CACHE_DIRECTORY, true);
+		}
 
 		private (CachingLevel CachingType, string Result) getCache(WebStorageParameter _param){
 			if(_param.IsEnabledCache == false){
