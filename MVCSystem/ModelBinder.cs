@@ -286,6 +286,29 @@ namespace BicUtil.MVCSystem
 			_inputField.onValueChanged.AddListener(_func);
 		}
 
+		public void BindController(TMPro.TMP_InputField _inputFieldX, TMPro.TMP_InputField _inputFieldY, Vector2Variable _variable, bool _setValueToInputFieldFirst){
+			if(_setValueToInputFieldFirst == true){
+				_inputFieldX.text = _variable.X.ToString();
+				_inputFieldY.text = _variable.Y.ToString();
+			}
+
+			UnityAction<string> _func = _string=>{
+				try{
+					_variable.AsVector = new Vector2Int(int.Parse(_inputFieldX.text), int.Parse(_inputFieldY.text));
+				}catch{
+
+				}
+			};
+
+			bindRemoverList.Add (()=>{
+				_inputFieldX.onValueChanged.RemoveListener(_func);
+				_inputFieldY.onValueChanged.RemoveListener(_func);
+			});
+
+			_inputFieldX.onValueChanged.AddListener(_func);
+			_inputFieldY.onValueChanged.AddListener(_func);
+		}
+
 		public void BindController(TMPro.TMP_InputField _inputField, IVariable _variable, bool _setValueToInputFieldFirst){
 			if(_setValueToInputFieldFirst == true){
 				_inputField.text = _variable.AsString;
