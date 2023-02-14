@@ -254,75 +254,47 @@ namespace BicUtil.MVCSystem
 			_variable.Getter = _func;
 		}
 
-		public void BindController(TMPro.TMP_Dropdown _dropdown, UnityAction<int> _func){
-			bindRemoverList.Add (()=>{
-				_dropdown.onValueChanged.RemoveListener(_func);
-			});
-
-			_dropdown.onValueChanged.AddListener(_func);
-		}
-
-		public void BindController(TMPro.TMP_Dropdown _dropdown, IVariable _variable, bool _setValueToControllerFirst){
-			if(_setValueToControllerFirst == true){
-				_dropdown.value = _variable.AsInt;
-			}
-
-			UnityAction<int> _func = _string=>{
-                try{
-                    _variable.AsInt = _string;
-                }catch{
-					
-                }
-            };
-			
-			BindController(_dropdown, _func);
-		}
-
-		public void BindController(TMPro.TMP_InputField _inputField, UnityAction<string> _func){
-			bindRemoverList.Add (()=>{
-				_inputField.onValueChanged.RemoveListener(_func);
-			});
-
-			_inputField.onValueChanged.AddListener(_func);
-		}
-
-		public void BindController(TMPro.TMP_InputField _inputFieldX, TMPro.TMP_InputField _inputFieldY, Vector2Variable _variable, bool _setValueToInputFieldFirst){
+		public void BindController(UnityEngine.UI.Slider _slider, FloatVariable _variable, bool _setValueToInputFieldFirst){
 			if(_setValueToInputFieldFirst == true){
-				_inputFieldX.text = _variable.X.ToString();
-				_inputFieldY.text = _variable.Y.ToString();
+				_slider.value = _variable.AsFloat;
 			}
 
-			UnityAction<string> _func = _string=>{
+			UnityAction<float> _func = _string=>{
 				try{
-					_variable.AsVector = new Vector2Int(int.Parse(_inputFieldX.text), int.Parse(_inputFieldY.text));
+					_variable.AsFloat = _slider.value;
 				}catch{
 
 				}
 			};
 
 			bindRemoverList.Add (()=>{
-				_inputFieldX.onValueChanged.RemoveListener(_func);
-				_inputFieldY.onValueChanged.RemoveListener(_func);
+				_slider.onValueChanged.RemoveListener(_func);
 			});
 
-			_inputFieldX.onValueChanged.AddListener(_func);
-			_inputFieldY.onValueChanged.AddListener(_func);
+			_slider.onValueChanged.AddListener(_func);
 		}
 
-		public void BindController(TMPro.TMP_InputField _inputField, IVariable _variable, bool _setValueToInputFieldFirst){
+		public void BindController(UnityEngine.UI.Slider _sliderX, UnityEngine.UI.Slider _sliderY, Vector2Variable _variable, bool _setValueToInputFieldFirst){
 			if(_setValueToInputFieldFirst == true){
-				_inputField.text = _variable.AsString;
+				_sliderX.value = _variable.X;
+				_sliderY.value = _variable.Y;
 			}
 
-			UnityAction<string> _func = _string=>{
-                try{
-                    _variable.AsString = _string;
-                }catch{
-					
-                }
-            };
-			
-			BindController(_inputField, _func);
+			UnityAction<float> _func = _string=>{
+				try{
+					_variable.AsVector = new Vector2(_sliderX.value, _sliderY.value);
+				}catch{
+
+				}
+			};
+
+			bindRemoverList.Add (()=>{
+				_sliderX.onValueChanged.RemoveListener(_func);
+				_sliderY.onValueChanged.RemoveListener(_func);
+			});
+
+			_sliderX.onValueChanged.AddListener(_func);
+			_sliderY.onValueChanged.AddListener(_func);
 		}
 		#endregion
 
@@ -387,5 +359,114 @@ namespace BicUtil.MVCSystem
 			_variable.Setter = _action;
 		}
 		#endregion
+
+		#if BICUTIL_TMPRO
+		#region TMPro
+		public void BindController(TMPro.TMP_Dropdown _dropdown, UnityAction<int> _func){
+			bindRemoverList.Add (()=>{
+				_dropdown.onValueChanged.RemoveListener(_func);
+			});
+
+			_dropdown.onValueChanged.AddListener(_func);
+		}
+
+		public void BindController(TMPro.TMP_Dropdown _dropdown, IVariable _variable, bool _setValueToControllerFirst){
+			if(_setValueToControllerFirst == true){
+				_dropdown.value = _variable.AsInt;
+			}
+
+			UnityAction<int> _func = _string=>{
+                try{
+                    _variable.AsInt = _string;
+                }catch{
+					
+                }
+            };
+			
+			BindController(_dropdown, _func);
+		}
+
+		public void BindController(TMPro.TMP_InputField _inputField, UnityAction<string> _func){
+			bindRemoverList.Add (()=>{
+				_inputField.onValueChanged.RemoveListener(_func);
+			});
+
+			_inputField.onValueChanged.AddListener(_func);
+		}
+
+		public void BindController(TMPro.TMP_InputField _inputFieldX, TMPro.TMP_InputField _inputFieldY, Vector2Variable _variable, bool _setValueToInputFieldFirst){
+			if(_setValueToInputFieldFirst == true){
+				_inputFieldX.text = _variable.X.ToString();
+				_inputFieldY.text = _variable.Y.ToString();
+			}
+
+			UnityAction<string> _func = _string=>{
+				try{
+					_variable.AsVector = new Vector2(float.Parse(_inputFieldX.text), float.Parse(_inputFieldY.text));
+				}catch{
+
+				}
+			};
+
+			bindRemoverList.Add (()=>{
+				_inputFieldX.onValueChanged.RemoveListener(_func);
+				_inputFieldY.onValueChanged.RemoveListener(_func);
+			});
+
+			_inputFieldX.onValueChanged.AddListener(_func);
+			_inputFieldY.onValueChanged.AddListener(_func);
+		}
+
+		public void BindController(TMPro.TMP_InputField _inputField, IVariable _variable, bool _setValueToInputFieldFirst){
+			if(_setValueToInputFieldFirst == true){
+				_inputField.text = _variable.AsString;
+			}
+
+			UnityAction<string> _func = _string=>{
+                try{
+                    _variable.AsString = _string;
+                }catch{
+					
+                }
+            };
+			
+			BindController(_inputField, _func);
+		}
+		
+		public void BindModelToController(Vector2Variable _variable, TMPro.TMP_Text _text, string _format, bool _needFirstCall = false){
+			var __format = _format;
+			Action<IVector2VariableReadOnly> _func = (__variable)=>{
+				_text.text = string.Format(__format, __variable.X, __variable.Y);
+			};
+
+			bindRemoverList.Add (()=>{
+				_variable.Unsubscribe(_func);
+			});
+
+			_variable.Subscribe(_func);
+
+			if(_needFirstCall == true){
+				_text.text = string.Format(_format, _variable.X, _variable.Y);
+			}
+		}
+
+		public void BindModelToController(IVariable _variable, TMPro.TMP_Text _text, string _format, bool _needFirstCall = false){
+			var __format = _format;
+			Action<IVariableReadOnly> _func = (__variable)=>{
+				_text.text = string.Format(__format, __variable.AsString);
+			};
+
+			bindRemoverList.Add (()=>{
+				_variable.Unsubscribe(_func);
+			});
+
+			_variable.Subscribe(_func);
+
+			if(_needFirstCall == true){
+				_text.text = string.Format(_format, _variable.AsString);
+			}
+		}
+		#endregion
+		#endif
 	}
 }
