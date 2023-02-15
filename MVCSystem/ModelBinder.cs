@@ -254,14 +254,18 @@ namespace BicUtil.MVCSystem
 			_variable.Getter = _func;
 		}
 
-		public void BindController(UnityEngine.UI.Slider _slider, FloatVariable _variable, bool _setValueToInputFieldFirst){
+		public void BindController(UnityEngine.UI.Slider _slider, FloatVariable _variable, bool _setValueToInputFieldFirst, Func<float, float> _formatter = null){
 			if(_setValueToInputFieldFirst == true){
 				_slider.value = _variable.AsFloat;
 			}
 
 			UnityAction<float> _func = _string=>{
 				try{
-					_variable.AsFloat = _slider.value;
+					if(_formatter != null){
+						_variable.AsFloat = _formatter(_slider.value);
+					}else{
+						_variable.AsFloat = _slider.value;
+					}
 				}catch{
 
 				}
@@ -274,7 +278,7 @@ namespace BicUtil.MVCSystem
 			_slider.onValueChanged.AddListener(_func);
 		}
 
-		public void BindController(UnityEngine.UI.Slider _sliderX, UnityEngine.UI.Slider _sliderY, Vector2Variable _variable, bool _setValueToInputFieldFirst){
+		public void BindController(UnityEngine.UI.Slider _sliderX, UnityEngine.UI.Slider _sliderY, Vector2Variable _variable, bool _setValueToInputFieldFirst, Func<float, float> _formatter = null){
 			if(_setValueToInputFieldFirst == true){
 				_sliderX.value = _variable.X;
 				_sliderY.value = _variable.Y;
@@ -282,7 +286,12 @@ namespace BicUtil.MVCSystem
 
 			UnityAction<float> _func = _string=>{
 				try{
-					_variable.AsVector = new Vector2(_sliderX.value, _sliderY.value);
+					if(_formatter != null){
+						
+						_variable.AsVector = new Vector2(_formatter(_sliderX.value), _formatter(_sliderY.value));	
+					}else{
+						_variable.AsVector = new Vector2(_sliderX.value, _sliderY.value);
+					}
 				}catch{
 
 				}

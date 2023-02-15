@@ -85,6 +85,8 @@ namespace BicUtil.TableView
 			var _cellCount = _dataSource.GetCellCountInRow(this.RowIndex);
 
 			for(int i = 0; i < Cells.Count; i++){
+				Cells[i].CellIndex = _startCellIndex + i;
+
 				if(_cellCount > i){
 					var _model = _cellDataFunc(_startCellIndex + i, RowIndex, i);
 					if(_model != null){
@@ -96,6 +98,7 @@ namespace BicUtil.TableView
 				}else{
 					Cells[i].gameObject.SetActive(false);
 				}
+
 			}
 
 			OnCreateFunction.Invoke(this);
