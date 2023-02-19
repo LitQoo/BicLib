@@ -606,6 +606,7 @@ namespace BicDB.Storage
 		}
 		public void RemoveCacheAll(){
 			System.IO.Directory.Delete(CACHE_DIRECTORY, true);
+			isExistsDirectory = false;
 		}
 
 		private (CachingLevel CachingType, string Result) getCache(WebStorageParameter _param){
