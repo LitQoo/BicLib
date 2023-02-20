@@ -727,7 +727,7 @@ namespace BicDB.Storage
 			if(_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
 				#if UNITY_EDITOR
-				DebugForEditor.Log("[WebStorage] Success Download by web " + _param.ToString());
+				DebugForEditor.Log("[WebStorage] Success Download by web " + _param.ToString() + "/" + _request.downloadHandler.text);
 				#endif
 				return (CachingLevel.None, _request.downloadHandler.text);
 			}else{
