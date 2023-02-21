@@ -45,6 +45,12 @@ namespace BicDB.Variable
 		public D As<D>() where D : class, IDataBase{
 			return this as D;
 		}
+
+		public void SetValueIfChagned(bool _value){
+			if(this.AsBool != _value){
+				this.AsBool = _value;
+			}
+		}
 		#endregion
 	}
 }
