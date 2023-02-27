@@ -39,7 +39,14 @@ namespace BicUtil.CameraScaler
 			}
 		}
 
+		public Vector2 FullResolutionWithoutSafeArea{
+			get{
+				return this.manageFullSizeRect[0].sizeDelta * xyRate;
+			}
+		}
+
 		private bool isInit = false;
+		private float xyRate = 0f; 
 		#endregion
 
 		#region LifeCycle
@@ -99,16 +106,16 @@ namespace BicUtil.CameraScaler
 				mainCamera.transform.position = new Vector3 (_xOffset, _yOffset, -10);
 
 				if(manageFullSizeRect.Length > 0){
-					float _rate = referenceResolution.y / (float)Screen.height;
+					xyRate = referenceResolution.y / (float)Screen.height;
 					for(int i = 0; i < manageFullSizeRect.Length; i++){
-						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * _rate, (float)Screen.safeArea.height * _rate) + manageFullSizeOffset;
+						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * xyRate, (float)Screen.safeArea.height * xyRate) + manageFullSizeOffset;
 					}
 				}
 
 			//설정보다 길쭉할때
 			} else {
-				float _rate = referenceResolution.x / (float)Screen.width;
-				float _hSize = (float)Screen.height * _rate;
+				xyRate = referenceResolution.x / (float)Screen.width;
+				float _hSize = (float)Screen.height * xyRate;
 				mainCamera.orthographicSize = _hSize / 2f;
 
 				if(manageFullSizeRect.Length > 0){
