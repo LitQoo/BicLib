@@ -51,7 +51,6 @@ namespace BicUtil.Teacher{
             hideObjects();
 
             dimmed.rectTransform.sizeDelta = BicUtil.CameraScaler.CameraScaler.Instance.FullResolutionWithoutSafeArea;
-
             BicUtil.CameraScaler.CameraScaler.Instance.SubscribeChangedScreenSize(()=>{
                 dimmed.rectTransform.sizeDelta = BicUtil.CameraScaler.CameraScaler.Instance.FullResolutionWithoutSafeArea;
             });

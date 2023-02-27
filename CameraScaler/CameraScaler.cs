@@ -41,7 +41,7 @@ namespace BicUtil.CameraScaler
 
 		public Vector2 FullResolutionWithoutSafeArea{
 			get{
-				return this.manageFullSizeRect[0].sizeDelta * xyRate;
+				return new Vector2(screenSize.width * xyRate, screenSize.height * xyRate);
 			}
 		}
 
