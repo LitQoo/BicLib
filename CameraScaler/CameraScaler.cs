@@ -178,14 +178,19 @@ namespace BicUtil.CameraScaler
 
         private void applyManageRects()
         {
-            for (int i = 0; i < manageFullSizeRect.Length; i++)
-            {
-                manageFullSizeRect[i].sizeDelta = calculatedSafeAreaResolution;
-            }
 
-			for (int i = 0; i < manageDisplaySizeRect.Length; i++)
-			{
-				manageDisplaySizeRect[i].sizeDelta = DisplayAreaResolution;
+			if(manageFullSizeRect != null){
+				for (int i = 0; i < manageFullSizeRect.Length; i++)
+				{
+					manageFullSizeRect[i].sizeDelta = calculatedSafeAreaResolution;
+				}
+			}
+
+			if(manageDisplaySizeRect != null){
+				for (int i = 0; i < manageDisplaySizeRect.Length; i++)
+				{
+					manageDisplaySizeRect[i].sizeDelta = DisplayAreaResolution;
+				}
 			}
         }
 
