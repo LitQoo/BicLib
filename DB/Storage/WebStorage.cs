@@ -615,6 +615,13 @@ namespace BicDB.Storage
 				return (CachingLevel.None, string.Empty);
 			}
 
+			if(_param.ResourceCacheEnableBeforeWeb == true){
+				string _result = loadCacheFromResrouceAndCaching(_param);
+				if(string.IsNullOrEmpty(_result) == false){
+					return (CachingLevel.Resource, _result);
+				}
+			}
+
 			//캐시타임 체크해서 지났으면 캐시로드하지 말고 그냥로드 캐시타임은 메모리, 파일 따로 조사해야할듯? 그럼 파일 json파싱을 해야하는데? -0-
 			if((_param.CachingLevel & CachingLevel.Memory) != 0){
 				lock(memoryCache){
@@ -629,7 +636,6 @@ namespace BicDB.Storage
 					}
 				}
 			}
-
 			
 			if((_param.CachingLevel & CachingLevel.File) != 0){
 				// Debug.Log("file caching");
@@ -656,13 +662,6 @@ namespace BicDB.Storage
 					}
 				}else{
 					// Debug.Log("file cache not found");
-				}
-			}
-
-			if(_param.ResourceCacheEnableBeforeWeb == true){
-				string _result = loadCacheFromResrouceAndCaching(_param);
-				if(string.IsNullOrEmpty(_result) == false){
-					return (CachingLevel.Resource, _result);
 				}
 			}
 			
