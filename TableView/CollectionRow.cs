@@ -28,7 +28,7 @@ namespace BicUtil.TableView
         }
 
         public override void InitializeCells(){
-            CameraScaler.CameraScaler.Instance.SubscribeChangedScreenSize(updateWidth);
+            CameraScaler.CameraScaler.Instance.SubscribeChangedScreenSize(updateWidth, true);
 
             if(cellCount > 0){
                 var _tableCell = transform.GetComponentInChildren<TableCell>();

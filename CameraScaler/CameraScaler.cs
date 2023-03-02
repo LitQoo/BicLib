@@ -24,22 +24,35 @@ namespace BicUtil.CameraScaler
 		private HorizonalAlign horizonalAlign = HorizonalAlign.Center;
 		[SerializeField]
 		private RectTransform[] manageFullSizeRect = null;
+		[SerializeField]
+		private RectTransform[] manageDisplaySizeRect = null;
 		#endregion
 
 		#region Instant
+		public Vector2 calculatedSafeAreaResolution = Vector2.zero;
+		public Vector2 calculatedDisplayAreaResolution = Vector2.zero;
+
 		public Vector2 ReferenceResolution{
 			get{
 				return this.referenceResolution;
 			}
 		}
 
+		[Obsolete("use SafeAreaResolution")]
 		public Vector2 FullResolution{
 			get{
 				return this.manageFullSizeRect[0].sizeDelta;
 			}
 		}
 
-		public Vector2 FullResolutionWithoutSafeArea{
+
+		public Vector2 SafeAreaResolution{
+			get{
+				return this.manageFullSizeRect[0].sizeDelta;
+			}
+		}
+
+		public Vector2 DisplayAreaResolution{
 			get{
 				return new Vector2(Screen.width * xyRate, Screen.height * xyRate);
 			}
@@ -78,53 +91,46 @@ namespace BicUtil.CameraScaler
 			float _screenRate = (float)Screen.width / (float)Screen.height;
 
 			//설정보다 뚱뚱할때
-			if (_referenceRate < _screenRate) {
-				mainCamera.orthographicSize = referenceResolution.y / 2f;
+			if (_referenceRate < _screenRate)
+            {
+                mainCamera.orthographicSize = referenceResolution.y / 2f;
 
-				float _xOffset = 0;
-				switch (horizonalAlign) {
-				case HorizonalAlign.Right:
-					_xOffset = ((float)Screen.width - referenceResolution.x * (float)Screen.height / referenceResolution.y) / 2f;
-					break; 
-				case HorizonalAlign.Left:
-					_xOffset = ((float)Screen.width - referenceResolution.x * (float)Screen.height / referenceResolution.y) / 2f * -1;
-					break; 
-				}
+                float _xOffset = 0;
+                switch (horizonalAlign)
+                {
+                    case HorizonalAlign.Right:
+                        _xOffset = ((float)Screen.width - referenceResolution.x * (float)Screen.height / referenceResolution.y) / 2f;
+                        break;
+                    case HorizonalAlign.Left:
+                        _xOffset = ((float)Screen.width - referenceResolution.x * (float)Screen.height / referenceResolution.y) / 2f * -1;
+                        break;
+                }
 
-				float _yOffset = 0;
-				if(manageFullSizeOffset.y != 0){
-					switch (verticalAlign) {
-						case VerticalAlign.Top:
-						_yOffset = manageFullSizeOffset.y / 2f;
-						break;
-						case VerticalAlign.Bottom:
-						_yOffset = - manageFullSizeOffset.y / 2f;
-						break;
-					}
-				}
+                float _yOffset = 0;
+                if (manageFullSizeOffset.y != 0)
+                {
+                    switch (verticalAlign)
+                    {
+                        case VerticalAlign.Top:
+                            _yOffset = manageFullSizeOffset.y / 2f;
+                            break;
+                        case VerticalAlign.Bottom:
+                            _yOffset = -manageFullSizeOffset.y / 2f;
+                            break;
+                    }
+                }
 
-				mainCamera.transform.position = new Vector3 (_xOffset, _yOffset, -10);
-
-				if(manageFullSizeRect.Length > 0){
-					xyRate = referenceResolution.y / (float)Screen.height;
-					for(int i = 0; i < manageFullSizeRect.Length; i++){
-						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * xyRate, (float)Screen.safeArea.height * xyRate) + manageFullSizeOffset;
-					}
-				}
-
-			//설정보다 길쭉할때
-			} else {
+                mainCamera.transform.position = new Vector3(_xOffset, _yOffset, -10);
+				xyRate = referenceResolution.y / (float)Screen.height;
+                calculatedSafeAreaResolution = new Vector2((float)Screen.safeArea.width * xyRate, (float)Screen.safeArea.height * xyRate) + manageFullSizeOffset;
+                //설정보다 길쭉할때
+            }
+            else {
 				xyRate = referenceResolution.x / (float)Screen.width;
 				float _hSize = (float)Screen.height * xyRate;
 				mainCamera.orthographicSize = _hSize / 2f;
 
 				if(manageFullSizeRect.Length > 0){
-					var _rectRate = referenceResolution.x / (float)Screen.width;
-
-					for(int i = 0; i < manageFullSizeRect.Length; i++){
-						manageFullSizeRect[i].sizeDelta = new Vector2((float)Screen.safeArea.width * _rectRate, (float)Screen.safeArea.height * _rectRate) + manageFullSizeOffset;
-					}
-
 					float _yOffset = 0;
 					switch (verticalAlign) {
 					case VerticalAlign.Top:
@@ -150,7 +156,13 @@ namespace BicUtil.CameraScaler
 
 					mainCamera.transform.position = new Vector3 (0, _yOffset, -10);
 				}
+
+
+				var _rectRate = referenceResolution.x / (float)Screen.width;
+				calculatedSafeAreaResolution = new Vector2((float)Screen.safeArea.width * _rectRate, (float)Screen.safeArea.height * _rectRate) + manageFullSizeOffset;
 			}
+
+			applyManageRects();
 
 			#if UNITY_EDITOR
 			string _log = "[CameraScaler] Screen size change detected. " + Screen.safeArea.size.ToString();
@@ -163,8 +175,21 @@ namespace BicUtil.CameraScaler
 			Debug.LogWarning(_log);
 			#endif
 		}
-		
-		[SerializeField]
+
+        private void applyManageRects()
+        {
+            for (int i = 0; i < manageFullSizeRect.Length; i++)
+            {
+                manageFullSizeRect[i].sizeDelta = calculatedSafeAreaResolution;
+            }
+
+			for (int i = 0; i < manageDisplaySizeRect.Length; i++)
+			{
+				manageDisplaySizeRect[i].sizeDelta = DisplayAreaResolution;
+			}
+        }
+
+        [SerializeField]
 		private Vector2 manageFullSizeOffset = Vector2.zero;
 
 		public void SetManageFullSizeOffset(Vector2 _offset){
@@ -192,8 +217,12 @@ namespace BicUtil.CameraScaler
 
 		private Action onChangedScreenSize = null;
 
-		public void SubscribeChangedScreenSize(Action _action){
+		public void SubscribeChangedScreenSize(Action _action, bool _invokeImmediately){
 			this.onChangedScreenSize += _action;
+			
+			if(_invokeImmediately == true){
+				_action();
+			}
 		}
 		
 		public void UnsubscribeChangedScreenSize(Action _action){
