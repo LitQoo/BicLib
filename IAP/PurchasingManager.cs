@@ -540,6 +540,17 @@ namespace BicUtil.Purchasing{
 			}
 			return false;
 		}
+
+        public void OnInitializeFailed(InitializationFailureReason error, string message)
+        {
+            BicUtil.Analytics.Analytics.Event("IAP_Init_Fail", new Dictionary<string, object>{
+				{"reason", error.ToString()},
+				{"message", message}
+			});
+
+			// Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
+			Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
+        }
     }
 
 	public enum SubscriptionStateType{
