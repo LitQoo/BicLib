@@ -157,8 +157,9 @@ namespace BicDB.Storage{
 			var _record = new T();
 			var _fileString = ResourceStorage.ReadAsset(_filePath);
 
-			if(_record.ParseJson(_fileString) == false){
-                throw new System.Exception("polyart parse error");
+			
+			if(_fileString == string.Empty || _record.ParseJson(_fileString) == false){
+                throw new System.Exception("parse error");
             }
 
 			return _record;
