@@ -135,7 +135,7 @@ namespace BicDB.Storage
                 {
                     if (_webParam.ShouldEncrypt == true)
                     {
-                        _json = BicUtil.Crypto.AES256.Decrypt(_json);
+                        _json = BicUtil.Crypto.AES256.Decrypt(_json, _webParam.EncryptKey);
                     }
                 }
                 catch
@@ -193,7 +193,7 @@ namespace BicDB.Storage
             var _formDataString = _formData.ToString();
             if (_webParam.ShouldEncrypt == true)
             {
-                _formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString);
+                _formDataString = BicUtil.Crypto.AES256.Encrypt(_formDataString, _webParam.EncryptKey);
             }
             _form.AddField("data", _formDataString);
             return _form;
@@ -311,7 +311,7 @@ namespace BicDB.Storage
 
 				var _json = memoryCache[_webParam.CacheId].text;
 				if(_webParam.ShouldEncrypt == true){
-					_json = BicUtil.Crypto.AES256.Decrypt(_json);
+					_json = BicUtil.Crypto.AES256.Decrypt(_json, _param.EncryptKey);
 				}
 
 				
@@ -340,12 +340,12 @@ namespace BicDB.Storage
 
 			try{
 				if(_webParam.ShouldEncrypt == true){
-					_result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text);
+					_result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text, _webParam.EncryptKey);
 				}
 			}catch{
 				return (_result.CachingType, null);
 			}
-		
+
 			var _resultRecord = new T();
 			_resultRecord.AddManagedColumn("result", new IntVariable());
 
@@ -538,7 +538,7 @@ namespace BicDB.Storage
 				string _json = _downloadText;
 				try{
 					if(_webParam.ShouldEncrypt == true){
-						_json = BicUtil.Crypto.AES256.Decrypt(_json);
+						_json = BicUtil.Crypto.AES256.Decrypt(_json, _param.EncryptKey);
 					}
 				}catch{
 					if(_resultCallback != null){
@@ -632,6 +632,7 @@ namespace BicDB.Storage
 
 			if(_param.ResourceCacheEnableBeforeWeb == true){
 				string _result = loadCacheFromResrouceAndCaching(_param);
+
 				if(string.IsNullOrEmpty(_result) == false){
 					if((_param.CachingLevel & CachingLevel.Memory) != 0){
 						lock(memoryCache){
@@ -685,11 +686,11 @@ namespace BicDB.Storage
 
 			if((_param.CachingLevel & CachingLevel.File) != 0){
 				//파일에도 저장, 저장시 캐싱타임도 저장해야할듯 {timestamp}\n{_text} 으로?
-				AddCacheToFile(_param.CacheId, _text, false);
+				AddCacheToFile(_param.CacheId, _text);
 			}
 		}
 
-		public void AddCacheToFile(string _id, string _data, bool _shouldEncrypt){
+		public void AddCacheToFile(string _id, string _data){
 			// Debug.Log("write file cache");
 
 			if(_data == null || _data.Length <= 100){
@@ -699,11 +700,6 @@ namespace BicDB.Storage
 			if(isExistsDirectory == false && Directory.Exists(CACHE_DIRECTORY) == false){
 				System.IO.Directory.CreateDirectory(CACHE_DIRECTORY);
 				isExistsDirectory = true;
-			}
-
-			if(_shouldEncrypt == true){
-				// Debug.Log("encrypt saving cache data");
-				_data = BicUtil.Crypto.AES256.Encrypt(_data);
 			}
 
 			FileStorageUtil.WriteFile(getTimestamp().ToString()+'\n'+_data, Path.Combine(CACHE_DIRECTORY,_id + ".txt"));
@@ -791,6 +787,7 @@ namespace BicDB.Storage
 				}
 
                 _param.CachingLevel = (_param.CachingLevel & ~CachingLevel.File);
+
                 setCache(_param, _string);
             }
 
@@ -903,6 +900,7 @@ namespace BicDB.Storage
 	public class WebStorageParameter{
 		public string Url = string.Empty;
 		public bool ShouldEncrypt = false;
+		public string EncryptKey = string.Empty;
 		public string TargetKey = string.Empty;
 		public Func<string, string> RequestConvertor = null;
 		public Dictionary<string, string> Param = null;

@@ -164,6 +164,19 @@ namespace BicDB.Storage{
 
 			return _record;
 		}
+
+		public static T ReadRecordWithCrypto<T>(string _filePath, string _encryptKey = "") where T : IRecordContainer, new(){
+			var _record = new T();
+			var _fileString = ResourceStorage.ReadAsset(_filePath);
+
+			_fileString = BicUtil.Crypto.AES256.Decrypt(_fileString, _encryptKey);
+
+			if(_fileString == string.Empty || _record.ParseJson(_fileString) == false){
+				throw new System.Exception("parse error");
+			}
+
+			return _record;
+		}
         #endregion
     }
 

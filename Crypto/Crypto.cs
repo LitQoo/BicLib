@@ -19,12 +19,16 @@ namespace BicUtil.Crypto
             KEY = _key;
         }
         
-        public static string Encrypt(string _text){
+        public static string Encrypt(string _text, string _key){
+            if(string.IsNullOrEmpty(_key) == true){
+                _key = KEY;
+            }
+
             AesManaged aesManaged = new AesManaged();
             aesManaged.Mode = CipherMode.CBC;
             aesManaged.Padding = PaddingMode.PKCS7;
             aesManaged.KeySize = 256;
-            aesManaged.Key = System.Text.Encoding.UTF8.GetBytes(KEY);
+            aesManaged.Key = System.Text.Encoding.UTF8.GetBytes(_key);
             aesManaged.IV = System.Text.Encoding.UTF8.GetBytes(IV);
             ICryptoTransform transform = aesManaged.CreateEncryptor();
             byte[] plainText = System.Text.Encoding.UTF8.GetBytes(_text);
@@ -34,12 +38,16 @@ namespace BicUtil.Crypto
             return base64ed.Trim();
         }
 
-        public static string Decrypt(string _base64Text){
+        public static string Decrypt(string _base64Text, string _key){
+            if(string.IsNullOrEmpty(_key) == true){
+                _key = KEY;
+            }
+
             AesManaged aesManaged = new AesManaged();
             aesManaged.Mode = CipherMode.CBC;
             aesManaged.Padding = PaddingMode.PKCS7;
             aesManaged.KeySize = 256;
-            aesManaged.Key = System.Text.Encoding.UTF8.GetBytes(KEY);
+            aesManaged.Key = System.Text.Encoding.UTF8.GetBytes(_key);
             aesManaged.IV = System.Text.Encoding.UTF8.GetBytes(IV);
             ICryptoTransform transform = aesManaged.CreateDecryptor();
             var encrypted = Convert.FromBase64String(_base64Text);
