@@ -21,7 +21,7 @@ namespace BicUtil.Splash
 
                 }
 
-                BicUtil.Analytics.Analytics.Event("Install", new Dictionary<string, object>{
+                BicUtil.Analytics.Analytics.Event("GH_Install", new Dictionary<string, object>{
                     {"version", _version}
                 });
 
