@@ -59,7 +59,9 @@ namespace BicUtil.TableView
 		public Func<CollectionRowData[]> ArrangeInfoBuilder{get;set;} = null;
 
 		public void UpdateArrangeInfo(){
-			this.arrangeInfo = this.ArrangeInfoBuilder(); 
+			if(ArrangeInfoBuilder != null){
+				this.arrangeInfo = this.ArrangeInfoBuilder();
+			} 
 		}
 
 		public int GetHeightUnit(int _rowIndex){
