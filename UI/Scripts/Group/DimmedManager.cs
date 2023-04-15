@@ -6,6 +6,7 @@ namespace BicUtil.UI{
     public class DimmedManager : MonoBehaviour
     {
         #region Static
+        static public string KEEP_MESSAGE = "KEEP_MESSAGE";
         static private DimmedManager instance = null;
         static public DimmedManager Instance{
             get{
@@ -95,6 +96,10 @@ namespace BicUtil.UI{
             Enable(baseColor, "");
         }
 
+        public void EnableWithKeepMessage(Color _color){
+            Enable(_color, KEEP_MESSAGE);
+        }
+
         public void Enable(Color _color, string _text = ""){
             if(tweenTracker.IsComplete == true){
                 this.image.color = _color; 
@@ -161,7 +166,7 @@ namespace BicUtil.UI{
         }
 
         private void setMessage(string _message){
-            if(this.message != null){
+            if(this.message != null && _message != KEEP_MESSAGE){
                 this.message.text = _message;
             }
         }
