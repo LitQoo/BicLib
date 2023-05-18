@@ -25,9 +25,13 @@ namespace BicUtil.TouchNotifier
 		const int TOUCH_SIZE = 40;
         private Vector2[] startTouchPosition = new Vector2[TOUCH_SIZE]{Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero,Vector2.zero};
 		private bool[] isTouchIn = new bool[TOUCH_SIZE]{false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false, false, false, false, false, false,false, false, false, false, false};
-
+        public bool EnableUpdate{get;set;} = true;
 		private void Update ()
         {
+            if(EnableUpdate == false){
+                return;
+            }
+            
             #if UNITY_EDITOR
             if(UnityEditor.EditorApplication.isRemoteConnected == true){
                 touchProcess();

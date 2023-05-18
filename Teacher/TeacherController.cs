@@ -343,6 +343,7 @@ namespace BicUtil.Teacher{
                 touchBeganPosition = controller.pointer.transform.position;
             
                 controller.touchModule.GetTouchReturnForced = true;
+                controller.touchModule.EnableUpdate = false;
                 controller.touchModule.SetTouchCountForced(2);
                 controller.touchModule.SetStartPositionForced(0, touchBeganPosition + _firstTouchSize);
                 controller.touchModule.OnTouchDown.Invoke(touchBeganPosition + _firstTouchSize, 0);
@@ -361,6 +362,7 @@ namespace BicUtil.Teacher{
                 controller.touchModule.OnTouchUp.Invoke(touchBeganPosition - _firstTouchSize, touchBeganPosition - _firstTouchSize - Vector2.one * _size, 1);
                 controller.touchModule.SetTouchCountForced(0);
                 controller.touchModule.GetTouchReturnForced = false;
+                controller.touchModule.EnableUpdate = true;
             }).AddTo(controller.parentTween);
 
             
