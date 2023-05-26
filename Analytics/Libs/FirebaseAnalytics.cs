@@ -63,7 +63,20 @@ namespace BicUtil.Analytics
                 _params.Add(new Firebase.Analytics.Parameter(Firebase.Analytics.FirebaseAnalytics.ParameterValue, _value));
 
                 foreach(var _param in _data){
-                    _params.Add(new Firebase.Analytics.Parameter(_param.Key, _param.Value.ToString()));
+                    if(_param.Value == null){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, ""));
+                    }else if(_param.Value is int){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, (int)_param.Value));
+                    }else if(_param.Value is float){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, (float)_param.Value));
+                    }else if(_param.Value is double){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, (double)_param.Value));
+                    }else if(_param.Value is long){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, (long)_param.Value));
+                    }else{
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, _param.Value.ToString()));
+                    }
+                    
                 }
 
                 Firebase.Analytics.FirebaseAnalytics.LogEvent(_eventName, _params.ToArray());
