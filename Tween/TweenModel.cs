@@ -309,7 +309,7 @@ namespace BicUtil.Tween
 			
 			if(Rate == 0f){
 				setValuesByFunc();
-				if(OnStartCallback != null){
+				if(OnStartCallback != null && this.CurrentRepeatCount == 0){
 					OnStartCallback();
 				}
 
@@ -363,7 +363,7 @@ namespace BicUtil.Tween
 			if(Rate == 0f){
 				setValuesByFunc();
 
-				if(OnStartCallback != null){
+				if(OnStartCallback != null && this.CurrentRepeatCount == 0){
 					OnStartCallback();
 				}
 
@@ -548,7 +548,7 @@ namespace BicUtil.Tween
 			
 
 			if(IsGrouped == true){
-				if(this.Rate == 0f && OnStartCallback != null){
+				if(this.Rate == 0f && OnStartCallback != null && this.CurrentRepeatCount == 0){
 					OnStartCallback();
 				}
 
@@ -567,7 +567,7 @@ namespace BicUtil.Tween
 				if(Rate == 0f){
 					setValuesByFunc();
 
-					if(OnStartCallback != null){
+					if(OnStartCallback != null && this.CurrentRepeatCount == 0){
 						OnStartCallback();
 					}
 				}
