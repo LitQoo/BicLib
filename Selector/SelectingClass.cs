@@ -12,5 +12,7 @@ namespace BicUtil.Selector{
         public bool HasClass(string _className){
             return selectingName.Contains(_className);        
         }
+
+        public string[] Classes{get=>this.selectingName;}
     }
 }

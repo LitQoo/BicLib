@@ -9,9 +9,9 @@ namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
     {
         
+        private HashSet<string> savedPatternList = new HashSet<string>();
         private string searchPattern = "";
         private Vector2 scrollPosition;
-
         private int selectedObjectIndex = -1;
 
         [MenuItem("BicLib/Selector", false, 501)]
@@ -51,30 +51,113 @@ namespace BicUtil.Selector{
             searchPattern = EditorGUILayout.TextField(searchPattern);
 
 
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("Select") || (Event.current.isKey && Event.current.keyCode == KeyCode.Return))
             {
-                foundObjects = FindGameObjectsWithPattern(searchPattern);
-                Selection.objects = foundObjects;
-                ShowSelectedObjectsInHierarchy();
-                
-                EditorApplication.ExecuteMenuItem("BicLib/Selector");
-                EditorGUI.FocusTextInControl("SearchPattern");
+                Search();
 
                 if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
                 {
                     Event.current.Use(); // 이벤트 사용 처리
                 }
-                
+
             }
+
+            if (GUILayout.Button(".$#",GUILayout.Width(50f))){
+                EditorGUI.FocusTextInControl("");
+
+                SelectingClass[] selectingClass = FindObjectsOfType<SelectingClass>();
+                HashSet<string> classNames = new HashSet<string>();
+                foreach(var sc in selectingClass){
+                    classNames.UnionWith(sc.Classes);
+                }
+
+                GenericMenu menu = new GenericMenu();
+                foreach(var name in classNames){
+                    var _name = "."+name;
+                    menu.AddItem(new GUIContent(_name), false, selectName, _name);
+                }
+
+                menu.AddSeparator("");
+
+                if(foundObjects.Length > 0){
+                    HashSet<string> componentNames = new HashSet<string>();
+                    foreach(var foundObject in foundObjects){
+                        var components = foundObject.GetComponents<Component>().Select(comp=>{
+                            var _name = comp.GetType().ToString(); 
+                            if(_name.Contains(".") == true){
+                                _name = _name.Split(".").Last();
+                            }
+                            return _name;
+                        });
+                        componentNames.UnionWith(components);
+                    }
+
+                    foreach(var name in componentNames){
+                        var _name = "$"+name;
+                        menu.AddItem(new GUIContent(_name), false, selectName, _name);
+                    }
+                }
+
+                menu.ShowAsContext();
+            }
+
+
+            
+            GUILayout.EndHorizontal();
+
 
             GUILayout.Label("Selected " + foundObjects.Length + " objects");
 
+            if(string.IsNullOrEmpty(searchPattern) == false){
+                if(savedPatternList.Contains(searchPattern) == false){
+                    if(GUILayout.Button("Save pattern")){
+                        this.savedPatternList.Add(searchPattern);
+                    }
+                }else{
+                    if(GUILayout.Button("Delete pattern")){
+                        this.savedPatternList.Remove(searchPattern);
+                    }
+                }
+            }
 
+
+            foreach(var _savedPattern in this.savedPatternList){
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(_savedPattern);
+                if(GUILayout.Button("@",GUILayout.Width(30f))){
+                    this.searchPattern = _savedPattern;
+                    Search();
+                }
+                GUILayout.EndHorizontal();
+            }
             GUILayout.EndVertical();
 
             EditorApplication.hierarchyWindowItemOnGUI += OnHierarchyWindowItemGUI;
         }
 
+        private void Search()
+        {
+            foundObjects = FindGameObjectsWithPattern(searchPattern);
+            Selection.objects = foundObjects;
+            ShowSelectedObjectsInHierarchy();
+
+            EditorApplication.ExecuteMenuItem("BicLib/Selector");
+            EditorGUI.FocusTextInControl("SearchPattern");
+        }
+
+        private void selectName(object _object)
+        {
+            string _name = (string)_object;
+            if(searchPattern.Length > 1 && searchPattern.EndsWith("/") == false){
+                searchPattern += "/";
+            }
+
+            searchPattern += _name;
+            
+            EditorApplication.delayCall += Repaint;
+        }
 
         private void ShowSelectedObjectsInHierarchy()
         {
