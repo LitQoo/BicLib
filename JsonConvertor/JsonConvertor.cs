@@ -35,6 +35,12 @@ namespace BicUtil.Json
 			return _stringBuilder.ToString();
 		}
 
+		public string ToFormattedString(IDataBase _data){
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			_data.BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
+		}
+
 		public void BuildFormattedString<T>(ITableContainer<T> _table, StringBuilder _stringBuilder, IMutableDictionaryContainer _option = null) where T : IRecordContainer, new(){
 			_stringBuilder.Append("{");
 

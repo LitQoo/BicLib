@@ -140,6 +140,11 @@ namespace BicDB.Container
 
 		}
 
+		public override string ToString(){
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			BuildFormattedString (_stringBuilder, BicUtil.Json.JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
+		}
 
 	}
 }

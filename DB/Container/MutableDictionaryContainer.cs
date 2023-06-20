@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using BicDB.Variable;
 using BicDB.Storage;
+using BicUtil.Json;
 
 namespace BicDB.Container
 {
@@ -146,6 +147,12 @@ namespace BicDB.Container
 			get {
 				return data.IsReadOnly;
 			}
+		}
+		
+		public override string ToString(){
+			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
+			BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
+			return _stringBuilder.ToString();
 		}
 		#endregion
 	}
