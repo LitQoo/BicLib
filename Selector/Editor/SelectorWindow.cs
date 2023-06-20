@@ -4,13 +4,28 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using BicDB.Container;
+using BicDB;
+using BicUtil.Json;
+using UnityEditor.SceneManagement;
 
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
     {
         
         private HashSet<string> savedPatternList = new HashSet<string>();
-        private string searchPattern = "";
+        private RecordContainer modifiedPathInfo = new RecordContainer();
+        private GameObject[] selectedObjects = new GameObject[]{};
+
+        private string searchInput = "";
+        private string targetInput = "";
+        private string targetPattern{
+            get=>targetInput;
+            set{
+                searchInput = value;
+                targetInput = value;
+            }
+        }
         private Vector2 scrollPosition;
         private int selectedObjectIndex = -1;
 
@@ -32,29 +47,273 @@ namespace BicUtil.Selector{
 
         private void OnSceneGUI(SceneView _view)
         {
-            for (int i = 0; i < foundObjects.Length; i++)
+            drawBoxAroundGameObject();
+        }
+        private void OnGUI()
+        {
+            drawSearchUI();
+            GUILayout.Space(10f);
+            drawModifyTracking();
+            GUILayout.Space(10f);
+            drawSavedPattern();
+        }
+
+        #region backup seri
+        private TextAsset targetTextAsset;
+        private GameObject trackingTargetObject;
+        private Component[] components;
+        private Dictionary<string, string> originComponentData;
+        Vector2 scroll = new Vector2(0, 0);
+        /*
+        백업한다 -> targetObject의 컴포넌트들을 json으로 변경해놓음
+        값 변경을 감지한다-> targetObject 컴포넌트들의 json값과 백업된 값을 비교
+        변경된 값을 저장한다 (modifedList?) 이때 딱 변경된 값만 저장하고 백업본도 업데이트함.
+        스타일 저장시 modifedList를 저장한다. 
+
+        스타일로드시 modifedList에 미리 채워준다
+
+        필요한 함수.
+        json구조에서 지정한 필드 빼고 모두 삭제하는 기능 (추후 merge용도)
+        */
+        private void drawModifyTracking(){
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("SavingFile:");
+            targetTextAsset = (TextAsset)EditorGUILayout.ObjectField(targetTextAsset, typeof(TextAsset), false);
+            if (targetTextAsset != null && GUILayout.Button("Load")){
+                this.modifiedPathInfo.ParseJson(targetTextAsset.text);
+                foreach(var _path in this.modifiedPathInfo.Keys){
+                    var _data = this.modifiedPathInfo[_path].ToString();
+                    var _objects = FindGameObjectsWithPattern(_path);
+                    var _split = _path.Split("$");
+                    var _componentName = _split[_split.Length - 1];
+                    foreach(var _object in _objects){
+                        var _component = _object.GetComponent(_componentName);
+                        Debug.Log(_componentName);
+                        Debug.Log(_data);
+                        EditorJsonUtility.FromJsonOverwrite(_data, _component);
+                    }
+                }
+
+                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            }
+
+            GUILayout.EndHorizontal();
+            if(targetTextAsset == null){
+                return;
+            }
+
+            GameObject _selectedObject = null;
+            if(selectedObjects.Length > 0){
+                _selectedObject = selectedObjects[0];
+            }
+
+            if (_selectedObject != null)
             {
-                GameObject obj = foundObjects[i];
-                DrawBoxAroundGameObject(obj);
+                if(_selectedObject != trackingTargetObject){
+                    trackingTargetObject = _selectedObject;
+                    backupComponentValues();
+                }
+
+                if (originComponentData != null)
+                {
+                    bool _hasDiff = false;
+                    foreach (var _key in originComponentData.Keys.ToArray())
+                    {
+                        var _componentName = _key;
+                        if (_componentName.Contains(".") == true)
+                        {
+                            _componentName = _componentName.Split(".").Last();
+                        }
+
+                        var _currentComponent = trackingTargetObject.GetComponent(_componentName);
+                        var _currentData = EditorJsonUtility.ToJson(_currentComponent);
+
+                        if(originComponentData[_key] != _currentData){
+                            var _origin = new RecordContainer();
+                            _origin.ParseJson(originComponentData[_key]);
+                            var _modified = new RecordContainer();
+                            _modified.ParseJson(_currentData);
+                            var _diff = RecordContainer.GetDiff(_origin, _modified, 1);
+                            var _path = targetPattern + "/$"+_componentName;
+                            if(modifiedPathInfo.ContainsKey(_path) == false){
+                                modifiedPathInfo[_path] = _diff; 
+                            }else{
+                                (modifiedPathInfo[_path] as RecordContainer).MergeCopyBy(_diff);
+                            }
+
+                            originComponentData[_key] = _currentData;
+                            _hasDiff = true;
+                        }
+
+                        // var _currentSerializedObject =  new SerializedObject(_currentComponent);
+                        // var _currentIterator = _currentSerializedObject.GetIterator(); 
+
+
+                        // while (iterator.NextVisible(true) && _currentIterator.NextVisible(true))
+                        // {
+                        //     if(iterator.hasVisibleChildren == false){    
+                        //         if(SerializedProperty.DataEquals(iterator, _currentIterator) == false){
+                        //             _hasDiff = true;
+                        //             var _keyName = targetPattern + "/$"+_componentName;
+                        //             if(modifiedPathInfo.ContainsKey(_keyName) == false){
+                        //                 modifiedPathInfo[_keyName] = new Dictionary<string, string>();    
+                        //             }
+
+                        //             var _component = trackingTargetObject.GetComponent(_componentName);
+                        //             var _json = EditorJsonUtility.ToJson(_component);
+                        //             var _record = new RecordContainer();
+                        //             _record.ParseJson(_json);
+                        //             // Debug.Log(_json);
+                        //             // Debug.Log(iterator.propertyPath);
+                        //             var _value = findValue(_record, iterator.propertyPath);
+                        //             // Debug.Log(_record.ToString());
+                        //             modifiedPathInfo[_keyName][iterator.propertyPath] = JsonConvertor.GetInstance().ToFormattedString(_value);
+                        //             _currentSerializedObject.ApplyModifiedProperties();
+                        //         }
+                        //     }
+                        // }
+                    }
+
+                    if(_hasDiff == true){
+                        this.savedPatternList.Add(targetPattern);
+                    }
+                }
+            }else{
+                trackingTargetObject = null;
+            }
+
+            if(modifiedPathInfo.Count > 0){
+                GUILayout.Space(10f);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Modified Properties");
+                if (GUILayout.Button("Save Style")){
+
+                    string _path = AssetDatabase.GetAssetPath(targetTextAsset);
+                    // Save the modified content back to the asset file
+                    var _content = modifiedPathInfo.ToString();
+                    System.IO.File.WriteAllText(_path, _content);
+                    AssetDatabase.Refresh();
+                    Debug.Log("saved " + _content);
+                }
+
+               
+
+                GUILayout.EndHorizontal();
+
+                scroll = EditorGUILayout.BeginScrollView(scroll);
+
+                EditorGUI.indentLevel++;
+
+                foreach(var _path in modifiedPathInfo){
+                    GUILayout.Label(_path.Key);
+                    GUILayout.Label("=" + _path.Value.ToString());
+                }
+
+                EditorGUILayout.EndScrollView();
+                EditorGUI.indentLevel--;
+
             }
         }
 
-        GameObject[] foundObjects = new GameObject[]{};
+        private IDataBase findValue(IDictionary<string, IDataBase> _record, string _path){
+            var _target = _record[_record.Keys.ElementAt(0)] as IDictionary<string, IDataBase>;
 
-        private void OnGUI()
+            string[] _pathList = null;
+            if(_path.Contains(".") == false){
+                _pathList = new string[]{_path};
+            }else{
+                _pathList = _path.Split(".");
+            }
+
+            for(int i = 0; i < _pathList.Length; i++){
+                foreach(var _key in _target.Keys.ToArray()){
+                    if(_key != _pathList[i]){
+                        _target.Remove(_key);
+                    } 
+                }
+
+                if(i == _pathList.Length - 1){
+                    return _target[_pathList[i]];
+                }
+
+                _target = _target[_pathList[i]] as IDictionary<string, IDataBase>;
+            }
+
+            return null;
+            
+        }
+
+        
+        private void backupComponentValues()
         {
+            Debug.Log("backup!");
+            components = trackingTargetObject.GetComponents<Component>();
+            originComponentData = new Dictionary<string, string>();
+            
+            for (int i = 0; i < components.Length; i++)
+            {
+                Component component = components[i];
+                if (component != null)
+                {
+                    originComponentData[component.GetType().ToString()] = EditorJsonUtility.ToJson(component);
+                }
+            }
+        }
+
+        #endregion
+        private void drawSavedPattern()
+        {
+            GUILayout.BeginVertical();
+
+            if (string.IsNullOrEmpty(targetPattern) == false)
+            {
+                if (savedPatternList.Contains(targetPattern) == false)
+                {
+                    if (GUILayout.Button("Save pattern " + targetPattern))
+                    {
+                        this.savedPatternList.Add(targetPattern);
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button("Delete pattern " + targetPattern))
+                    {
+                        this.savedPatternList.Remove(targetPattern);
+                    }
+                }
+            }
+
+
+            foreach (var _savedPattern in this.savedPatternList)
+            {
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(_savedPattern);
+                if (GUILayout.Button("Select", GUILayout.Width(50f)))
+                {
+                    search(_savedPattern);
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+        }
+
+        private void drawSearchUI()
+        {
+
             GUILayout.BeginVertical();
             GUILayout.Label("Search Pattern:");
 
 
             GUI.SetNextControlName("SearchPattern");
-            searchPattern = EditorGUILayout.TextField(searchPattern);
+            searchInput = EditorGUILayout.TextField(searchInput);
 
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Select") || (Event.current.isKey && Event.current.keyCode == KeyCode.Return))
             {
-                Search();
+                search(searchInput);
 
                 if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
                 {
@@ -63,84 +322,79 @@ namespace BicUtil.Selector{
 
             }
 
-            if (GUILayout.Button(".$#",GUILayout.Width(50f))){
+            if (GUILayout.Button(".$#", GUILayout.Width(50f)))
+            {
                 EditorGUI.FocusTextInControl("");
-
-                SelectingClass[] selectingClass = FindObjectsOfType<SelectingClass>();
-                HashSet<string> classNames = new HashSet<string>();
-                foreach(var sc in selectingClass){
-                    classNames.UnionWith(sc.Classes);
-                }
+                HashSet<string> _classNames = getClassNamesUsed();
 
                 GenericMenu menu = new GenericMenu();
-                foreach(var name in classNames){
-                    var _name = "."+name;
+                foreach (var name in _classNames)
+                {
+                    var _name = "." + name;
                     menu.AddItem(new GUIContent(_name), false, selectName, _name);
                 }
 
                 menu.AddSeparator("");
 
-                if(foundObjects.Length > 0){
-                    HashSet<string> componentNames = new HashSet<string>();
-                    foreach(var foundObject in foundObjects){
-                        var components = foundObject.GetComponents<Component>().Select(comp=>{
-                            var _name = comp.GetType().ToString(); 
-                            if(_name.Contains(".") == true){
-                                _name = _name.Split(".").Last();
-                            }
-                            return _name;
-                        });
-                        componentNames.UnionWith(components);
-                    }
+                if (selectedObjects.Length > 0)
+                {
+                    HashSet<string> _componentNames = getComponentNamesInSelectedObjects(selectedObjects);
 
-                    foreach(var name in componentNames){
-                        var _name = "$"+name;
+                    foreach (var name in _componentNames)
+                    {
+                        var _name = "$" + name;
                         menu.AddItem(new GUIContent(_name), false, selectName, _name);
                     }
                 }
 
                 menu.ShowAsContext();
             }
-
-
-            
             GUILayout.EndHorizontal();
 
-
-            GUILayout.Label("Selected " + foundObjects.Length + " objects");
-
-            if(string.IsNullOrEmpty(searchPattern) == false){
-                if(savedPatternList.Contains(searchPattern) == false){
-                    if(GUILayout.Button("Save pattern")){
-                        this.savedPatternList.Add(searchPattern);
-                    }
-                }else{
-                    if(GUILayout.Button("Delete pattern")){
-                        this.savedPatternList.Remove(searchPattern);
-                    }
-                }
+            if(selectedObjects.Length > 0){
+                GUILayout.Label("Selected " + selectedObjects.Length + " objects");
             }
 
-
-            foreach(var _savedPattern in this.savedPatternList){
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(_savedPattern);
-                if(GUILayout.Button("@",GUILayout.Width(30f))){
-                    this.searchPattern = _savedPattern;
-                    Search();
-                }
-                GUILayout.EndHorizontal();
-            }
             GUILayout.EndVertical();
-
-            EditorApplication.hierarchyWindowItemOnGUI += OnHierarchyWindowItemGUI;
         }
 
-        private void Search()
+        private HashSet<string> getComponentNamesInSelectedObjects(GameObject[] _targetObjects)
         {
-            foundObjects = FindGameObjectsWithPattern(searchPattern);
-            Selection.objects = foundObjects;
+            HashSet<string> _componentNames = new HashSet<string>();
+            foreach (var _object in _targetObjects)
+            {
+                var components = _object.GetComponents<Component>().Select(comp =>
+                {
+                    var _name = comp.GetType().ToString();
+                    if (_name.Contains(".") == true)
+                    {
+                        _name = _name.Split(".").Last();
+                    }
+                    return _name;
+                });
+                _componentNames.UnionWith(components);
+            }
+
+            return _componentNames;
+        }
+
+        private static HashSet<string> getClassNamesUsed()
+        {
+            SelectingClass[] _selectingClass = FindObjectsOfType<SelectingClass>();
+            HashSet<string> _classNames = new HashSet<string>();
+            foreach (var sc in _selectingClass)
+            {
+                _classNames.UnionWith(sc.Classes);
+            }
+
+            return _classNames;
+        }
+
+        private void search(string _pattern)
+        {
+            targetPattern = _pattern;
+            selectedObjects = FindGameObjectsWithPattern(_pattern);
+            Selection.objects = selectedObjects;
             ShowSelectedObjectsInHierarchy();
 
             EditorApplication.ExecuteMenuItem("BicLib/Selector");
@@ -150,11 +404,11 @@ namespace BicUtil.Selector{
         private void selectName(object _object)
         {
             string _name = (string)_object;
-            if(searchPattern.Length > 1 && searchPattern.EndsWith("/") == false){
-                searchPattern += "/";
+            if(searchInput.Length > 1 && searchInput.EndsWith("/") == false){
+                searchInput += "/";
             }
 
-            searchPattern += _name;
+            searchInput += _name;
             
             EditorApplication.delayCall += Repaint;
         }
@@ -176,23 +430,6 @@ namespace BicUtil.Selector{
             }
 
             EditorApplication.RepaintHierarchyWindow();
-        }
-
-        private void OnHierarchyWindowItemGUI(int instanceID, Rect selectionRect)
-        {
-            // GameObject gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-            // if (gameObject != null && foundObjects.Contains(gameObject))
-            // {
-            //     Rect labelRect = new Rect(selectionRect.x + 16f, selectionRect.y + 1, selectionRect.width, selectionRect.height);
-            //     EditorGUI.LabelField(labelRect, new string('_', gameObject.name.Length), GetHierarchyNameStyle());
-            // }
-        }
-
-        private GUIStyle GetHierarchyNameStyle()
-        {
-            GUIStyle style = new GUIStyle("Label");
-            style.normal.textColor = Color.red;
-            return style;
         }
 
         private GameObject[] FindGameObjectsWithPattern(string pattern)
@@ -286,50 +523,55 @@ namespace BicUtil.Selector{
             }
         }
 
-        private void DrawBoxAroundGameObject(GameObject gameObject)
+        private void drawBoxAroundGameObject()
         {
-            Bounds bounds = GetBounds(gameObject);
-            
-            Handles.DrawSolidRectangleWithOutline(
-                new Rect(bounds.center, bounds.size),
-                Color.clear, Color.green
-            );
+            foreach (var _gameObject in selectedObjects)
+            {
+                Bounds _bounds = getBounds(_gameObject);
+                Handles.DrawSolidRectangleWithOutline(
+                    new Rect(_bounds.center - _bounds.size / 2f, _bounds.size),
+                    Color.clear, Color.green
+                );
+            }
         }
 
-        private Bounds GetBounds(GameObject gameObject)
+        private Bounds getBounds(GameObject _gameObject)
         {
 
-            RectTransform trasnform = gameObject.GetComponent<RectTransform>();
-            if(trasnform != null){
-                return new Bounds((Vector2)trasnform.position - trasnform.sizeDelta * trasnform.localScale * trasnform.pivot, trasnform.sizeDelta * trasnform.localScale);
+            RectTransform _trasnform = _gameObject.GetComponent<RectTransform>();
+            if(_trasnform != null){
+                Vector3 _worldPosition = _trasnform.TransformPoint(_trasnform.rect.center);
+                Vector2 _size = Vector2.Scale(_trasnform.rect.size, _trasnform.lossyScale); 
+
+                return new Bounds((Vector2)_worldPosition, _size);
             }
 
-            Renderer renderer = gameObject.GetComponent<Renderer>();
-            if (renderer != null)
+            Renderer _renderer = _gameObject.GetComponent<Renderer>();
+            if (_renderer != null)
             {
-                return renderer.bounds;
+                return _renderer.bounds;
             }
 
-            Collider collider = gameObject.GetComponent<Collider>();
-            if(collider != null){
-                return collider.bounds;
+            Collider _collider = _gameObject.GetComponent<Collider>();
+            if(_collider != null){
+                return _collider.bounds;
             }
 
             // 렌더러나 콜라이더가 없을 경우에는 Transform을 기준으로 Bounds를 계산합니다.
-            Bounds bounds = new Bounds(gameObject.transform.position, Vector3.zero);
-            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
-            foreach (Renderer childRenderer in renderers)
+            Bounds _bounds = new Bounds(_gameObject.transform.position, Vector3.zero);
+            Renderer[] _renderers = _gameObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer _childRenderer in _renderers)
             {
-                bounds.Encapsulate(childRenderer.bounds);
+                _bounds.Encapsulate(_childRenderer.bounds);
             }
 
-            Collider[] colliders = gameObject.GetComponentsInChildren<Collider>();
-            foreach (Collider childCollider in colliders)
+            Collider[] _colliders = _gameObject.GetComponentsInChildren<Collider>();
+            foreach (Collider _childCollider in _colliders)
             {
-                bounds.Encapsulate(childCollider.bounds);
+                _bounds.Encapsulate(_childCollider.bounds);
             }
 
-            return bounds;
+            return _bounds;
         }
 
     }
