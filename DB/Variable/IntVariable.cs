@@ -65,7 +65,9 @@ namespace BicDB.Variable
 			} catch (Exception) {
 				#if UNITY_EDITOR
 				UnityEngine.Debug.LogWarning("[BicDB] int parse warning : " + _value);
+				throw new Exception("int parse warning");
 				#endif
+				
 				return (int)float.Parse(System.Text.RegularExpressions.Regex.Replace(_value, "[^0-9.+-]", ""), CultureInfo.InvariantCulture.NumberFormat);
 			}
 		}

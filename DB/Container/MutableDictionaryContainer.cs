@@ -154,6 +154,118 @@ namespace BicDB.Container
 			BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
 			return _stringBuilder.ToString();
 		}
+
+		public void MergeCopyBy(IMutableDictionaryContainer _model){
+			string _json = _model.ToString();
+			int _counter = 0;
+			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
+		}
+
+		public bool ParseJson(string _json){
+			this.Clear();
+
+			int _count = 0;
+			try{
+				BuildVariable(ref _json, ref _count, JsonConvertor.GetInstance());
+				return true;
+			}catch{
+				return false;
+			}
+		}
+
+
+		public bool RemoveByKeyPath(string[] _keyPath){
+			return removeByKeyPath(this, _keyPath);
+		}
+
+		static internal bool removeByKeyPath(IDictionary<string, IDataBase> _target, string[] _keyPath){
+			for(int i = 0; i < _keyPath.Length; i++){
+				var _key = _keyPath[i];
+				if(_keyPath.Length - 1 == i){
+					return _target.Remove(_key);
+				}
+
+				if(_target.ContainsKey(_key) == false){
+					return false;
+				}
+
+				_target = _target[_key] as IDictionary<string, IDataBase>;
+				if(_target == null){
+					return false;
+				}
+			}
+
+			return false;
+		}
+
+
+		public string[] GetKeyPath(char _separator = '.'){
+			var _result = new List<string>();
+			getKeyPath(this, _result, "", _separator);
+			return _result.ToArray();
+		}
+
+		static internal void getKeyPath(IDictionary<string, IDataBase> _target, List<string> _result, string _head, char _separator){
+			foreach(var _key in _target.Keys){
+				var _next = _target[_key] as IDictionary<string, IDataBase>;
+				var _path = (string.IsNullOrEmpty(_head) ? ""  : _head + _separator) + _key;
+				_result.Add(_path);
+				if(_next != null){
+					getKeyPath(_next, _result, _path, _separator);
+				}
+			}
+		}
+		
+		public MutableDictionaryContainer GetDiff(IDictionary<string, IDataBase> _target, int _targetDepth = int.MaxValue){
+			var _diff = getDiff<MutableDictionaryContainer>(this, _target, _targetDepth, 0).Diff;
+			var _string = _diff.ToString();
+			_diff.ParseJson(_string);
+			return _diff;
+		}
+
+		static internal (T Diff, int DepthMax)  getDiff<T>(IDictionary<string, IDataBase> _origin, IDictionary<string, IDataBase> _target, int _targetDepth = int.MaxValue, int _depth = 0) where T : IDictionary<string, IDataBase>, new(){
+			var _diff = new T();
+			var _childDepthMax = 0; 
+			foreach(var _key in _target.Keys){
+				if(_origin.ContainsKey(_key) == true){
+					var _targetValue = _target[_key]; 
+					if(_targetValue is IDictionary<string, IDataBase>){
+
+						var _nested = getDiff<T>(_origin[_key] as IDictionary<string, IDataBase>, _targetValue as IDictionary<string, IDataBase>, _targetDepth, _depth + 1);
+						_childDepthMax = UnityEngine.Mathf.Max(_childDepthMax, _nested.DepthMax + 1);
+
+						if(_nested.Diff.Keys.Count <= 0){
+						}else if(_targetDepth > 0){
+							if(_depth < _targetDepth){
+								_diff[_key] = _nested.Diff as IDataBase;
+							}else{
+								_diff[_key] = _targetValue;
+							}
+						}else if(_targetDepth <= 0){
+							if(-_targetDepth >= _childDepthMax && _depth > 0){
+								_diff[_key] = _targetValue;
+							}else{
+								_diff[_key] = _nested.Diff as IDataBase;;
+							}
+						}else{
+							_diff[_key] = _nested.Diff as IDataBase;;
+						}
+					}else if(_targetValue is IListContainer<IDataBase>){
+						var _targetList = _targetValue as IListContainer<IDataBase>;
+						var _originList = _origin[_key] as IListContainer<IDataBase>;
+						if(_targetList.ToString() != _originList.ToString()){
+							_diff[_key] = _targetValue;
+						}
+					}else if(_targetValue.AsVariable.AsString != _origin[_key].AsVariable.AsString){
+						_diff[_key] = _targetValue;
+					}
+				}else{
+					_diff[_key] = _target[_key];
+				}
+			}
+
+			return (_diff, _childDepthMax);
+		}
 		#endregion
 	}
 

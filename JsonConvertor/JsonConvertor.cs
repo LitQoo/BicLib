@@ -633,8 +633,6 @@ namespace BicUtil.Json
 				throw new SystemException("fail find { at BuildDictionaryContainer");
 			}
 
-			_dictionary.Clear();
-
 			_counter++;
 
 			increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
@@ -675,8 +673,6 @@ namespace BicUtil.Json
 				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);
 				throw new SystemException("fail find { BuildMutableDictionaryContainer");
 			}
-
-			_dictionary.Clear();
 			
 			_counter++;
 
@@ -693,7 +689,14 @@ namespace BicUtil.Json
 
 
 				if (_dictionary.ContainsKey(_fieldName)) {
-					_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
+					
+					var _countBackup = _counter;
+					try{
+						_dictionary[_fieldName].BuildVariable(ref _json, ref _counter, this);
+					}catch{
+						_counter = _countBackup;
+						_dictionary[_fieldName] = BuildVariable(ref _json, ref _counter);
+					}
 				} else {
 					_dictionary.Add(_fieldName, BuildVariable(ref _json, ref _counter));
 				}

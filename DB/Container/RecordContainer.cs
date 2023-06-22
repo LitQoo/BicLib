@@ -91,6 +91,8 @@ namespace BicDB.Container
 		}
 
 		public bool ParseJson(string _json){
+			this.Clear();
+
 			int _count = 0;
 			try{
 				BuildVariable(ref _json, ref _count, JsonConvertor.GetInstance());
@@ -195,40 +197,23 @@ namespace BicDB.Container
 			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 		}
 
-		static public RecordContainer GetDiff(IDictionary<string, IDataBase> _origin, IDictionary<string, IDataBase> _target, int _depth = int.MaxValue){
-			var _diff = new RecordContainer();
-			
-			foreach(var _key in _target.Keys){
-				if(_origin.ContainsKey(_key) == true){
-					var _targetValue = _target[_key]; 
-					if(_targetValue is IDictionary<string, IDataBase>){
-						
-						var _nestedDiff = GetDiff(_origin[_key] as IDictionary<string, IDataBase>, _targetValue as IDictionary<string, IDataBase>, _depth - 1);
-						if(_nestedDiff.Keys.Count <= 0){
-
-						}else if(_depth <= 0){
-							_diff[_key] = _targetValue;
-						}else{
-							_diff[_key] = _nestedDiff;
-						}
-					}else if(_targetValue is IListContainer<IDataBase>){
-						var _targetList = _targetValue as IListContainer<IDataBase>;
-						var _originList = _origin[_key] as IListContainer<IDataBase>;
-						if(_targetList.ToString() != _originList.ToString()){
-							_diff[_key] = _targetValue;
-						}
-					}else if(_targetValue.AsVariable.AsString != _origin[_key].AsVariable.AsString){
-						_diff[_key] = _targetValue;
-					}
-				}else{
-					_diff[_key] = _target[_key];
-				}
-			}
-
+		public RecordContainer GetDiff(IDictionary<string, IDataBase> _target, int _targetDepth = int.MaxValue){
+			var _diff = MutableDictionaryContainer.getDiff<RecordContainer>(this, _target, _targetDepth, 0).Diff;
 			var _string = _diff.ToString();
 			_diff.ParseJson(_string);
 			return _diff;
 		}
+
+		public string[] GetKeyPath(char _separator = '.'){
+			var _result = new List<string>();
+			MutableDictionaryContainer.getKeyPath(this, _result, "", _separator);
+			return _result.ToArray();
+		}
+
+		public bool RemoveByKeyPath(string[] _keyPath){
+			return MutableDictionaryContainer.removeByKeyPath(this, _keyPath);
+		}
+
 		#endregion
 	}
 }
