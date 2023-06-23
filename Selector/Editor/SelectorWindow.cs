@@ -8,13 +8,14 @@ using BicDB.Container;
 using BicDB;
 using BicUtil.Json;
 using UnityEditor.SceneManagement;
+using BicDB.Variable;
 
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
     {
-        
         private HashSet<string> savedPatternList = new HashSet<string>();
         private MutableDictionaryContainer modifiedPathInfo = new MutableDictionaryContainer();
+        private MutableDictionaryContainer groups = new MutableDictionaryContainer();
         private GameObject[] selectedObjects = new GameObject[]{};
 
         private string searchInput = "";
@@ -62,11 +63,18 @@ namespace BicUtil.Selector{
         }
         private void OnGUI()
         {
+
+            if(string.IsNullOrEmpty(groupTargetPath) == false){
+                drawSetGroup();
+                return;
+            }
+
             drawSearchUI();
             GUILayout.Space(10f);
             drawModifyTracking();
             GUILayout.Space(10f);
             drawSavedPattern();
+
         }
 
         #region backup seri
@@ -74,7 +82,7 @@ namespace BicUtil.Selector{
         private GameObject trackingTargetObject;
         private Component[] components;
         private Dictionary<string, string> originComponentData;
-        Vector2 scroll = new Vector2(0, 0);
+        Vector2 modifiedScroll = new Vector2(0, 0);
         /*
         백업한다 -> targetObject의 컴포넌트들을 json으로 변경해놓음
         값 변경을 감지한다-> targetObject 컴포넌트들의 json값과 백업된 값을 비교
@@ -86,11 +94,11 @@ namespace BicUtil.Selector{
         필요한 함수.
         json구조에서 지정한 필드 빼고 모두 삭제하는 기능 (추후 merge용도)
         */
-        private void drawModifyTracking(){
 
+        private void drawTxtAsset(){
             GUILayout.Label("SavingFile:");
             targetTextAsset = (TextAsset)EditorGUILayout.ObjectField(targetTextAsset, typeof(TextAsset), false);
-            
+
             if(targetTextAsset == null){
                 return;
             }
@@ -111,22 +119,115 @@ namespace BicUtil.Selector{
                     foreach(var _object in _objects){
                         var _component = _object.GetComponent(_componentName);
                         EditorJsonUtility.FromJsonOverwrite(_data, _component);
+                        EditorUtility.SetDirty(_component);
+                        _object.SetActive(!_object.activeSelf);
+                        _object.SetActive(!_object.activeSelf);
                     }
                 }
 
-                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                 Debug.Log("Applied");
             }
-            GUILayout.EndHorizontal();
 
+
+            if (modifiedPathInfo.Count > 0 && GUILayout.Button("Save")){
+
+                string _path = AssetDatabase.GetAssetPath(targetTextAsset);
+                // Save the modified content back to the asset file
+                var _content = modifiedPathInfo.ToString();
+                System.IO.File.WriteAllText(_path, _content);
+                AssetDatabase.Refresh();
+                Debug.Log("saved " + _content);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        private void drawModifyTracking()
+        {
+            drawTxtAsset();
+            drawCustomInspector();
+            setupTracking();
+            drawModified();
+        }
+
+        private void drawModified()
+        {
+            if (modifiedPathInfo.Count <= 0)
+            {
+                return;
+            }
+
+            GUILayout.Space(10f);
+            GUILayout.Label("Modified " + modifiedPathInfo.Count + " Properties");
+
+            modifiedScroll = EditorGUILayout.BeginScrollView(modifiedScroll);
+
+            EditorGUI.indentLevel++;
+
+            foreach (var _path in modifiedPathInfo)
+            {
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(_path.Key);
+
+                if (GUILayout.Button("Select", GUILayout.Width(50f)))
+                {
+                    var _parentPath = _path.Key.Split("$")[0];
+                    search(_parentPath.Remove(_parentPath.Length - 1));
+                }
+
+                if (GUILayout.Button("Edit", GUILayout.Width(50f)))
+                {
+                    var _target = _path.Value as MutableDictionaryContainer;
+                    var _keyPaths = _target.GetKeyPath();
+                    GenericMenu menu = new GenericMenu();
+                    
+                    //groups
+                    foreach (var _keyPath in _keyPaths)
+                    {
+                        menu.AddItem(new GUIContent("Groups " + _keyPath), false, () =>
+                        {
+                            groupTargetPath = _path.Key + "." + _keyPath;
+                        });
+                    }
+
+                    menu.AddItem(new GUIContent("Remove this"), false, () =>
+                    {
+                        modifiedPathInfo.Remove(_path.Key);
+                    });
+
+
+                    //remove
+                    foreach (var _keyPath in _keyPaths)
+                    {
+                        menu.AddItem(new GUIContent("Remove " + _keyPath), false, () =>
+                        {
+                            _target.RemoveByKeyPath(_keyPath.Split('.'));
+                        });
+                    }
+
+                    menu.ShowAsContext();
+
+                }
+                GUILayout.EndHorizontal();
+                EditorGUILayout.TextField(_path.Value.ToString());
+            }
+
+            EditorGUILayout.EndScrollView();
+            EditorGUI.indentLevel--;
+        }
+
+        private void setupTracking()
+        {
             GameObject _selectedObject = null;
-            if(selectedObjects.Length > 0){
+            if (selectedObjects.Length > 0)
+            {
                 _selectedObject = selectedObjects[0];
             }
 
             if (_selectedObject != null)
             {
-                if(_selectedObject != trackingTargetObject){
+                if (_selectedObject != trackingTargetObject)
+                {
                     trackingTargetObject = _selectedObject;
                     backupComponentValues();
                 }
@@ -145,16 +246,20 @@ namespace BicUtil.Selector{
                         var _currentComponent = trackingTargetObject.GetComponent(_componentName);
                         var _currentData = EditorJsonUtility.ToJson(_currentComponent);
 
-                        if(originComponentData[_key] != _currentData){
+                        if (originComponentData[_key] != _currentData)
+                        {
                             var _origin = new MutableDictionaryContainer();
                             _origin.ParseJson(originComponentData[_key]);
                             var _modified = new MutableDictionaryContainer();
                             _modified.ParseJson(_currentData);
                             var _diff = _origin.GetDiff(_modified, -1);
-                            var _path = targetPattern + "/$"+_componentName;
-                            if(modifiedPathInfo.ContainsKey(_path) == false){
-                                modifiedPathInfo[_path] = _diff; 
-                            }else{
+                            var _path = targetPattern + "/$" + _componentName;
+                            if (modifiedPathInfo.ContainsKey(_path) == false)
+                            {
+                                modifiedPathInfo[_path] = _diff;
+                            }
+                            else
+                            {
                                 var _record = (modifiedPathInfo[_path] as MutableDictionaryContainer);
                                 _record.MergeCopyBy(_diff);
                             }
@@ -162,102 +267,17 @@ namespace BicUtil.Selector{
                             originComponentData[_key] = _currentData;
                             _hasDiff = true;
                         }
-
-                        // var _currentSerializedObject =  new SerializedObject(_currentComponent);
-                        // var _currentIterator = _currentSerializedObject.GetIterator(); 
-
-
-                        // while (iterator.NextVisible(true) && _currentIterator.NextVisible(true))
-                        // {
-                        //     if(iterator.hasVisibleChildren == false){    
-                        //         if(SerializedProperty.DataEquals(iterator, _currentIterator) == false){
-                        //             _hasDiff = true;
-                        //             var _keyName = targetPattern + "/$"+_componentName;
-                        //             if(modifiedPathInfo.ContainsKey(_keyName) == false){
-                        //                 modifiedPathInfo[_keyName] = new Dictionary<string, string>();    
-                        //             }
-
-                        //             var _component = trackingTargetObject.GetComponent(_componentName);
-                        //             var _json = EditorJsonUtility.ToJson(_component);
-                        //             var _record = new RecordContainer();
-                        //             _record.ParseJson(_json);
-                        //             // Debug.Log(_json);
-                        //             // Debug.Log(iterator.propertyPath);
-                        //             var _value = findValue(_record, iterator.propertyPath);
-                        //             // Debug.Log(_record.ToString());
-                        //             modifiedPathInfo[_keyName][iterator.propertyPath] = JsonConvertor.GetInstance().ToFormattedString(_value);
-                        //             _currentSerializedObject.ApplyModifiedProperties();
-                        //         }
-                        //     }
-                        // }
                     }
 
-                    if(_hasDiff == true){
+                    if (_hasDiff == true)
+                    {
                         this.savedPatternList.Add(targetPattern);
                     }
                 }
-            }else{
-                trackingTargetObject = null;
             }
-
-            if(modifiedPathInfo.Count > 0){
-                GUILayout.Space(10f);
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Modified "+modifiedPathInfo.Count+" Properties");
-                if (GUILayout.Button("Save Style")){
-
-                    string _path = AssetDatabase.GetAssetPath(targetTextAsset);
-                    // Save the modified content back to the asset file
-                    var _content = modifiedPathInfo.ToString();
-                    System.IO.File.WriteAllText(_path, _content);
-                    AssetDatabase.Refresh();
-                    Debug.Log("saved " + _content);
-                }
-
-               
-
-                GUILayout.EndHorizontal();
-
-                scroll = EditorGUILayout.BeginScrollView(scroll);
-
-                EditorGUI.indentLevel++;
-
-                foreach(var _path in modifiedPathInfo){
-
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(_path.Key);
-
-                    if (GUILayout.Button("Select", GUILayout.Width(50f))){
-                        var _parentPath = _path.Key.Split("$")[0];
-                        search(_parentPath.Remove(_parentPath.Length - 1));
-                    }
-
-                    if (GUILayout.Button("Edit", GUILayout.Width(50f))){
-                        var _target = _path.Value as MutableDictionaryContainer;
-                        var _keyPaths = _target.GetKeyPath();
-                        
-                        GenericMenu menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Remove this"), false, ()=>{
-                            modifiedPathInfo.Remove(_path.Key);
-                        });
-
-                        foreach (var _keyPath in _keyPaths)
-                        {
-                            menu.AddItem(new GUIContent("Remove " + _keyPath), false, ()=>{
-                                _target.RemoveByKeyPath(_keyPath.Split('.'));
-                            });
-                        }
-
-                        menu.ShowAsContext();
-
-                    }
-                    GUILayout.EndHorizontal();
-                    EditorGUILayout.TextField(_path.Value.ToString());
-                }
-
-                EditorGUILayout.EndScrollView();
-                EditorGUI.indentLevel--;
-
+            else
+            {
+                trackingTargetObject = null;
             }
         }
 
@@ -622,6 +642,134 @@ namespace BicUtil.Selector{
 
             return _bounds;
         }
+
+        #region DrawCustomInspector 
+        private string groupTargetPath = "";
+        private string groupTargetName = "";
+
+        private void drawCustomInspector()
+        {
+            if(groups.Count <=0){
+                return;
+            }
+
+            GUILayout.Space(10f);
+            GUILayout.Label("Custom Inspector");
+
+            foreach(var _groupInfo in groups){
+                var _groupPaths = (_groupInfo.Value as ListContainer<StringVariable>);
+                var _targetPathWithProperty = _groupPaths[0].AsString;
+                var _pathInfo = splitPath(_targetPathWithProperty);
+                int dotIndex = _pathInfo.PropertyPath.IndexOf(".");
+                var _pathWithoutRoot = _pathInfo.PropertyPath.Substring(dotIndex + 1);
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(_groupInfo.Key);
+                var _objects = FindGameObjectsWithPattern(_pathInfo.Path);
+                var _component = _objects[0].GetComponent(_pathInfo.Component);
+                var _selectedObject = new SerializedObject(_component);
+                var _property = getSerializedPropertyByPath(_selectedObject, _pathWithoutRoot);
+                EditorGUILayout.PropertyField(_property);
+                if(_selectedObject.hasModifiedProperties == true){
+                    
+                    _selectedObject.ApplyModifiedProperties();
+                    foreach(var _targetPath in _groupPaths){
+                        Debug.Log("modifyed");
+                        //1. diff만들기
+                        //2. 타겟오브젝트에 넣기
+                        var _componentJson = EditorJsonUtility.ToJson(_component);
+                        Debug.Log(_pathInfo.PropertyPath);
+                        Debug.Log(_componentJson);
+                        var _value = getDataByPath(_componentJson, _pathInfo.PropertyPath);
+                        var __pathInfo = splitPath(_targetPath.AsString);
+                        var __objects = FindGameObjectsWithPattern(__pathInfo.Path);
+                        foreach(var _object in __objects){
+                            var _componentObject = _object.GetComponent(__pathInfo.Component);
+                            EditorJsonUtility.FromJsonOverwrite(_value,_componentObject);
+                            EditorUtility.SetDirty(_componentObject);
+                            _object.SetActive(!_object.activeSelf);
+                            _object.SetActive(!_object.activeSelf);
+                        }
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        private string getDataByPath(string _json, string _propertyPath){
+            var _data = new MutableDictionaryContainer();
+            _data.ParseJson(_json);
+            var _paths = _propertyPath.Split(".");
+            var _target = _data;
+            for(int i = 0; i < _paths.Length; i++){
+                var _fieldName = _paths[i];
+                foreach(var _key in _target.Keys.ToArray()){
+                    if(_key != _fieldName){
+                        _target.Remove(_key);
+                    }
+                }
+                
+                _target = _target[_fieldName] as MutableDictionaryContainer;
+                if(_target == null){
+                    break;
+                }
+            }
+
+            return _data.ToString();
+        }
+
+        private SerializedProperty getSerializedPropertyByPath(SerializedObject _target, string _path){
+            var _paths = _path.Split(".");
+            var _result = _target.FindProperty(_paths[0]);
+
+            if(_paths.Length > 1){
+                for(int i = 1; i< _paths.Length; i++){
+                    _result = _result.FindPropertyRelative(_paths[i]);
+                }
+            }
+
+            return _result;
+        }
+
+        private (string Path, string Component, string PropertyPath) splitPath(string _targetPathWithProperty)
+        {
+            int _sIndex =_targetPathWithProperty.LastIndexOf('$');
+            var _path = _targetPathWithProperty.Substring(0, _sIndex - 1);
+            var input = _targetPathWithProperty.Substring(_sIndex + 1);
+            int dotIndex = input.IndexOf(".");
+            string _componentName = input.Substring(0, dotIndex);
+            string _propertyPath = input.Substring(dotIndex + 1);
+            return (_path, _componentName, _propertyPath);
+        }
+
+        private void drawSetGroup()
+        {
+
+            GUILayout.Label(groupTargetPath);
+            GUILayout.Label("GroupName : ");
+            groupTargetName = EditorGUILayout.TextField(groupTargetName);
+            GUILayout.BeginHorizontal();
+            
+            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(groupTargetName));
+            if (GUILayout.Button("OK")){
+                if(this.groups.ContainsKey(groupTargetName) == false){
+                    this.groups[groupTargetName] = new ListContainer<StringVariable>();    
+                }
+
+                (this.groups[groupTargetName] as ListContainer<StringVariable>).Add(new StringVariable(groupTargetPath));
+                
+                groupTargetPath = "";
+                groupTargetName = "";
+            }
+            EditorGUI.EndDisabledGroup();
+
+            if (GUILayout.Button("Cancel")){
+                groupTargetPath = "";
+                groupTargetName = "";
+            }
+            GUILayout.EndHorizontal();
+        }
+        #endregion
 
     }
 }
