@@ -14,6 +14,10 @@ namespace BicUtil.Selector{
         public string[] Tags{get=>this.tags;}
 
         public bool HasClass(string _tag){
+            if(tags == null){
+                return false;
+            }
+            
             return tags.Contains(_tag);        
         }
     }

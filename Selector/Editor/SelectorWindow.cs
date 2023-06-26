@@ -721,6 +721,11 @@ namespace BicUtil.Selector{
                 }
 
                 var _objects = FindGameObjectsWithPattern(_pathInfo.Path);
+                if(_objects.Length <= 0){
+                    GUILayout.EndHorizontal();
+                    continue;
+                }
+
                 var _component = _objects[0].GetComponent(_pathInfo.Component);
                 var _selectedObject = new SerializedObject(_component);
                 var _property = getSerializedPropertyByPath(_selectedObject, _pathWithoutRoot);
