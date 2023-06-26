@@ -91,8 +91,6 @@ namespace BicDB.Container
 		}
 
 		public bool ParseJson(string _json){
-			this.Clear();
-
 			int _count = 0;
 			try{
 				BuildVariable(ref _json, ref _count, JsonConvertor.GetInstance());
@@ -131,6 +129,12 @@ namespace BicDB.Container
 
 		public void Clear()
 		{
+			#if UNITY_EDITOR
+			if(data.Count > 0){
+				UnityEngine.Debug.LogError("[BICDB] record is cleard");
+			}
+			#endif
+
 			data.Clear();
 		}
 
@@ -204,10 +208,10 @@ namespace BicDB.Container
 			return _diff;
 		}
 
-		public string[] GetKeyPath(char _separator = '.'){
+		public List<string> GetKeyPath(char _separator = '.'){
 			var _result = new List<string>();
 			MutableDictionaryContainer.getKeyPath(this, _result, "", _separator);
-			return _result.ToArray();
+			return _result;
 		}
 
 		public bool RemoveByKeyPath(string[] _keyPath){

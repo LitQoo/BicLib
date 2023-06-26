@@ -161,8 +161,10 @@ namespace BicDB.Container
 			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 		}
 
-		public bool ParseJson(string _json){
-			this.Clear();
+		public bool ParseJson(string _json, bool _merge){
+			if(_merge == false){
+				this.data.Clear();
+			}
 
 			int _count = 0;
 			try{
@@ -176,6 +178,21 @@ namespace BicDB.Container
 
 		public bool RemoveByKeyPath(string[] _keyPath){
 			return removeByKeyPath(this, _keyPath);
+		}
+
+		public void SetValueByKeyPath(IDataBase _value, string[] _keyPath){
+			var _target = this as IDictionary<string, IDataBase>;
+			for(int i = 0; i < _keyPath.Length; i++){
+				var _key = _keyPath[i];
+				if(i == _keyPath.Length - 1){
+					_target[_key] = _value;
+				}else if(_target.ContainsKey(_key) == true){
+					_target = _target[_key] as IDictionary<string, IDataBase>;
+				}else{
+					_target[_key] = new MutableDictionaryContainer();
+					_target = _target[_key] as IDictionary<string, IDataBase>;
+				}
+			}
 		}
 
 		static internal bool removeByKeyPath(IDictionary<string, IDataBase> _target, string[] _keyPath){
@@ -199,10 +216,10 @@ namespace BicDB.Container
 		}
 
 
-		public string[] GetKeyPath(char _separator = '.'){
+		public List<string> GetKeyPath(char _separator = '.'){
 			var _result = new List<string>();
 			getKeyPath(this, _result, "", _separator);
-			return _result.ToArray();
+			return _result;
 		}
 
 		static internal void getKeyPath(IDictionary<string, IDataBase> _target, List<string> _result, string _head, char _separator){
@@ -219,7 +236,7 @@ namespace BicDB.Container
 		public MutableDictionaryContainer GetDiff(IDictionary<string, IDataBase> _target, int _targetDepth = int.MaxValue){
 			var _diff = getDiff<MutableDictionaryContainer>(this, _target, _targetDepth, 0).Diff;
 			var _string = _diff.ToString();
-			_diff.ParseJson(_string);
+			_diff.ParseJson(_string, false);
 			return _diff;
 		}
 
