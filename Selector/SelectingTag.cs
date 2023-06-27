@@ -8,8 +8,6 @@ namespace BicUtil.Selector{
     {
         [SerializeField]
         private string[] tags;
-        [SerializeField]
-        private bool setupOnAwake = false;
 
         public string[] Tags{get=>this.tags;}
 
@@ -17,7 +15,7 @@ namespace BicUtil.Selector{
             if(tags == null){
                 return false;
             }
-            
+
             return tags.Contains(_tag);        
         }
     }

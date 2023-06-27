@@ -201,23 +201,6 @@ namespace BicDB.Container
 			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 		}
 
-		public RecordContainer GetDiff(IDictionary<string, IDataBase> _target, int _targetDepth = int.MaxValue){
-			var _diff = MutableDictionaryContainer.getDiff<RecordContainer>(this, _target, _targetDepth, 0).Diff;
-			var _string = _diff.ToString();
-			_diff.ParseJson(_string);
-			return _diff;
-		}
-
-		public List<string> GetKeyPath(char _separator = '.'){
-			var _result = new List<string>();
-			MutableDictionaryContainer.getKeyPath(this, _result, "", _separator);
-			return _result;
-		}
-
-		public bool RemoveByKeyPath(string[] _keyPath){
-			return MutableDictionaryContainer.removeByKeyPath(this, _keyPath);
-		}
-
 		#endregion
 	}
 }

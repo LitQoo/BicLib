@@ -40,7 +40,6 @@ namespace BicDB.Container
 		Action<string, T> OnRemovedRowActions { get; set;}
 	}
 
-
 	public interface IMutableListContainer : IListContainer<IDataBase> {
 
 	}

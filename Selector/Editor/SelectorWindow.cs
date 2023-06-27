@@ -13,7 +13,7 @@ using BicDB.Variable;
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
     {
-        private Style style = new Style();
+        private SelectorData selectorData = new SelectorData();
         private HashSet<string> savedPatternList = new HashSet<string>();
         private GameObject[] selectedObjects = new GameObject[]{};
 
@@ -79,20 +79,8 @@ namespace BicUtil.Selector{
         #region backup seri
         private TextAsset targetTextAsset;
         private GameObject trackingTargetObject;
-        private Component[] components;
-        private Dictionary<string, string> originComponentData;
-        Vector2 modifiedScroll = new Vector2(0, 0);
-        /*
-        백업한다 -> targetObject의 컴포넌트들을 json으로 변경해놓음
-        값 변경을 감지한다-> targetObject 컴포넌트들의 json값과 백업된 값을 비교
-        변경된 값을 저장한다 (modifedList?) 이때 딱 변경된 값만 저장하고 백업본도 업데이트함.
-        스타일 저장시 modifedList를 저장한다. 
-
-        스타일로드시 modifedList에 미리 채워준다
-
-        필요한 함수.
-        json구조에서 지정한 필드 빼고 모두 삭제하는 기능 (추후 merge용도)
-        */
+        private Dictionary<string, string> backupedComponentValues;
+        private Vector2 modifiedScroll = new Vector2(0, 0);
 
         private void drawTxtAsset(){
             GUILayout.Label("SavingFile:");
@@ -105,40 +93,40 @@ namespace BicUtil.Selector{
 
             GUILayout.BeginHorizontal();
             if (targetTextAsset != null && GUILayout.Button("Load")){
-                this.style = new Style();
+                this.selectorData = new SelectorData();
                 if(targetTextAsset.text.Length > 0){
-                    this.style.ParseJson(targetTextAsset.text);
+                    this.selectorData.ParseJson(targetTextAsset.text);
                 }
-            }
 
-            if (style.ModifiedPathInfo.Count > 0 && GUILayout.Button("Apply")){
-                //현재 선택된 오브젝트들의 공통 컴포넌트의 같은 값을 가져와 modifiedProp..에 넣기
-                foreach(var _path in style.ModifiedPathInfo.Keys){
-                    var _data = style.ModifiedPathInfo[_path].ToString();
-                    var _objects = FindGameObjectsWithPattern(_path);
-                    var _split = _path.Split("$");
-                    var _componentName = _split[_split.Length - 1];
-                    foreach(var _object in _objects){
-                        var _component = _object.GetComponent(_componentName);
-                        EditorJsonUtility.FromJsonOverwrite(_data, _component);
-                        EditorUtility.SetDirty(_component);
-                        _object.SetActive(!_object.activeSelf);
-                        _object.SetActive(!_object.activeSelf);
+                if (selectorData.ModifiedInfo.Count > 0){
+                    foreach(var _searchPattern in selectorData.ModifiedInfo.Keys){
+                        var _pathInfo = splitPath(_searchPattern);
+                        var _data = selectorData.ModifiedInfo[_searchPattern].ToString();
+                        var _objects = FindGameObjectsWithPattern(_pathInfo.SearchPattern);
+                        foreach(var _object in _objects){
+                            var _component = _object.GetComponent(_pathInfo.Component);
+                            EditorJsonUtility.FromJsonOverwrite(_data, _component);
+                            EditorUtility.SetDirty(_component);
+                            _object.SetActive(!_object.activeSelf);
+                            _object.SetActive(!_object.activeSelf);
+                        }
                     }
-                }
 
-                Debug.Log("Applied");
+                    Debug.Log("Loaded");
+                }
             }
 
+           
 
-            if (style.ModifiedPathInfo.Count > 0 && GUILayout.Button("Save")){
+
+            if (selectorData.ModifiedInfo.Count > 0 && GUILayout.Button("Save")){
 
                 string _path = AssetDatabase.GetAssetPath(targetTextAsset);
                 // Save the modified content back to the asset file
-                var _content = style.ToString();
+                var _content = selectorData.ToString();
                 System.IO.File.WriteAllText(_path, _content);
                 AssetDatabase.Refresh();
-                Debug.Log("saved2 " + _content);
+                Debug.Log("saved " + _content);
             }
             GUILayout.EndHorizontal();
         }
@@ -151,44 +139,72 @@ namespace BicUtil.Selector{
             drawModified();
         }
 
+        private void UpdateAllModified(){
+            foreach (var _modifiedInfo in selectorData.ModifiedInfo)
+            {
+                var _pathInfo = splitPath(_modifiedInfo.Key);
+                updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false);
+
+            }
+        }
+
         private void drawModified()
         {
-            if (style.ModifiedPathInfo.Count <= 0)
+            if (selectorData.ModifiedInfo.Count <= 0)
             {
                 return;
             }
 
             GUILayout.Space(10f);
-            GUILayout.Label("Modified " + style.ModifiedPathInfo.Count + " Properties");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Modified " + selectorData.ModifiedInfo.Count + " Properties");
+            if (GUILayout.Button("Update All", GUILayout.Width(80f)))
+            {
+
+                UpdateAllModified();
+                this.Repaint();
+            }
+
+            GUILayout.EndHorizontal();
 
             modifiedScroll = EditorGUILayout.BeginScrollView(modifiedScroll);
 
             EditorGUI.indentLevel++;
 
-            foreach (var _path in style.ModifiedPathInfo)
+            foreach (var _modifiedInfo in selectorData.ModifiedInfo)
             {
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(_path.Key);
+                GUILayout.Label(_modifiedInfo.Key);
+                var _pathInfo = splitPath(_modifiedInfo.Key);
 
                 if (GUILayout.Button("Select", GUILayout.Width(50f)))
                 {
-                    var _parentPath = _path.Key.Split("$")[0];
-                    search(_parentPath.Remove(_parentPath.Length - 1));
+                    search(_pathInfo.SearchPattern);
                 }
 
                 if (GUILayout.Button("Edit", GUILayout.Width(50f)))
                 {
-                    var _target = _path.Value as MutableDictionaryContainer;
-                    var _keyPaths = _target.GetKeyPath();
+                    
+                    var _modifiedValue = _modifiedInfo.Value;
+                    var _keyPaths = _modifiedValue.GetKeyPathList();
                     GenericMenu menu = new GenericMenu();
                     _keyPaths.RemoveAt(0);
+                    
+                    
+                    menu.AddItem(new GUIContent("Update"), false, () =>
+                    {
+                        updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false);
+                        this.Repaint();
+                    });
+
                     menu.AddSeparator("Inspect");
                     //groups
                     foreach (var _keyPath in _keyPaths)
                     {
-                        var _inspectTarget = _path.Key + "." + _keyPath;
-                        if(isInInspector(_inspectTarget) == false){
+                        var _inspectTarget = _modifiedInfo.Key + "." + _keyPath;
+                        if(this.selectorData.IsInInspector(_inspectTarget) == false){
                             menu.AddItem(new GUIContent(_keyPath), false, () =>
                             {
                                 inspectTargetPath = _inspectTarget;
@@ -201,15 +217,15 @@ namespace BicUtil.Selector{
 
                     menu.AddItem(new GUIContent("this"), false, () =>
                     {
-                        style.ModifiedPathInfo.Remove(_path.Key);
+                        selectorData.ModifiedInfo.Remove(_modifiedInfo.Key);
                     });
 
                     //remove
                     foreach (var _keyPath in _keyPaths)
                     {
-                        menu.AddItem(new GUIContent(_keyPath), false, () =>
+                        menu.AddItem(new GUIContent(_keyPath + " ㅤ"), false, () =>
                         {
-                            _target.RemoveByKeyPath(_keyPath.Split('.'));
+                            _modifiedValue.RemoveByKeyPath(_keyPath.Split('.'));
                         });
                     }
 
@@ -217,7 +233,7 @@ namespace BicUtil.Selector{
 
                 }
                 GUILayout.EndHorizontal();
-                EditorGUILayout.TextField(_path.Value.ToString());
+                EditorGUILayout.TextField(_modifiedInfo.Value.ToString());
             }
 
             EditorGUILayout.EndScrollView();
@@ -240,41 +256,12 @@ namespace BicUtil.Selector{
                     backupComponentValues();
                 }
 
-                if (originComponentData != null)
+                if (backupedComponentValues != null)
                 {
                     bool _hasDiff = false;
-                    foreach (var _key in originComponentData.Keys.ToArray())
+                    foreach (var _componentName in backupedComponentValues.Keys.ToArray())
                     {
-                        var _componentName = _key;
-                        if (_componentName.Contains(".") == true)
-                        {
-                            _componentName = _componentName.Split(".").Last();
-                        }
-
-                        var _currentComponent = trackingTargetObject.GetComponent(_componentName);
-                        var _currentData = EditorJsonUtility.ToJson(_currentComponent);
-
-                        if (originComponentData[_key] != _currentData)
-                        {
-                            var _origin = new MutableDictionaryContainer();
-                            _origin.ParseJson(originComponentData[_key], false);
-                            var _modified = new MutableDictionaryContainer();
-                            _modified.ParseJson(_currentData, false);
-                            var _diff = _origin.GetDiff(_modified, -1);
-                            var _path = targetPattern + "/$" + _componentName;
-                            if (style.ModifiedPathInfo.ContainsKey(_path) == false)
-                            {
-                                style.ModifiedPathInfo[_path] = _diff;
-                            }
-                            else
-                            {
-                                var _record = (style.ModifiedPathInfo[_path] as MutableDictionaryContainer);
-                                _record.MergeCopyBy(_diff);
-                            }
-
-                            originComponentData[_key] = _currentData;
-                            _hasDiff = true;
-                        }
+                        _hasDiff = updateModified(_componentName, trackingTargetObject, targetPattern, true) || _hasDiff;
                     }
 
                     if (_hasDiff == true)
@@ -289,48 +276,62 @@ namespace BicUtil.Selector{
             }
         }
 
-        private IDataBase findValue(string _json, string _path){
-            MutableDictionaryContainer _record = new MutableDictionaryContainer();
-            _record.ParseJson(_json, false);
-            var _target = _record as IDictionary<string, IDataBase>;
+        private bool updateModified(string _componentName, GameObject _targetObject, string _searchPattern, bool _updateBackup)
+        {
+            var _currentComponent = _targetObject.GetComponent(_componentName);
+            var _currentData = EditorJsonUtility.ToJson(_currentComponent);
 
-            string[] _pathList = null;
-            if(_path.Contains(".") == false){
-                _pathList = new string[]{_path};
-            }else{
-                _pathList = _path.Split(".");
-            }
+            if (_updateBackup == false || backupedComponentValues[_componentName] != _currentData)
+            {
+                var _patternAndComponent = _searchPattern + "/$" + _componentName;
+                MutableDictionaryContainer _origin = null;
+                MutableDictionaryContainer _modified = MutableDictionaryContainer.CreateFromJson(_currentData);
+                MutableDictionaryContainer _diff = null;
 
-            for(int i = 0; i < _pathList.Length; i++){
-                foreach(var _key in _target.Keys.ToArray()){
-                    if(_key != _pathList[i]){
-                        _target.Remove(_key);
-                    } 
+                if(_updateBackup == true){
+                    _origin = MutableDictionaryContainer.CreateFromJson(backupedComponentValues[_componentName]);
+                    _diff = _origin.GetDiff(_modified, -1);
+                }else{
+                    _origin = MutableDictionaryContainer.CreateFromJson(selectorData.ModifiedInfo[_patternAndComponent].ToString());
+                    _origin.UpdateExistingFields(_modified);
+                    _diff = _origin;
                 }
 
-                if(i == _pathList.Length - 1){
-                    return _target[_pathList[i]];
+                if (selectorData.ModifiedInfo.ContainsKey(_patternAndComponent) == false)
+                {
+                    selectorData.ModifiedInfo[_patternAndComponent] = _diff;
+                }
+                else
+                {
+                    selectorData.ModifiedInfo[_patternAndComponent].MergeCopyBy(_diff);
                 }
 
-                _target = _target[_pathList[i]] as IDictionary<string, IDataBase>;
+                if(_updateBackup == true){
+                    backupedComponentValues[_componentName] = _currentData;
+                }
+                return true;
             }
 
-            return null;
-            
+            return false;
         }
-
         
         private void backupComponentValues()
         {
-            components = trackingTargetObject.GetComponents<Component>();
-            originComponentData = new Dictionary<string, string>();
+            var components = trackingTargetObject.GetComponents<Component>();
+            backupedComponentValues = new Dictionary<string, string>();
             
             for (int i = 0; i < components.Length; i++)
             {
                 Component component = components[i];
                 if (component != null)
                 {
-                    originComponentData[component.GetType().ToString()] = EditorJsonUtility.ToJson(component);
+                    var _componentName = component.GetType().ToString();
+                    if (_componentName.Contains(".") == true)
+                    {
+                        _componentName = _componentName.Split(".").Last();
+                    }
+
+                    backupedComponentValues[_componentName] = EditorJsonUtility.ToJson(component);
                 }
             }
         }
@@ -436,6 +437,12 @@ namespace BicUtil.Selector{
 
                 menu.ShowAsContext();
             }
+
+             if (GUILayout.Button("Clear", GUILayout.Width(50f))){
+                searchInput ="";
+                search(searchInput);
+             }
+
             GUILayout.EndHorizontal();
 
             if(selectedObjects.Length > 0){
@@ -484,7 +491,9 @@ namespace BicUtil.Selector{
             HashSet<string> _tags = new HashSet<string>();
             foreach (var sc in _selectingTag)
             {
-                _tags.UnionWith(sc.Tags);
+                if(sc.Tags != null && sc.Tags.Length > 0){
+                    _tags.UnionWith(sc.Tags);
+                }
             }
 
             return _tags;
@@ -682,36 +691,57 @@ namespace BicUtil.Selector{
 
         private void drawCustomInspector()
         {
-            if(style.InspectorInfo.Count <=0){
+            if(selectorData.InspectorInfo.Count <=0){
                 return;
             }
 
             GUILayout.Space(10f);
             GUILayout.Label("Custom Inspector");
 
-            foreach(var _groupInfo in style.InspectorInfo){
-                var _groupPaths = (_groupInfo.Value as MutableListContainer);
-                var _targetPathWithProperty = _groupPaths[0].AsVariable.AsString;
-                var _pathInfo = splitPath(_targetPathWithProperty);
-                int dotIndex = _pathInfo.PropertyPath.IndexOf(".");
-                var _pathWithoutRoot = _pathInfo.PropertyPath.Substring(dotIndex + 1);
+            foreach(var _inspectorInfo in selectorData.InspectorInfo){
+                var _inspectorList = _inspectorInfo.Value;
+                var _targetPathWithProperty = _inspectorList[0].AsVariable.AsString;
+                var _inpectorPathInfo = splitPath(_targetPathWithProperty);
+                int dotIndex = _inpectorPathInfo.PropertyPath.IndexOf(".");
+                var _pathWithoutRoot = _inpectorPathInfo.PropertyPath.Substring(dotIndex + 1);
+                var _objects = FindGameObjectsWithPattern(_inpectorPathInfo.SearchPattern);
+                if(_objects.Length <= 0){
+                    continue;
+                }
 
                 GUILayout.BeginHorizontal();
-                if(GUILayout.Button(_groupInfo.Key)){
+                if(GUILayout.Button(_inspectorInfo.Key)){
                     GenericMenu menu = new GenericMenu();
-                    var _key = _groupInfo.Key;
+                    var _key = _inspectorInfo.Key;
+                    menu.AddItem(new GUIContent("Select All"), false, () =>{
+                        HashSet<GameObject> _selectObjects = new HashSet<GameObject>(); 
+                        for(int i = 0; i < _inspectorList.Count; i++){
+                            var _targetPathWithProperty = _inspectorList[i].AsVariable.AsString;
+                            var _inpectorPathInfo = splitPath(_targetPathWithProperty);
+                            var _objects = FindGameObjectsWithPattern(_inpectorPathInfo.SearchPattern);
+                            
+                            _selectObjects.UnionWith(_objects);
+                        }
+
+                        Selection.objects = _selectObjects.ToArray();
+                    });
+
                     menu.AddSeparator("Remove");
                     menu.AddItem(new GUIContent("this"), false, () =>
                     {
-                        style.InspectorInfo.Remove(_key);
+                        selectorData.InspectorInfo.Remove(_key);
                         Repaint();
                     });
 
-                    for(int i = 0; i < _groupPaths.Count; i++){
+                    for(int i = 0; i < _inspectorList.Count; i++){
                          var _index = i;
-                         menu.AddItem(new GUIContent(_groupPaths[_index].AsVariable.AsString.Replace("/", "\\") + " ㅤ"), false, () =>
+                         menu.AddItem(new GUIContent(_inspectorList[_index].AsVariable.AsString.Replace("/", "\\") + " ㅤ"), false, () =>
                          {
-                             _groupPaths.RemoveAt(_index);
+                             _inspectorList.RemoveAt(_index);
+                             if(_inspectorList.Count <= 0){
+                                selectorData.InspectorInfo.Remove(_key);
+                             }
+
                              Repaint();
                          });
                     }
@@ -720,60 +750,46 @@ namespace BicUtil.Selector{
                     menu.ShowAsContext();
                 }
 
-                var _objects = FindGameObjectsWithPattern(_pathInfo.Path);
-                if(_objects.Length <= 0){
-                    GUILayout.EndHorizontal();
-                    continue;
-                }
-
-                var _component = _objects[0].GetComponent(_pathInfo.Component);
+                var _component = _objects[0].GetComponent(_inpectorPathInfo.Component);
                 var _selectedObject = new SerializedObject(_component);
                 var _property = getSerializedPropertyByPath(_selectedObject, _pathWithoutRoot);
                 EditorGUILayout.PropertyField(_property, new GUIContent(""), true);
-                if(_selectedObject.hasModifiedProperties == true){
+                if(_selectedObject.hasModifiedProperties == true)
+                {
                     _selectedObject.ApplyModifiedProperties();
-                    var _componentJson = EditorJsonUtility.ToJson(_component);
-                    var _value = findValue(_componentJson, _pathInfo.PropertyPath);
-
-                    foreach(var _targetPath in _groupPaths){
-                        var __pathInfo = splitPath(_targetPath.AsVariable.AsString);
-                        var __objects = FindGameObjectsWithPattern(__pathInfo.Path);
-                        var _record = new MutableDictionaryContainer();
-                        _record.SetValueByKeyPath(_value, __pathInfo.PropertyPath.Split("."));
-                        var _jsonForComponent =  _record.ToString();
-                        
-                        foreach(var _object in __objects){
-                            var _componentObject = _object.GetComponent(__pathInfo.Component);
-                            EditorJsonUtility.FromJsonOverwrite(_jsonForComponent,_componentObject);
-                            EditorUtility.SetDirty(_componentObject);
-                            _object.SetActive(!_object.activeSelf);
-                            _object.SetActive(!_object.activeSelf);
-                        }
-                    }
+                    applyInspectorModified(_inspectorList, _inpectorPathInfo.PropertyPath, _component);
+                    UpdateAllModified();
                 }
                 GUILayout.EndHorizontal();
             }
         }
 
-        private string getDataByPath(string _json, string _propertyPath){
-            var _data = new MutableDictionaryContainer();
-            _data.ParseJson(_json, false);
-            var _paths = _propertyPath.Split(".");
-            var _target = _data;
-            for(int i = 0; i < _paths.Length; i++){
-                var _fieldName = _paths[i];
-                foreach(var _key in _target.Keys.ToArray()){
-                    if(_key != _fieldName){
-                        _target.Remove(_key);
-                    }
-                }
-                
-                _target = _target[_fieldName] as MutableDictionaryContainer;
-                if(_target == null){
-                    break;
+        private void applyInspectorModified(ListContainer<StringVariable> _targetPathList, string _targetValuePropertyPath, Component _component)
+        {
+            var _componentJson = EditorJsonUtility.ToJson(_component);
+            var _value = MutableDictionaryContainer.CreateFromJson(_componentJson).FindValue(_targetValuePropertyPath.Split("."));
+
+            foreach (var _targetPath in _targetPathList)
+            {
+                var _targetPathInfo = splitPath(_targetPath.AsVariable.AsString);
+                var _targetObject = FindGameObjectsWithPattern(_targetPathInfo.SearchPattern);
+                var _record = MutableDictionaryContainer.CreatePathAndValue(_targetPathInfo.PropertyPath.Split("."), _value);
+                var _jsonForComponent = _record.ToString();
+
+                foreach (var _object in _targetObject)
+                {
+                    var _componentObject = _object.GetComponent(_targetPathInfo.Component);
+                    EditorJsonUtility.FromJsonOverwrite(_jsonForComponent, _componentObject);
+                    EditorUtility.SetDirty(_componentObject);
+                    _object.SetActive(!_object.activeSelf);
+                    _object.SetActive(!_object.activeSelf);
                 }
             }
+        }
 
+        private string getDataByPath(string _json, string _propertyPath){
+            var _data = MutableDictionaryContainer.CreateFromJson(_json);
+            _data.RemoveAllExceptAt(_propertyPath.Split("."));
             return _data.ToString();
         }
 
@@ -790,38 +806,36 @@ namespace BicUtil.Selector{
             return _result;
         }
 
-        private (string Path, string Component, string PropertyPath) splitPath(string _targetPathWithProperty)
+        private (string SearchPattern, string Component, string PropertyPath) splitPath(string _path)
         {
-            int _sIndex =_targetPathWithProperty.LastIndexOf('$');
-            var _path = _targetPathWithProperty.Substring(0, _sIndex - 1);
-            var input = _targetPathWithProperty.Substring(_sIndex + 1);
-            int dotIndex = input.IndexOf(".");
-            string _componentName = input.Substring(0, dotIndex);
-            string _propertyPath = input.Substring(dotIndex + 1);
-            return (_path, _componentName, _propertyPath);
+            int _sIndex =_path.LastIndexOf('$');
+            var _searchPattern = _path.Substring(0, _sIndex - 1);
+            var _componentAndProperty = _path.Substring(_sIndex + 1);
+            
+            int dotIndex = _componentAndProperty.IndexOf(".");
+            if(dotIndex >= 0){
+                string _componentName = _componentAndProperty.Substring(0, dotIndex);
+                string _propertyPath = _componentAndProperty.Substring(dotIndex + 1);
+                return (_searchPattern, _componentName, _propertyPath);
+            }else{
+                return (_searchPattern, _componentAndProperty, null);
+            }
         }
 
         private void drawSetInspector()
         {
-            // 여기서
-            // 저장된 inspecrtor 서치패턴 돌면서
-            // 서치패턴의 첫번째 오브젝트 json데이터에서 value만 뽑아온다음
-            // 인스펙터타겟의 value와 json 형태(value말고 field명이 유사한지 혹은 데이터타입이 유사한지(string? int?)) 검사해서
-            // 이미 존재하는 inspector를 추천해주기
 
-
-
-            GUILayout.Label(inspectTargetPath);
-            GUILayout.Label("InspectorName : ");
-            inspectName = EditorGUILayout.TextField(inspectName);
+            GUILayout.Label("Setup cusom inspector");
+            GUILayout.Label("Target : " + inspectTargetPath);
+            inspectName = EditorGUILayout.TextField("InspectorName", inspectName);
 
 
             var _selectedSample = getSampleValue(inspectTargetPath);
 
-            GUILayout.Label("recommend : ");
-            foreach (var _inspectorInfo in style.InspectorInfo)
+            GUILayout.Space(10f);
+            foreach (var _inspectorInfo in selectorData.InspectorInfo)
             {
-                var _paths = _inspectorInfo.Value as MutableListContainer;
+                var _paths = _inspectorInfo.Value;
                 if (_paths.Count <= 0)
                 {
                     continue;
@@ -836,7 +850,7 @@ namespace BicUtil.Selector{
                         {
                             var _selectedDict = _selectedSample as IDictionary<string, IDataBase>;
                             var _dict = _sample as IDictionary<string, IDataBase>;
-                            if (areKeysEqual(_selectedDict, _dict) == true)
+                            if (_selectedDict.AreKeysEqual(_dict) == true)
                             {
                                 if(GUILayout.Button(_inspectorInfo.Key)){
                                     inspectName = _inspectorInfo.Key;
@@ -853,16 +867,17 @@ namespace BicUtil.Selector{
                 }
             }
 
+            GUILayout.Space(10f);
             GUILayout.BeginHorizontal();
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(inspectName));
             if (GUILayout.Button("OK"))
             {
-                if (style.InspectorInfo.ContainsKey(inspectName) == false)
+                if (selectorData.InspectorInfo.ContainsKey(inspectName) == false)
                 {
-                    style.InspectorInfo[inspectName] = new MutableListContainer();
+                    selectorData.InspectorInfo[inspectName] = new ListContainer<StringVariable>();
                 }
 
-                (style.InspectorInfo[inspectName] as MutableListContainer).Add(new StringVariable(inspectTargetPath));
+                selectorData.InspectorInfo[inspectName].Add(new StringVariable(inspectTargetPath));
 
                 inspectTargetPath = "";
                 inspectName = "";
@@ -880,42 +895,31 @@ namespace BicUtil.Selector{
         private IDataBase getSampleValue(string _targetPath)
         {
             var _pathInfo = splitPath(_targetPath);
-            var _objects = FindGameObjectsWithPattern(_pathInfo.Path);
+            var _objects = FindGameObjectsWithPattern(_pathInfo.SearchPattern);
             if(_objects.Length <= 0){
                 return null;
             }
 
             var _component = _objects[0].GetComponent(_pathInfo.Component);
             var _json = EditorJsonUtility.ToJson(_component);
-            return this.findValue(_json, _pathInfo.PropertyPath);
+            return MutableDictionaryContainer.CreateFromJson(_json).FindValue(_pathInfo.PropertyPath.Split("."));
+        }
+        #endregion
+
+    }
+
+    public class SelectorData : RecordContainer{
+        public DictionaryContainer<MutableDictionaryContainer> ModifiedInfo = new DictionaryContainer<MutableDictionaryContainer>();
+        public DictionaryContainer<ListContainer<StringVariable>> InspectorInfo = new DictionaryContainer<ListContainer<StringVariable>>();
+
+        public SelectorData() : base(){
+            AddManagedColumn("path", this.ModifiedInfo);
+            AddManagedColumn("inspector", this.InspectorInfo);
         }
 
-        private bool areKeysEqual(IDictionary<string, IDataBase> dict1, IDictionary<string, IDataBase> dict2)
-        {
-            if (dict1 == null || dict2 == null)
-            {
-                return false;
-            }
-
-            if (dict1.Count != dict2.Count)
-            {
-                return false;
-            }
-
-            foreach (string key in dict1.Keys)
-            {
-                if (!dict2.ContainsKey(key))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool isInInspector(string _path){
-            foreach(var _inspectorInfo in style.InspectorInfo){
-                var _list = _inspectorInfo.Value as MutableListContainer;
+        public bool IsInInspector(string _path){
+            foreach(var _inspectorInfo in this.InspectorInfo){
+                var _list = _inspectorInfo.Value;
                 for(int i = 0; i  <_list.Count; i++){
                     if(_path.Contains(_list[i].AsVariable.AsString)){
                         return true;
@@ -924,18 +928,6 @@ namespace BicUtil.Selector{
             }
 
             return false;
-        }
-        #endregion
-
-    }
-
-    public class Style : RecordContainer{
-        public MutableDictionaryContainer ModifiedPathInfo = new MutableDictionaryContainer();
-        public MutableDictionaryContainer InspectorInfo = new MutableDictionaryContainer();
-
-        public Style() : base(){
-            AddManagedColumn("path", this.ModifiedPathInfo);
-            AddManagedColumn("inspector", this.InspectorInfo);
         }
     }
 }
