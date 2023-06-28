@@ -75,6 +75,9 @@ namespace BicUtil.Selector{
             drawBoxAroundGameObject();
             checkDeselected();
         }
+
+        bool[] foldout = new bool[]{true, true, true, true, true, true};
+
         private void OnGUI()
         {
             if(lateStartCount > 0){
@@ -84,19 +87,29 @@ namespace BicUtil.Selector{
 
             setupStyle();
 
-            if(string.IsNullOrEmpty(inspectTargetPath) == false && Event.current.type != EventType.Layout){
+            if(string.IsNullOrEmpty(inspectTargetPath) == false){
                 drawSetInspector();
                 return;
             }
 
             modifiedScroll = EditorGUILayout.BeginScrollView(modifiedScroll);
-            drawSearchUI();
-            
-            drawTxtAsset();
-            drawCustomInspector();
+            int _foldIndex = 0;
+            foldout[_foldIndex] = EditorGUILayout.BeginFoldoutHeaderGroup(foldout[_foldIndex],(foldout[_foldIndex]?"▼":"►")+" Search", headLabelStyle);
+            if(foldout[_foldIndex++] == true) drawSearchUI();
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            foldout[_foldIndex] = EditorGUILayout.BeginFoldoutHeaderGroup(foldout[_foldIndex], (foldout[_foldIndex]?"▼":"►")+" Save", headLabelStyle);
+            if(foldout[_foldIndex++] == true) drawTxtAsset();
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            foldout[_foldIndex] = EditorGUILayout.BeginFoldoutHeaderGroup(foldout[_foldIndex], (foldout[_foldIndex]?"▼":"►")+" Inspector", headLabelStyle);
+            if(foldout[_foldIndex++] == true) drawCustomInspector();
             setupTracking();
-            drawModified();
-            drawSavedPattern();
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            foldout[_foldIndex] = EditorGUILayout.BeginFoldoutHeaderGroup(foldout[_foldIndex], (foldout[_foldIndex]?"▼":"►")+" Modified components", headLabelStyle);
+            if(foldout[_foldIndex++] == true) drawModified();
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            foldout[_foldIndex] = EditorGUILayout.BeginFoldoutHeaderGroup(foldout[_foldIndex], (foldout[_foldIndex]?"▼":"►")+" Search History", headLabelStyle);
+            if(foldout[_foldIndex++] == true) drawSavedPattern();
+            EditorGUILayout.EndFoldoutHeaderGroup();
             EditorGUILayout.EndScrollView();
 
         }
@@ -105,19 +118,18 @@ namespace BicUtil.Selector{
         {
             if( headLabelStyle == null){
                 headLabelStyle = new GUIStyle(GUI.skin.label);
-                headLabelStyle.normal.textColor = Color.white;
                 headLabelStyle.fontStyle = FontStyle.Bold;
                 Texture2D texture = new Texture2D(1, 1);
                 texture.SetPixel(0, 0, Color.black);
                 texture.Apply();
                 headLabelStyle.normal.background = texture;
+                headLabelStyle.active.background = texture;
             } 
         }
 
         #region backup
 
         private void drawTxtAsset(){
-            GUILayout.Label("Save2", headLabelStyle);
             targetTextAsset = (TextAsset)EditorGUILayout.ObjectField(targetTextAsset, typeof(TextAsset), false);
 
             if(targetTextAsset == null){
@@ -186,7 +198,6 @@ namespace BicUtil.Selector{
                 return;
             }
 
-            GUILayout.Label("Modified Components", headLabelStyle);
             GUILayout.BeginHorizontal();    
             GUILayout.Label("Modified " + selectorData.ModifiedInfo.Count + " Components");
             if (GUILayout.Button("Update All", GUILayout.Width(80f)))
@@ -387,8 +398,6 @@ namespace BicUtil.Selector{
         private void drawSavedPattern()
         {
 
-            GUILayout.Label("Favorite search pattern", headLabelStyle);
-
             GUILayout.BeginVertical();
 
             if (string.IsNullOrEmpty(targetPattern) == false)
@@ -427,9 +436,6 @@ namespace BicUtil.Selector{
         private void drawSearchUI()
         {
             GUILayout.BeginVertical();
-            GUILayout.Label("Search", headLabelStyle);
-
-
             GUI.SetNextControlName("SearchPattern");
             searchInput = EditorGUILayout.TextField(searchInput);
 
@@ -760,8 +766,6 @@ namespace BicUtil.Selector{
             if(selectorData.InspectorInfo.Count <=0){
                 return;
             }
-
-            GUILayout.Label("Custom Inspector", headLabelStyle);
 
             foreach(var _inspectorInfo in selectorData.InspectorInfo){
                 var _inspectorList = _inspectorInfo.Value;
