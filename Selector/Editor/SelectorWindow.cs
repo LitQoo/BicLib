@@ -28,6 +28,7 @@ namespace BicUtil.Selector{
         }
         private Vector2 scrollPosition;
         private int selectedObjectIndex = -1;
+        private bool useTracking = true;
 
         [MenuItem("BicLib/Selector", false, 501)]
         public static void ShowWindow(){
@@ -72,6 +73,7 @@ namespace BicUtil.Selector{
             GUILayout.Space(10f);
             drawModifyTracking();
             GUILayout.Space(10f);
+
             drawSavedPattern();
 
         }
@@ -143,7 +145,7 @@ namespace BicUtil.Selector{
             foreach (var _modifiedInfo in selectorData.ModifiedInfo)
             {
                 var _pathInfo = splitPath(_modifiedInfo.Key);
-                updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false);
+                updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false, true);
 
             }
         }
@@ -195,7 +197,7 @@ namespace BicUtil.Selector{
                     
                     menu.AddItem(new GUIContent("Update"), false, () =>
                     {
-                        updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false);
+                        updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false, true);
                         this.Repaint();
                     });
 
@@ -261,7 +263,7 @@ namespace BicUtil.Selector{
                     bool _hasDiff = false;
                     foreach (var _componentName in backupedComponentValues.Keys.ToArray())
                     {
-                        _hasDiff = updateModified(_componentName, trackingTargetObject, targetPattern, true) || _hasDiff;
+                        _hasDiff = updateModified(_componentName, trackingTargetObject, targetPattern, true, useTracking) || _hasDiff;
                     }
 
                     if (_hasDiff == true)
@@ -276,13 +278,17 @@ namespace BicUtil.Selector{
             }
         }
 
-        private bool updateModified(string _componentName, GameObject _targetObject, string _searchPattern, bool _updateBackup)
+        private bool updateModified(string _componentName, GameObject _targetObject, string _searchPattern, bool _updateBackup, bool _update)
         {
             var _currentComponent = _targetObject.GetComponent(_componentName);
             var _currentData = EditorJsonUtility.ToJson(_currentComponent);
 
             if (_updateBackup == false || backupedComponentValues[_componentName] != _currentData)
             {
+                if(_update == false){
+                    return true;
+                }
+
                 var _patternAndComponent = _searchPattern + "/$" + _componentName;
                 MutableDictionaryContainer _origin = null;
                 MutableDictionaryContainer _modified = MutableDictionaryContainer.CreateFromJson(_currentData);
@@ -446,7 +452,10 @@ namespace BicUtil.Selector{
             GUILayout.EndHorizontal();
 
             if(selectedObjects.Length > 0){
-                GUILayout.Label("Selected " + selectedObjects.Length + " objects");
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Selected " + selectedObjects.Length + " objects, tracking?");
+                useTracking = EditorGUILayout.Toggle(useTracking);
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.EndVertical();
@@ -577,12 +586,20 @@ namespace BicUtil.Selector{
             foreach (Transform child in parent)
             {
                 if(searchTerm == "*"){
-                    SearchGameObject(child, searchTerms[termIndex], searchTerms, termIndex + 1, foundObjects, false);
+                    if(searchTerms.Length <= termIndex){
+                        foundObjects.Add(child.gameObject);
+                    }else{
+                        SearchGameObject(child, searchTerms[termIndex], searchTerms, termIndex + 1, foundObjects, false);
+                    }
                     continue;
                 }
 
                 if(searchTerm == ".."){
-                    SearchGameObject(parent.parent, searchTerms[termIndex], searchTerms, termIndex + 1, foundObjects, false);
+                    if(searchTerms.Length <= termIndex){
+                        foundObjects.Add(parent.parent.gameObject);
+                    }else{
+                        SearchGameObject(parent.parent, searchTerms[termIndex], searchTerms, termIndex + 1, foundObjects, false);
+                    }
                     continue;
                 }
 
