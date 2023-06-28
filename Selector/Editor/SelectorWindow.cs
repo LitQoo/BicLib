@@ -13,11 +13,15 @@ using BicDB.Variable;
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
     {
+        [SerializeField]
         private SelectorData selectorData = new SelectorData();
+        [SerializeField]
         private HashSet<string> savedPatternList = new HashSet<string>();
+        [SerializeField]
         private GameObject[] selectedObjects = new GameObject[]{};
-
+        [SerializeField]
         private string searchInput = "";
+        [SerializeField]
         private string targetInput = "";
         private string targetPattern{
             get=>targetInput;
@@ -27,9 +31,18 @@ namespace BicUtil.Selector{
             }
         }
         private Vector2 scrollPosition;
-        private int selectedObjectIndex = -1;
-        private bool useTracking = true;
 
+        [SerializeField]
+        private bool useTracking = true;
+        private GUIStyle headLabelStyle = null;
+
+
+        [SerializeField]
+        private TextAsset targetTextAsset;
+        [SerializeField]
+        private GameObject trackingTargetObject;
+        private Vector2 modifiedScroll = new Vector2(0, 0);
+        private int lateStartCount = 0;
         [MenuItem("BicLib/Selector", false, 501)]
         public static void ShowWindow(){
             SelectorWindow _window = GetWindow<SelectorWindow>("Selector");
@@ -38,6 +51,7 @@ namespace BicUtil.Selector{
 
         private void OnEnable()
         {
+            lateStartCount = 4;
             SceneView.duringSceneGui += this.OnSceneGUI;
         }
 
@@ -63,32 +77,51 @@ namespace BicUtil.Selector{
         }
         private void OnGUI()
         {
+            if(lateStartCount > 0){
+                lateStartCount--;
+                return;
+            }
 
-            if(string.IsNullOrEmpty(inspectTargetPath) == false){
+            setupStyle();
+
+            if(string.IsNullOrEmpty(inspectTargetPath) == false && Event.current.type != EventType.Layout){
                 drawSetInspector();
                 return;
             }
 
+            modifiedScroll = EditorGUILayout.BeginScrollView(modifiedScroll);
             drawSearchUI();
-            GUILayout.Space(10f);
-            drawModifyTracking();
-            GUILayout.Space(10f);
-
+            
+            drawTxtAsset();
+            drawCustomInspector();
+            setupTracking();
+            drawModified();
             drawSavedPattern();
+            EditorGUILayout.EndScrollView();
 
         }
 
-        #region backup seri
-        private TextAsset targetTextAsset;
-        private GameObject trackingTargetObject;
-        private Dictionary<string, string> backupedComponentValues;
-        private Vector2 modifiedScroll = new Vector2(0, 0);
+        private void setupStyle()
+        {
+            if( headLabelStyle == null){
+                headLabelStyle = new GUIStyle(GUI.skin.label);
+                headLabelStyle.normal.textColor = Color.white;
+                headLabelStyle.fontStyle = FontStyle.Bold;
+                Texture2D texture = new Texture2D(1, 1);
+                texture.SetPixel(0, 0, Color.black);
+                texture.Apply();
+                headLabelStyle.normal.background = texture;
+            } 
+        }
+
+        #region backup
 
         private void drawTxtAsset(){
-            GUILayout.Label("SavingFile:");
+            GUILayout.Label("Save2", headLabelStyle);
             targetTextAsset = (TextAsset)EditorGUILayout.ObjectField(targetTextAsset, typeof(TextAsset), false);
 
             if(targetTextAsset == null){
+                GUILayout.Space(20f);
                 return;
             }
 
@@ -118,35 +151,31 @@ namespace BicUtil.Selector{
                 }
             }
 
-           
-
-
-            if (selectorData.ModifiedInfo.Count > 0 && GUILayout.Button("Save")){
-
-                string _path = AssetDatabase.GetAssetPath(targetTextAsset);
-                // Save the modified content back to the asset file
-                var _content = selectorData.ToString();
-                System.IO.File.WriteAllText(_path, _content);
-                AssetDatabase.Refresh();
-                Debug.Log("saved " + _content);
+            if (GUILayout.Button("Save")){
+                if(selectorData.ModifiedInfo.Count > 0){
+                    string _path = AssetDatabase.GetAssetPath(targetTextAsset);
+                    // Save the modified content back to the asset file
+                    var _content = selectorData.ToString();
+                    System.IO.File.WriteAllText(_path, _content);
+                    AssetDatabase.Refresh();
+                    Debug.Log("saved " + _content);
+                }
             }
-            GUILayout.EndHorizontal();
-        }
 
-        private void drawModifyTracking()
-        {
-            drawTxtAsset();
-            drawCustomInspector();
-            setupTracking();
-            drawModified();
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(20f);
         }
 
         private void UpdateAllModified(){
             foreach (var _modifiedInfo in selectorData.ModifiedInfo)
             {
+                //as
                 var _pathInfo = splitPath(_modifiedInfo.Key);
-                updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false, true);
-
+                var _objects = FindGameObjectsWithPattern(_pathInfo.SearchPattern);
+                if(_objects.Length > 0){
+                    updateModified(_pathInfo.Component, _objects[0], _pathInfo.SearchPattern, false, true);
+                }
             }
         }
 
@@ -157,10 +186,9 @@ namespace BicUtil.Selector{
                 return;
             }
 
-            GUILayout.Space(10f);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Modified " + selectorData.ModifiedInfo.Count + " Properties");
+            GUILayout.Label("Modified Components", headLabelStyle);
+            GUILayout.BeginHorizontal();    
+            GUILayout.Label("Modified " + selectorData.ModifiedInfo.Count + " Components");
             if (GUILayout.Button("Update All", GUILayout.Width(80f)))
             {
 
@@ -168,9 +196,15 @@ namespace BicUtil.Selector{
                 this.Repaint();
             }
 
+            if (GUILayout.Button("Remove All", GUILayout.Width(80f)))
+            {
+
+                selectorData.ModifiedInfo.Clear();
+                this.Repaint();
+            }
+
             GUILayout.EndHorizontal();
 
-            modifiedScroll = EditorGUILayout.BeginScrollView(modifiedScroll);
 
             EditorGUI.indentLevel++;
 
@@ -197,8 +231,11 @@ namespace BicUtil.Selector{
                     
                     menu.AddItem(new GUIContent("Update"), false, () =>
                     {
-                        updateModified(_pathInfo.Component, FindGameObjectsWithPattern(_pathInfo.SearchPattern)[0], _pathInfo.SearchPattern, false, true);
-                        this.Repaint();
+                        var _objects = FindGameObjectsWithPattern(_pathInfo.SearchPattern);
+                        if(_objects.Length > 0){
+                            updateModified(_pathInfo.Component, _objects[0], _pathInfo.SearchPattern, false, true);
+                            this.Repaint();
+                        }
                     });
 
                     menu.AddSeparator("Inspect");
@@ -238,8 +275,8 @@ namespace BicUtil.Selector{
                 EditorGUILayout.TextField(_modifiedInfo.Value.ToString());
             }
 
-            EditorGUILayout.EndScrollView();
             EditorGUI.indentLevel--;
+            GUILayout.Space(20f);
         }
 
         private void setupTracking()
@@ -258,10 +295,10 @@ namespace BicUtil.Selector{
                     backupComponentValues();
                 }
 
-                if (backupedComponentValues != null)
+                if (selectorData.BackupedComponentValues != null)
                 {
                     bool _hasDiff = false;
-                    foreach (var _componentName in backupedComponentValues.Keys.ToArray())
+                    foreach (var _componentName in selectorData.BackupedComponentValues.Keys.ToArray())
                     {
                         _hasDiff = updateModified(_componentName, trackingTargetObject, targetPattern, true, useTracking) || _hasDiff;
                     }
@@ -283,7 +320,7 @@ namespace BicUtil.Selector{
             var _currentComponent = _targetObject.GetComponent(_componentName);
             var _currentData = EditorJsonUtility.ToJson(_currentComponent);
 
-            if (_updateBackup == false || backupedComponentValues[_componentName] != _currentData)
+            if (_updateBackup == false || selectorData.BackupedComponentValues[_componentName].AsString != _currentData)
             {
                 if(_update == false){
                     return true;
@@ -295,7 +332,7 @@ namespace BicUtil.Selector{
                 MutableDictionaryContainer _diff = null;
 
                 if(_updateBackup == true){
-                    _origin = MutableDictionaryContainer.CreateFromJson(backupedComponentValues[_componentName]);
+                    _origin = MutableDictionaryContainer.CreateFromJson(selectorData.BackupedComponentValues[_componentName].AsString);
                     _diff = _origin.GetDiff(_modified, -1);
                 }else{
                     _origin = MutableDictionaryContainer.CreateFromJson(selectorData.ModifiedInfo[_patternAndComponent].ToString());
@@ -313,7 +350,7 @@ namespace BicUtil.Selector{
                 }
 
                 if(_updateBackup == true){
-                    backupedComponentValues[_componentName] = _currentData;
+                    selectorData.BackupedComponentValues[_componentName].AsString = _currentData;
                 }
                 return true;
             }
@@ -324,8 +361,8 @@ namespace BicUtil.Selector{
         private void backupComponentValues()
         {
             var components = trackingTargetObject.GetComponents<Component>();
-            backupedComponentValues = new Dictionary<string, string>();
-            
+            selectorData.BackupedComponentValues.Clear();
+
             for (int i = 0; i < components.Length; i++)
             {
                 Component component = components[i];
@@ -337,7 +374,11 @@ namespace BicUtil.Selector{
                         _componentName = _componentName.Split(".").Last();
                     }
 
-                    backupedComponentValues[_componentName] = EditorJsonUtility.ToJson(component);
+                    if(selectorData.BackupedComponentValues.ContainsKey(_componentName) == true){
+                        selectorData.BackupedComponentValues[_componentName].AsString = EditorJsonUtility.ToJson(component);
+                    }else{
+                        selectorData.BackupedComponentValues[_componentName] = new StringVariable(EditorJsonUtility.ToJson(component));
+                    }
                 }
             }
         }
@@ -345,20 +386,23 @@ namespace BicUtil.Selector{
         #endregion
         private void drawSavedPattern()
         {
+
+            GUILayout.Label("Favorite search pattern", headLabelStyle);
+
             GUILayout.BeginVertical();
 
             if (string.IsNullOrEmpty(targetPattern) == false)
             {
                 if (savedPatternList.Contains(targetPattern) == false)
                 {
-                    if (GUILayout.Button("Save pattern " + targetPattern))
+                    if (GUILayout.Button("Save pattern \"" + targetPattern + "\""))
                     {
                         this.savedPatternList.Add(targetPattern);
                     }
                 }
                 else
                 {
-                    if (GUILayout.Button("Delete pattern " + targetPattern))
+                    if (GUILayout.Button("Delete pattern \"" + targetPattern + "\""))
                     {
                         this.savedPatternList.Remove(targetPattern);
                     }
@@ -383,7 +427,7 @@ namespace BicUtil.Selector{
         private void drawSearchUI()
         {
             GUILayout.BeginVertical();
-            GUILayout.Label("Search Pattern:");
+            GUILayout.Label("Search", headLabelStyle);
 
 
             GUI.SetNextControlName("SearchPattern");
@@ -459,6 +503,7 @@ namespace BicUtil.Selector{
             }
 
             GUILayout.EndVertical();
+            GUILayout.Space(20f);
         }
         private HashSet<string> getChildNamesInSelectedObjects(GameObject[] _targetObjects)
         {
@@ -653,13 +698,17 @@ namespace BicUtil.Selector{
 
         private void drawBoxAroundGameObject()
         {
-            foreach (var _gameObject in selectedObjects)
-            {
-                Bounds _bounds = getBounds(_gameObject);
-                Handles.DrawSolidRectangleWithOutline(
-                    new Rect(_bounds.center - _bounds.size / 2f, _bounds.size),
-                    Color.clear, Color.green
-                );
+            try{
+                foreach (var _gameObject in selectedObjects)
+                {
+                    Bounds _bounds = getBounds(_gameObject);
+                    Handles.DrawSolidRectangleWithOutline(
+                        new Rect(_bounds.center - _bounds.size / 2f, _bounds.size),
+                        Color.clear, Color.green
+                    );
+                }
+            }catch{
+                search("");
             }
         }
 
@@ -712,8 +761,7 @@ namespace BicUtil.Selector{
                 return;
             }
 
-            GUILayout.Space(10f);
-            GUILayout.Label("Custom Inspector");
+            GUILayout.Label("Custom Inspector", headLabelStyle);
 
             foreach(var _inspectorInfo in selectorData.InspectorInfo){
                 var _inspectorList = _inspectorInfo.Value;
@@ -722,8 +770,18 @@ namespace BicUtil.Selector{
                 int dotIndex = _inpectorPathInfo.PropertyPath.IndexOf(".");
                 var _pathWithoutRoot = _inpectorPathInfo.PropertyPath.Substring(dotIndex + 1);
                 var _objects = FindGameObjectsWithPattern(_inpectorPathInfo.SearchPattern);
+
                 if(_objects.Length <= 0){
-                    continue;
+                    for(int i = 1; i < _inspectorList.Count; i++){
+                        _targetPathWithProperty = _inspectorList[i].AsVariable.AsString;
+                        _inpectorPathInfo = splitPath(_targetPathWithProperty);
+                        dotIndex = _inpectorPathInfo.PropertyPath.IndexOf(".");
+                        _pathWithoutRoot = _inpectorPathInfo.PropertyPath.Substring(dotIndex + 1);
+                        _objects = FindGameObjectsWithPattern(_inpectorPathInfo.SearchPattern);
+                        if(_objects.Length > 0){
+                            break;
+                        }
+                    }
                 }
 
                 GUILayout.BeginHorizontal();
@@ -736,7 +794,6 @@ namespace BicUtil.Selector{
                             var _targetPathWithProperty = _inspectorList[i].AsVariable.AsString;
                             var _inpectorPathInfo = splitPath(_targetPathWithProperty);
                             var _objects = FindGameObjectsWithPattern(_inpectorPathInfo.SearchPattern);
-                            
                             _selectObjects.UnionWith(_objects);
                         }
 
@@ -767,18 +824,25 @@ namespace BicUtil.Selector{
                     menu.ShowAsContext();
                 }
 
-                var _component = _objects[0].GetComponent(_inpectorPathInfo.Component);
-                var _selectedObject = new SerializedObject(_component);
-                var _property = getSerializedPropertyByPath(_selectedObject, _pathWithoutRoot);
-                EditorGUILayout.PropertyField(_property, new GUIContent(""), true);
-                if(_selectedObject.hasModifiedProperties == true)
-                {
-                    _selectedObject.ApplyModifiedProperties();
-                    applyInspectorModified(_inspectorList, _inpectorPathInfo.PropertyPath, _component);
-                    UpdateAllModified();
+                if(_objects.Length > 0){
+                    var _component = _objects[0].GetComponent(_inpectorPathInfo.Component);
+                    var _selectedObject = new SerializedObject(_component);
+                    var _property = getSerializedPropertyByPath(_selectedObject, _pathWithoutRoot);
+                    EditorGUILayout.PropertyField(_property, new GUIContent(""), true);
+                    if(_selectedObject.hasModifiedProperties == true)
+                    {
+                        _selectedObject.ApplyModifiedProperties();
+                        applyInspectorModified(_inspectorList, _inpectorPathInfo.PropertyPath, _component);
+                        UpdateAllModified();
+                    }
+                }else{
+                    GUILayout.Label("Not found");
                 }
+
                 GUILayout.EndHorizontal();
             }
+
+            GUILayout.Space(20f);
         }
 
         private void applyInspectorModified(ListContainer<StringVariable> _targetPathList, string _targetValuePropertyPath, Component _component)
@@ -925,9 +989,18 @@ namespace BicUtil.Selector{
 
     }
 
-    public class SelectorData : RecordContainer{
+    [Serializable]
+    public class SelectorData : RecordContainer, ISerializationCallbackReceiver{
+        [SerializeField]
+        private string modifiedInfoJson = "";
+        [SerializeField]
+        private string InspectorInfoJson = "";
+        [SerializeField]
+        private string BackupInfoJson = "";
+
         public DictionaryContainer<MutableDictionaryContainer> ModifiedInfo = new DictionaryContainer<MutableDictionaryContainer>();
         public DictionaryContainer<ListContainer<StringVariable>> InspectorInfo = new DictionaryContainer<ListContainer<StringVariable>>();
+        public DictionaryContainer<StringVariable> BackupedComponentValues = new DictionaryContainer<StringVariable>();
 
         public SelectorData() : base(){
             AddManagedColumn("path", this.ModifiedInfo);
@@ -945,6 +1018,29 @@ namespace BicUtil.Selector{
             }
 
             return false;
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if(string.IsNullOrEmpty(modifiedInfoJson) == false){
+                this.ModifiedInfo.ParseJson(modifiedInfoJson, false);
+            }
+
+            if(string.IsNullOrEmpty(InspectorInfoJson) == false){
+                this.InspectorInfo.ParseJson(InspectorInfoJson, false);
+            }
+
+            if(string.IsNullOrEmpty(BackupInfoJson) == false){
+                this.BackupedComponentValues.ParseJson(BackupInfoJson, false);
+            }
+
+        }
+
+        public void OnBeforeSerialize()
+        {
+            modifiedInfoJson = this.ModifiedInfo.ToString();
+            InspectorInfoJson = this.InspectorInfo.ToString();
+            BackupInfoJson = this.BackupedComponentValues.ToString();
         }
     }
 }

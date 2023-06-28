@@ -154,6 +154,20 @@ namespace BicDB.Container
 			BuildFormattedString (_stringBuilder, JsonConvertor.GetInstance ());
 			return _stringBuilder.ToString();
 		}
+
+		public bool ParseJson(string _json, bool _merge){
+			if(_merge == false){
+				this.data.Clear();
+			}
+
+			int _count = 0;
+			try{
+				BuildVariable(ref _json, ref _count, JsonConvertor.GetInstance());
+				return true;
+			}catch{
+				return false;
+			}
+		}
 		#endregion
 	}
 
