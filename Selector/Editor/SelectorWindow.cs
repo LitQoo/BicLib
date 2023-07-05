@@ -439,6 +439,66 @@ namespace BicUtil.Selector{
             GUI.SetNextControlName("SearchPattern");
             searchInput = EditorGUILayout.TextField(searchInput);
 
+            if(searchInput.Length > 0){
+                var _patternSplit = searchInput.Split("/");
+                var _lastName = _patternSplit.Last();
+                var _mode = '~';
+                if(_lastName.Length > 0){
+                    if(_lastName[0] == '$' || _lastName[0] == '*' || _lastName[0] == '#'){
+                        _mode = _lastName[0];
+                    }else if(_lastName[0] == '~'){
+
+                    }else{
+                        _lastName = "~"+_lastName;
+                        _mode = '~';
+                    }
+                }else{
+                    _lastName = "*";
+                }
+
+                _patternSplit[_patternSplit.Length - 1] = _lastName;
+                var _newPattern = string.Join("/", _patternSplit);
+
+                
+                IEnumerable<string> _names = null;
+                if(_mode == '~'){
+                    var _list = _patternSplit.ToList();
+                    var _name = _list.Last().Substring(1, _list.Last().Count() - 1);
+                    _names = FindGameObjectsWithPattern(_newPattern).Select(_obj=>_obj.name).Where(_n=>_n != _name).Distinct().Take(5);
+                }else if(_mode == '$'){
+                    var _list = _patternSplit.ToList();
+                    var _componentName = _list.Last().Substring(1, _list.Last().Count() - 1);
+                    _list.RemoveAt(_list.Count - 1);
+                    _newPattern = string.Join("/", _list);
+                    var _objs = FindGameObjectsWithPattern(_newPattern);
+                    _names = getComponentNamesInSelectedObjects(_objs).Where(_name=>_name.Contains(_componentName) && _name != _componentName).Select(_n=>'$'+_n);
+                }else if(_mode == '#'){
+                    var _list = _patternSplit.ToList();
+                    var _tagName = _list.Last().Substring(1, _list.Last().Count() - 1);
+                    _names = getUsedTags().Where(_name=>_name.Contains(_tagName) && _name != _tagName).Select(_n=>'#'+_n);
+                }
+
+                if(_names != null && _names.Count() > 0){
+                    foreach(var _objectName in _names){
+                        GUILayout.Label(_objectName);
+                    }
+
+                    if(Event.current.type == EventType.KeyDown && Event.current.command &&  Event.current.keyCode == KeyCode.Return){
+                        var _list = _patternSplit.ToList();
+                        _list.RemoveAt(_list.Count - 1);
+                        _list.Add(_names.First());
+                        searchInput = string.Join('/', _list);
+                        Debug.Log(searchInput);
+                        Event.current.Use(); // 이벤트 사용 처리
+                        EditorApplication.delayCall += Repaint;
+                        search(searchInput);
+
+                    }
+                }
+
+            }
+
+
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Select") || (Event.current.isKey && Event.current.keyCode == KeyCode.Return))
@@ -452,7 +512,7 @@ namespace BicUtil.Selector{
 
             }
 
-            if (GUILayout.Button(".$#", GUILayout.Width(50f)))
+            if (GUILayout.Button("#$", GUILayout.Width(50f)))
             {
                 EditorGUI.FocusTextInControl("");
                 HashSet<string> _tags = getUsedTags();
@@ -682,8 +742,12 @@ namespace BicUtil.Selector{
         {
             if(searchTerm.StartsWith("~") == true){
                 string namePattern = searchTerm.Substring(1);
-                Regex regex = new Regex(namePattern);
-                return regex.IsMatch(gameObject.name) == true ? gameObject : null;
+                try{
+                    Regex regex = new Regex(namePattern);
+                    return regex.IsMatch(gameObject.name) == true ? gameObject : null;
+                }catch{
+                    return gameObject.name.Contains(namePattern) == true ? gameObject : null;
+                }
             }else if(searchTerm.StartsWith("$") == true){
                 string namePattern = searchTerm.Substring(1);
                 return gameObject.transform.parent.GetComponent(namePattern) != null ? gameObject.transform.parent.gameObject : null;
