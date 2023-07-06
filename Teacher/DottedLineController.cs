@@ -15,13 +15,26 @@ namespace BicUtil.Teacher{
         private SpriteRenderer head;
         [SerializeField]
         private Shader shader;
+
+        private bool isInit = false;
         #endregion
 
         private void Awake(){
+            init();
+        }
+
+        private void init(){
+            if(isInit == true){
+                return;
+            }
+
             this.lineRenderer.material = new Material(this.shader);
+            isInit = true;
         }
 
         public void SetPosition(Vector3[] _positions, float _startOffset = 0f, float _endOffset = 0f, bool _reload = true){
+            init();
+
             lineRenderer.positionCount = _positions.Length;
             
             if(_startOffset > 0){
@@ -45,6 +58,8 @@ namespace BicUtil.Teacher{
         }
 
         public void SetSpacing(float _space, bool _reload = true){
+            init();
+
             lineRenderer.material.SetFloat("_Spacing", _space);
             if(_reload == true){
                 reloadDot();
@@ -52,10 +67,14 @@ namespace BicUtil.Teacher{
         }
 
         public void SetSpeed(float _speed){
+            init();
+
             lineRenderer.material.SetFloat("_Speed", _speed);
         }
 
         public void SetDotSize(float _size, bool _reload = true){
+            init();
+
             lineRenderer.endWidth = _size;
             lineRenderer.startWidth = _size;
             if(_reload == true){
@@ -64,6 +83,8 @@ namespace BicUtil.Teacher{
         }
 
         public void SetColor(Color _color){
+            init();
+            
             lineRenderer.endColor = _color;
             lineRenderer.startColor = _color;
 

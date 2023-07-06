@@ -353,11 +353,10 @@ namespace BicUtil.Teacher
 
         public void SetDottedLine(int _index, Vector2 _positionStart, Vector2 _positionEnd, Color _color, float _width, float _space, float _speed = 0f, float _startOffset = 0f, float _endOffset = 0f){
             var _line = controller.dottedLines[_index];
-            BicTween.Delay(0).SubscribeStart(()=>
-            {
+            BicTween.Delay(0).SubscribeStart(()=>{
                 _line.SetColor(_color);
                 _line.SetPosition(new Vector3[]{_positionStart, _positionEnd}, _startOffset, _endOffset, false);
-                _line.SetDotSize(_width); 
+                _line.SetDotSize(_width, false); 
                 _line.SetSpeed(_speed);
                 _line.SetSpacing(_space);
                 _line.gameObject.SetActive(true);
