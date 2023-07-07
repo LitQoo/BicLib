@@ -68,6 +68,10 @@ namespace BicUtil.Teacher
                 controller.dimmedButton.enabled = false;
             }).AddTo(controller.parentTween);
         }
+        
+        public void SetButtonTextColorImmediately(Color _color){
+            controller.buttonText.color = _color;
+        }
 
         public void SetButton(string _title){
             BicTween.Delay(0f).SubscribeStart(()=>
