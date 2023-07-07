@@ -28,6 +28,8 @@ namespace BicUtil.Teacher
         [SerializeField]
         internal UnityEngine.UI.Image dimmed;
         [SerializeField]
+        internal UnityEngine.UI.Button dimmedButton;
+        [SerializeField]
         internal UnityEngine.UI.Text title;
         [SerializeField]
         internal UnityEngine.UI.Text discription;
@@ -42,9 +44,9 @@ namespace BicUtil.Teacher
         [SerializeField]
         internal UnityEngine.UI.Text buttonText;
 
-        private BicUtil.Tween.Tween scenarioTween = null;
-        
+        internal BicUtil.Tween.Tween scenarioTween = null;    
         internal BicUtil.Tween.Tween parentTween = null; 
+        internal BicUtil.Tween.Tween waitTween = null;    
 
         private Teacher teacher = null;
 
@@ -57,6 +59,7 @@ namespace BicUtil.Teacher
         private void hideObjects(){
             this.pointer.gameObject.SetActive(false);
             this.dimmed.gameObject.SetActive(false);
+            this.dimmedButton.enabled = false;
             this.title.gameObject.SetActive(false);
             this.discription.gameObject.SetActive(false);
             this.button.gameObject.SetActive(false);
@@ -93,7 +96,7 @@ namespace BicUtil.Teacher
         }
 
         public void NextStep(){
-            var _child = scenarioTween.GetPlayingChild();
+            var _child = this.waitTween;
             if(_child != null){
                 if(_child.Type == TweenType.WaitInput){
                 _child.Data = "Next";
@@ -103,15 +106,30 @@ namespace BicUtil.Teacher
             }
         }
 
-        internal void spawn(Action _func){
-            if(parentTween != scenarioTween){
-                throw new SystemException("not support spawn in spawn");
-            }
+        internal void spawn(Action _func, SpawnType _spawnType = SpawnType.WaitAll){
+            // if(parentTween != scenarioTween){
+            //     throw new SystemException("not support spawn in spawn");
+            // }
 
-            parentTween = BicTween.Spawn();
+            var _newParentTween = BicTween.Spawn(_spawnType);
+            var _backup = parentTween;
+            parentTween = _newParentTween;
             _func();
-            parentTween.AddTo(scenarioTween);
-            parentTween = scenarioTween;
+            _newParentTween.AddTo(_backup);
+            parentTween = _backup;
+        }
+
+        internal void sequance(Action _func){
+            // if(parentTween != scenarioTween){
+            //     throw new SystemException("not support spawn in spawn");
+            // }
+
+            var _newParentTween = BicTween.Sequance();
+            var _backup = parentTween;
+            parentTween = _newParentTween;
+            _func();
+            _newParentTween.AddTo(_backup);
+            parentTween = _backup;
         }
     }
 
