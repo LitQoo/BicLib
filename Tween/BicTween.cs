@@ -1021,11 +1021,21 @@ namespace BicUtil.Tween
 			return _tween;
 		}
 
-		public static Tween Spawn(TweenPool _pool = null,
+
+		public static Tween Spawn(SpawnType _spawntype = SpawnType.WaitAll, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			var _tween = CreateModel(_pool);
+
+			switch(_spawntype){
+				case SpawnType.WaitAll:_tween.StringData = Tween.SPAWN_OPTION_ALL; break;
+				case SpawnType.WaitAnyCancelOtherChilds:_tween.StringData = Tween.SPAWN_OPTION_ANY_CANCEL; break;
+				case SpawnType.WaitAnyKeepPlayOtherChilds:_tween.StringData = Tween.SPAWN_OPTION_ANY_KEEP; break;
+				case SpawnType.WaitAnySkipOtherChilds:_tween.StringData = Tween.SPAWN_OPTION_ANY_SKIP; break;
+				default :_tween.StringData = Tween.SPAWN_OPTION_ALL; break;
+			}
+			
 			_tween.Type = TweenType.Spawn;
 			_tween.OriginValue = Vector2.zero;
 			_tween.DiffValue = Vector2.zero;
@@ -1037,6 +1047,7 @@ namespace BicUtil.Tween
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
+
 
 		public static MultiTween Multi(){
 			return new MultiTween();

@@ -18,6 +18,11 @@ namespace BicUtil.Tween
 		public const int DESTORY_WAIT_3FRAME = 3;
 		public const int DESTORY_READY_TO_RECYCLE = 1;
 		public const int DESTORY_NOT = 0;
+
+		public const string SPAWN_OPTION_ALL = "A";
+		public const string SPAWN_OPTION_ANY_SKIP = "S";
+		public const string SPAWN_OPTION_ANY_CANCEL = "C";
+		public const string SPAWN_OPTION_ANY_KEEP = "K";
 		#endregion
 
 		#region properties
@@ -284,7 +289,20 @@ namespace BicUtil.Tween
 			if(type == TweenType.Sequance || type == TweenType.Virtual){
 				Update = updateForSequance;
 			}else if(type == TweenType.Spawn){
-				Update = updateForSpawn;
+				switch(this.stringData){
+					case SPAWN_OPTION_ALL:
+						Update = updateForSpawn;
+					break;
+					case SPAWN_OPTION_ANY_CANCEL:
+					case SPAWN_OPTION_ANY_SKIP:
+					case SPAWN_OPTION_ANY_KEEP:
+						Update = updateForSpawnAny;
+					break;
+					default:
+						Update = updateForSpawn;
+						Debug.LogError("Spawn Option ERROR");
+					break;
+				}
 			}else{
                 Update = updateForSingle;
 			}
@@ -397,10 +415,75 @@ namespace BicUtil.Tween
 				return;
 			}
 			
-			
 			for(int i = _list.Count - 1; i >= 0; i--){
 				if(_list[i].IsPlaying == false){	
 					_list.RemoveAt(i);
+				}
+			}
+
+			if(OnUpdateCallback != null){
+				OnUpdateCallback(CurrentValue);
+			}
+		}
+
+
+		private void updateForSpawnAny(){
+			if(Rate == 0f){
+				setValuesByFunc();
+
+				if(OnStartCallback != null && this.CurrentRepeatCount == 0){
+					OnStartCallback();
+				}
+
+				Rate = 0.5f;
+
+				var _childList = GetChildList();
+				for(int i = 0; i < _childList.Count; i++){
+					_childList[i].Play(false);
+				}
+
+				Data = _childList;
+			}
+
+
+			var _list = Data as List<Tween>;
+
+			if(_list.Count == 0){
+				if(RepeatCount == CurrentRepeatCount){	
+					Rate = 1f;
+					complete();
+					Data = null;
+				}else{
+					CurrentRepeatCount++;
+					Rate = 0;
+					Data = null;
+					if(OnRepeatCallback != null){
+						OnRepeatCallback(this, CurrentRepeatCount);
+					}
+				}
+
+				return;
+			}
+
+			bool _isCompleted = false;
+			for(int i = _list.Count - 1; i >= 0; i--){
+				if(_list[i].IsPlaying == false){	
+					_list.RemoveAt(i);
+					_isCompleted = true;
+				}
+			}
+
+			if(_isCompleted == true){
+				for(int i = _list.Count - 1; i >= 0; i--){
+					var _child = _list[i];
+					if(this.stringData == SPAWN_OPTION_ANY_SKIP){
+						_child.Skip(_child.Id);
+					}else if(this.stringData == SPAWN_OPTION_ANY_CANCEL){
+						_child.Cancel(_child.Id);
+					}
+
+					_list.RemoveAt(i);
+					
 				}
 			}
 
@@ -808,6 +891,14 @@ namespace BicUtil.Tween
 		public Tween GetResult () {
 			return this.tween;
 		}
+	}
+
+	public enum SpawnType{
+		WaitAll,
+		WaitAnyKeepPlayOtherChilds,
+		WaitAnyCancelOtherChilds,
+		WaitAnySkipOtherChilds
+		
 	}
 
 }

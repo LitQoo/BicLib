@@ -56,11 +56,12 @@ namespace BicUtil.Tween
 		}
 
 		public void Spawn(Action _spawn,
+		SpawnType _spawnType = SpawnType.WaitAll,
         TweenPool _pool = null,
         [CallerMemberName] string _memberName = "",
         [CallerFilePath] string _sourceFilePath = "",
         [CallerLineNumber] int _sourceLineNumber = 0){
-			this.StartSpwan(_pool, _memberName, _sourceFilePath, _sourceLineNumber);
+			this.StartSpwan(_spawnType, _pool, _memberName, _sourceFilePath, _sourceLineNumber);
 			_spawn();
 			this.EndSpawn();
 		}
@@ -74,12 +75,13 @@ namespace BicUtil.Tween
 		}
 
 		public void StartSpwan(
+			SpawnType _spawnType = SpawnType.WaitAll,
             TweenPool _pool = null,
             [CallerMemberName] string _memberName = "",
             [CallerFilePath] string _sourceFilePath = "",
             [CallerLineNumber] int _sourceLineNumber = 0
         ){
-			addGroupTween(BicTween.Spawn(_pool, _memberName, _sourceFilePath, _sourceLineNumber));
+			addGroupTween(BicTween.Spawn(_spawnType ,_pool, _memberName, _sourceFilePath, _sourceLineNumber));
 		}
 
 		public void EndSpawn(){

@@ -46,7 +46,7 @@ namespace BicUtil.Tween
             });
             
 			genericMenu.AddItem (new GUIContent ("Spawn"), false,delegate() {
-                selectedTweenPool.AddTween(_tween, BicTween.Spawn(selectedTweenPool).SetTargetObject(_tween.TargetObject));
+                selectedTweenPool.AddTween(_tween, BicTween.Spawn(SpawnType.WaitAll, selectedTweenPool).SetTargetObject(_tween.TargetObject));
 				EditorUtility.SetDirty(selectedTweenPool);
 				EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             });
