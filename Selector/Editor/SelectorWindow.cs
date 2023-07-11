@@ -35,6 +35,7 @@ namespace BicUtil.Selector{
         [SerializeField]
         private bool useTracking = true;
         private GUIStyle headLabelStyle = null;
+        private int recommandCursor = 0;
 
 
         [SerializeField]
@@ -172,6 +173,10 @@ namespace BicUtil.Selector{
                     AssetDatabase.Refresh();
                     Debug.Log("saved " + _content);
                 }
+            }
+
+            if (GUILayout.Button("Clear")){
+                selectorData.ClearAll();
             }
 
             GUILayout.EndHorizontal();
@@ -470,7 +475,11 @@ namespace BicUtil.Selector{
                     var _componentName = _list.Last().Substring(1, _list.Last().Count() - 1);
                     _list.RemoveAt(_list.Count - 1);
                     _newPattern = string.Join("/", _list);
+                    if(_newPattern.Length == 0){
+                        _newPattern = "*";
+                    }
                     var _objs = FindGameObjectsWithPattern(_newPattern);
+                    Debug.Log(_newPattern + "/" + _newPattern.Length);
                     _names = getComponentNamesInSelectedObjects(_objs).Where(_name=>_name.Contains(_componentName) && _name != _componentName).Select(_n=>'$'+_n);
                 }else if(_mode == '#'){
                     var _list = _patternSplit.ToList();
@@ -479,21 +488,52 @@ namespace BicUtil.Selector{
                 }
 
                 if(_names != null && _names.Count() > 0){
-                    foreach(var _objectName in _names){
-                        GUILayout.Label(_objectName);
+                    for(int i = 0; i < _names.Count(); i++){
+                        if(i == recommandCursor){
+                            GUILayout.Label(_names.ElementAt(i), headLabelStyle);
+                        }else{
+                            GUILayout.Label(_names.ElementAt(i));
+                        }
                     }
 
-                    if(Event.current.type == EventType.KeyDown && Event.current.command &&  Event.current.keyCode == KeyCode.Return){
-                        var _list = _patternSplit.ToList();
-                        _list.RemoveAt(_list.Count - 1);
-                        _list.Add(_names.First());
-                        searchInput = string.Join('/', _list);
-                        Debug.Log(searchInput);
-                        Event.current.Use(); // 이벤트 사용 처리
-                        EditorApplication.delayCall += Repaint;
-                        search(searchInput);
-
+                    if(Event.current.type == EventType.KeyDown && Event.current.control){
+                        if(Event.current.keyCode == KeyCode.K){
+                            recommandCursor = Mathf.Min(recommandCursor+1, _names.Count());
+                            if(recommandCursor == _names.Count()){
+                                recommandCursor = 0;
+                            }
+                            Event.current.Use(); // 이벤트 사용 처리
+                        }else if(Event.current.keyCode == KeyCode.I){
+                            recommandCursor = Mathf.Max(recommandCursor-1, -1);
+                            if(recommandCursor == -1){
+                                recommandCursor = _names.Count() - 1;
+                            }
+                            Event.current.Use(); // 이벤트 사용 처리
+                        }else if(Event.current.keyCode == KeyCode.Return){
+                            if(recommandCursor >= 0){
+                                var _list = _patternSplit.ToList();
+                                _list.RemoveAt(_list.Count - 1);
+                                _list.Add(_names.ElementAt(recommandCursor));
+                                searchInput = string.Join('/', _list);
+                                Debug.Log(searchInput);
+                                Event.current.Use(); // 이벤트 사용 처리
+                                EditorApplication.delayCall += Repaint;
+                                search(searchInput);
+                            }
+                        }
                     }
+
+                    // if(Event.current.type == EventType.KeyDown && Event.current.command &&  Event.current.keyCode == KeyCode.Return){
+                    //     var _list = _patternSplit.ToList();
+                    //     _list.RemoveAt(_list.Count - 1);
+                    //     _list.Add(_names.First());
+                    //     searchInput = string.Join('/', _list);
+                    //     Debug.Log(searchInput);
+                    //     Event.current.Use(); // 이벤트 사용 처리
+                    //     EditorApplication.delayCall += Repaint;
+                    //     search(searchInput);
+
+                    // }
                 }
 
             }
@@ -607,7 +647,7 @@ namespace BicUtil.Selector{
 
         private static HashSet<string> getUsedTags()
         {
-            SelectingTag[] _selectingTag = FindObjectsOfType<SelectingTag>();
+            SelectingTag[] _selectingTag = FindObjectsOfType<SelectingTag>(true);
             HashSet<string> _tags = new HashSet<string>();
             foreach (var sc in _selectingTag)
             {
@@ -1073,6 +1113,12 @@ namespace BicUtil.Selector{
         public SelectorData() : base(){
             AddManagedColumn("path", this.ModifiedInfo);
             AddManagedColumn("inspector", this.InspectorInfo);
+        }
+
+        public void ClearAll(){
+            this.ModifiedInfo.Clear();
+            this.InspectorInfo.Clear();
+            this.BackupedComponentValues.Clear();
         }
 
         public bool IsInInspector(string _path){
