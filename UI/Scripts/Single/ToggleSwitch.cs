@@ -73,5 +73,13 @@ namespace BicUtil.UI{
         public void AddListener(UnityAction _action){
             this.button.onClick.AddListener(_action);
         }
+
+        public void RemoveAllListeners(){
+            this.button.onClick.RemoveAllListeners();
+        }
+
+        public void RemoveListener(UnityAction _action){
+            this.button.onClick.RemoveListener(_action);
+        }
     }
 }
