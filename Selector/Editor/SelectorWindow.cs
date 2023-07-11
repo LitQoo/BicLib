@@ -475,11 +475,13 @@ namespace BicUtil.Selector{
                     var _componentName = _list.Last().Substring(1, _list.Last().Count() - 1);
                     _list.RemoveAt(_list.Count - 1);
                     _newPattern = string.Join("/", _list);
+                    
                     if(_newPattern.Length == 0){
                         _newPattern = "*";
                     }
+
+                    //FIXME: 전체 오브젝트 대상으로 모든 컴포넌트를 받아오는 기능을 만들어야함.
                     var _objs = FindGameObjectsWithPattern(_newPattern);
-                    Debug.Log(_newPattern + "/" + _newPattern.Length);
                     _names = getComponentNamesInSelectedObjects(_objs).Where(_name=>_name.Contains(_componentName) && _name != _componentName).Select(_n=>'$'+_n);
                 }else if(_mode == '#'){
                     var _list = _patternSplit.ToList();
