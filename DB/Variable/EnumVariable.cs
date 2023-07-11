@@ -5,7 +5,7 @@ using BicDB.Storage;
 
 namespace BicDB.Variable
 {
-	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct
+	public class EnumVariable<T> : VariableBase, IEnumVariable<T> where  T : struct, Enum
 	{
 		#region AsValue
 		virtual protected T data { get; set; }
@@ -89,6 +89,10 @@ namespace BicDB.Variable
 
 		public D As<D>() where D : class, IDataBase{
 			return this as D;
+		}
+
+		public bool HasFlag(T _flag){
+			return AsEnum.HasFlag(_flag);
 		}
 		#endregion
 

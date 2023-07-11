@@ -358,7 +358,7 @@ namespace BicUtil.MVCSystem
 			_variable.Setter = _action;
 		}
 
-		public void BindTwoway<U>(VirtualEnumVariable<U> _variable, Func<U> _func, Action<U> _action) where U : struct{
+		public void BindTwoway<U>(VirtualEnumVariable<U> _variable, Func<U> _func, Action<U> _action) where U : struct, Enum{
 			bindRemoverList.Add (()=>{
 				_variable.Getter = null;
 				_variable.Setter = null;

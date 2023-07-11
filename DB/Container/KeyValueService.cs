@@ -9,7 +9,7 @@ using BicDB.Variable;
 
 namespace BicDB.Container
 {
-    public class KeyValueService<KEY, VALUE> where KEY : struct where VALUE: class, IVariable, new() {
+    public class KeyValueService<KEY, VALUE> where KEY : struct, Enum where VALUE: class, IVariable, new() {
         private TableContainer<KeyValueRecord<KEY, VALUE>> table;
         private Dictionary<KEY, string> setting = new Dictionary<KEY, string>();
 
@@ -68,7 +68,7 @@ namespace BicDB.Container
         }
     }
 
-    public class KeyValueRecord<T, VALUE> : RecordContainer where T : struct where VALUE: class, IVariable, new()
+    public class KeyValueRecord<T, VALUE> : RecordContainer where T : struct, Enum where VALUE: class, IVariable, new()
     {
         #region FieldName
 

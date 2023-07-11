@@ -3,7 +3,7 @@ using BicDB;
 
 namespace BicDB.Variable
 {
-	public class VirtualEnumVariable<T> : EnumVariable<T> where  T : struct
+	public class VirtualEnumVariable<T> : EnumVariable<T> where  T : struct, Enum
 	{
 		private T _data;
 		override protected T data {
