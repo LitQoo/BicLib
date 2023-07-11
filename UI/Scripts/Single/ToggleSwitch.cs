@@ -69,5 +69,9 @@ namespace BicUtil.UI{
             this.onHead.SetActive(true);
             this.offHead.SetActive(false);
         }
+
+        public void AddListener(UnityAction _action){
+            this.button.onClick.AddListener(_action);
+        }
     }
 }
