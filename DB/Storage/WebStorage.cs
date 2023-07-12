@@ -326,51 +326,81 @@ namespace BicDB.Storage
 			}
 		}
 
-		public async Task<(CachingLevel CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
+		public (CachingLevel CachingType, T Result) GetRecordOnCache<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
 			var _webParam = _param as WebStorageParameter;
 			if(_webParam == null){
 				_webParam = new WebStorageParameter();
 			}
-		
-			var _result = await getWebRequestWithCache(_webParam);
+			
+			var _result = getCache(_param);
 
-			if(string.IsNullOrEmpty(_result.Text) == true){
-				return (_result.CachingType, null);
-			}
+			return buildRecord<T>(_webParam, _result);
 
-			try{
-				if(_webParam.ShouldEncrypt == true){
-					_result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text, _webParam.EncryptKey);
-				}
-			}catch{
-				return (_result.CachingType, null);
-			}
-
-			var _resultRecord = new T();
-			_resultRecord.AddManagedColumn("result", new IntVariable());
-
-			if(_resultRecord.ParseJson(_result.Text) == true){
-				if(_resultRecord["result"].AsVariable.AsInt != 0){
-					lock(memoryCache){
-						if(memoryCache.ContainsKey(_webParam.CacheId) == true){
-							memoryCache.Remove(_webParam.CacheId);
-						}
-					}
-
-					FileStorageUtil.RemoveFile(Path.Combine(CACHE_DIRECTORY,_webParam.CacheId + ".txt"));
-
-					return (_result.CachingType, null); 
-				}
-
-				_resultRecord.Remove("result");
-				return (_result.CachingType, _resultRecord);
-			}else{
-				Debug.Log("parse error");
-				return (_result.CachingType, null);
-			}
 		}
 
-		public async Task<(Result Result, RecordContainer Data)> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
+		public async Task<(CachingLevel CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new ()
+        {
+            var _webParam = _param as WebStorageParameter;
+            if (_webParam == null)
+            {
+                _webParam = new WebStorageParameter();
+            }
+
+            var _result = await getWebRequestWithCache(_webParam);
+
+            return buildRecord<T>(_webParam, _result);
+        }
+
+        private (CachingLevel CachingType, T Result) buildRecord<T>(WebStorageParameter _webParam, (CachingLevel CachingType, string Text) _result) where T : class, IRecordContainer, new()
+        {
+            if (string.IsNullOrEmpty(_result.Text) == true)
+            {
+                return (_result.CachingType, null);
+            }
+
+            try
+            {
+                if (_webParam.ShouldEncrypt == true)
+                {
+                    _result.Text = BicUtil.Crypto.AES256.Decrypt(_result.Text, _webParam.EncryptKey);
+                }
+            }
+            catch
+            {
+                return (_result.CachingType, null);
+            }
+
+            var _resultRecord = new T();
+            _resultRecord.AddManagedColumn("result", new IntVariable());
+
+            if (_resultRecord.ParseJson(_result.Text) == true)
+            {
+                if (_resultRecord["result"].AsVariable.AsInt != 0)
+                {
+                    lock (memoryCache)
+                    {
+                        if (memoryCache.ContainsKey(_webParam.CacheId) == true)
+                        {
+                            memoryCache.Remove(_webParam.CacheId);
+                        }
+                    }
+
+                    FileStorageUtil.RemoveFile(Path.Combine(CACHE_DIRECTORY, _webParam.CacheId + ".txt"));
+
+                    return (_result.CachingType, null);
+                }
+
+                _resultRecord.Remove("result");
+                return (_result.CachingType, _resultRecord);
+            }
+            else
+            {
+                Debug.Log("parse error");
+                return (_result.CachingType, null);
+            }
+        }
+
+        public async Task<(Result Result, RecordContainer Data)> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
 			var _webParam = _param;
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
