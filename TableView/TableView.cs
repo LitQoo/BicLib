@@ -760,10 +760,10 @@ namespace BicUtil.TableView
             }
 
 			if(m_isVertical) {
-				m_topPadding.preferredHeight = hiddenElementsHeightSum - m_LayoutGroup.padding.top;
-				m_topPadding.gameObject.SetActive(m_topPadding.preferredHeight > 0);
+				m_topPadding.preferredHeight = hiddenElementsHeightSum;
+                m_topPadding.gameObject.SetActive(m_topPadding.preferredHeight > 0);
 			} else {
-				m_topPadding.preferredWidth = hiddenElementsHeightSum - m_LayoutGroup.padding.left;
+				m_topPadding.preferredWidth = hiddenElementsHeightSum;
 				m_topPadding.gameObject.SetActive(m_topPadding.preferredWidth > 0);
 			}
 
