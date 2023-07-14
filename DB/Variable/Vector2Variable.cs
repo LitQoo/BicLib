@@ -113,7 +113,9 @@ namespace BicDB.Variable
 
         void IVariableReadOnly.NotifyChanged(IVariableReadOnly _value)
         {
-            throw new NotImplementedException();
+            if (onChangedValueActions != null) {
+                onChangedValueActions (this);
+            }
         }
 
         void IVariableReadOnly.Subscribe(Action<IVariableReadOnly> _callback, bool _needFirstCall = false)

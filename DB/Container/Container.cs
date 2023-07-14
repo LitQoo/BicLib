@@ -35,7 +35,7 @@ namespace BicDB.Container
 
 	}
 
-	public interface IDictionaryContainer<T> : IDataBase, IDictionary<string, T> where T : IDataBase{
+	public interface IDictionaryContainer<T> : IDataBase, IDictionary<string, T>, INotifyWithChild where T : IDataBase{
 		Action<string, T> OnAddedRowActions { get; set; }
 		Action<string, T> OnRemovedRowActions { get; set;}
 	}
@@ -48,14 +48,14 @@ namespace BicDB.Container
 		object GetObject(int _index);
 		int ObjectCount{get;}
 	}
-	public interface IListContainer<T> : IDataBase, IList<T>, ITrackedListContainer where T : IDataBase{
+	public interface IListContainer<T> : IDataBase, IList<T>, ITrackedListContainer, INotifyWithChild where T : IDataBase{
 		event Action<T> OnAddedValueActions;
 		event Action OnClearedValueActions;
 		OnChangedElementDelegator<int, T> OnChangedElementActions { get; set;}
 		int IndexOf(Func<T,bool> _find);
 	}
 
-	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase, IBindRmover{
+	public interface IRecordContainer :  IDictionary<string, IDataBase>, IDataBase, IBindRmover, INotifyWithChild{
 		IRecordContainerParent Parent{ get; set; }
 		Action<IRecordContainer, string> OnChangedValueActions{ get; set;}
 
@@ -66,7 +66,7 @@ namespace BicDB.Container
 		bool ParseJson(string _json);
 	}
 
-	public interface ITableContainer<T> : IRecordContainerParent, ITableStorageSuppoter, IDataBase, ITrackedListContainer, IList<T> where T : IRecordContainer
+	public interface ITableContainer<T> : IRecordContainerParent, ITableStorageSuppoter, IDataBase, ITrackedListContainer, INotifyWithChild, IList<T> where T : IRecordContainer
 	{
 		#region event
 		Action<T> OnAddedRowActions { get; set; }

@@ -76,4 +76,8 @@ namespace BicDB
 		void ClearNotifyAndBinding ();
 	}
 
+	public interface INotifyWithChild{
+		void NotifyChangedWithChild();
+	}
+
 }

@@ -7,6 +7,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using System.Collections;
 using UnityEngine;
+using BicUtil.Json;
 
 namespace BicDB.Container
 {
@@ -50,6 +51,18 @@ namespace BicDB.Container
 			if(this.onAddedValueActions != null){
 				for(int i = 0; i < this.Count; i++){
 					this.onAddedValueActions(this[i]);
+				}
+			}
+		}
+
+		public void NotifyChangedWithChild(){
+			foreach(var _info in this.data){
+				switch(_info){
+					case INotifyWithChild _parent: _parent.NotifyChangedWithChild(); break;
+					case IVariable _varaible:_varaible.NotifyChanged(); break;
+					default:
+						
+					break;
 				}
 			}
 		}
@@ -262,6 +275,12 @@ namespace BicDB.Container
 			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
 			BuildFormattedString (_stringBuilder, BicUtil.Json.JsonConvertor.GetInstance ());
 			return _stringBuilder.ToString();
+		}
+
+		public bool MergeFromJson(string _json){
+			int _count = 0;
+			JsonConvertor.GetInstance().MergeListContainer(this, ref _json, ref _count);
+			return true;
 		}
 	}
 }

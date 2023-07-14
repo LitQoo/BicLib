@@ -627,6 +627,46 @@ namespace BicUtil.Json
 			}
 		}
 
+
+		public void MergeListContainer<T> (IListContainer<T> _list, ref string _json, ref int _counter) where T : IDataBase, new()
+		{
+			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '[')) {
+				throw new SystemException("fail find [");
+			}
+
+			_counter++;
+			
+			increaseCounterUntilNotFoundChars(ref _json, ref _counter, "\n\t ");
+
+			if(_json[_counter] == ']'){
+				_counter++;
+				return;
+			}
+
+			int i = 0;
+			while (_counter < _json.Length) {
+				var _value = _list[i];
+				_value.BuildVariable (ref _json, ref _counter, this);
+				i++;
+				_value.AsVariable?.NotifyChanged();
+				
+				if (!increaseCounterUntilFoundCharsWithIgnoreChars(ref _json, ref _counter, ",]", "\n\t ")) {
+					_counter++;
+					break;
+				} else {
+					if (_json[_counter] == ',') {
+					} else if (_json[_counter] == ']') {
+						_counter++;
+						return;
+					} else {
+						throw new SystemException("JsonToList error");
+					}
+				}
+
+				_counter++;
+			}
+		}
+
 		public void BuildDictionaryContainer<T>(IDictionaryContainer<T> _dictionary, ref string _json, ref int _counter) where T : IDataBase, new(){
 			if (!increaseCounterUntilFoundChar(ref _json, ref _counter, '{')) {
 				Debug.Log("_counter = " + _counter.ToString() + " / json = " + _json);

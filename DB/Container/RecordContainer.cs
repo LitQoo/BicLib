@@ -36,6 +36,19 @@ namespace BicDB.Container
 			}
 		}
 
+		public void NotifyChangedWithChild(){
+			this.NotifyChanged();
+			foreach(var _info in this.data){
+				switch(_info.Value){
+					case INotifyWithChild _parent: _parent.NotifyChangedWithChild(); break;
+					case IVariable _varaible:_varaible.NotifyChanged(); break;
+					default:
+						
+					break;
+				}
+			}
+		}
+
 		public void AddManagedColumn(string _key, IDataBase _value){
 			if(data.ContainsKey(_key) == false){
 				data.Add (_key, _value);

@@ -101,6 +101,18 @@ namespace BicDB.Container
 			//return new ListContainerEnumerator<T> (data.ToArray());
 		}
 
+		public void NotifyChangedWithChild(){
+			foreach(var _info in this.data){
+				switch(_info){
+					case INotifyWithChild _parent: _parent.NotifyChangedWithChild(); break;
+					case IVariable _varaible:_varaible.NotifyChanged(); break;
+					default:
+						
+					break;
+				}
+			}
+		}
+
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
 		{
 			return data.GetEnumerator();

@@ -251,6 +251,11 @@ namespace BicDB.Container
 			}
 		}
 
+		public void NotifyChangedWithChild(){
+			foreach(var _info in this.rows){
+				_info.NotifyChangedWithChild();
+			}
+		}
 		#endregion
 
 		#region IDatabase

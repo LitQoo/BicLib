@@ -148,6 +148,18 @@ namespace BicDB.Container
 				return data.IsReadOnly;
 			}
 		}
+
+		public void NotifyChangedWithChild(){
+			foreach(var _info in this.data){
+				switch(_info.Value){
+					case INotifyWithChild _parent: _parent.NotifyChangedWithChild(); break;
+					case IVariable _varaible:_varaible.NotifyChanged(); break;
+					default:
+						
+					break;
+				}
+			}
+		}
 		
 		public override string ToString(){
 			System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder();
