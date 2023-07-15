@@ -414,12 +414,19 @@ namespace BicUtil.Teacher
             }).AddTo(controller.parentTween);
         }
 
-        public void HideDottedLine(int _index){
-            BicTween.Delay(0).SubscribeStart(()=>
+        public void HideDottedLine(int _index, bool _immediately = false){
+            Action _action = ()=>
             {
                 var _line = controller.dottedLines[_index];
                 _line.gameObject.SetActive(false);
-            }).AddTo(controller.parentTween);
+            };
+            
+            if(_immediately == true){
+                _action();
+                return;
+            }
+            
+            BicTween.Delay(0).SubscribeStart(_action).AddTo(controller.parentTween);
         }
 
         public void Action(Action _action){
