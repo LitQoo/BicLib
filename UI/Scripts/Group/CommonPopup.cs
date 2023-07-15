@@ -40,6 +40,8 @@ namespace BicUtil.UI{
         private UnityEngine.UI.Image leftButtonIcon;
         [SerializeField]
         private UnityEngine.UI.Image rightButtonIcon;
+        [SerializeField]
+        private GameObject popup;
 
         private RectTransform backTrasform = null;
         #endregion   
@@ -111,6 +113,7 @@ namespace BicUtil.UI{
             rightButtonIcon.gameObject.SetActive(false);
             rightButtonText.gameObject.SetActive(false);
             leftButtonIcon.gameObject.SetActive(false);
+            popup?.SetActive(true);
         }
 
         public void Info(string _text, Action _onClickClose){
@@ -152,6 +155,12 @@ namespace BicUtil.UI{
             diableAllUI();
             mainMessageText.gameObject.SetActive(true);
             mainMessageText.text = _text;
+        }
+
+        public void BlockAndOpen(){
+            diableAllUI();
+            popup.SetActive(false);
+            this.Open();
         }
 
         public void Select(string _text, string _leftButtonText, string _rightButtonText, Action _onClickLeftButton, Action _onClickRightButton){
@@ -234,6 +243,7 @@ namespace BicUtil.UI{
 
         public void Close(){
             this.gameObject.SetActive(false);
+            this.popup?.SetActive(true);
         }
         #endregion
     }
