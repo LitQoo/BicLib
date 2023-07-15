@@ -612,6 +612,8 @@ namespace BicUtil.Tween
 				return;
 			}
 
+			this.IsPlaying = false;
+
 			if(IsGrouped == true){
 				var _childList = GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
@@ -619,8 +621,9 @@ namespace BicUtil.Tween
 				}
 			}
 
-			this.Clear();
-			this.destoryCount = DESTORY_WAIT_3FRAME;
+			if(IsLockedComplete == false){
+				destoryAndClear();
+			}
 		}
 
 		public void Skip(int _id){

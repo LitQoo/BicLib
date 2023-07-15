@@ -1293,7 +1293,7 @@ namespace BicUtil.Tween
 			if(Tween.IsPlaying == true){
 				Tween.Cancel(Id);
 			}
-
+			
 			Tween = null;
 			Id = -1;
 		}
