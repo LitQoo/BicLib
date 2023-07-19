@@ -41,20 +41,35 @@ namespace BicDB.Container
             return this.table.FirstOrDefault(_row=>_row.Key.AsString == _type.ToString());
         }
 
+        public void Reset(){
+            this.table.Clear();
+            setDefaultValue();
+        }
+
         private bool onLoadedTable(Result _result)
         {
-            if(_result.IsSuccess == true){
-                foreach(var _setting in this.setting){
-                    var _keyValue = this.get(_setting.Key);
-                    if(_keyValue == null){
-                        _keyValue = new KeyValueRecord<KEY, VALUE>(_setting.Key);
-                        _keyValue.Value.AsString = _setting.Value;
-                        this.table.Add(_keyValue);
-                    }
-                }
+            if(_result.IsSuccess == true)
+            {
+                setDefaultValue();
                 return true;
-            }else{
+            }
+            else
+            {
                 return false;
+            }
+        }
+
+        private void setDefaultValue()
+        {
+            foreach (var _setting in this.setting)
+            {
+                var _keyValue = this.get(_setting.Key);
+                if (_keyValue == null)
+                {
+                    _keyValue = new KeyValueRecord<KEY, VALUE>(_setting.Key);
+                    _keyValue.Value.AsString = _setting.Value;
+                    this.table.Add(_keyValue);
+                }
             }
         }
 

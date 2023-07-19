@@ -40,5 +40,10 @@ namespace BicDB.Container
 				cached = defaultFunc(_idVariable);
 			}
 		}
+
+		public void ResetCache(){
+			this.lastIdValue = "_-_n_o-n_e_-_";
+			cached = null;
+		}
 	}
 }
