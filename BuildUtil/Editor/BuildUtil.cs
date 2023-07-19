@@ -143,6 +143,15 @@ namespace BicLib.BuildUtil{
             }
         }
 
+        public void EditRequiredDeviceCapabilitiesArmv7AndArm64()
+        {
+            Debug.Log("[BuildUtil] EditRequiredDeviceCapabilitiesOnlyArmv7");
+            
+            var _uiCap = plistObj.root.values["UIRequiredDeviceCapabilities"].AsArray();
+            addString(_uiCap, "arm64");
+            addString(_uiCap, "armv7");
+        }
+
         public void EditRequiredDeviceCapabilitiesOnlyArmv7()
         {
             Debug.Log("[BuildUtil] EditRequiredDeviceCapabilitiesOnlyArmv7");
