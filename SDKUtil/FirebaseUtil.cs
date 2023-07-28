@@ -72,6 +72,7 @@ namespace BicUtil.SDKUtil
 
                         //await Task.Delay(3000);
                         Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
+                        Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
                         FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
                         var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
@@ -89,6 +90,7 @@ namespace BicUtil.SDKUtil
 
                     }catch(System.Exception _error){
                         Debug.Log("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
+                        Firebase.Crashlytics.Crashlytics.LogException(_error);
                     }
 
                     if(_task.Result == Firebase.DependencyStatus.Available){
@@ -97,9 +99,13 @@ namespace BicUtil.SDKUtil
                                 await remoteConfigAsync(_constants, 2f);
                             }
                         }catch(System.Exception _error){
-                            Debug.Log("[Firebase] InitializationException " + _error.Message);
+                            Debug.Log("[Firebase] InitializationException " + _error.ToString());
+                            Firebase.Crashlytics.Crashlytics.LogException(_error);
                         }
                     }
+                }else{
+                    var _exception = new SystemException("Firebase Not Available " + _task.Result.ToString());
+                    Firebase.Crashlytics.Crashlytics.LogException(_exception);
                 }
             });
 
@@ -281,6 +287,7 @@ namespace BicUtil.SDKUtil
 
         static public void InitFirebase(){
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
+            Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
             Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
 
