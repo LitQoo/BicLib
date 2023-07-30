@@ -15,17 +15,34 @@ namespace BicUtil.SDKUtil
     public static class FirebaseUtil
     {
         #region FireBase
-        static private void setRemoteConfigDefaultValue(IRecordContainer _constants){
+        static private async Task setRemoteConfigDefaultValueAsync(IRecordContainer _constants){
             if(_constants == null){
+                Debug.Log("start constants is null");
                 return;
             }
             
             var _default = new Dictionary<string, object>();
             foreach(var _value in _constants){
-                _default.Add(_value.Key, _value.Value.AsVariable.AsString);
+                switch(_value.Value.Type){
+                    case BicDB.DataType.Int:
+                        _default.Add(_value.Key, _value.Value.AsVariable.AsInt); 
+                    break;
+                    case BicDB.DataType.Float:
+                        _default.Add(_value.Key, _value.Value.AsVariable.AsFloat); 
+                    break;
+                    case BicDB.DataType.Bool:
+                        _default.Add(_value.Key, _value.Value.AsVariable.AsBool); 
+                    break;
+                    case BicDB.DataType.String:
+                        _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
+                    break;
+                    default:
+                        Debug.LogError("[Firebase] Remote config not supports  " + _value.Value.Type.ToString());
+                    break;
+                }
             }
 
-            Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default);
+            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default);
         }
 
         static private void updateConstant(IRecordContainer _constants){
@@ -34,12 +51,15 @@ namespace BicUtil.SDKUtil
             }
 
             foreach(var _value in _constants){
-                var _stringValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key).StringValue;
+                var _configValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key);
+                var _stringValue = _configValue.StringValue;
+
                 if(string.IsNullOrEmpty(_stringValue) == false){
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
-                    }catch{
-                        Debug.Log("updateConstant error " + _value.Key);
+                    }catch(SystemException _e){
+                        Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
+                        Firebase.Crashlytics.Crashlytics.LogException(_e);
                     }
                 }
             }
@@ -89,7 +109,7 @@ namespace BicUtil.SDKUtil
                         Application.logMessageReceived += log;
 
                     }catch(System.Exception _error){
-                        Debug.Log("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
+                        Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
                         Firebase.Crashlytics.Crashlytics.LogException(_error);
                     }
 
@@ -99,7 +119,7 @@ namespace BicUtil.SDKUtil
                                 await remoteConfigAsync(_constants, 2f);
                             }
                         }catch(System.Exception _error){
-                            Debug.Log("[Firebase] InitializationException " + _error.ToString());
+                            Debug.LogError("[Firebase] InitializationException " + _error.ToString());
                             Firebase.Crashlytics.Crashlytics.LogException(_error);
                         }
                     }
@@ -153,15 +173,15 @@ namespace BicUtil.SDKUtil
                     return new BicDB.Result(3);
                 }
             }catch(System.Exception _e){
+                Debug.LogError("[Firebase] Error InitFirebaseAsync " + _e.Message);
+                Firebase.Crashlytics.Crashlytics.LogException(_e);
                 return new BicDB.Result(3, "", 0, _e.Message);
             }
         }
 
         static private async Task remoteConfigAsync(IRecordContainer _constants, float _timeout){
-            setRemoteConfigDefaultValue(_constants);
+            await setRemoteConfigDefaultValueAsync(_constants);
             
-            // Debug.Log("FirebaseRemoteConfig Start");
-
             var _asyncTask = Task.Run(async ()=>
             {
                 var _reloadTime = TimeSpan.FromHours(12);
@@ -181,8 +201,9 @@ namespace BicUtil.SDKUtil
                 await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
                     #if !UNITY_EDITOR
                     sendActiveABTestEvent();
-                    updateConstant(_constants);
                     #endif
+                    
+                    updateConstant(_constants);
                 });
                 
                 return new BicDB.Result(0);
@@ -218,7 +239,6 @@ namespace BicUtil.SDKUtil
             try
             {
                 _eventName = _eventName + SceneManager.GetActiveScene().name;
-                Debug.Log(_eventName);
                 BicUtil.Analytics.Analytics.Event(_eventName, new Dictionary<string, object> {
                         {
                             "Result",
@@ -228,7 +248,7 @@ namespace BicUtil.SDKUtil
             }
             catch (Exception _e)
             {
-                Debug.Log("send InitRemoteConfigOn error");
+                Debug.LogError("send InitRemoteConfigOn" + SceneManager.GetActiveScene().name + " error");
                 Firebase.Crashlytics.Crashlytics.LogException(_e);
             }
         }
@@ -255,7 +275,7 @@ namespace BicUtil.SDKUtil
                   case Firebase.RemoteConfig.LastFetchStatus.Success:
                     //Firebase.RemoteConfig.FirebaseRemoteConfig.ActivateFetched();
 
-                      Debug.Log(string.Format("Remoteconfig Remote data loaded and ready (last fetch time {0}).", info.FetchTime));
+                      DebugForEditor.Log(string.Format("Remoteconfig Remote data loaded and ready (last fetch time {0}).", info.FetchTime));
                     //   string stop = Firebase.RemoteConfig.FirebaseRemoteConfig.GetValue("stops").StringValue;
                     //   Debug.Log("Value: " + (string.IsNullOrEmpty(stop) ? "NA" : stop));
 
