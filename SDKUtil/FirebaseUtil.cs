@@ -34,10 +34,19 @@ namespace BicUtil.SDKUtil
                         _default.Add(_value.Key, _value.Value.AsVariable.AsBool); 
                     break;
                     case BicDB.DataType.String:
+                        _default.Add(_value.Key, _value.Value.AsVariable.AsString);
+                    break; 
+                    case BicDB.DataType.Enum:
                         _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
                     break;
                     default:
-                        Debug.LogError("[Firebase] Remote config not supports  " + _value.Value.Type.ToString());
+                        try{
+                            Debug.LogError("[Firebase] Remote config not supports  " + _value.Value.Type.ToString());
+                            _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
+                        }catch(SystemException _e){
+                            Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
+                            Firebase.Crashlytics.Crashlytics.LogException(_e);
+                        }
                     break;
                 }
             }
