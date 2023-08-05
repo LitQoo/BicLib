@@ -123,7 +123,7 @@ namespace BicUtil.SDKUtil
                                 }
                             });
                         }
-                        
+
                         Application.logMessageReceived += log;
 
                     }catch(System.Exception _error){
@@ -252,6 +252,10 @@ namespace BicUtil.SDKUtil
                         {
                             "Result",
                             "Success"
+                        },
+                        {
+                            "RealtimeSinceStartup",
+                            UnityEngine.Time.realtimeSinceStartup
                         }
                     });
             }
@@ -267,6 +271,10 @@ namespace BicUtil.SDKUtil
                         {
                             "Result",
                             "Success"
+                        },
+                        {
+                            "RealtimeSinceStartup",
+                            UnityEngine.Time.realtimeSinceStartup
                         }
                 });
             }
