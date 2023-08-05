@@ -92,10 +92,10 @@ namespace BicUtil.SDKUtil
         static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
         static private async Task<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
             var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
-            
-            //Debug.Log("_fbInitTask start");
-            await _fbInitTask.ContinueWithOnMainThread(async _task=>{
-                if(_task.Result == Firebase.DependencyStatus.Available){
+            await _fbInitTask;
+
+            // .ContinueWithOnMainThread(async _task=>{
+                if(_fbInitTask.Result == Firebase.DependencyStatus.Available){
                     try{
                         Status = Firebase.DependencyStatus.Available;
 
@@ -115,6 +115,15 @@ namespace BicUtil.SDKUtil
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
 
+                         if(TableService.IsSetup == true){
+                            Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
+                                {
+                                    "RealtimeSinceStartup",
+                                    UnityEngine.Time.realtimeSinceStartup
+                                }
+                            });
+                        }
+                        
                         Application.logMessageReceived += log;
 
                     }catch(System.Exception _error){
@@ -122,10 +131,10 @@ namespace BicUtil.SDKUtil
                         Firebase.Crashlytics.Crashlytics.LogException(_error);
                     }
 
-                    if(_task.Result == Firebase.DependencyStatus.Available){
+                    if(_fbInitTask.Result == Firebase.DependencyStatus.Available){
                         try{
                             if(_constants != null){
-                                await remoteConfigAsync(_constants, 2f);
+                                await remoteConfigAsync(_constants);
                             }
                         }catch(System.Exception _error){
                             Debug.LogError("[Firebase] InitializationException " + _error.ToString());
@@ -133,13 +142,11 @@ namespace BicUtil.SDKUtil
                         }
                     }
                 }else{
-                    var _exception = new SystemException("Firebase Not Available " + _task.Result.ToString());
+                    var _exception = new SystemException("Firebase Not Available " + _fbInitTask.Result.ToString());
                     Firebase.Crashlytics.Crashlytics.LogException(_exception);
                 }
-            });
+            // });
 
-
-            //Debug.Log("_fbInitTask finished");
             return _fbInitTask.Result;
         }
 
@@ -188,43 +195,51 @@ namespace BicUtil.SDKUtil
             }
         }
 
-        static private async Task remoteConfigAsync(IRecordContainer _constants, float _timeout){
+        static private async Task remoteConfigAsync(IRecordContainer _constants){
             await setRemoteConfigDefaultValueAsync(_constants);
             
-            var _asyncTask = Task.Run(async ()=>
+            var _reloadTime = TimeSpan.FromHours(12);
+            if (TableService.IsUpdate == true)
             {
-                var _reloadTime = TimeSpan.FromHours(12);
-                if (TableService.IsUpdate == true)
-                {
-                    _reloadTime = TimeSpan.Zero;
-                }
-
-                #if UNITY_EDITOR
-                Debug.Log("FirebaseRemoteConfig FetchAsync EditorMode");
                 _reloadTime = TimeSpan.Zero;
-                #endif
+            }
 
-                var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
-                await _fetchTask.ContinueWithOnMainThread(FetchComplete);
-                var _fetchedTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
-                await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
-                    #if !UNITY_EDITOR
-                    sendActiveABTestEvent();
-                    #endif
-                    
-                    updateConstant(_constants);
-                });
+            #if UNITY_EDITOR
+            _reloadTime = TimeSpan.Zero;
+            #endif
+
+            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+            await _fetchTask;
+            //await _fetchTask.ContinueWithOnMainThread(FetchComplete);
+            FetchComplete(_fetchTask);
+            var _fetchedTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+            await _fetchedTask;
+            #if !UNITY_EDITOR
+            sendActiveABTestEvent();
+            #endif
+            
+            updateConstant(_constants);
+            // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
+            //     #if !UNITY_EDITOR
+            //     sendActiveABTestEvent();
+            //     #endif
                 
-                return new BicDB.Result(0);
-            });
+            //     updateConstant(_constants);
+            // });
 
-            var _timeoutTask = Task.Run(async ()=>{
-                await Task.Delay(TimeSpan.FromSeconds(_timeout)); 
-                return new BicDB.Result(1);
-            });
+            // var _asyncTask = Task.Run(async ()=>
+            // {
+                
+                
+            //     return new BicDB.Result(0);
+            // });
 
-            var _result = await Task.WhenAny(_asyncTask, _timeoutTask);
-            // Debug.Log("remoteConfigAsync result = " + _result.Result.Code.ToString());
+            // var _timeoutTask = Task.Run(async ()=>{
+            //     await Task.Delay(TimeSpan.FromSeconds(_timeout)); 
+            //     return new BicDB.Result(1);
+            // });
+
+            //var _result = await _asyncTask; //Task.WhenAny(_asyncTask, _timeoutTask);
         }
 
         private static void sendActiveABTestEvent()

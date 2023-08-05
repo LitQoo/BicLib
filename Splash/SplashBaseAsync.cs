@@ -23,10 +23,12 @@ namespace BicUtil.Splash
                 }
 
                 BicUtil.Analytics.Analytics.Event("Install", new Dictionary<string, object>{
-                    {"version", _version}
+                    {"version", _version},
+                    {
+                        "RealtimeSinceStartup",
+                        UnityEngine.Time.realtimeSinceStartup
+                    }
                 });
-
-                Debug.Log("[Install] Version:" + _version);
             };
 
             TableService.OnUpdate += (_lastVersion, _currentVersion)=>{

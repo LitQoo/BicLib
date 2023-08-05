@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace BicUtil.PageService
 {
-    public class PageManager : MonoBehaviourSingleton<PageManager>, ISingleton{
+    public class PageManager : MonoBehaviourSingleton<PageManager>, BicUtil.SingletonBase.ISingleton{
         private Stack<PageController> sceneStack = new Stack<PageController>();
         private object sceneTransitionParameter = null;
         public PageController CurrentController{

@@ -8,7 +8,7 @@ using BicUtil.Tween;
 
 namespace BicUtil.Ads
 {
-    public class LocalAdsManager : SingletonBase<LocalAdsManager>, IAdsPlatform
+    public class LocalAdsManager : BicUtil.SingletonBase.SingletonBase<LocalAdsManager>, IAdsPlatform
     {
         public string TermsURL => "https://bigjamgames.com/privacy_en.html";
 
