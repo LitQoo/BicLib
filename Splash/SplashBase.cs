@@ -13,7 +13,7 @@ namespace BicUtil.Splash
         }
 
         private void loadTableService(){
-            TableService.OnSetup += ()=>{
+            TableService.OnSetup += (BicDB.Result _result)=>{
                 var _version = "0";
                 try{
                     _version = Application.version;
@@ -21,8 +21,9 @@ namespace BicUtil.Splash
 
                 }
 
-                BicUtil.Analytics.Analytics.Event("GH_Install", new Dictionary<string, object>{
-                    {"version", _version}
+                BicUtil.Analytics.Analytics.Event("Install", new Dictionary<string, object>{
+                    {"version", _version},
+                    {"result", _result.Code}
                 });
 
                 Debug.Log("[Install] Version:" + _version);

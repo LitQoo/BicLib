@@ -15,7 +15,7 @@ namespace BicUtil.Splash
         }
 
         private async Task loadTableService(){
-            TableService.OnSetup += ()=>{
+            TableService.OnSetup += (_result)=>{
                 var _version = "0";
                 try{
                     _version = Application.version;
@@ -27,7 +27,8 @@ namespace BicUtil.Splash
                     {
                         "RealtimeSinceStartup",
                         UnityEngine.Time.realtimeSinceStartup
-                    }
+                    },
+                    {"result", _result.Code}
                 });
             };
 
@@ -42,12 +43,17 @@ namespace BicUtil.Splash
 
             var _result = await TableService.LoadAsync();
             
-            if(_result.IsSuccess == true){
-                await OnLoadedTableServiceAsync();
-            }else{
-                await OnFailedToLoadAsync(_result);
+            try{
+                if(_result.IsSuccess == true){
+                    await OnLoadedTableServiceAsync();
+                    return;
+                }
+            }catch{
+                await OnFailedToLoadAsync(new Result(9, "", 0, "DB Load error"));    
+                return;
             }
-
+            
+            await OnFailedToLoadAsync(_result);
         }
 
         protected abstract void OnSetup();
