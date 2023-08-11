@@ -35,10 +35,10 @@ namespace BicDB.Core
         #endregion
 
         #region Event
-        static public event Action OnSetup{
+        static public event Action<Result> OnSetup{
             add{
                 if(isInit == true && isSetup == true){
-                    value();
+                    value(new BicDB.Result((int)FileStorage.ResultCode.Success));
                 }else{
                     onSetup += value;
                 }
@@ -92,14 +92,14 @@ namespace BicDB.Core
                         try{
                             var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
                             var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
-                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                            return (int)(DateTime.Now - _installDate).TotalDays;
                         }catch{
                             ServerTimeManager.InitArabicCalendarCrashFix();
                             ServerTimeManager.InitThaiCalendarCrashFix();
 
                             var _installDateHour = GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
                             var _installDate = DateTime.ParseExact(_installDateHour, "yyMMddHH", null);
-                            return (int)(DateTime.UtcNow - _installDate).TotalDays;
+                            return (int)(DateTime.Now - _installDate).TotalDays;
                         }
                     }else{
                         return -1;
@@ -158,7 +158,7 @@ namespace BicDB.Core
         static private string currentVersion = "";
         static private bool isSetup = false;
         static private bool isUpdate = false;
-        static private Action onSetup;
+        static private Action<Result> onSetup;
         static private Action<string, string> onUpdate;
         #endregion
 
@@ -276,25 +276,29 @@ namespace BicDB.Core
                 }
 
                 if(!hasProperty(PROP_FIELD_IS_SETUP)){
-                    SetStringProperty(PROP_FIELD_VERSION, currentVersion);
-                    SetStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
-                    SetStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
-                    SetStringProperty(PROP_FIELD_INSTALL_DATE_LOCAL, DateTime.Now.ToString("yyMMdd"));
-                    
-                    SetIntProperty(PROP_FIELD_SESSION_COUNT, 1);
-                    SetStringProperty(PROP_FIELD_IS_SETUP, "true");
+                    try{
+                        SetStringProperty(PROP_FIELD_VERSION, currentVersion);
+                        SetStringProperty(PROP_FIELD_INSTALL_VERSION, currentVersion);
+                        SetStringProperty(PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                        SetStringProperty(PROP_FIELD_INSTALL_DATE_LOCAL, DateTime.Now.ToString("yyMMdd"));
+                        
+                        SetIntProperty(PROP_FIELD_SESSION_COUNT, 1);
+                        SetStringProperty(PROP_FIELD_IS_SETUP, "true");
+                    }catch{
+                        onSetup(new Result(5));
+                        return false;
+                    }
 
                     saveProperty(_tableInfoSaveResult=>{
                         if(_tableInfoSaveResult.Code == (int)FileStorage.ResultCode.Success){
-                            if(onSetup != null){
-                                onSetup();
-                            }
-
                             isSetup = true;
+                        }
+
+                        if(onSetup != null){
+                            onSetup(_tableInfoSaveResult);
                         }
                     });
                 }else if(currentVersion != lastVersion){
-                    SetStringProperty(PROP_FIELD_VERSION, currentVersion);
                     SetStringProperty(PROP_FIELD_VERSION, currentVersion);
                     increaseProperty(PROP_FIELD_SESSION_COUNT);
                     
