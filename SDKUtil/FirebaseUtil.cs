@@ -79,8 +79,8 @@ namespace BicUtil.SDKUtil
                     abTestName = _constants["ab_group"].AsVariable;
                 }
                 
-                if(!string.IsNullOrEmpty(abTestName.AsString) && abTestName.AsString.ToLower() != "none"){
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", _constants["ab_group"].AsVariable.AsString);
+                if(!string.IsNullOrEmpty(abTestName.AsString)){
+                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", abTestName.AsString);
                 }
             }else{
                 #if UNITY_EDITOR
@@ -91,6 +91,7 @@ namespace BicUtil.SDKUtil
         
         static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
         static private async Task<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
+            FirebaseAnalytics.SetUserId(TableService.UserId);
             var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
             await _fbInitTask;
 
@@ -104,13 +105,12 @@ namespace BicUtil.SDKUtil
                         Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
                         FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
-                        var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.UtcNow.ToString("yyMMddHH"));
+                        var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
                         var _installDateString = _installDateHour.Substring(0, 6);
                         FirebaseAnalytics.SetCustomKey("SetupDateHour", _installDateHour);
                         FirebaseAnalytics.SetCustomKey("SetupDate", _installDateString);
                         FirebaseAnalytics.SetCustomKey("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
                         FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());
-                        FirebaseAnalytics.SetUserId(TableService.UserId);
                         FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
@@ -137,7 +137,7 @@ namespace BicUtil.SDKUtil
                                 await remoteConfigAsync(_constants);
                             }
                         }catch(System.Exception _error){
-                            Debug.LogError("[Firebase] InitializationException " + _error.ToString());
+                            Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString());
                             Firebase.Crashlytics.Crashlytics.LogException(_error);
                         }
                     }
@@ -209,16 +209,34 @@ namespace BicUtil.SDKUtil
             #endif
 
             var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
-            await _fetchTask;
+            try{
+                await _fetchTask;
+            }catch(SystemException _exception){
+                Debug.LogError("[Firebase] remoteConfigAsync _fetchTask");
+                throw _exception;
+            }
+
             //await _fetchTask.ContinueWithOnMainThread(FetchComplete);
             FetchComplete(_fetchTask);
-            var _fetchedTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
-            await _fetchedTask;
+            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+            
+            try{
+                await _activateTask;
+            }catch(SystemException _exception){
+                Debug.LogError("[Firebase] remoteConfigAsync _activateTask");
+                throw _exception;
+            }
+
             #if !UNITY_EDITOR
             sendActiveABTestEvent();
             #endif
             
-            updateConstant(_constants);
+            try{
+                updateConstant(_constants);
+            }catch(SystemException _exception){
+                Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
+                throw _exception;
+            }
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
             //     #if !UNITY_EDITOR
             //     sendActiveABTestEvent();
