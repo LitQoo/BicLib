@@ -119,17 +119,24 @@ namespace BicUtil.Teacher
             parentTween = _backup;
         }
 
-        internal void sequance(Action _func){
+        internal Tween.Tween sequance(Action _func, int _repeat = -1){
             // if(parentTween != scenarioTween){
             //     throw new SystemException("not support spawn in spawn");
             // }
 
             var _newParentTween = BicTween.Sequance();
+            
+            if(_repeat > 0){
+                _newParentTween.SetRepeat(_repeat);
+            }
+
             var _backup = parentTween;
             parentTween = _newParentTween;
             _func();
             _newParentTween.AddTo(_backup);
             parentTween = _backup;
+
+            return _newParentTween;
         }
     }
 

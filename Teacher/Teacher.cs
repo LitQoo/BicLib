@@ -16,8 +16,8 @@ namespace BicUtil.Teacher
             controller.spawn(_scenario, _spawnType);
         }
 
-        public void Sequance(Action _scenario){
-            controller.sequance(_scenario);
+        public Tween.Tween Sequance(Action _scenario, int _repeat = -1){
+            return controller.sequance(_scenario, _repeat);
         }
 
         public void WaitClickedButton(string _buttonText){
@@ -412,6 +412,20 @@ namespace BicUtil.Teacher
                 _line.SetSpacing(_space);
                 _line.gameObject.SetActive(true);
             }).AddTo(controller.parentTween);
+        }
+
+        public void HidePointer(bool _immediately = false){
+            Action _action = ()=>
+            {
+                controller.pointer.gameObject.SetActive(false);
+            };
+            
+            if(_immediately == true){
+                _action();
+                return;
+            }
+            
+            BicTween.Delay(0).SubscribeStart(_action).AddTo(controller.parentTween);
         }
 
         public void HideDottedLine(int _index, bool _immediately = false){
