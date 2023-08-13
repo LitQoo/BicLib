@@ -137,7 +137,7 @@ namespace BicUtil.SDKUtil
                                 await remoteConfigAsync(_constants);
                             }
                         }catch(System.Exception _error){
-                            Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString());
+                            Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString() + "/" + _error.Message);
                             Firebase.Crashlytics.Crashlytics.LogException(_error);
                         }
                     }
@@ -196,19 +196,27 @@ namespace BicUtil.SDKUtil
         }
 
         static private async Task remoteConfigAsync(IRecordContainer _constants){
+            var _errorLine = 0;
+            try{
             await setRemoteConfigDefaultValueAsync(_constants);
             
+            _errorLine++;
             var _reloadTime = TimeSpan.FromHours(12);
             if (TableService.IsUpdate == true)
             {
                 _reloadTime = TimeSpan.Zero;
             }
 
+            _errorLine++;
             #if UNITY_EDITOR
             _reloadTime = TimeSpan.Zero;
             #endif
 
+
+            _errorLine++;
             var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+            
+            _errorLine++;
             try{
                 await _fetchTask;
             }catch(SystemException _exception){
@@ -216,10 +224,29 @@ namespace BicUtil.SDKUtil
                 throw _exception;
             }
 
-            //await _fetchTask.ContinueWithOnMainThread(FetchComplete);
-            FetchComplete(_fetchTask);
+            _errorLine++;
+
+            await _fetchTask.ContinueWithOnMainThread(FetchComplete);
+
+            var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
+            if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
+                Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
+                BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
+                    {
+                        "LastFetchStatus",
+                        info.LastFetchStatus.ToString()
+                    },
+                    {
+                        "LastFetchFailureReason",
+                        info.LastFetchFailureReason.ToString()
+                    }
+                });
+            }
+
+            _errorLine++;
             var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
             
+            _errorLine++;
             try{
                 await _activateTask;
             }catch(SystemException _exception){
@@ -227,14 +254,26 @@ namespace BicUtil.SDKUtil
                 throw _exception;
             }
 
+            if(_activateTask.Result == false){
+                Debug.LogError("ActivateAsync error");
+                BicUtil.Analytics.Analytics.Event("ActivateAsyncError");
+            }
+
+            _errorLine++;
+
             #if !UNITY_EDITOR
             sendActiveABTestEvent();
             #endif
             
+            _errorLine++;
             try{
                 updateConstant(_constants);
             }catch(SystemException _exception){
                 Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
+                throw _exception;
+            }
+            }catch(Firebase.FirebaseException _exception){
+                Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine);
                 throw _exception;
             }
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
@@ -315,7 +354,7 @@ namespace BicUtil.SDKUtil
               }
               else if (fetchTask.IsCompleted)
               {
-                //   Debug.Log("Fetch completed successfully!");
+                   DebugForEditor.Log("Fetch completed successfully!");
               }
 
               var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
@@ -342,15 +381,15 @@ namespace BicUtil.SDKUtil
                       switch (info.LastFetchFailureReason)
                       {
                           case Firebase.RemoteConfig.FetchFailureReason.Error:
-                                Debug.Log("Remoteconfig Fetch failed for unknown reason");
+                                DebugForEditor.Log("Remoteconfig Fetch failed for unknown reason");
                                 break;
                           case Firebase.RemoteConfig.FetchFailureReason.Throttled:
-                                Debug.Log("Remoteconfig Fetch throttled until " + info.ThrottledEndTime);
+                                DebugForEditor.Log("Remoteconfig Fetch throttled until " + info.ThrottledEndTime);
                                 break;
                       }
                      break;
                   case Firebase.RemoteConfig.LastFetchStatus.Pending:
-                     Debug.Log("Remoteconfig Latest Fetch call still pending.");
+                     DebugForEditor.Log("Remoteconfig Latest Fetch call still pending.");
                      break;
             }
         }
