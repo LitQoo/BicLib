@@ -43,7 +43,7 @@ namespace BicUtil.SDKUtil
                         try{
                             Debug.LogError("[Firebase] Remote config not supports  " + _value.Value.Type.ToString());
                             _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
-                        }catch(SystemException _e){
+                        }catch(System.Exception _e){
                             Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
                             Firebase.Crashlytics.Crashlytics.LogException(_e);
                         }
@@ -66,7 +66,7 @@ namespace BicUtil.SDKUtil
                 if(string.IsNullOrEmpty(_stringValue) == false){
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
-                    }catch(SystemException _e){
+                    }catch(System.Exception _e){
                         Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
                         Firebase.Crashlytics.Crashlytics.LogException(_e);
                     }
@@ -200,6 +200,18 @@ namespace BicUtil.SDKUtil
             try{
             await setRemoteConfigDefaultValueAsync(_constants);
             
+            #if UNITY_EDITOR
+            if(tester != null){
+                if(tester.UseTester == true){
+                    tester.SetConstantsValues(_constants);
+                    return;
+                }else{
+                    Debug.Log("[RemoteConfigTester] Use Sever Value");
+                }
+            }
+            #endif
+
+
             _errorLine++;
             var _reloadTime = TimeSpan.FromHours(12);
             if (TableService.IsUpdate == true)
@@ -217,31 +229,34 @@ namespace BicUtil.SDKUtil
             var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
             
             _errorLine++;
+
             try{
                 await _fetchTask;
-            }catch(SystemException _exception){
+            }catch(System.Exception _exception){
+
+                var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
+                if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
+                    Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
+                    BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
+                        {
+                            "LastFetchStatus",
+                            info.LastFetchStatus.ToString()
+                        },
+                        {
+                            "LastFetchFailureReason",
+                            info.LastFetchFailureReason.ToString()
+                        }
+                    });
+                }
+                
                 Debug.LogError("[Firebase] remoteConfigAsync _fetchTask");
                 throw _exception;
             }
 
             _errorLine++;
+            
+            FetchComplete(_fetchTask);
 
-            await _fetchTask.ContinueWithOnMainThread(FetchComplete);
-
-            var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
-            if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
-                Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
-                BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
-                    {
-                        "LastFetchStatus",
-                        info.LastFetchStatus.ToString()
-                    },
-                    {
-                        "LastFetchFailureReason",
-                        info.LastFetchFailureReason.ToString()
-                    }
-                });
-            }
 
             _errorLine++;
             var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
@@ -249,7 +264,7 @@ namespace BicUtil.SDKUtil
             _errorLine++;
             try{
                 await _activateTask;
-            }catch(SystemException _exception){
+            }catch(System.Exception _exception){
                 Debug.LogError("[Firebase] remoteConfigAsync _activateTask");
                 throw _exception;
             }
@@ -268,7 +283,7 @@ namespace BicUtil.SDKUtil
             _errorLine++;
             try{
                 updateConstant(_constants);
-            }catch(SystemException _exception){
+            }catch(System.Exception _exception){
                 Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
                 throw _exception;
             }
@@ -297,6 +312,11 @@ namespace BicUtil.SDKUtil
             // });
 
             //var _result = await _asyncTask; //Task.WhenAny(_asyncTask, _timeoutTask);
+        }
+
+        private static RemoteConfigTester tester = null;
+        public static void SetRemoteConfigTester(RemoteConfigTester _tester){
+            tester = _tester;
         }
 
         private static void sendActiveABTestEvent()
