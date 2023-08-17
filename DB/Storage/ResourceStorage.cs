@@ -4,7 +4,7 @@ using BicDB.Storage;
 using System;
 using BicDB.Container;
 using BicUtil.Json;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicDB.Storage{
 
@@ -54,10 +54,36 @@ namespace BicDB.Storage{
 			this.Pull(_table, _callback, _parameter);
 		}
 
-		public async Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+		public async UniTask<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
 		{
 			_table.Clear();
-			var _result = loadByResourceFile(_table, _parameter);
+			var _result = await loadByResourceFileAsync(_table, _parameter);
+			return _result;
+		}
+
+		private async UniTask<Result> loadByResourceFileAsync<T>(ITableContainer<T> _table, object _parameter = null) where T : IRecordContainer, new() {
+
+			string _filePath = "BicDB/" + getFileName(_table.Name) + ".json";
+
+			if (_parameter != null) {
+				ResourceStorageParameter _param = _parameter as ResourceStorageParameter;
+				_filePath = _param.Path;
+
+			}
+
+			string _data = await ReadAssetAsync(_filePath);
+			var _result = new Result ((int)ResultCode.Success, _filePath);
+			int _counter = 0;
+
+			if (!string.IsNullOrEmpty(_data)) {
+				try{
+					JsonConvertor.GetInstance().BuildTableContainer(_table, ref _data, ref _counter);
+				}catch(Exception e){
+					_result.Code = (int)ResultCode.FailedConvertJson;
+					_result.Message = "FailedConvertJson " + e.Message + "/" + e.ToString();
+				}
+			}
+
 			return _result;
 		}
 
@@ -122,36 +148,21 @@ namespace BicDB.Storage{
 		}
 		
 
-		// public static async Task<string> ReadAssetAsync(string _filePath){
-		// 	// Debug.Log("filestorage " + _filePath);
-		// 	// #if UNITY_EDITOR
-			
-		// 	// string _path = Application.dataPath + "/Resources/" + _filePath;
+		public static async UniTask<string> ReadAssetAsync(string _filePath){
+			if(_filePath.Contains(".")){
+				_filePath = _filePath.Split('.')[0];
+			}
 
-		// 	// if (File.Exists(_path))
-		// 	// {
-		// 	// 	return await FileStorageUtil.ReadFileAsync(_path);
-		// 	// }
-		// 	// else
-		// 	// {
-		// 	// 	Debug.Log("not found json file Resources/" + _filePath);
-		// 	// 	return null;
-		// 	// }
-		// 	// #else
-		// 	if(_filePath.Contains(".")){
-		// 		_filePath = _filePath.Split('.')[0];
-		// 	}
-
-		// 	try{
-		// 		var _task = Resources.LoadAsync<TextAsset>(_filePath);
-		// 		await _task;
-		// 		var _text= (_task.asset as TextAsset).text;
-		// 		return _text;
-		// 	}catch{
-		// 		return string.Empty;
-		// 	}
-		// 	// #endif 
-		// }
+			try{
+				var _task = Resources.LoadAsync<TextAsset>(_filePath).ToUniTask();
+				var _textAsset = await _task;
+				var _text= (_textAsset as TextAsset).text;
+				return _text;
+			}catch{
+				return string.Empty;
+			}
+			// #endif 
+		}
 
 		public static T ReadRecord<T>(string _filePath) where T : IRecordContainer, new(){
 			var _record = new T();

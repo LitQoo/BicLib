@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Storage;
 using BicDB.Variable;
 using BicUtil.Tween;
@@ -92,13 +92,13 @@ namespace BicDB.Core
 
         private string errorMasssage = "";
 
-        public async Task<BicDB.Result> LoadAsync(int _retryCount){
+        public async UniTask<BicDB.Result> LoadAsync(int _retryCount){
             int loadCount = 0;
             while(true)
             {
-                List<Task<Result>> _taskList = getTaskList();
+                List<UniTask<Result>> _taskList = getTaskList();
 
-                var _result = await Task.WhenAll(_taskList.ToArray());
+                var _result = await UniTask.WhenAll(_taskList.ToArray());
                 
                 removeLoadedTable(_result);
 
@@ -136,9 +136,9 @@ namespace BicDB.Core
             }
         }
 
-        private List<Task<Result>> getTaskList()
+        private List<UniTask<Result>> getTaskList()
         {
-            List<Task<BicDB.Result>> _taskList = new List<Task<BicDB.Result>>();
+            List<UniTask<BicDB.Result>> _taskList = new List<UniTask<BicDB.Result>>();
             for (int i = 0; i < tableList.Count; i++)
             {
                 var _param = tableList[i].Parameter;

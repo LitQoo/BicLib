@@ -8,7 +8,7 @@ using System;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using BicUtil.Json;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicUtil.ServerTime;
 
 namespace BicDB.Core
@@ -204,12 +204,13 @@ namespace BicDB.Core
             _loader.Load(_callback, 3);
         }
 
-        static public async Task<Result> LoadAsync(){
+        static public async UniTask<Result> LoadAsync(){
             init();
 
             var _loader = new TableLoader();
             _loader.AddTable(tableInfo, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), setupSysTable);
             _loader.AddTable(queryTable, BicDB.Storage.FileStorage.GetInstance(), new FileStorageParameter("filesystem"), _result=>true);
+
             var _result = await _loader.LoadAsync(3);
             return _result;
         }
@@ -264,9 +265,12 @@ namespace BicDB.Core
 
         private static bool setupSysTable(Result _result)
         {
-                checkToSyncFileAndPrefs();
-                
-            //if(_result.IsSuccess == true){
+            checkToSyncFileAndPrefs();
+            if(_result.IsSuccess == false){
+                RollbackProperties();
+            }
+
+            if(_result.IsSuccess == true){
                 if(hasProperty(PROP_FIELD_VERSION)){
                     lastVersion = getStringProperty(PROP_FIELD_VERSION);
                 }
@@ -316,7 +320,7 @@ namespace BicDB.Core
                     increaseProperty(PROP_FIELD_SESSION_COUNT);
                     saveProperty();
                 }
-           // }
+            }
 
             return true;
         }
@@ -402,9 +406,29 @@ namespace BicDB.Core
                 PlayerPrefs.SetString(PROP_FIELD_VERSION, getStringProperty(PROP_FIELD_VERSION));
                 PlayerPrefs.SetString(PROP_FIELD_INSTALL_VERSION, getStringProperty(PROP_FIELD_INSTALL_VERSION));
                 PlayerPrefs.SetString(PROP_FIELD_INSTALL_DATEHOUR, getStringProperty(PROP_FIELD_INSTALL_DATEHOUR));
+                PlayerPrefs.SetString(PROP_FIELD_INSTALL_DATE_LOCAL, getStringProperty(PROP_FIELD_INSTALL_DATE_LOCAL));
                 PlayerPrefs.SetString(PROP_FIELD_IS_SETUP, getStringProperty(PROP_FIELD_IS_SETUP));
             }catch{
+                Debug.LogWarning("[TableService]BackupProperties Error");
+            }
+        }
 
+        static public void RollbackProperties(){
+            if(PlayerPrefs.HasKey(PROP_FIELD_SESSION_COUNT) == true){
+
+                try{
+                    SetIntProperty(PROP_FIELD_SESSION_COUNT, PlayerPrefs.GetInt(PROP_FIELD_SESSION_COUNT));
+                    SetStringProperty(PROP_FIELD_USER_ID,PlayerPrefs.GetString(PROP_FIELD_USER_ID));
+                    SetStringProperty(PROP_FIELD_VERSION,PlayerPrefs.GetString(PROP_FIELD_VERSION));
+                    SetStringProperty(PROP_FIELD_INSTALL_VERSION,PlayerPrefs.GetString(PROP_FIELD_INSTALL_VERSION));
+                    SetStringProperty(PROP_FIELD_INSTALL_DATEHOUR,PlayerPrefs.GetString(PROP_FIELD_INSTALL_DATEHOUR));
+                    SetStringProperty(PROP_FIELD_IS_SETUP,PlayerPrefs.GetString(PROP_FIELD_IS_SETUP));
+                    SetStringProperty(PROP_FIELD_INSTALL_DATE_LOCAL,PlayerPrefs.GetString(PROP_FIELD_INSTALL_DATE_LOCAL));
+                }catch{
+                    Debug.LogWarning("[TableService]RollbackProperties Error");
+                }
+
+                Debug.Log("RollbackProperties");
             }
         }
 

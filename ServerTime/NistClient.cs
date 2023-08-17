@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace BicUtil.ServerTime
@@ -19,7 +19,11 @@ namespace BicUtil.ServerTime
             return new DateTime(1000, 1, 1); //to check if we have an online date or not.
         }
 
-        public async void GetNetworkTime(int _timeout, Action<bool, DateTime> _callback)
+        public void GetNetworkTime(int _timeout, Action<bool, DateTime> _callback){
+            GetNetworkTimeAsync(_timeout, _callback).Forget();
+        }
+
+        public async UniTaskVoid GetNetworkTimeAsync(int _timeout, Action<bool, DateTime> _callback)
         {
             callback = _callback;
 
@@ -61,7 +65,7 @@ namespace BicUtil.ServerTime
             callback(_isSuccess, date);
         }
 
-        private async Task<DateTime> getDate(string _server, int _timeout)
+        private async UniTask<DateTime> getDate(string _server, int _timeout)
         {
             var _tcpClient = new System.Net.Sockets.TcpClient();
             _tcpClient.ReceiveTimeout = _timeout;

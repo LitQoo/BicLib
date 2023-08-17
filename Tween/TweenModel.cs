@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -846,11 +846,11 @@ namespace BicUtil.Tween
 			return new TweenAwaiter(this);
 		}
 
-		public async Task<Tween> GetTask(){
+		public async UniTask<Tween> GetTask(){
 			return await this;
 		}
 
-		public void SetParent(List<Task<Tween>> _taskList){
+		public void SetParent(List<UniTask<Tween>> _taskList){
 			_taskList.Add(this.GetTask());
 		}
 		#endregion

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Storage;
 using NSubstitute;
 using NUnit.Framework;
@@ -22,7 +22,7 @@ namespace BicDB.Core
             int _retry2 = 0;
             _table1.LoadAsync(Arg.Any<object>()).Returns(_callinfo=>{
                 UnityEngine.Debug.Log("make table loadasync");
-                return Task.Run<Result>(()=>{
+                return UniTask.RunOnThreadPool<Result>(()=>{
                     if(_retry1 == 0){
                         _retry1++;
                         UnityEngine.Debug.Log("table result 1"); 
@@ -35,7 +35,7 @@ namespace BicDB.Core
             });
             _table2.LoadAsync(Arg.Any<object>()).Returns(_callinfo=>{
                 UnityEngine.Debug.Log("make table loadasync");
-                return Task.Run<Result>(()=>{
+                return UniTask.RunOnThreadPool<Result>(()=>{
                     if(_retry2 <= 1){
                         _retry2++;
                         UnityEngine.Debug.Log("table result 1"); 
@@ -48,7 +48,7 @@ namespace BicDB.Core
             });
             _table3.LoadAsync(Arg.Any<object>()).Returns(_callinfo=>{
                 UnityEngine.Debug.Log("make table loadasync");
-                return Task.Run<Result>(()=>{
+                return UniTask.RunOnThreadPool<Result>(()=>{
                     UnityEngine.Debug.Log("table result 0");
                     return new Result(0);
                 });
@@ -73,7 +73,7 @@ namespace BicDB.Core
             UnityEngine.Debug.Log("LoadAsyncTest");
             _table.LoadAsync(Arg.Any<object>()).Returns(_callinfo=>{
                 UnityEngine.Debug.Log("make table loadasync");
-                return Task.Run<Result>(()=>{
+                return UniTask.RunOnThreadPool<Result>(()=>{
                         UnityEngine.Debug.Log("table result 1"); 
                         return new Result(1);
                 });

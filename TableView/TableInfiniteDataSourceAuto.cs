@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BicDB.Container;
 using UnityEngine;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Variable;
 
 namespace BicUtil.TableView
@@ -22,11 +22,11 @@ namespace BicUtil.TableView
         public IVariableReadOnly IsLoading{get=>this.isLoading;}
         public IVariableReadOnly IsLoadedAll{get=>this.isLoadedAll;}
 
-        private Func<int, IRecordContainer, Task<(IList<T> List, bool IsEnd)>> dataLoader;
+        private Func<int, IRecordContainer, UniTask<(IList<T> List, bool IsEnd)>> dataLoader;
         
         #endregion
 
-        public TableInfiniteDataSourceAuto(TableView _tableView, Func<int, IRecordContainer, Task<(IList<T> List, bool IsEnd)>> _dataLoader, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) : base(_tableView, null, _getRowHeightFunc){
+        public TableInfiniteDataSourceAuto(TableView _tableView, Func<int, IRecordContainer, UniTask<(IList<T> List, bool IsEnd)>> _dataLoader, Func<TableView, IList<T>, int, float> _getRowHeightFunc = null) : base(_tableView, null, _getRowHeightFunc){
             tableView = _tableView;
             getRowHeightFunc = _getRowHeightFunc;
             dataLoader = _dataLoader;
@@ -39,7 +39,7 @@ namespace BicUtil.TableView
             isCancelLoad.AsBool = true;
         }
 
-        public async Task LoadFirst(){
+        public async UniTask LoadFirstAsync(){
             if(IsLoadedFirst == true && fistLoadErrorCount == 0){
                 return;
             }
@@ -82,10 +82,14 @@ namespace BicUtil.TableView
             duplicationCheckFieldName = _fieldName;
         }
 
-        private async void reloadData(int index, bool isVisible)
+        private void reloadData(int index, bool isVisible){
+            reloadDataAsync(index, isVisible).Forget();
+        }
+
+        private async UniTaskVoid reloadDataAsync(int index, bool isVisible)
         {
             if(fistLoadErrorCount > 0 && isLoading.AsBool == false){
-                await this.LoadFirst();
+                await this.LoadFirstAsync();
                 return;
             }
 

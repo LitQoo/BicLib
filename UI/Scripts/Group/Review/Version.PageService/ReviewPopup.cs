@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicUtil.UI;
 using UnityEngine;
 
@@ -22,15 +22,15 @@ namespace BicUtil.PageService.Review{
             this.OnClose += backPage;
         }
 
-        public Task OnClosedPage(IPage _fromUI, object _param = null)
+        public UniTask OnClosedPage(IPage _fromUI, object _param = null)
         {
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
-        public Task OnOpenedPage(IPage _fromPage, object _param = null)
+        public UniTask OnOpenedPage(IPage _fromPage, object _param = null)
         {
             this.Open();
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
         private void backPage(){

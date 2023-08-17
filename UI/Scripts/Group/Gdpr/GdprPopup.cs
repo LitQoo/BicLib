@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
 using BicDB.Variable;
@@ -71,7 +71,11 @@ namespace BicUtil.UI{
             }
         }
 
-        public static async Task LoadGDPRAreaAsync(){
+        public static void LoadGDPRArea(){
+            LoadGDPRAreaAsync().Forget();
+        }
+
+        public static async UniTaskVoid LoadGDPRAreaAsync(){
             if(isLoadGDPRArea == true){
                 return;
             }
@@ -89,7 +93,7 @@ namespace BicUtil.UI{
             }
 
             var _request = UnityWebRequest.Get(EU_QUERY_URL);
-            await _request.SendWebRequest();
+            await _request.SendWebRequest().ToUniTask();
             var _isGDPRArea = ParseIsGDPRArea(_request.downloadHandler.text);
         
             if(string.IsNullOrEmpty(_request.error) == false){

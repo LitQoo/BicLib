@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB;
 using BicDB.Core;
 using UnityEngine;
@@ -9,12 +9,12 @@ namespace BicUtil.Splash
 {
     public abstract class SplashBaseAsync : MonoBehaviour
     {
-        private async void Start(){
+        private void Start(){
             OnSetup();
-            await loadTableService();
+            loadTableService().Forget();
         }
 
-        private async Task loadTableService(){
+        private async UniTaskVoid loadTableService(){
             TableService.OnSetup += (_result)=>{
                 var _version = "0";
                 try{
@@ -42,7 +42,7 @@ namespace BicUtil.Splash
             };
 
             var _result = await TableService.LoadAsync();
-            
+
             try{
                 if(_result.IsSuccess == true){
                     await OnLoadedTableServiceAsync();
@@ -57,7 +57,7 @@ namespace BicUtil.Splash
         }
 
         protected abstract void OnSetup();
-        protected abstract Task OnLoadedTableServiceAsync();
-        protected abstract Task OnFailedToLoadAsync(Result _result);
+        protected abstract UniTask OnLoadedTableServiceAsync();
+        protected abstract UniTask OnFailedToLoadAsync(Result _result);
     }
 }

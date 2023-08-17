@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
 using BicDB.Storage;
@@ -57,7 +57,7 @@ namespace BicUtil.DataMigration{
         }
 
         private void confirmExport(){
-            commonPopup.Confirm("Do you want\nto back up your data\nto the server?", "Yes", export);
+            commonPopup.Confirm("Do you want\nto back up your data\nto the server?", "Yes", ()=>{exportAsync().Forget();});
             commonPopup.SetTitle("Data Migration");
             commonPopup.SetBottomButton("Cancel", commonPopup.Close);
             commonPopup.SetCloseButton(commonPopup.Close);
@@ -68,7 +68,7 @@ namespace BicUtil.DataMigration{
         private void import()
         {
             if(TableService.IsSetup == true){
-                commonPopup.Input("Input backup code", "Confirm", "", "", restore, commonPopup.Close);
+                commonPopup.Input("Input backup code", "Confirm", "", "", ()=>{restoreAsync().Forget();}, commonPopup.Close);
                 commonPopup.SetDimmed(commonPopup.Close);
                 commonPopup.Open();
             }else{
@@ -78,7 +78,7 @@ namespace BicUtil.DataMigration{
             }
         }
 
-        private async void restore()
+        private async UniTaskVoid restoreAsync()
         {
             commonPopup.Dimmed("Data is being recovered");
             commonPopup.Open();
@@ -118,7 +118,7 @@ namespace BicUtil.DataMigration{
             await completeBackup(_backupId, appId);
         }
 
-        private async void export()
+        private async UniTaskVoid exportAsync()
         {
             var _backupData = TableService.Backup();
             commonPopup.Dimmed("Data is being sent");
@@ -135,7 +135,7 @@ namespace BicUtil.DataMigration{
             }
         }
 
-        private async Task<RecordContainer> backup(string _userId, string _appId, string _data){
+        private async UniTask<RecordContainer> backup(string _userId, string _appId, string _data){
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["userId"] = _userId;
@@ -154,7 +154,7 @@ namespace BicUtil.DataMigration{
             return _result.Data;
         }
 
-        private async Task<RecordContainer> restore(string _backupId, string _appId){
+        private async UniTask<RecordContainer> restore(string _backupId, string _appId){
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["backupId"] = _backupId;
@@ -171,7 +171,7 @@ namespace BicUtil.DataMigration{
             return _result.Data;
         }
 
-        private async Task completeBackup(string _backupId, string _appId){
+        private async UniTask completeBackup(string _backupId, string _appId){
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["backupId"] = _backupId;

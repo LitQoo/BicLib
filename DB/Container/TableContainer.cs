@@ -8,7 +8,7 @@ using BicDB.Storage;
 using BicDB.Core;
 using UnityEngine;
 using BicUtil.Json;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicDB.Container
 {
@@ -384,7 +384,7 @@ namespace BicDB.Container
 			}
 		}
 
-		public async Task<Result> LoadAsync(object _parameter = null){
+		public async UniTask<Result> LoadAsync(object _parameter = null){
 			var _result = await storage.LoadAsync(this, _parameter);
 			return _result;
 		}

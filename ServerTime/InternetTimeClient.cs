@@ -1,13 +1,16 @@
 using System;
 using System.Globalization;
 using System.Net;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicUtil.CSharpExtensions;
 using UnityEngine;
 
 public static class InternetTime
 {
-    public static async void GetTime(Action<bool, DateTime> _callback, int _timeout = 3){
+    public static void GetTime(Action<bool, DateTime> _callback, int _timeout = 3){
+        GetTimeAsync(_callback, _timeout).Forget();
+    }
+    public static async UniTaskVoid GetTimeAsync(Action<bool, DateTime> _callback, int _timeout = 3){
         var _pages = new string[]{
             "https://www.google.com/robots.txt",
             "https://www.microsoft.com/robots.txt",
@@ -19,7 +22,7 @@ public static class InternetTime
 
         for(int i = 0; i < _pages.Length; i++){
             try{
-                var _date = await GetCurrentTime(_pages[i], _timeout);
+                var _date = await GetCurrentTimeAsync(_pages[i], _timeout);
                 _callback(true, _date);
                 return;
             }catch{
@@ -28,10 +31,9 @@ public static class InternetTime
         }
 
         _callback(false, DateTime.Now);
-
     }
 
-    private static async Task<DateTime> GetCurrentTime(string _page, int _timeout)
+    private static async UniTask<DateTime> GetCurrentTimeAsync(string _page, int _timeout)
     {
         Debug.Log("Connect " + _page);
 

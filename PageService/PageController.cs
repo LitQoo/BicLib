@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -170,33 +170,33 @@ namespace BicUtil.PageService
             pageStack.Clear();
         }
 
-        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _param = null){
+        public async UniTask<AsyncOperation> SceneReplaceAsync(string _sceneName, object _param = null){
             var _result = await PageManager.Instance.SceneReplaceAsync(_sceneName, _param);
             return _result;
         }
 
-        public async void SceneReplace(string _sceneName, object _param = null){
-            await SceneReplaceAsync(_sceneName, _param);
+        public void SceneReplace(string _sceneName, object _param = null){
+            SceneReplaceAsync(_sceneName, _param).Forget();
         }
 
-        public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
+        public async UniTask<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
             var _result = await PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
             return _result;
         }
 
-        public async void SceneEnter(string _sceneName, object _openParam = null){
-            await PageManager.Instance.SceneEnterAsync(_sceneName, _openParam);
+        public void SceneEnter(string _sceneName, object _openParam = null){
+            PageManager.Instance.SceneEnterAsync(_sceneName, _openParam).Forget();
         }
 
-        public async Task SceneBackAsync(object _openParam = null, object _closeParam = null){
+        public async UniTask SceneBackAsync(object _openParam = null, object _closeParam = null){
             await PageManager.Instance.SceneBackAsync(_openParam, _closeParam);
         }
 
-        public async void SceneBack(object _openParam = null, object _closeParam = null){
-            await this.SceneBackAsync(_openParam, _closeParam);
+        public void SceneBack(object _openParam = null, object _closeParam = null){
+            this.SceneBackAsync(_openParam, _closeParam).Forget();
         }
 
-        public async Task EnterAsync<PageClass>(object _param = null){
+        public async UniTask EnterAsync<PageClass>(object _param = null){
             var _openPageType = typeof(PageClass);
             if(pages.ContainsKey(_openPageType) == false){
                 throw new SystemException("[PageManager] "+_openPageType.ToString() + " is not resistered");
@@ -209,11 +209,11 @@ namespace BicUtil.PageService
             await _openPage.OnOpenedPage(_lastPage, _param);
         }
 
-        public async void Enter<PageClass>(object _param = null){
-            await this.EnterAsync<PageClass>(_param);
+        public void Enter<PageClass>(object _param = null){
+            this.EnterAsync<PageClass>(_param).Forget();
         }
 
-        public async Task ChangeAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null)
+        public async UniTask ChangeAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null)
         {
             var _openPageType = typeof(PageClass);
             if (pages.ContainsKey(_openPageType) == false)
@@ -231,11 +231,11 @@ namespace BicUtil.PageService
             await transitionPage(_transition, _closeTask, _openTask);
         }
 
-        public async void Change<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
-            await this.ChangeAsync<PageClass>(_transition, _openParam, _closeParam);
+        public void Change<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
+            this.ChangeAsync<PageClass>(_transition, _openParam, _closeParam).Forget();
         }
 
-        public async Task ReplaceAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
+        public async UniTask ReplaceAsync<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
             var _openPageType = typeof(PageClass);
             if(pages.ContainsKey(_openPageType) == false){
                 throw new SystemException("[PageManager] "+_openPageType.ToString() + " is not resistered");
@@ -252,20 +252,20 @@ namespace BicUtil.PageService
             await transitionPage(_transition, _closeTask, _openTask);
         }
 
-        public async void Replace<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
-            await this.ReplaceAsync<PageClass>(_transition, _openParam, _closeParam);
+        public void Replace<PageClass>(PageTransition _transition = PageTransition.Sequance, object _openParam = null, object _closeParam = null){
+            this.ReplaceAsync<PageClass>(_transition, _openParam, _closeParam).Forget();
         }
 
-        public async Task CloseAsync(object _closeParam = null){
+        public async UniTask CloseAsync(object _closeParam = null){
             var _lastPage = pageStack.Pop();
             await _lastPage.OnClosedPage(CurrentPage, _closeParam);
         }
 
-        public async void Close(object _closeParam = null){
-            await this.CloseAsync(_closeParam);
+        public void Close(object _closeParam = null){
+            this.CloseAsync(_closeParam).Forget();
         }
 
-        public async Task BackAsync(PageTransition _transition, object _openParam = null, object _closeParam = null){
+        public async UniTask BackAsync(PageTransition _transition, object _openParam = null, object _closeParam = null){
             var _lastPage = pageStack.Pop();
             var _openPage = CurrentPage;
 
@@ -275,17 +275,17 @@ namespace BicUtil.PageService
             await transitionPage(_transition, _closeTask, _openTask);
         }
 
-        public async void Back(PageTransition _transition, object _openParam = null, object _closeParam = null){
-            await this.BackAsync(_transition, _openParam, _closeParam);
+        public void Back(PageTransition _transition, object _openParam = null, object _closeParam = null){
+            this.BackAsync(_transition, _openParam, _closeParam).Forget();
         }
 
-        public async void BackTo<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
-            await this.BackToAsync<PageClass>(_transition, _openParam, _closeParam);
+        public void BackTo<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
+            this.BackToAsync<PageClass>(_transition, _openParam, _closeParam).Forget();
         }
 
-        public async Task BackToAsync<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
-            Task _openTask = null; 
-            Task _closeTask = null;
+        public async UniTask BackToAsync<PageClass>(PageTransition _transition, object _openParam = null, object _closeParam = null){
+            UniTask _openTask = UniTask.CompletedTask; 
+            UniTask _closeTask = UniTask.CompletedTask;
             while(true){
                 var _lastPage = pageStack.Pop();
                 _closeTask = _lastPage.OnClosedPage(CurrentPage, _closeParam);
@@ -305,31 +305,31 @@ namespace BicUtil.PageService
             await transitionPage(_transition, _closeTask, _openTask);
         }
 
-        internal async Task reopenFromSceneAsync(string _sceneName, Type _lastPageType, object _openParam){
+        internal async UniTask reopenFromSceneAsync(string _sceneName, Type _lastPageType, object _openParam){
             await CurrentPage.OnOpenedPage(new ScenePage(_sceneName, _lastPageType), _openParam);
         }
 
-        private async Task transitionPage(PageTransition _transition, Task _closeTask, Task _openTask)
+        private async UniTask transitionPage(PageTransition _transition, UniTask _closeTask, UniTask _openTask)
         {
             if (_transition == PageTransition.Sequance)
             {
-                if(_closeTask != null){
+                if(_closeTask.Status == UniTaskStatus.Pending){
                     await _closeTask;
                 }
 
-                if(_openTask != null){
+                if(_openTask.Status == UniTaskStatus.Pending){
                     await _openTask;
                 }
             }
             else
             {
-                if(_closeTask != null && _openTask != null){
-                    await Task.WhenAll(new[] { _closeTask, _openTask });
-                }else if(_closeTask == null && _openTask == null){
+                if(_closeTask.Status == UniTaskStatus.Pending && _openTask.Status == UniTaskStatus.Pending){
+                    await UniTask.WhenAll(new[] { _closeTask, _openTask });
+                }else if(_closeTask.Status != UniTaskStatus.Pending && _openTask.Status != UniTaskStatus.Pending){
 
-                }else if(_openTask == null){
+                }else if(_openTask.Status == UniTaskStatus.Pending){
                     await _closeTask;
-                }else if(_closeTask == null){
+                }else if(_closeTask.Status == UniTaskStatus.Pending){
                     await _openTask;
                 }
             }
@@ -365,12 +365,12 @@ namespace BicUtil.PageService
             throw new NotImplementedException();
         }
 
-        public Task OnClosedPage(IPage _fromUI, object _param = null)
+        public UniTask OnClosedPage(IPage _fromUI, object _param = null)
         {
             throw new NotImplementedException();
         }
 
-        public Task OnOpenedPage(IPage _fromPage, object _param = null)
+        public UniTask OnOpenedPage(IPage _fromPage, object _param = null)
         {
             throw new NotImplementedException();
         }

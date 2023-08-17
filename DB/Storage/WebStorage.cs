@@ -7,7 +7,7 @@ using BicDB.Variable;
 using BicUtil.Json;
 using UnityEngine.Networking;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Linq;
 using System.IO;
 
@@ -78,7 +78,7 @@ namespace BicDB.Storage
 			this.Pull(_table, _callback, _parameter);
 		}
 
-		public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+		public UniTask<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
 		{
 			_table.Clear();
 			return this.PullAsync(_table, _parameter);
@@ -199,7 +199,7 @@ namespace BicDB.Storage
             return _form;
         }
 
-        public async Task<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
+        public async UniTask<Result> PullAsync<T>(ITableContainer<T> _targetTable, object _parameter) where T : IRecordContainer, new (){
 			var _table = _targetTable;
 			var _webParam = _parameter as WebStorageParameter;
 			if(_webParam == null){
@@ -296,7 +296,7 @@ namespace BicDB.Storage
 			});
 		}
 
-		public async Task<T> GetRecordAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
+		public async UniTask<T> GetRecordAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new (){
 			var _result = await GetRecordWithCachingTypeAsync<T>(_param);
 			return _result.Result;
 		}
@@ -338,7 +338,7 @@ namespace BicDB.Storage
 
 		}
 
-		public async Task<(CachingLevel CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new ()
+		public async UniTask<(CachingLevel CachingType, T Result)> GetRecordWithCachingTypeAsync<T>(WebStorageParameter _param) where T : class, IRecordContainer, new ()
         {
             var _webParam = _param as WebStorageParameter;
             if (_webParam == null)
@@ -400,7 +400,7 @@ namespace BicDB.Storage
             }
         }
 
-        public async Task<(Result Result, RecordContainer Data)> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
+        public async UniTask<(Result Result, RecordContainer Data)> SendRecordAsync<T>(T _record, WebStorageParameter _param) where T : IRecordContainer, new (){
 			var _webParam = _param;
 			var _formData = new RecordContainer();
 			_formData.AddManagedColumn("data", _record);
@@ -743,7 +743,7 @@ namespace BicDB.Storage
 		}
 
 
-		private async Task<(CachingLevel CachingType, string Text)> getWebRequestWithCache(WebStorageParameter _param){
+		private async UniTask<(CachingLevel CachingType, string Text)> getWebRequestWithCache(WebStorageParameter _param){
 			var _cached = getCache(_param);
 			if(_cached.CachingType != CachingLevel.None){
 				return _cached;
@@ -754,7 +754,7 @@ namespace BicDB.Storage
 			if(string.IsNullOrEmpty(_param.Url) == false){
 				_request = UnityWebRequest.Get(_param.UrlWithParam);
 				setTimeout(_param, _request);
-				await _request.SendWebRequest();
+				await _request.SendWebRequest().ToUniTask();
 			}
 
 			if(_request != null && _request.result == UnityWebRequest.Result.Success){
@@ -826,7 +826,7 @@ namespace BicDB.Storage
 			return _string;
 		}
 
-        private async Task<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
+        private async UniTask<string> postWebRequestWithCache(WebStorageParameter _param, RecordContainer _formData){
 			var _cached = getCache(_param);
 			if(_cached.CachingType != CachingLevel.None){
 				return _cached.Result;
@@ -840,7 +840,7 @@ namespace BicDB.Storage
 
                 setTimeout(_param, _request);
 
-                await _request.SendWebRequest();
+                await _request.SendWebRequest().ToUniTask();
             }
 
             if (_request != null && _request.result == UnityWebRequest.Result.Success){

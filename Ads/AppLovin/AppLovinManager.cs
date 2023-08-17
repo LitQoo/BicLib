@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB;
 using BicDB.Container;
 using BicDB.Storage;
@@ -351,7 +351,7 @@ namespace BicUtil.Ads{
             // }
         }
 
-        public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+        public UniTask<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
         {
             throw new NotImplementedException();
         }

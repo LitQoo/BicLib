@@ -5,7 +5,7 @@ using BicDB;
 using BicUtil.SingletonBase;
 using BicDB.Container;
 using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicDB.Storage {
 	public class ScriptableStorage : MonoBehaviourHardBase<ScriptableStorage> , ITableStorage {
@@ -67,7 +67,7 @@ namespace BicDB.Storage {
 			throw new System.NotImplementedException ();
 		}
 
-        public Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+        public UniTask<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
         {
             throw new NotImplementedException();
         }

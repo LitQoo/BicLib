@@ -2,10 +2,10 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
 using BicUtil.Json;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using static BicDB.Storage.FileStorage;
 
@@ -70,6 +70,75 @@ namespace BicDB.Storage
             }
 
             return _data;
+        }
+
+
+        public static async UniTask<string> GetFileDataWithPathListAsync(string _tableName, string _encryptKey)
+        {
+            var _filename = GetFileName(_tableName);
+
+            string _data = await FileStorageUtil.ReadAndDecryptAsync(GetPath(_filename), _encryptKey);
+
+            if (_data == null || _data == string.Empty)
+            {
+                if(_tableName == TableService.TABLENAME){
+                    //Debug.Log("[BicDB] bicsystem path by PlayerPrefs.GetString");
+
+                    if(PlayerPrefs.HasKey(TableService.TABLENAME) == true){
+                        string _path = PlayerPrefs.GetString(TableService.TABLENAME);
+                        Debug.Log("PlayerPrefs table path = " + _path);
+
+                        if(_path != string.Empty){
+                            _data = await FileStorageUtil.ReadAndDecryptAsync(_path, _encryptKey);
+                        }
+                    }
+                }else{
+                    //Debug.Log("[BicDB] path by bicsystem.path");
+
+                    var _tableInfo = TableService.GetTableInfo(_tableName, false);
+                    if (_tableInfo != null)
+                    {
+                        for (int i = _tableInfo.PathList.Count - 1; i >= 0; i--)
+                        {
+                            _data = await FileStorageUtil.ReadAndDecryptAsync(_tableInfo.PathList[i].AsString, _encryptKey);
+
+                            if (_data != null && _data != string.Empty)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _data;
+        }
+        
+        public static async UniTask<Result> LoadByFileAsync<T>(ITableContainer<T> _table, string _encryptKey) where T : IRecordContainer, new ()
+        {
+            var _filename = GetFileName(_table.Name);
+            var _result = new Result((int)ResultCode.Success, GetPath(_filename), 0);
+            string _data = null;
+
+            try
+            {
+                _data = await FileStorageUtil.GetFileDataWithPathListAsync(_table.Name, _encryptKey);
+            }
+            catch (System.Exception _e)
+            {
+                Debug.Log("[Exception] " + _e.Message + "/" + _e.ToString());
+                _result.Code = (int)ResultCode.FileStream;
+                _result.Message = _e.Message;
+            }
+
+            if (_result.Code == (int)ResultCode.Success && !string.IsNullOrEmpty(_data) && _data.Length > 10)
+            {
+                _result.Code = (int)ResultCode.Success;
+                _result.HashCode = _data.GetHashCode();
+                FileStorageUtil.BuildTable(_table, _data, _result);
+            }
+
+            return _result;
         }
 
         public static Result LoadByFile<T>(ITableContainer<T> _table, string _encryptKey) where T : IRecordContainer, new ()
@@ -178,6 +247,25 @@ namespace BicDB.Storage
             return _data;
         }
 
+
+        static public async UniTask<string> ReadFileAsync(string _path){
+            string _data = null;
+
+            if (System.IO.File.Exists(_path))
+            {
+                using(System.IO.FileStream _file = new System.IO.FileStream (_path, System.IO.FileMode.Open, System.IO.FileAccess.Read)){
+                    using(System.IO.StreamReader _stream = new System.IO.StreamReader(_file)){
+                        var _task = _stream.ReadToEndAsync().AsUniTask();
+                        _data = await _task;
+                        _stream.Close();
+                        _file.Close();
+                    }
+                }
+            }
+
+            return _data;
+        }
+
         static public (string headline, string data) ReadFileHeadLineAndData(string _path){
             string _data = null;
             string _head = null;
@@ -201,6 +289,30 @@ namespace BicDB.Storage
             }
 
             return (_head, _data);
+        }
+
+        static public async UniTask<string> ReadAndDecryptAsync(string _path, string _key){
+             #if !WEB_BUILD
+
+            string _data = await ReadFileAsync(_path);
+
+            if(string.IsNullOrEmpty(_data) == false){
+                if(_key != string.Empty){
+                    try{
+                        var _result = AESDecrypt256(_data, _key);
+                        return _result;
+                    }catch{
+                        return _data;
+                    }
+                }else{
+                    return _data;
+                }
+            }else{
+                return _data;
+            }
+            #else
+            return null;
+            #endif 
         }
 
         static public string ReadAndDecrypt(string _path, string _key){

@@ -1,7 +1,7 @@
 #if BICUTIL_ANALYTICS_FIREBASE
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicDB.Container;
 using BicDB.Core;
 using BicDB.Variable;
@@ -15,7 +15,7 @@ namespace BicUtil.SDKUtil
     public static class FirebaseUtil
     {
         #region FireBase
-        static private async Task setRemoteConfigDefaultValueAsync(IRecordContainer _constants){
+        static private async UniTask setRemoteConfigDefaultValueAsync(IRecordContainer _constants){
             if(_constants == null){
                 Debug.Log("start constants is null");
                 return;
@@ -51,7 +51,7 @@ namespace BicUtil.SDKUtil
                 }
             }
 
-            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default);
+            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default).AsUniTask();
         }
 
         static private void updateConstant(IRecordContainer _constants){
@@ -90,13 +90,13 @@ namespace BicUtil.SDKUtil
         }
         
         static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
-        static private async Task<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
+        static private async UniTask<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
             FirebaseAnalytics.SetUserId(TableService.UserId);
-            var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
-            await _fbInitTask;
+            var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync().AsUniTask();
+            var _result = await _fbInitTask;
 
             // .ContinueWithOnMainThread(async _task=>{
-                if(_fbInitTask.Result == Firebase.DependencyStatus.Available){
+                if(_result == Firebase.DependencyStatus.Available){
                     try{
                         Status = Firebase.DependencyStatus.Available;
 
@@ -131,7 +131,7 @@ namespace BicUtil.SDKUtil
                         Firebase.Crashlytics.Crashlytics.LogException(_error);
                     }
 
-                    if(_fbInitTask.Result == Firebase.DependencyStatus.Available){
+                    if(_result == Firebase.DependencyStatus.Available){
                         try{
                             if(_constants != null){
                                 await remoteConfigAsync(_constants);
@@ -142,12 +142,12 @@ namespace BicUtil.SDKUtil
                         }
                     }
                 }else{
-                    var _exception = new SystemException("Firebase Not Available " + _fbInitTask.Result.ToString());
+                    var _exception = new SystemException("Firebase Not Available " + _result.ToString());
                     Firebase.Crashlytics.Crashlytics.LogException(_exception);
                 }
             // });
 
-            return _fbInitTask.Result;
+            return _result;
         }
 
         public static int GetVersionNumber(string _versionString){
@@ -171,19 +171,19 @@ namespace BicUtil.SDKUtil
             }
         }
 
-        static public async Task<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
+        static public async UniTask<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
             try{
                 var _initTask = checkAndFixDependenciesAsync(_constants);
-                var _timeoutTask = Task.Run(async ()=>{await Task.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
-                var _result = await Task.WhenAny(_initTask, _timeoutTask);
-
-                if(_result == _initTask){
-                    if (_initTask.Result == Firebase.DependencyStatus.Available) {
+                var _timeoutTask = UniTask.RunOnThreadPool(async ()=>{await UniTask.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
+                var _result = await UniTask.WhenAny(_initTask, _timeoutTask);
+            
+                if(_result.winArgumentIndex == 0){
+                    if (_result.result1 == Firebase.DependencyStatus.Available) {
                         return new BicDB.Result(0);
                     }else{
                         return new BicDB.Result(1);
                     }
-                }else if(_result == _timeoutTask){
+                }else if(_result.winArgumentIndex == 1){
                     return new BicDB.Result(2);
                 }else{
                     return new BicDB.Result(3);
@@ -195,7 +195,7 @@ namespace BicUtil.SDKUtil
             }
         }
 
-        static private async Task remoteConfigAsync(IRecordContainer _constants){
+        static private async UniTask remoteConfigAsync(IRecordContainer _constants){
             var _errorLine = 0;
             try{
             await setRemoteConfigDefaultValueAsync(_constants);
@@ -226,7 +226,7 @@ namespace BicUtil.SDKUtil
 
 
             _errorLine++;
-            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime).AsUniTask();
             
             _errorLine++;
 
@@ -259,20 +259,22 @@ namespace BicUtil.SDKUtil
 
 
             _errorLine++;
-            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync().AsUniTask();
             
             _errorLine++;
             try{
-                await _activateTask;
+                var _activateResult = await _activateTask;
+
+
+                if(_activateResult == false){
+                    Debug.LogError("ActivateAsync error");
+                    BicUtil.Analytics.Analytics.Event("ActivateAsyncError");
+                }
             }catch(System.Exception _exception){
                 Debug.LogError("[Firebase] remoteConfigAsync _activateTask");
                 throw _exception;
             }
 
-            if(_activateTask.Result == false){
-                Debug.LogError("ActivateAsync error");
-                BicUtil.Analytics.Analytics.Event("ActivateAsyncError");
-            }
 
             _errorLine++;
 
@@ -362,17 +364,17 @@ namespace BicUtil.SDKUtil
             }
         }
 
-        static private void FetchComplete(Task fetchTask)
+        static private void FetchComplete(UniTask fetchTask)
          {
-              if (fetchTask.IsCanceled)
+              if (fetchTask.Status == UniTaskStatus.Canceled)
               {
                   Debug.Log("Remoteconfig Fetch canceled.");
               }
-              else if (fetchTask.IsFaulted)
+              else if (fetchTask.Status == UniTaskStatus.Faulted)
               {
                   Debug.Log("Remoteconfig Fetch encountered an error.");
               }
-              else if (fetchTask.IsCompleted)
+              else if (fetchTask.Status == UniTaskStatus.Succeeded)
               {
                    DebugForEditor.Log("Fetch completed successfully!");
               }

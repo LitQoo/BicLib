@@ -208,12 +208,12 @@ namespace BicDB.Container
 			}
 		}
 
-		public void MergeCopyBy(IRecordContainer _model){
+        public void MergeCopyBy(IRecordContainer _model){
 			string _json = _model.ToString();
 			int _counter = 0;
 			this.BuildVariable (ref _json, ref _counter, JsonConvertor.GetInstance ());
 		}
 
-		#endregion
-	}
+        #endregion
+    }
 }

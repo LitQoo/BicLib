@@ -5,7 +5,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using System.Security.Cryptography;
 using BicDB.Storage;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicDB.Container
 {
@@ -213,7 +213,7 @@ namespace BicDB.Container
 			storage.Load(this, _callback, _parameter);
 		}
 
-		public Task<Result> LoadAsync(object _parameter = null){
+		public UniTask<Result> LoadAsync(object _parameter = null){
 			throw new NotImplementedException();
 		}
 

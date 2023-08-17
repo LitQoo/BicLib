@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace BicUtil.ServerTime
@@ -17,7 +17,12 @@ namespace BicUtil.ServerTime
         private Action<bool, DateTime> callback;
         private int timeout = 3;
 
-        public async void GetNetworkTime(string _ntpTimeServer, int _timeout, Action<bool, DateTime> _callback)
+
+        public void GetNetworkTime(string _ntpTimeServer, int _timeout, Action<bool, DateTime> _callback){
+            GetNetworkTimeAsync(_ntpTimeServer, _timeout, _callback).Forget();
+        }
+
+        public async UniTaskVoid GetNetworkTimeAsync(string _ntpTimeServer, int _timeout, Action<bool, DateTime> _callback)
         {
             Debug.Log("Connect to " + _ntpTimeServer);
             callback = _callback;

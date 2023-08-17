@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using BicUtil.SingletonBase;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,7 +27,7 @@ namespace BicUtil.PageService
             this.gameObject.name = "PageManager";
         }
 
-        public async Task<AsyncOperation> SceneReplaceAsync(string _sceneName, object _openParam = null){
+        public async UniTask<AsyncOperation> SceneReplaceAsync(string _sceneName, object _openParam = null){
             this.sceneTransitionParameter = _openParam;
             var _currentPageController = sceneStack.Pop();
             var _currentScene = SceneManager.GetActiveScene();
@@ -38,7 +38,7 @@ namespace BicUtil.PageService
             return _result;
         }
 
-        public async Task<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
+        public async UniTask<AsyncOperation> SceneEnterAsync(string _sceneName, object _openParam = null){
             this.sceneTransitionParameter = _openParam;
             var _currentScene = SceneManager.GetActiveScene();
             var _nextScene = SceneManager.GetSceneByName(_sceneName);
@@ -49,7 +49,7 @@ namespace BicUtil.PageService
             
         }
         
-        public async Task SceneBackAsync(object _openParam = null, object _closeParam = null){
+        public async UniTask SceneBackAsync(object _openParam = null, object _closeParam = null){
             var _pageController = sceneStack.Pop();
             var _nextPageController = sceneStack.Peek();
             var _currentSceneName = _pageController.SceneName;

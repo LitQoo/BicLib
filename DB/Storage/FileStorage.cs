@@ -8,7 +8,7 @@ using BicDB.Container;
 using BicDB.Variable;
 using BicUtil.Json;
 using BicDB.Core;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicDB.Storage
 {
@@ -168,10 +168,10 @@ namespace BicDB.Storage
 			Save(_table, _callback);
         }
 
-        public async Task<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
+        public async UniTask<Result> LoadAsync<T>(ITableContainer<T> _table, object _parameter) where T : IRecordContainer, new()
         {
             _table.Clear();
-			var _result = FileStorageUtil.LoadByFile(_table, getEncryptKey(_table, _parameter));
+			var _result = await FileStorageUtil.LoadByFileAsync(_table, getEncryptKey(_table, _parameter));
 			
 			return _result;
 		}

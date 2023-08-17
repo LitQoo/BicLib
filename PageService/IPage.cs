@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace BicUtil.PageService
 {
@@ -10,7 +10,7 @@ namespace BicUtil.PageService
         void InitializePage();
         void DeinitializePage();
 
-        Task OnOpenedPage(IPage _fromPage, object _param = null);
-        Task OnClosedPage(IPage _fromUI, object _param = null);
+        UniTask OnOpenedPage(IPage _fromPage, object _param = null);
+        UniTask OnClosedPage(IPage _fromUI, object _param = null);
     }
 }

@@ -13,10 +13,6 @@ namespace BicUtil.SDKUtil
         public int GroupIndex = -1;
         [SerializeField]
         public List<TestGroup> Groups;
-
-        private void Awake() {
-            Debug.Log("awake remoteconfigteseter");   
-        }
         
         public void SetConstantsValues(IRecordContainer _constants)
         {
