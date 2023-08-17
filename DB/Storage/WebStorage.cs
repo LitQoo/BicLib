@@ -518,10 +518,12 @@ namespace BicDB.Storage
 						_record[_webParam.TargetKey].AsVariable.AsString = _primaryKeys[i].AsString;
 					}
 
-					_table.AddWithoutDuplication(_record);
+					if(_table != null){
+						_table.AddWithoutDuplication(_record);
+					}
 				}
 
-				if(_table.OnSave != null){
+				if(_table != null && _table.OnSave != null){
 					_table.OnSave(new Result((int)ResultCode.Success));
 				}
 
