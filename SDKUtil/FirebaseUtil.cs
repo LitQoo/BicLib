@@ -318,7 +318,9 @@ namespace BicUtil.SDKUtil
 
         private static RemoteConfigTester tester = null;
         public static void SetRemoteConfigTester(RemoteConfigTester _tester){
+            #if UNITY_EDITOR
             tester = _tester;
+            #endif
         }
 
         private static void sendActiveABTestEvent()
