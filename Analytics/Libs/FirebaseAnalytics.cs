@@ -73,10 +73,11 @@ namespace BicUtil.Analytics
                         _params.Add(new Firebase.Analytics.Parameter(_param.Key, (double)_param.Value));
                     }else if(_param.Value is long){
                         _params.Add(new Firebase.Analytics.Parameter(_param.Key, (long)_param.Value));
+                    }else if(_param.Value is string){
+                        _params.Add(new Firebase.Analytics.Parameter(_param.Key, (string)_param.Value));
                     }else{
                         _params.Add(new Firebase.Analytics.Parameter(_param.Key, _param.Value.ToString()));
                     }
-                    
                 }
 
                 Firebase.Analytics.FirebaseAnalytics.LogEvent(_eventName, _params.ToArray());

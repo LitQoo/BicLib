@@ -80,7 +80,7 @@ namespace BicUtil.SDKUtil
                 }
                 
                 if(!string.IsNullOrEmpty(abTestName.AsString)){
-                    Firebase.Analytics.FirebaseAnalytics.SetUserProperty("ABGroup", abTestName.AsString);
+                    FirebaseAnalytics.SetCustomKey("ABGroup", abTestName.AsString);
                 }
             }else{
                 #if UNITY_EDITOR
@@ -265,16 +265,14 @@ namespace BicUtil.SDKUtil
             try{
                 var _activateResult = await _activateTask;
 
-
                 if(_activateResult == false){
                     Debug.LogError("ActivateAsync error");
                     BicUtil.Analytics.Analytics.Event("ActivateAsyncError");
                 }
             }catch(System.Exception _exception){
-                Debug.LogError("[Firebase] remoteConfigAsync _activateTask");
+                Debug.LogError("[Firebase] remoteConfigAsync _activateTask " + _exception.ToString() + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
                 throw _exception;
             }
-
 
             _errorLine++;
 
@@ -290,7 +288,7 @@ namespace BicUtil.SDKUtil
                 throw _exception;
             }
             }catch(Firebase.FirebaseException _exception){
-                Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine);
+                Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine + "/" + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
                 throw _exception;
             }
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
