@@ -760,7 +760,11 @@ namespace BicDB.Storage
 			if(_request != null && _request.result == UnityWebRequest.Result.Success){
 				setCache(_param, _request.downloadHandler.text);
 				#if UNITY_EDITOR
-				DebugForEditor.Log("[WebStorage] Success Download by web " + _param.ToString() + "/" + _request.downloadHandler.text);
+				var _msg = _request.downloadHandler.text;
+				if(_param.ShouldEncrypt == true){
+					 _msg = BicUtil.Crypto.AES256.Decrypt(_msg, _param.EncryptKey);
+				}
+				DebugForEditor.Log("[WebStorage] Success Download by web " + _param.ToString() + "/" + _msg);
 				#endif
 				return (CachingLevel.None, _request.downloadHandler.text);
 			}else{
