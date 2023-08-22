@@ -99,6 +99,10 @@ namespace BicUtil.Analytics
             Firebase.Analytics.FirebaseAnalytics.SetUserId(_id);
             Firebase.Crashlytics.Crashlytics.SetUserId(_id);
         }
+
+        public void LogException(System.Exception _exception){
+            Firebase.Crashlytics.Crashlytics.LogException(_exception);
+        }
     }
 }
 #endif

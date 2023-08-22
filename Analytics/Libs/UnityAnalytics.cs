@@ -28,6 +28,10 @@ namespace BicUtil.Analytics
         public void SetCustomData(string _key, string _value){
             UnityEngine.CrashReportHandler.CrashReportHandler.SetUserMetadata(_key, _value);
         }
+
+        public void LogException(System.Exception _exception){
+            UnityEngine.Debug.LogException(_exception);
+        }
     }
 }
 #endif

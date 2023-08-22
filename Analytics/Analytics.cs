@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 namespace BicUtil.Analytics
 {
@@ -59,6 +60,15 @@ namespace BicUtil.Analytics
         }
 
         static public void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
+            #if UNITY_EDITOR
+                if(_eventData == null){
+                    Debug.Log("[Event] " + _eventName + "\n value : " + _count);
+                }else{
+                    var _param = _eventData.Select(_info=>"{"+_info.Key + " : " + _info.Value.ToString()+"}");
+                    Debug.Log("[Event] " + _eventName + "\n param : \n" + string.Join("\n", _param) + "\n value : " + _count);
+                }
+            #endif
+            
             try{
                 Instance.sendEvent(_eventName, _eventData, _count);
             }catch(Exception e){
@@ -81,6 +91,13 @@ namespace BicUtil.Analytics
             }
         }
 
+
+        public void logException(System.Exception _exception){
+            for(int i = 0; i < libList.Count; i++){
+                libList[i].LogException(_exception);
+            }
+        }
+
         public void setCustomData(string _key, string _value){
             for(int i = 0; i < libList.Count; i++){
                 libList[i].SetCustomData(_key, _value);
@@ -90,6 +107,10 @@ namespace BicUtil.Analytics
         static public void SetCustomData(string _key, string _value){
             Instance.setCustomData(_key, _value);
         }
+
+        static public void LogException(System.Exception _exception){
+            Instance.logException(_exception);
+        }
     }
 
     public interface IAnalyticsLib{
@@ -97,5 +118,6 @@ namespace BicUtil.Analytics
         string TermsURL{get;}
         void SetUserConsent(bool _isEnabled);
         void SetCustomData(string _key, string _value);
+        void LogException(System.Exception _exception);
     }
 }
