@@ -9,12 +9,25 @@ using BicUtil.Analytics;
 using Firebase.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 namespace BicUtil.SDKUtil
 {
+    public enum FirebaseUtilState
+    {
+        Ready,
+        Pending,
+        Complete,
+        CompleteWithTimeOver,
+        TimeOver,
+    }
     public static class FirebaseUtil
     {
         #region FireBase
+        static public FirebaseUtilState State = FirebaseUtilState.Ready;
+        static public Func<bool> ConfirmUpdateRemoteConfig = null;
+        
+        static public Action OnFetchedRemoteConfig = null;
         static private async UniTask setRemoteConfigDefaultValueAsync(IRecordContainer _constants){
             if(_constants == null){
                 Debug.Log("start constants is null");
@@ -45,7 +58,7 @@ namespace BicUtil.SDKUtil
                             _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
                         }catch(System.Exception _e){
                             Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
-                            Firebase.Crashlytics.Crashlytics.LogException(_e);
+                            BicUtil.Analytics.Analytics.LogException(_e);
                         }
                     break;
                 }
@@ -59,6 +72,11 @@ namespace BicUtil.SDKUtil
                 return;
             }
 
+            if(ConfirmUpdateRemoteConfig != null && ConfirmUpdateRemoteConfig() == false){
+                Analytics.Analytics.Event("IgnoreUpdateRemoteConfig", new Dictionary<string, object> {{"state", State.ToString()}});
+                return;
+            }
+
             foreach(var _value in _constants){
                 var _configValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key);
                 var _stringValue = _configValue.StringValue;
@@ -68,7 +86,7 @@ namespace BicUtil.SDKUtil
                         _value.Value.AsVariable.AsString = _stringValue;
                     }catch(System.Exception _e){
                         Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
-                        Firebase.Crashlytics.Crashlytics.LogException(_e);
+                        BicUtil.Analytics.Analytics.LogException(_e);
                     }
                 }
             }
@@ -91,14 +109,26 @@ namespace BicUtil.SDKUtil
         
         static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
         static private async UniTask<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
+            State = FirebaseUtilState.Pending;
+
             FirebaseAnalytics.SetUserId(TableService.UserId);
             var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync().AsUniTask();
             var _result = await _fbInitTask;
-
+            
             // .ContinueWithOnMainThread(async _task=>{
                 if(_result == Firebase.DependencyStatus.Available){
                     try{
                         Status = Firebase.DependencyStatus.Available;
+
+                        Application.logMessageReceived += log;
+                        if(TableService.IsSetup == true){
+                            Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
+                                {
+                                    "RealtimeSinceStartup",
+                                    UnityEngine.Time.realtimeSinceStartup
+                                }
+                            });
+                        }
 
                         //await Task.Delay(3000);
                         Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
@@ -115,37 +145,41 @@ namespace BicUtil.SDKUtil
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
 
-                         if(TableService.IsSetup == true){
-                            Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
-                                {
-                                    "RealtimeSinceStartup",
-                                    UnityEngine.Time.realtimeSinceStartup
-                                }
-                            });
-                        }
-
-                        Application.logMessageReceived += log;
-
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
-                        Firebase.Crashlytics.Crashlytics.LogException(_error);
+                        BicUtil.Analytics.Analytics.LogException(_error);
                     }
 
-                    if(_result == Firebase.DependencyStatus.Available){
-                        try{
-                            if(_constants != null){
-                                await remoteConfigAsync(_constants);
-                            }
-                        }catch(System.Exception _error){
-                            Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString() + "/" + _error.Message);
-                            Firebase.Crashlytics.Crashlytics.LogException(_error);
+                    try{
+                        if(_constants != null){
+                            await remoteConfigAsync(_constants);
                         }
+                    }catch(System.Exception _error){
+                        Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString() + "/" + _error.Message);
+                        BicUtil.Analytics.Analytics.LogException(_error);
                     }
                 }else{
-                    var _exception = new SystemException("Firebase Not Available " + _result.ToString());
-                    Firebase.Crashlytics.Crashlytics.LogException(_exception);
+                    var _exception = new Exception("Firebase Not Available " + _result.ToString() + " isSetup = " + TableService.IsSetup.ToString());
+                    _exception.Source = _result.ToString();
+                    BicUtil.Analytics.Analytics.LogException(_exception);
+                    BicUtil.Analytics.Analytics.Event("FirebaseNotAvailable", new Dictionary<string, object> {
+                        {
+                            "isSetup",
+                            TableService.IsSetup
+                        },
+                        {
+                            "result",
+                            _result.ToString()
+                        }
+                    });
                 }
             // });
+
+            if(State == FirebaseUtilState.TimeOver){
+                State = FirebaseUtilState.CompleteWithTimeOver;
+            }else{
+                State = FirebaseUtilState.Complete;
+            }
 
             return _result;
         }
@@ -174,13 +208,21 @@ namespace BicUtil.SDKUtil
         static public async UniTask<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
             try{
                 var _initTask = checkAndFixDependenciesAsync(_constants);
-                var _timeoutTask = UniTask.RunOnThreadPool(async ()=>{await UniTask.Delay(TimeSpan.FromSeconds(_timeout)); return new BicDB.Result(1);});
+                var _timeoutTask = UniTask.RunOnThreadPool(async ()=>{
+                        await UniTask.WaitForSeconds(_timeout); 
+                        State = FirebaseUtilState.TimeOver;
+                        await UniTask.DelayFrame(2);
+                        return new BicDB.Result(1);
+                    }
+                );
+
                 var _result = await UniTask.WhenAny(_initTask, _timeoutTask);
             
                 if(_result.winArgumentIndex == 0){
                     if (_result.result1 == Firebase.DependencyStatus.Available) {
                         return new BicDB.Result(0);
                     }else{
+                        BicUtil.Analytics.Analytics.Event("FirebaseInitError");
                         return new BicDB.Result(1);
                     }
                 }else if(_result.winArgumentIndex == 1){
@@ -190,7 +232,7 @@ namespace BicUtil.SDKUtil
                 }
             }catch(System.Exception _e){
                 Debug.LogError("[Firebase] Error InitFirebaseAsync " + _e.Message);
-                Firebase.Crashlytics.Crashlytics.LogException(_e);
+                BicUtil.Analytics.Analytics.LogException(_e);
                 return new BicDB.Result(3, "", 0, _e.Message);
             }
         }
@@ -202,12 +244,23 @@ namespace BicUtil.SDKUtil
             
             #if UNITY_EDITOR
             if(tester != null){
-                if(tester.UseTester == true){
-                    tester.SetConstantsValues(_constants);
-                    return;
-                }else{
-                    Debug.Log("[RemoteConfigTester] Use Sever Value");
+                if(testDelay > 0f){
+                    await UniTask.WaitForSeconds(testDelay);
                 }
+
+                if(ConfirmUpdateRemoteConfig != null && ConfirmUpdateRemoteConfig() == false){
+                    Analytics.Analytics.Event("IgnoreUpdateRemoteConfig", new Dictionary<string, object> {{"state", State.ToString()}});
+                    return;
+                }
+
+                SetConstantsValuesTester(_constants);
+
+                if(OnFetchedRemoteConfig != null){
+                    OnFetchedRemoteConfig();
+                }
+                return;
+            }else{
+                Debug.Log("[RemoteConfigTester] Use Sever Value");
             }
             #endif
 
@@ -276,6 +329,10 @@ namespace BicUtil.SDKUtil
 
             _errorLine++;
 
+            if(OnFetchedRemoteConfig != null){
+                OnFetchedRemoteConfig();
+            }
+
             #if !UNITY_EDITOR
             sendActiveABTestEvent();
             #endif
@@ -314,10 +371,19 @@ namespace BicUtil.SDKUtil
             //var _result = await _asyncTask; //Task.WhenAny(_asyncTask, _timeoutTask);
         }
 
-        private static RemoteConfigTester tester = null;
+        private static TestGroup tester = null;
+        private static float testDelay = 0f; 
+
         public static void SetRemoteConfigTester(RemoteConfigTester _tester){
             #if UNITY_EDITOR
-            tester = _tester;
+            if(_tester.UseTester == true){
+                tester = _tester.Groups[_tester.GroupIndex];
+                testDelay = _tester.UpdateDelay;
+                var _data = new TestData();
+                _data.Key = "ab_group";
+                _data.Value = tester.Name;
+                tester.values.Add(_data);
+            }
             #endif
         }
 
@@ -360,7 +426,7 @@ namespace BicUtil.SDKUtil
             catch (Exception _e)
             {
                 Debug.LogError("send InitRemoteConfigOn" + SceneManager.GetActiveScene().name + " error");
-                Firebase.Crashlytics.Crashlytics.LogException(_e);
+                BicUtil.Analytics.Analytics.LogException(_e);
             }
         }
 
@@ -416,7 +482,9 @@ namespace BicUtil.SDKUtil
             }
         }
 
+        [Obsolete]
         static public void InitFirebase(){
+            State = FirebaseUtilState.Pending;
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
             Firebase.Analytics.FirebaseAnalytics.SetUserId(TableService.UserId);
@@ -428,7 +496,24 @@ namespace BicUtil.SDKUtil
                 if (dependencyStatus == Firebase.DependencyStatus.Available) {
                     Application.logMessageReceived += log;
                 }
+
+                State = FirebaseUtilState.Complete;
             });
+        }
+
+        static public string GetRemoteConfigValue(string _key){
+            #if UNITY_EDITOR
+            if(tester != null){
+                var _configValue = tester.values.FirstOrDefault(_row=>_row.Key == _key);
+                if(_configValue != null){
+                    return _configValue.Value;
+                }else{
+                    Debug.LogError("Not Found value for key " + _key);
+                }
+            }
+            #endif
+
+            return Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_key).StringValue;
         }
 
         private static void log(string _condition, string _stackTrace, LogType _type)
@@ -460,6 +545,31 @@ namespace BicUtil.SDKUtil
                             },
                         });
                     }
+                }
+            }
+        }
+
+        public static void SetConstantsValuesTester(IRecordContainer _constants)
+        {
+            if(_constants == null){
+                Debug.LogError("[RemoteConfigTester] constants is null");
+                return;
+            }
+
+
+            var _testGroup = tester;
+            Debug.Log("[RemoteConfigTester] setup test value group " + _testGroup.Name);
+            foreach(var _testData in _testGroup.values){
+                if(string.IsNullOrEmpty(_testData.Value) == false){
+                    try{
+                        _constants[_testData.Key].AsVariable.AsString = _testData.Value;
+                        Debug.Log("[RemoteConfigTester] " + _testData.Key + " = " + _testData.Value);
+                    }catch(System.Exception _e){
+                        Debug.LogError("[RemoteConfigTester] updateConstant error " + _testData.Key);
+                        throw _e;
+                    }
+                }else{
+                    Debug.Log("[RemoteConfigTester] " + _testData.Key + " use default value");
                 }
             }
         }
