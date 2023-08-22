@@ -284,6 +284,7 @@ namespace BicUtil.Tween{
 							}
 						}catch(System.Exception _e){
 							Debug.LogWarning("[BicTween] Error In Update /" + _tween.Type.ToString() + "/" + _tween.CallerInfo + "/" + this.gameObject.name);
+							Debug.LogWarning(_e.StackTrace);
 							_error = _e;
 
 							#if UNITY_EDITOR
