@@ -77,6 +77,7 @@ namespace BicUtil.SDKUtil
                 return;
             }
 
+            DebugForEditor.Log("[RemoteConfig] UPDATE CONSTANTS ----");
             foreach(var _value in _constants){
                 var _configValue = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue(_value.Key);
                 var _stringValue = _configValue.StringValue;
@@ -84,12 +85,14 @@ namespace BicUtil.SDKUtil
                 if(string.IsNullOrEmpty(_stringValue) == false){
                     try{
                         _value.Value.AsVariable.AsString = _stringValue;
+                        DebugForEditor.Log(_value.Key + " : " + _stringValue);
                     }catch(System.Exception _e){
                         Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
                         BicUtil.Analytics.Analytics.LogException(_e);
                     }
                 }
             }
+            DebugForEditor.Log("[RemoteConfig] ---- Finihed ----");
             
             if(_constants.ContainsKey("ab_group") == true){
 
