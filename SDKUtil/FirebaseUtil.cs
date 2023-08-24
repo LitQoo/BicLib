@@ -157,8 +157,30 @@ namespace BicUtil.SDKUtil
                         if(_constants != null){
                             await remoteConfigAsync(_constants);
                         }
+                    }catch(AggregateException _ae){
+
+                        Debug.LogError("[Firebase] InitializationException remoteConfigAsync ae " + _ae.ToString() + "/" + _ae.Message);
+
+                        _ae.Handle((_x)=>{
+                            Debug.LogError("[Firebase] AggregateException " + _x.ToString() + "/" + _x.Message + "/" + _x.StackTrace);
+
+                            if(_x.InnerException != null){
+                                Debug.LogError("inner " + _x.InnerException.Message + "/" + _x.InnerException.StackTrace + "/" + _x.InnerException.Source);
+                            }
+                            return true;
+                        });
+
+                        BicUtil.Analytics.Analytics.LogException(_ae);
+
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString() + "/" + _error.Message);
+                        if(_error.InnerException != null){
+                            Debug.LogError(_error.InnerException.Message + "/" + _error.InnerException.StackTrace + "/" + _error.InnerException.Source);
+                            if(_error.InnerException.InnerException != null){
+                                Debug.LogError(_error.InnerException.InnerException.Message + "/" + _error.InnerException.InnerException.StackTrace + "/" + _error.InnerException.InnerException.Source);
+                            }
+                        }
+
                         BicUtil.Analytics.Analytics.LogException(_error);
                     }
                 }else{
