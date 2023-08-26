@@ -162,7 +162,7 @@ namespace BicUtil.SDKUtil
                         Debug.LogError("[Firebase] InitializationException remoteConfigAsync ae " + _ae.ToString() + "/" + _ae.Message);
 
                         _ae.Handle((_x)=>{
-                            Debug.LogError("[Firebase] AggregateException " + _x.ToString() + "/" + _x.Message + "/" + _x.StackTrace);
+                            Debug.LogError("[Firebase] AggregateException " + _x.ToString() + "/" + _x.Message + "/" + _x.Source + "/" + _x.HelpLink+ "/"  + _x.HResult+ "/"  + _x.IsOperationCanceledException().ToString()+ "/"  + _x.StackTrace );
 
                             if(_x.InnerException != null){
                                 Debug.LogError("inner " + _x.InnerException.Message + "/" + _x.InnerException.StackTrace + "/" + _x.InnerException.Source);
