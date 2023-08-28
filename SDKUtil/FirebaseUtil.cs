@@ -161,14 +161,18 @@ namespace BicUtil.SDKUtil
 
                         Debug.LogError("[Firebase] InitializationException remoteConfigAsync ae " + _ae.ToString() + "/" + _ae.Message);
 
-                        _ae.Handle((_x)=>{
-                            Debug.LogError("[Firebase] AggregateException " + _x.ToString() + "/" + _x.Message + "/" + _x.Source + "/" + _x.HelpLink+ "/"  + _x.HResult+ "/"  + _x.IsOperationCanceledException().ToString()+ "/"  + _x.StackTrace );
+                        foreach(var _x in _ae.InnerExceptions){
+                             Debug.LogError("[Firebase] AggregateException " + _x.ToString() + "/" + _x.Message + "/" + _x.Source + "/" + _x.HelpLink+ "/"  + _x.HResult+ "/"  + _x.IsOperationCanceledException().ToString()+ "/"  + _x.StackTrace );
 
                             if(_x.InnerException != null){
                                 Debug.LogError("inner " + _x.InnerException.Message + "/" + _x.InnerException.StackTrace + "/" + _x.InnerException.Source);
                             }
-                            return true;
-                        });
+
+                            if(_x is Firebase.FirebaseException){
+                                var _e = _x as Firebase.FirebaseException;
+                                Debug.LogError("[Firebase.FirebaseException] " + _e.Message + "/" + _e.ErrorCode + "/" + _e.StackTrace);
+                            }
+                        }
 
                         BicUtil.Analytics.Analytics.LogException(_ae);
 
