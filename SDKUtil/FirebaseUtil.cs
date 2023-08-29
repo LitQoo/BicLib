@@ -115,6 +115,9 @@ namespace BicUtil.SDKUtil
             State = FirebaseUtilState.Pending;
 
             FirebaseAnalytics.SetUserId(TableService.UserId);
+            Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
+            Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
+
             var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync().AsUniTask();
             var _result = await _fbInitTask;
             
@@ -134,8 +137,6 @@ namespace BicUtil.SDKUtil
                         }
 
                         //await Task.Delay(3000);
-                        Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-                        Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
                         FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
                         var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
@@ -234,18 +235,18 @@ namespace BicUtil.SDKUtil
             }
         }
 
+        static private async UniTask<BicDB.Result> timeoutAsync(float _time){
+            await UniTask.WaitForSeconds(_time); 
+            State = FirebaseUtilState.TimeOver;
+            BicUtil.Analytics.Analytics.Event("FirebaseInitTimeOver");
+            await UniTask.DelayFrame(2);
+            return new BicDB.Result(1);
+        }
+
         static public async UniTask<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
             try{
                 var _initTask = checkAndFixDependenciesAsync(_constants);
-                var _timeoutTask = UniTask.RunOnThreadPool(async ()=>{
-                        await UniTask.WaitForSeconds(_timeout); 
-                        State = FirebaseUtilState.TimeOver;
-                        await UniTask.DelayFrame(2);
-                        return new BicDB.Result(1);
-                    }
-                );
-
-                var _result = await UniTask.WhenAny(_initTask, _timeoutTask);
+                var _result = await UniTask.WhenAny(_initTask, timeoutAsync(_timeout));
             
                 if(_result.winArgumentIndex == 0){
                     if (_result.result1 == Firebase.DependencyStatus.Available) {
@@ -338,7 +339,6 @@ namespace BicUtil.SDKUtil
             _errorLine++;
             
             FetchComplete(_fetchTask);
-
 
             _errorLine++;
             var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync().AsUniTask();
