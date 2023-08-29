@@ -64,7 +64,8 @@ namespace BicUtil.SDKUtil
                 }
             }
 
-            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default).AsUniTask();
+            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(_default);
+            await UniTask.SwitchToMainThread();
         }
 
         static private void updateConstant(IRecordContainer _constants){
@@ -118,8 +119,10 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
 
-            var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync().AsUniTask();
+            var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
             var _result = await _fbInitTask;
+
+            await UniTask.SwitchToMainThread();
             
             // .ContinueWithOnMainThread(async _task=>{
                 if(_result == Firebase.DependencyStatus.Available){
@@ -237,8 +240,10 @@ namespace BicUtil.SDKUtil
 
         static private async UniTask<BicDB.Result> timeoutAsync(float _time){
             await UniTask.WaitForSeconds(_time); 
-            State = FirebaseUtilState.TimeOver;
-            BicUtil.Analytics.Analytics.Event("FirebaseInitTimeOver");
+            if(State == FirebaseUtilState.Pending){
+                State = FirebaseUtilState.TimeOver;
+                BicUtil.Analytics.Analytics.Event("FirebaseInitTimeOver");
+            }
             await UniTask.DelayFrame(2);
             return new BicDB.Result(1);
         }
@@ -247,7 +252,8 @@ namespace BicUtil.SDKUtil
             try{
                 var _initTask = checkAndFixDependenciesAsync(_constants);
                 var _result = await UniTask.WhenAny(_initTask, timeoutAsync(_timeout));
-            
+                await UniTask.SwitchToMainThread();
+
                 if(_result.winArgumentIndex == 0){
                     if (_result.result1 == Firebase.DependencyStatus.Available) {
                         return new BicDB.Result(0);
@@ -309,12 +315,13 @@ namespace BicUtil.SDKUtil
 
 
             _errorLine++;
-            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime).AsUniTask();
+            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
             
             _errorLine++;
 
             try{
                 await _fetchTask;
+                await UniTask.SwitchToMainThread();
             }catch(System.Exception _exception){
 
                 var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
@@ -338,10 +345,11 @@ namespace BicUtil.SDKUtil
 
             _errorLine++;
             
-            FetchComplete(_fetchTask);
+            // FetchComplete(_fetchTask);
 
             _errorLine++;
-            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync().AsUniTask();
+            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+            await UniTask.SwitchToMainThread();
             
             _errorLine++;
             try{
