@@ -250,22 +250,30 @@ namespace BicUtil.SDKUtil
 
         static public async UniTask<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
             try{
-                var _initTask = checkAndFixDependenciesAsync(_constants);
-                var _result = await UniTask.WhenAny(_initTask, timeoutAsync(_timeout));
+                var _initTask = await checkAndFixDependenciesAsync(_constants);
+                // var _result = await UniTask.WhenAny(_initTask, timeoutAsync(_timeout));
                 await UniTask.SwitchToMainThread();
 
-                if(_result.winArgumentIndex == 0){
-                    if (_result.result1 == Firebase.DependencyStatus.Available) {
-                        return new BicDB.Result(0);
-                    }else{
-                        BicUtil.Analytics.Analytics.Event("FirebaseInitError");
-                        return new BicDB.Result(1);
-                    }
-                }else if(_result.winArgumentIndex == 1){
-                    return new BicDB.Result(2);
+                 if (_initTask == Firebase.DependencyStatus.Available) {
+                    return new BicDB.Result(0);
                 }else{
-                    return new BicDB.Result(3);
+                    BicUtil.Analytics.Analytics.Event("FirebaseInitError");
+                    return new BicDB.Result(1);
                 }
+
+
+                // if(_result.winArgumentIndex == 0){
+                //     if (_result.result1 == Firebase.DependencyStatus.Available) {
+                //         return new BicDB.Result(0);
+                //     }else{
+                //         BicUtil.Analytics.Analytics.Event("FirebaseInitError");
+                //         return new BicDB.Result(1);
+                //     }
+                // }else if(_result.winArgumentIndex == 1){
+                //     return new BicDB.Result(2);
+                // }else{
+                //     return new BicDB.Result(3);
+                // }
             }catch(System.Exception _e){
                 Debug.LogError("[Firebase] Error InitFirebaseAsync " + _e.Message);
                 BicUtil.Analytics.Analytics.LogException(_e);
@@ -313,10 +321,13 @@ namespace BicUtil.SDKUtil
             _reloadTime = TimeSpan.Zero;
             #endif
 
-
-            _errorLine++;
-            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
             
+            _errorLine++;
+            #if UNITY_EDITOR
+            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+            #else
+            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync();
+            #endif
             _errorLine++;
 
             try{
