@@ -101,7 +101,11 @@ namespace BicUtil.Analytics
         }
 
         public void LogException(System.Exception _exception){
-            Firebase.Crashlytics.Crashlytics.LogException(_exception);
+            #if BICUTIL_ANALYTICS_UNITY
+
+            #else
+                Firebase.Crashlytics.Crashlytics.LogException(_exception);
+            #endif
         }
     }
 }
