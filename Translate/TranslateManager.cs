@@ -134,7 +134,7 @@ namespace BicUtil.Translate
 
             if(_value == null){
                 Debug.LogWarning("[Translate] Not support " + _id);
-                return string.Empty;
+                return _id;
             }
 
             if(_value.ContainsKey(language) == true){
@@ -148,7 +148,7 @@ namespace BicUtil.Translate
             }
 
             Debug.LogWarning("[Translate] Not support " + _id);
-            return string.Empty;
+            return _id;
         }
     }
     
