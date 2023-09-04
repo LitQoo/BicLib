@@ -323,16 +323,14 @@ namespace BicUtil.SDKUtil
 
             
             _errorLine++;
-            #if UNITY_EDITOR
-            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
-            #else
-            var _fetchTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync();
-            #endif
-            _errorLine++;
-
             try{
-                await _fetchTask;
-                await UniTask.SwitchToMainThread();
+                #if UNITY_EDITOR
+                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+                #else
+                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAndActivateAsync();
+                #endif
+                _errorLine++;
             }catch(System.Exception _exception){
 
                 var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
@@ -354,26 +352,7 @@ namespace BicUtil.SDKUtil
                 throw _exception;
             }
 
-            _errorLine++;
-            
-            // FetchComplete(_fetchTask);
-
-            _errorLine++;
-            var _activateTask = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
             await UniTask.SwitchToMainThread();
-            
-            _errorLine++;
-            try{
-                var _activateResult = await _activateTask;
-
-                if(_activateResult == false){
-                    Debug.LogError("ActivateAsync error");
-                    BicUtil.Analytics.Analytics.Event("ActivateAsyncError");
-                }
-            }catch(System.Exception _exception){
-                Debug.LogError("[Firebase] remoteConfigAsync _activateTask " + _exception.ToString() + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
-                throw _exception;
-            }
 
             _errorLine++;
 
@@ -396,6 +375,7 @@ namespace BicUtil.SDKUtil
                 Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine + "/" + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
                 throw _exception;
             }
+
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
             //     #if !UNITY_EDITOR
             //     sendActiveABTestEvent();

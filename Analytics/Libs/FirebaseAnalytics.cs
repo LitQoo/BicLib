@@ -33,6 +33,12 @@ namespace BicUtil.Analytics
                     sendEvent(_name, _value, _eventData);
                 }else{
                     if(savedEvent.Count < 100){
+                        if(_eventData == null){
+                            _eventData = new Dictionary<string, object>();
+                        }
+                        
+                        _eventData["_RetryToSend"] = true;
+
                         savedEvent.Add(new SavedEvent(_name, _eventData, _value));
                         needRetryEvent = true;
                     }
