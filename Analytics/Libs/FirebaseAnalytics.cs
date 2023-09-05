@@ -66,7 +66,7 @@ namespace BicUtil.Analytics
         private void sendEvent(string _eventName, int _value, Dictionary<string, object> _data){
             if(_data != null){
                 List<Firebase.Analytics.Parameter> _params = new List<Firebase.Analytics.Parameter>();
-                _params.Add(new Firebase.Analytics.Parameter(Firebase.Analytics.FirebaseAnalytics.ParameterValue, _value));
+                //_params.Add(new Firebase.Analytics.Parameter(Firebase.Analytics.FirebaseAnalytics.ParameterValue, _value));
 
                 foreach(var _param in _data){
                     if(_param.Value == null){
