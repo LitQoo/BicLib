@@ -261,7 +261,10 @@ namespace BicDB.Storage
                         _file.Close();
                     }
                 }
+
+                await UniTask.SwitchToMainThread();
             }
+
 
             return _data;
         }

@@ -755,6 +755,7 @@ namespace BicDB.Storage
 				_request = UnityWebRequest.Get(_param.UrlWithParam);
 				setTimeout(_param, _request);
 				await _request.SendWebRequest().ToUniTask();
+				await UniTask.SwitchToMainThread();
 			}
 
 			if(_request != null && _request.result == UnityWebRequest.Result.Success){
@@ -845,6 +846,7 @@ namespace BicDB.Storage
                 setTimeout(_param, _request);
 
                 await _request.SendWebRequest().ToUniTask();
+				await UniTask.SwitchToMainThread();
             }
 
             if (_request != null && _request.result == UnityWebRequest.Result.Success){

@@ -172,7 +172,6 @@ namespace BicDB.Storage
         {
             _table.Clear();
 			var _result = await FileStorageUtil.LoadByFileAsync(_table, getEncryptKey(_table, _parameter));
-			
 			return _result;
 		}
 

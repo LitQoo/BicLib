@@ -157,6 +157,7 @@ namespace BicDB.Storage{
 				var _task = Resources.LoadAsync<TextAsset>(_filePath).ToUniTask();
 				var _textAsset = await _task;
 				var _text= (_textAsset as TextAsset).text;
+				await UniTask.SwitchToMainThread();
 				return _text;
 			}catch{
 				return string.Empty;
