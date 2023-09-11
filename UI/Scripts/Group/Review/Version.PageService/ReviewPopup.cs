@@ -22,6 +22,11 @@ namespace BicUtil.PageService.Review{
             this.OnClose += backPage;
         }
 
+        public UniTask OnClickBackButton()
+        {
+            return UniTask.CompletedTask;
+        }
+
         public UniTask OnClosedPage(IPage _fromUI, object _param = null)
         {
             return UniTask.CompletedTask;
@@ -38,5 +43,6 @@ namespace BicUtil.PageService.Review{
                 PageController.Back(PageTransition.Sequance);
             }
         }
+        
     }
 }

@@ -21,6 +21,7 @@ namespace BicUtil.PageService
         [HideInInspector]
         public string SceneName;
         private object sceneTransitionParameter = null;
+        public bool IsInTransition{get; set;} = false;
         private Dictionary<Type, IPage> pages = new Dictionary<Type, IPage>();
         private Stack<IPage> pageStack = new Stack<IPage> ();
         public IPage CurrentPage { 
@@ -62,6 +63,25 @@ namespace BicUtil.PageService
             PageManager.Instance.AddController(this);
             initialize ();
         }
+
+		#region LifeCycle
+		#if UNITY_ANDROID || UNITY_EDITOR
+		private async void Update(){
+            if(IsInTransition == true){
+                return;
+            }
+
+			await checkBackKey();
+		}
+
+        private async UniTask checkBackKey(){
+			if(Input.GetKeyUp(KeyCode.Escape))
+			{
+				await CurrentPage.OnClickBackButton();
+			}
+		}
+		#endif
+
 
         private void Start(){
             SceneManager.SetActiveScene(this.gameObject.scene);
@@ -206,7 +226,8 @@ namespace BicUtil.PageService
             var _lastPage = CurrentPage;
             pageStack.Push(_openPage);
 
-            await _openPage.OnOpenedPage(_lastPage, _param);
+            var _openTask = _openPage.OnOpenedPage(_lastPage, _param);
+            await transitionPage(PageTransition.Sequance, UniTask.CompletedTask, _openTask);
         }
 
         public void Enter<PageClass>(object _param = null){
@@ -258,7 +279,8 @@ namespace BicUtil.PageService
 
         public async UniTask CloseAsync(object _closeParam = null){
             var _lastPage = pageStack.Pop();
-            await _lastPage.OnClosedPage(CurrentPage, _closeParam);
+            var _closeTask = _lastPage.OnClosedPage(CurrentPage, _closeParam);
+            await transitionPage(PageTransition.Sequance, _closeTask, UniTask.CompletedTask);
         }
 
         public void Close(object _closeParam = null){
@@ -307,10 +329,12 @@ namespace BicUtil.PageService
 
         internal async UniTask reopenFromSceneAsync(string _sceneName, Type _lastPageType, object _openParam){
             await CurrentPage.OnOpenedPage(new ScenePage(_sceneName, _lastPageType), _openParam);
+            await transitionPage(PageTransition.Sequance, UniTask.CompletedTask, UniTask.CompletedTask);
         }
-
+        
         private async UniTask transitionPage(PageTransition _transition, UniTask _closeTask, UniTask _openTask)
         {
+            this.IsInTransition = true;
             if (_transition == PageTransition.Sequance)
             {
                 if(_closeTask.Status == UniTaskStatus.Pending){
@@ -333,13 +357,10 @@ namespace BicUtil.PageService
                     await _openTask;
                 }
             }
-        }
 
-        public void SetBackKeyAction(Action _action){
-            //TODO: setbackkey
-            
-            DebugForEditor.Log("SetBackeyaction impl");
+            this.IsInTransition = false;
         }
+        #endregion
     }
 
     public class ScenePage : IPage
@@ -372,6 +393,10 @@ namespace BicUtil.PageService
 
         public UniTask OnOpenedPage(IPage _fromPage, object _param = null)
         {
+            throw new NotImplementedException();
+        }
+
+        public UniTask OnClickBackButton(){
             throw new NotImplementedException();
         }
     }

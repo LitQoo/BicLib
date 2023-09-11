@@ -52,6 +52,8 @@ namespace BicUtil.UI{
                 return inputField.text;
             }
         }
+
+        public string Id = "";
         #endregion
 
         #region Event
@@ -244,6 +246,7 @@ namespace BicUtil.UI{
         public void Close(){
             this.gameObject.SetActive(false);
             this.popup?.SetActive(true);
+            Id = "";
         }
         #endregion
     }

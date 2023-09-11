@@ -12,5 +12,7 @@ namespace BicUtil.PageService
 
         UniTask OnOpenedPage(IPage _fromPage, object _param = null);
         UniTask OnClosedPage(IPage _fromUI, object _param = null);
+
+        UniTask OnClickBackButton();
     }
 }
