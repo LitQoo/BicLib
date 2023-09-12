@@ -402,16 +402,22 @@ namespace BicUtil.Teacher
             }).AddTo(controller.parentTween);
         }
 
-        public void SetDottedLine(int _index, Vector2 _positionStart, Vector2 _positionEnd, Color _color, float _width, float _space, float _speed = 0f, float _startOffset = 0f, float _endOffset = 0f){
+        public void SetDottedLine(int _index, Vector2 _positionStart, Vector2 _positionEnd, Color _color, float _width, float _space, float _speed = 0f, float _startOffset = 0f, float _endOffset = 0f, bool _immediately = false){
+            
             var _line = controller.dottedLines[_index];
-            BicTween.Delay(0).SubscribeStart(()=>{
-                _line.SetColor(_color);
-                _line.SetPosition(new Vector3[]{_positionStart, _positionEnd}, _startOffset, _endOffset, false);
-                _line.SetDotSize(_width, false); 
-                _line.SetSpeed(_speed);
-                _line.SetSpacing(_space);
-                _line.gameObject.SetActive(true);
-            }).AddTo(controller.parentTween);
+            Action _aciton = ()=>{
+                    _line.SetColor(_color);
+                    _line.SetPosition(new Vector3[]{_positionStart, _positionEnd}, _startOffset, _endOffset, false);
+                    _line.SetDotSize(_width, false); 
+                    _line.SetSpeed(_speed);
+                    _line.SetSpacing(_space);
+                    _line.gameObject.SetActive(true);
+                };
+            if(_immediately == false){
+                BicTween.Delay(0).SubscribeStart(_aciton).AddTo(controller.parentTween);
+            }else{
+                _aciton();
+            }
         }
 
         public void HidePointer(bool _immediately = false){
