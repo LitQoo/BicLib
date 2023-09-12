@@ -78,7 +78,7 @@ namespace BicUtil.Ads
         public AdsInfo(object _adsPlacement, IVariable _playTimeInterval){
             this.AdsPlacement = _adsPlacement;
             this.TimeInterval = _playTimeInterval;
-            this.LastPlayedAdsTime = getTimestamp();
+            this.LastPlayedAdsTime = 0;
         }
 
         private long getTimestamp(){
