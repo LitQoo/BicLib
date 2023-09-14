@@ -104,6 +104,10 @@ namespace BicUtil.SDKUtil
                 if(!string.IsNullOrEmpty(abTestName.AsString)){
                     FirebaseAnalytics.SetCustomKey("ABGroup", abTestName.AsString);
                 }
+
+                if(abTestName.AsString.ToLower() != "default" && abTestName.AsString.ToLower() != "none"){
+                    FirebaseAnalytics.SetCustomKey("LastABGroup", abTestName.AsString);
+                }
             }else{
                 #if UNITY_EDITOR
                 Debug.LogError("[ABTest] Add 'ab_group' value in Constant");
