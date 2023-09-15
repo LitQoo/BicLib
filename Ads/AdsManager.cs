@@ -59,15 +59,35 @@ namespace BicUtil.Ads
         }
         #endregion
 
+        [Obsolete]
         public override void Initialize()
+        {
+            // AnalyticsTable.SetStorage(FileStorage.GetInstance());
+            // AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
+        }
+
+
+        public void Initialize(Action _callback)
         {
             if(isInit == true){
                 return;
             }
 
             isInit = true;
-            // AnalyticsTable.SetStorage(FileStorage.GetInstance());
-            // AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
+            
+            int _count = 0;
+            int _targetCount = adsPlatforms.Count;
+            foreach(var _ads in adsPlatforms){
+                _ads.Initialize(()=>{
+                    _count++;
+                    if(_count == _targetCount){
+                        if(_callback != null){
+                            _callback();
+                            _callback = null;
+                        }
+                    }
+                });
+            }
         }
 
         #region Time

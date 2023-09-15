@@ -323,6 +323,11 @@ namespace BicUtil.UI{
 
         }
 
+        public void Initialize(Action _callback)
+        {
+            _callback();
+        }
+
 
         private Action<AdsResult> onCloseByAds = null;
         public void ShowInterstitial(object _adsPlacement, Action<AdsResult> _callback)

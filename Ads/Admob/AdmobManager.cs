@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BicUtil.Tween;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Ump.Api;
 using UnityEngine;
 
 namespace BicUtil.Ads{
@@ -17,20 +18,62 @@ namespace BicUtil.Ads{
 
         #region Logic
 
-        public AdmobManager(){
-            MobileAds.Initialize(_initState=>{
+        public AdmobManager(bool _initialize){
+            if(_initialize == true){
+                MobileAds.Initialize(_initState=>{
 
-            });   
+                });   
+            }
         }
 
-        public AdmobManager(string _androidAppId, string _iosAppId){
-            // #if UNITY_IOS
-            // MobileAds.Initialize();
-            // #endif
+        public void Initialize(Action _action){
+            UpdateConsent(_result=>{
+                MobileAds.Initialize(_initState=>{
+                    Debug.Log("[Ads] Initialize result: "+_initState.ToString());
+                    _action();
+                });
+            });
+        }
 
-            // #if UNITY_ANDROID
-            // MobileAds.Initialize();
-            // #endif
+        public void UpdateConsent(Action<ConsentResult> _callback){
+            ConsentRequestParameters request = new ConsentRequestParameters
+            {
+                TagForUnderAgeOfConsent = false,
+            };
+
+            ConsentInformation.Update(request, _error=>OnConsentInfoUpdated(_error, _callback));
+        }
+
+        void OnConsentInfoUpdated(FormError consentError, Action<ConsentResult> _callback)
+        {
+            if (consentError != null)
+            {
+                // Handle the error.
+                UnityEngine.Debug.LogError(consentError);
+                _callback(ConsentResult.ConsentUpdateError);
+                return;
+            }
+
+            // If the error is null, the consent information state was updated.
+            // You are now ready to check if a form is available.
+            ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
+            {
+                if (formError != null)
+                {
+                    // Consent gathering failed.
+                    UnityEngine.Debug.LogError(consentError);
+                    _callback(ConsentResult.ConsentShowFormError);
+                    return;
+                }
+
+                // Consent has been gathered.
+                if (ConsentInformation.CanRequestAds())
+                {
+                   _callback(ConsentResult.Success);
+                }else{
+                    _callback(ConsentResult.ConsentRequestError);
+                }
+            });
         }
 
         public void SetAdsSettingIOSOnly(string _adsId, object[] _types){
@@ -77,7 +120,7 @@ namespace BicUtil.Ads{
         public bool IsReadyInterstitial(object _adsType){
 
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
-            if(_interstitial != null && _interstitial.IsLoaded() == true){
+            if(_interstitial != null && _interstitial.CanShowAd() == true){
                 return true;
             }
 
@@ -88,7 +131,7 @@ namespace BicUtil.Ads{
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback){
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
             object __adsType = _adsType;
-            _interstitial.OnAdClosed += (_sender, _args)=>{
+            Action _reload = ()=>{
                 if(adsData[__adsType].Data != null){
                     _interstitial.Destroy();
                     adsData[__adsType].Data = null;
@@ -103,6 +146,11 @@ namespace BicUtil.Ads{
                 }
             };
 
+            _interstitial.OnAdFullScreenContentClosed += _reload;
+            _interstitial.OnAdFullScreenContentFailed += (AdError)=>{
+                _reload();
+            };
+
             _interstitial.Show();
 
         }
@@ -114,27 +162,28 @@ namespace BicUtil.Ads{
         public void loadInterstitial(object _adsType, float _time){
             if(adsData[_adsType].Data == null)
             {
-                InterstitialAd _interstitial = new InterstitialAd(adsData[_adsType].PlatformId);
-                AdRequest _request = buildRequest();
-
                 float __time = _time;
                 object __adsType = _adsType;
-                _interstitial.OnAdFailedToLoad += (_sender, _args) =>
-                {
-                    _interstitial.Destroy();
-                    adsData[_adsType].Data = null;
+                var _request = buildRequest();
+                InterstitialAd.Load(adsData[_adsType].PlatformId, _request, (_ad, _error)=>{
+                    adsData[__adsType].Data = _ad;
 
-                    BicTween.RunOnMainThread(() =>
-                    {
-                        BicTween.Delay(__time).SubscribeComplete(() =>
+                    if(_error != null || _ad == null){
+                        if(_ad != null){
+                            _ad.Destroy();
+                        }
+
+                        adsData[__adsType].Data = null;
+
+                        BicTween.RunOnMainThread(() =>
                         {
-                            loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
+                            BicTween.Delay(__time).SubscribeComplete(() =>
+                            {
+                                loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
+                            });
                         });
-                    });
-                };
-
-                _interstitial.LoadAd(_request);
-                adsData[_adsType].Data = _interstitial;
+                    }
+                });
             }
         }
         #endregion
@@ -153,23 +202,28 @@ namespace BicUtil.Ads{
 
         public void loadRewardBased(string _adsId, float _time){
             if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
-                RewardedAd _rewardedAd = new RewardedAd(_adsId);
                 AdRequest _request = buildRequest();
                 
                 float __time = _time;
                 string __adsId = _adsId;
 
-                _rewardedAd.OnAdFailedToLoad += (_sender, _args)=>{
-                    rewardedAdLoader[_adsId] = null;
-                    BicTween.RunOnMainThread(()=>{
-                        BicTween.Delay(__time).SubscribeComplete(()=>{
-                            loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
-                        });
-                    });
-                };
+                RewardedAd.Load(__adsId, _request, (_ad,_error)=>{
+                    rewardedAdLoader[_adsId] = _ad;
 
-                _rewardedAd.LoadAd(_request);
-                rewardedAdLoader[_adsId] = _rewardedAd;
+                    if(_error != null || _ad == null){
+                        if(_ad != null){
+                            _ad.Destroy();
+                        }
+
+                        rewardedAdLoader[_adsId] = null;
+
+                        BicTween.RunOnMainThread(()=>{
+                            BicTween.Delay(__time).SubscribeComplete(()=>{
+                                loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
+                            });
+                        });
+                    }
+                });
             }
         }
 
@@ -180,12 +234,17 @@ namespace BicUtil.Ads{
             RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
             object __adsType = _adsType;
             isSuccessRewarded = false;
-            _rewardedAd.OnUserEarnedReward += (_sender, _args)=>{
+
+            _rewardedAd.OnAdImpressionRecorded += ()=>{
                 isSuccessRewarded = true;
             };
-            
-            _rewardedAd.OnAdClosed += (_sender, _args)=>{
-                if(_callback != null){
+
+            _rewardedAd.OnAdFullScreenContentClosed += ()=>{
+                _rewardedAd.Destroy();
+                rewardedAdLoader[_adsId] = null;
+                LoadRewardBased(__adsType);
+
+                 if(_callback != null){
                     var __callback = _callback;
                     _callback = null;
                     if(isSuccessRewarded == true){
@@ -196,7 +255,11 @@ namespace BicUtil.Ads{
                 }
             };
 
-            _rewardedAd.OnAdFailedToShow += (_sender, _args)=>{
+            _rewardedAd.OnAdFullScreenContentFailed += (_error)=>{
+                _rewardedAd.Destroy();
+                rewardedAdLoader[_adsId] = null;
+                LoadRewardBased(__adsType);
+
                 if(_callback != null){
                     var __callback = _callback;
                     _callback = null;
@@ -204,9 +267,8 @@ namespace BicUtil.Ads{
                 }
             };
 
-            _rewardedAd.Show();
-            rewardedAdLoader[_adsId] = null;
-            LoadRewardBased(__adsType);
+            _rewardedAd.Show(_reward=>{
+            });
         }
 
 
@@ -214,7 +276,7 @@ namespace BicUtil.Ads{
             var _adsId = adsData[_adsType].PlatformId;
             if(rewardedAdLoader.ContainsKey(_adsId) == true){
                 RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
-                if(_rewardedAd != null && _rewardedAd.IsLoaded() == true){
+                if(_rewardedAd != null && _rewardedAd.CanShowAd() == true){
                     return true;
                 }
             }
@@ -251,14 +313,7 @@ namespace BicUtil.Ads{
 
         private AdRequest buildRequest()
         {
-            var _builder = new AdRequest.Builder();
-
-            if (isUserConsent == false)
-            {
-                _builder.AddExtra("npa", "1");
-            }
-
-            var _request = _builder.Build();
+            var _request = new AdRequest();
             return _request;
         }
         #endregion

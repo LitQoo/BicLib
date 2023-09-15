@@ -17,9 +17,8 @@ namespace BicUtil.Ads
         private void OnDestroy() {
             BicTween.Cancel(this.gameObject);
             AdsManager.Instance.RemoveBanner(this);
-            bannerView.OnAdLoaded -= onLoaded;
-            bannerView.OnAdFailedToLoad -= reloadBanner;
             bannerView.Destroy();
+            bannerView = null;
         }
         #endregion
 
@@ -30,14 +29,14 @@ namespace BicUtil.Ads
             adsPlacement = _adsPlacement;
             onLoadBannerAction = _onLoadBannerAction;
             bannerView = new BannerView(_unitId, AdSize.Banner, AdPosition.Top);
-            bannerView.OnAdFailedToLoad += reloadBanner;
-            bannerView.OnAdLoaded += onLoaded;
+            bannerView.OnBannerAdLoadFailed += _error=>reloadBanner();
+            bannerView.OnBannerAdLoaded += onLoaded;
             BicTween.Delay(0.1f).SubscribeComplete(()=>{
                 bannerView.LoadAd(_request);
             }).SetTargetObject(this.gameObject);
         }
 
-        private void onLoaded(object sender, EventArgs e)
+        private void onLoaded()
         {
             reloadTime = 30f;
             BicTween.RunOnMainThread(()=>onLoadBannerAction(this));

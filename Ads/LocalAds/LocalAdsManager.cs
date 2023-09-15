@@ -170,6 +170,11 @@ namespace BicUtil.Ads
         public void SetUserConsent(bool _isEnabled){
 
         }
+
+        public void Initialize(Action _callback)
+        {
+            _callback();
+        }
         #endregion
     }
 

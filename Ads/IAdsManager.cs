@@ -18,6 +18,8 @@ namespace BicUtil.Ads
         
         string TermsURL{get;}
         void SetUserConsent(bool _isEnabled);
+
+        void Initialize(Action _callback);
     }
 
     public interface IAdsManager
@@ -56,6 +58,15 @@ namespace BicUtil.Ads
         RewardBase,
         Interstital,
         Banner
+    }
+
+    public enum ConsentResult{
+        Success,
+        ConsentUpdateError,
+        ConsentShowFormError,
+        ConsentRequestError,
+        InitializeError
+
     }
 
     public class AdsPlatformInfo{
