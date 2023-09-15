@@ -36,9 +36,22 @@ namespace BicUtil.Ads{
         }
 
         public void UpdateConsent(Action<ConsentResult> _callback){
+            var debugSettings = new ConsentDebugSettings
+            {
+                DebugGeography = DebugGeography.EEA,
+                TestDeviceHashedIds =
+                new List<string>
+                {
+                    "A9178F1E-C3E8-407D-9A54-844E7CDF7FA8",
+                    "366fac27-a1ef-4c95-b5eb-e313cf98d35c",
+                    "9104b117-10b9-46ac-835f-a89cf6ef4f37"
+                }
+            };
+
             ConsentRequestParameters request = new ConsentRequestParameters
             {
                 TagForUnderAgeOfConsent = false,
+                ConsentDebugSettings = debugSettings,
             };
 
             ConsentInformation.Update(request, _error=>OnConsentInfoUpdated(_error, _callback));
