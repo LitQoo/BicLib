@@ -46,7 +46,7 @@ namespace BicUtil.Tween
             Handles.color = _pointColor;
             
 			EditorGUI.BeginChangeCheck();
-			point = Handles.FreeMoveHandle(point, Quaternion.identity, _size,new Vector3(10f,10f,10f),Handles.DotHandleCap);
+			var fmh_49_42_638332319565482860 = Quaternion.identity; point = Handles.FreeMoveHandle(point, _size,new Vector3(10f,10f,10f),Handles.DotHandleCap);
 			if(EditorGUI.EndChangeCheck()){
 				_callback(_tween, index, point);
 				EditorUtility.SetDirty(selectedTweenPool);

@@ -47,7 +47,7 @@ namespace BicUtil.Tween
 			EditorGUI.BeginChangeCheck();
 			var _startHandle = new Vector2(40*Mathf.Cos(Mathf.Deg2Rad*(startAngle + 180)),40*Mathf.Sin(Mathf.Deg2Rad*(startAngle + 180)));
 			var _startHandlePosition = (Vector2)point + _startHandle;
-			var _startHandleDiffPosition = Handles.FreeMoveHandle(_startHandlePosition, Quaternion.identity, _size,new Vector3(10f,10f,10f),Handles.DotHandleCap);
+			var fmh_50_80_638332319566417230 = Quaternion.identity; var _startHandleDiffPosition = Handles.FreeMoveHandle(_startHandlePosition, _size,new Vector3(10f,10f,10f),Handles.DotHandleCap);
 			if(EditorGUI.EndChangeCheck()){
 				_tween.OriginValue = new Vector3(0, 0, _tween.OriginValue.z + getAngle(_startHandlePosition - (Vector2)_tween.TargetObject.transform.position, _startHandleDiffPosition - (Vector3)_tween.TargetObject.transform.position));
 
@@ -66,7 +66,7 @@ namespace BicUtil.Tween
 			EditorGUI.BeginChangeCheck();
 			var _endHandle = new Vector2(40*Mathf.Cos(Mathf.Deg2Rad*(startAngle + endAngle + 180)),40*Mathf.Sin(Mathf.Deg2Rad*(startAngle + endAngle + 180)));
 			var _endHandlePosition = (Vector2)point + _endHandle;
-			var _endHandleDiffPosition = Handles.FreeMoveHandle(_endHandlePosition, Quaternion.identity, _size,new Vector3(10f,10f,10f),Handles.ConeHandleCap);
+			var fmh_69_76_638332319566435090 = Quaternion.identity; var _endHandleDiffPosition = Handles.FreeMoveHandle(_endHandlePosition, _size,new Vector3(10f,10f,10f),Handles.ConeHandleCap);
 			if(EditorGUI.EndChangeCheck()){
 				_tween.DiffValue = new Vector3(0, 0, _tween.DiffValue.z + getAngle(_endHandlePosition - (Vector2)_tween.TargetObject.transform.position, _endHandleDiffPosition - (Vector3)_tween.TargetObject.transform.position));
 				EditorUtility.SetDirty(selectedTweenPool);
