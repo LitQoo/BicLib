@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41c87c0ac5b494d919c42faf31771cac, type: 3}
+  m_Name: Linepoly
+  m_EditorClassIdentifier: 
+  GooglePlayAppId: com.bigjam.polyline
+  AppStoreAppId: 1513861436
+  Icon: {fileID: 21300000, guid: 74318000e0f0247aa9cb64c58d61b7cb, type: 3}
+  Screenshot: {fileID: 21300000, guid: 22d5de7dfce2d4652bd52be40db5823f, type: 3}
+  Title: Linepoly
+  ServiceLanguage: 
+  Review: 4.6
+  Donwload: 300,000+
+  BackgroundColor: {r: 0.6247775, g: 0.6247775, b: 0.9811321, a: 1}
+  ButtonColor: {r: 0.35257158, g: 0.23713954, b: 0.6886792, a: 1}

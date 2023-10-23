@@ -6,7 +6,7 @@ using System;
 
 namespace BicUtil.Purchasing
 {
-    public class ProductModel<PRODUCTENUM> : RecordContainer where PRODUCTENUM : struct{
+    public class ProductModel<PRODUCTENUM> : RecordContainer where PRODUCTENUM : struct, Enum{
         #region const
         public const string KEY_PRIMARY = "idType";
         #endregion

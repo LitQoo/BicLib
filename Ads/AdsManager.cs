@@ -14,6 +14,7 @@ namespace BicUtil.Ads
         private Dictionary<object, AdsInfo> adsData = new Dictionary<object, AdsInfo>();
         private Dictionary<object, IAdsPlatform> defaultAdsData = new Dictionary<object, IAdsPlatform>();
         private List<IAdsPlatform> adsPlatforms = new List<IAdsPlatform>();
+        private IAdsPlatform lastAdsPlatforms = null;
         //public TableContainer<AdsStat> AnalyticsTable = new TableContainer<AdsStat>("AdsAnalytics");
         private bool isInit = false;
 
@@ -64,6 +65,7 @@ namespace BicUtil.Ads
         {
             // AnalyticsTable.SetStorage(FileStorage.GetInstance());
             // AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
+            this.Initialize(null);
         }
 
 
@@ -155,6 +157,11 @@ namespace BicUtil.Ads
                 }
             }
 
+            if(lastAdsPlatforms != null){
+                selectedInterstitialPlatform = int.MaxValue;
+                return true;
+            }
+
             if(OnNotReadyAdsCallback != null){
                 OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "NoFill");
             }
@@ -177,6 +184,11 @@ namespace BicUtil.Ads
                     selectedRewardBasedPlatform = i;
                     return true;
                 }
+            }
+
+            if(lastAdsPlatforms != null){
+                selectedRewardBasedPlatform = int.MaxValue;
+                return true;
             }
 
             if(OnNotReadyAdsCallback != null){
@@ -202,8 +214,11 @@ namespace BicUtil.Ads
 
         public void ShowInterstitialIfReady(object _adsPlacement, Action<AdsResult> _nextAction){
             if(IsReadyInterstitial(_adsPlacement) == true){
+                
+                Debug.Log("ready");
                 ShowInterstitial(_adsPlacement, _nextAction);
             }else{
+                Debug.Log("not ready");
                 _nextAction(AdsResult.Failed);
             }
         }
@@ -219,44 +234,51 @@ namespace BicUtil.Ads
                     OnAfterPlayedAdsCallback(_adsPlacement, AdsType.Interstital, _adsResult);
                 }
 
+                
+                if(_adsResult != AdsResult.Failed){ 
+                    UpdateLastPlayedAdsTime(_adsPlacement);
+                } 
+
                 selectedInterstitialPlatform = -1;
                 _callback(_adsResult);
 
                 increaseCount(AdsStat.INTERSTITIAL, _adsResult);
             };
 
-            if(selectedInterstitialPlatform >= 0){
+            if(selectedInterstitialPlatform >= 0 && selectedInterstitialPlatform < adsPlatforms.Count){
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
-                
-                UpdateLastPlayedAdsTime(_adsPlacement);
 
                 adsPlatforms[selectedInterstitialPlatform].ShowInterstitial(_adsPlacement, _func);
                 return;
             }
 
-            for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyInterstitial(_adsPlacement) == true){
-                    if(OnBeforePlayAdsCallback != null){
-                        OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
+            if(selectedInterstitialPlatform < 0){
+                for(int i = 0; i < adsPlatforms.Count; i++){
+                    if(adsPlatforms[i].IsReadyInterstitial(_adsPlacement) == true){
+                        if(OnBeforePlayAdsCallback != null){
+                            OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
+                        }
+                        
+                        adsPlatforms[i].ShowInterstitial(_adsPlacement, _func);
+                        return;
                     }
-
-                    UpdateLastPlayedAdsTime(_adsPlacement);
-                    
-                    adsPlatforms[i].ShowInterstitial(_adsPlacement, _func);
-                    return;
                 }
             }
 
-            if(defaultAdsData.ContainsKey(_adsPlacement) == true){
+            if(defaultAdsData.ContainsKey(_adsPlacement) == true && lastAdsPlatforms != null){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
+                }
+                
+                defaultAdsData[_adsPlacement].ShowInterstitial(_adsPlacement, _func);
+            }else if(lastAdsPlatforms != null){
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.Interstital);
                 }
 
-                UpdateLastPlayedAdsTime(_adsPlacement);
-                
-                defaultAdsData[_adsPlacement].ShowInterstitial(_adsPlacement, _func);
+                lastAdsPlatforms.ShowInterstitial(_adsPlacement, _func);
             }else{
                 IsShowingInterstital = false;
                 _callback(AdsResult.Failed);
@@ -306,7 +328,7 @@ namespace BicUtil.Ads
             };
 
 
-            if(selectedRewardBasedPlatform >= 0){
+            if(selectedRewardBasedPlatform >= 0 && selectedRewardBasedPlatform < adsPlatforms.Count){
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
                 }
@@ -315,23 +337,31 @@ namespace BicUtil.Ads
                 return;
             }
             
-            for(int i = 0; i < adsPlatforms.Count; i++){
-                if(adsPlatforms[i].IsReadyRewardBased(_adsPlacement) == true){
-                    if(OnBeforePlayAdsCallback != null){
-                        OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
-                    }
+            if(selectedRewardBasedPlatform < 0){
+                for(int i = 0; i < adsPlatforms.Count; i++){
+                    if(adsPlatforms[i].IsReadyRewardBased(_adsPlacement) == true){
+                        if(OnBeforePlayAdsCallback != null){
+                            OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
+                        }
 
-                    adsPlatforms[i].ShowRewardBased(_adsPlacement, _func);
-                    return;
+                        adsPlatforms[i].ShowRewardBased(_adsPlacement, _func);
+                        return;
+                    }
                 }
             }
 
-            if(defaultAdsData.ContainsKey(_adsPlacement) == true){
+            if(defaultAdsData.ContainsKey(_adsPlacement) == true && lastAdsPlatforms == null){
                 if(OnBeforePlayAdsCallback != null){
                     OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
                 }
 
                 defaultAdsData[_adsPlacement].ShowRewardBased(_adsPlacement, _func);
+            }else if(lastAdsPlatforms != null){
+                if(OnBeforePlayAdsCallback != null){
+                    OnBeforePlayAdsCallback(_adsPlacement, AdsType.RewardBase);
+                }
+
+                lastAdsPlatforms.ShowRewardBased(_adsPlacement, _func);
             }else{
                 IsShowingRewardBased = false;
 
@@ -348,6 +378,9 @@ namespace BicUtil.Ads
             adsPlatforms.Insert(0, _platform);
         }
 
+        public void SetLastAdsPlatform(IAdsPlatform _platform){
+            lastAdsPlatforms = _platform;
+        }
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
         public IAdsBanner CreateBanner(object _adsPlacement, Color _backColor, Action<IAdsBanner> _onLoadAction){
@@ -366,6 +399,15 @@ namespace BicUtil.Ads
 
             if (defaultAdsData.ContainsKey(_adsPlacement) == true){
                 var _banner = createBanner(_adsPlacement, _onLoadAction, defaultAdsData[_adsPlacement], _backColor, true);
+                if(_banner != null){
+                    increaseCount(AdsStat.BANNER, AdsResult.Finished);
+                    return _banner;
+                }
+            }
+
+            if(lastAdsPlatforms != null){
+                var _banner = createBanner(lastAdsPlatforms, _onLoadAction, defaultAdsData[_adsPlacement], _backColor, true);
+                
                 if(_banner != null){
                     increaseCount(AdsStat.BANNER, AdsResult.Finished);
                     return _banner;

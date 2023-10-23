@@ -9,7 +9,7 @@ using BicDB.Variable;
 using UnityEngine.Purchasing;
 
 namespace BicUtil.Purchasing{
-    public class DummyManager<PRODUCTTYPE> : IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct
+    public class DummyManager<PRODUCTTYPE> : IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct, Enum
     {
         static private IPurchasingManager<PRODUCTTYPE> instance = null;
         static public IPurchasingManager<PRODUCTTYPE> Instance{

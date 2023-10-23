@@ -16,7 +16,7 @@ namespace BicUtil.Purchasing{
         Unknown
     }
 
-    public interface IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct
+    public interface IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct, Enum
     {
         EnumVariable<SubscriptionStateType> SubscriptionState{get;}
         PRODUCTTYPE SubscriptionActiveID {get;set;}

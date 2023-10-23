@@ -115,7 +115,9 @@ namespace BicUtil.UI{
             rightButtonIcon.gameObject.SetActive(false);
             rightButtonText.gameObject.SetActive(false);
             leftButtonIcon.gameObject.SetActive(false);
-            popup?.SetActive(true);
+            if(popup != null){
+                popup.SetActive(true);
+            }
         }
 
         public void Info(string _text, Action _onClickClose){
@@ -161,7 +163,9 @@ namespace BicUtil.UI{
 
         public void BlockAndOpen(){
             diableAllUI();
-            popup.SetActive(false);
+            if(popup != null){
+                popup.SetActive(false);
+            }
             this.Open();
         }
 
@@ -245,7 +249,9 @@ namespace BicUtil.UI{
 
         public void Close(){
             this.gameObject.SetActive(false);
-            this.popup?.SetActive(true);
+            if(popup != null){
+                this.popup.SetActive(true);
+            }
             Id = "";
         }
         #endregion
