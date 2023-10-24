@@ -67,6 +67,8 @@ namespace BicUtil.LocalAds{
         private Translator translator = null;
         private Action closeAction = null;
 
+        private RectTransform rectTransform = null;
+
         #if UNITY_EDITOR
         private static LocalAdsController instance;
 
@@ -180,6 +182,12 @@ namespace BicUtil.LocalAds{
 
             this.gameObject.SetActive(true);
             this.noAdsLayer.SetActive(_noAdsEnable && this.enableNoAdsLayer);
+
+            if(rectTransform == null){
+                rectTransform = this.gameObject.GetComponent<RectTransform>();
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
 
         private void selectAds()
