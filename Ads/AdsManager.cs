@@ -214,11 +214,8 @@ namespace BicUtil.Ads
 
         public void ShowInterstitialIfReady(object _adsPlacement, Action<AdsResult> _nextAction){
             if(IsReadyInterstitial(_adsPlacement) == true){
-                
-                Debug.Log("ready");
                 ShowInterstitial(_adsPlacement, _nextAction);
             }else{
-                Debug.Log("not ready");
                 _nextAction(AdsResult.Failed);
             }
         }
@@ -380,6 +377,10 @@ namespace BicUtil.Ads
 
         public void SetLastAdsPlatform(IAdsPlatform _platform){
             lastAdsPlatforms = _platform;
+        }
+
+        public void RemoveAdsPlatform(IAdsPlatform _platform){
+            adsPlatforms.Remove(_platform);
         }
 
         private Dictionary<object, IAdsBanner> bannerList = new Dictionary<object, IAdsBanner>();
