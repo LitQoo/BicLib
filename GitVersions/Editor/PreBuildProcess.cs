@@ -21,6 +21,8 @@ namespace BicLib.GitVersions{
                         Debug.LogError(_gitStatus);
                         throw new BuildFailedException("Can't build, commit first");
                     }
+
+                    return;
                 }
 
                 if(_gitStatus.Split('\n').Length <= 11 && _gitStatus.Contains("nothing added to commit but untracked files present") == true && _gitStatus.Contains("UnityServicesProjectConfiguration.json") == true){
