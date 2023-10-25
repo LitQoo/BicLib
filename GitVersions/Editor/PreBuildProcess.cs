@@ -17,8 +17,10 @@ namespace BicLib.GitVersions{
 
             if(_gitStatus.Contains("nothing to commit") == false){
                 if(_gitStatus.Contains("Changes not staged for commit") == true){
-                    Debug.LogError(_gitStatus);
-                    throw new BuildFailedException("Can't build, commit first");
+                    if(EditorUtility.DisplayDialog("Git warning", "커밋하지 않은 내용이 있습니다.\n계속하시겠습니까?\n(빌드후 자동 커밋됩니다.)", "확인", "취소") == false){
+                        Debug.LogError(_gitStatus);
+                        throw new BuildFailedException("Can't build, commit first");
+                    }
                 }
 
                 if(_gitStatus.Split('\n').Length <= 11 && _gitStatus.Contains("nothing added to commit but untracked files present") == true && _gitStatus.Contains("UnityServicesProjectConfiguration.json") == true){
