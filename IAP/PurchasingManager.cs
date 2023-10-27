@@ -13,9 +13,15 @@ using BicDB.Variable;
 using BicDB;
 using BicDB.Core;
 using BicUtil.Analytics;
+using UnityEngine.Purchasing.Extension;
 
 namespace BicUtil.Purchasing{
-	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct, Enum {
+	public static class PurchasingService{
+		public static Func<string, ProductModelBase> GetProduct = null;
+		public static Action<string, Action<PurchasingResult>> BuyProduct = null;
+		public static Action<Action<bool, string>> RestorePurchases = null;
+	}
+	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IDetailedStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct, Enum {
 		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
 		public SubscriptionInfo SubscriptionInfo = null;
 		private EnumVariable<SubscriptionStateType> subscriptionState = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
@@ -50,6 +56,10 @@ namespace BicUtil.Purchasing{
 
 		public override void Initialize() 
 		{
+			PurchasingService.GetProduct = this.GetProductBase;
+			PurchasingService.BuyProduct = this.BuyProductByStringId;
+			PurchasingService.RestorePurchases = this.RestorePurchases;
+
 			if(productTable.Count == 0){
 				return;
 			}
@@ -69,6 +79,11 @@ namespace BicUtil.Purchasing{
 			}
 			
 			UnityPurchasing.Initialize(this, builder);
+		}
+
+		public void BuyProductByStringId(string _productId, Action<PurchasingResult> _callback){
+			var _product = getProduct(_productId);
+			BuyProduct(_product.IdType.AsEnum, _callback);
 		}
 
 		private Action<PurchasingResult> buyCallback;
@@ -130,13 +145,13 @@ namespace BicUtil.Purchasing{
 
 		// 애플로 출시할때는 이 코드를 추가해야하나봄??? 
 		// Restore purchases previously made by this customer. Some platforms automatically restore purchases. Apple currently requires explicit purchase restoration for IAP.
-		public void RestorePurchases(Action<bool> _callback)
+		public void RestorePurchases(Action<bool, string> _callback)
 		{
 			// If Purchasing has not yet been set up ...
 			if (!IsInitialized())
 			{
 				if(_callback != null){
-					_callback(false);
+					_callback(false, string.Empty);
 				}
 				// ... report the situation and stop restoring. Consider either waiting longer, or retrying initialization.
 				Debug.Log("RestorePurchases FAIL. Not initialized.");
@@ -160,7 +175,7 @@ namespace BicUtil.Purchasing{
 			else
 			{
 				if(_callback != null){
-					_callback(false);
+					_callback(false, string.Empty);
 				}
 
 				// We are not running on an Apple device. No work is necessary to restore purchases.
@@ -188,8 +203,11 @@ namespace BicUtil.Purchasing{
 		private ProductModel<PRODUCTTYPE> getProduct(string _id){
 			return productTable.FirstOrDefault(_row=>_row.Id.AsString == _id);
 		}
-		
-		
+
+		public ProductModelBase GetProductBase(string _id){
+			return productTable.FirstOrDefault(_row=>_row.Id.AsString == _id);
+		}
+
 		//  
 		// --- IStoreListener
 		//
@@ -425,7 +443,7 @@ namespace BicUtil.Purchasing{
 				return PurchasingResult.Unknown;
 			}
 		}
-
+		
 		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 		{
 			var _product = getProduct(product.definition.id);
@@ -442,6 +460,24 @@ namespace BicUtil.Purchasing{
 			// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
 			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}",product.definition.storeSpecificId, failureReason));
 		}
+
+        public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
+        {
+           var _product = getProduct(product.definition.id);
+			
+			if(buyCallback != null){
+				buyCallback(PurchasingResult.Failed);
+				buyCallback = null;
+			}
+			// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
+			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1} , message {2}",product.definition.storeSpecificId, failureDescription.reason, failureDescription.message));
+			
+			BicUtil.Analytics.Analytics.Event("IAP_Fail_Detailed", new Dictionary<string, object>{
+				{"reason", failureDescription.reason.ToString()},
+				{"id", product.definition.storeSpecificId},
+				{"message", failureDescription.message}
+			});
+        }
 
 		public TableLoadData GetTableLoadData(){
 			this.productTable.SetStorage(FileStorage.GetInstance());
@@ -551,6 +587,7 @@ namespace BicUtil.Purchasing{
 			// Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
 			Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
         }
+
     }
 
 	public enum SubscriptionStateType{

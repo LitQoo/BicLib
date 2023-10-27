@@ -70,9 +70,9 @@ namespace BicUtil.Purchasing{
            
         }
 
-        public void RestorePurchases(Action<bool> _callback)
+        public void RestorePurchases(Action<bool, string> _callback)
         {
-            _callback(false);
+            _callback(false, string.Empty);
         }
 
         public void Save(Action<BicDB.Result> _callback = null, object _parameter = null)

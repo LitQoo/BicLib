@@ -6,40 +6,15 @@ using System;
 
 namespace BicUtil.Purchasing
 {
-    public class ProductModel<PRODUCTENUM> : RecordContainer where PRODUCTENUM : struct, Enum{
+    public class ProductModel<PRODUCTENUM> : ProductModelBase where PRODUCTENUM : struct, Enum{
         #region const
         public const string KEY_PRIMARY = "idType";
         #endregion
 
         #region Field
-        public StringVariable Id = new StringVariable();
         public EnumVariable<PRODUCTENUM> IdType = new EnumVariable<PRODUCTENUM>();
-        public EnumVariable<ProductType> ProductType = new EnumVariable<ProductType>();
-        public EncryptedIntVariable PurchaseCount = new EncryptedIntVariable();
-        public StringVariable LastRecipt = new StringVariable();
-        public ListContainer<StringVariable> ReciptList = new ListContainer<StringVariable>();
-        public IDs StoreIds{
-            get{
-                return new IDs(){{ Id.AsString, AppleAppStore.Name },{ Id.AsString,  GooglePlay.Name },};
-            }
-        }
-
-        [Obsolete]
-        public EncryptedIntVariable Value{
-            get{
-                return PurchaseCount;
-            }
-        }
-
         #endregion
 
-        #region InstantData
-        public StringVariable CurrencyCode = new StringVariable();
-        public StringVariable PriceString = new StringVariable();
-        public StringVariable Price = new StringVariable();
-        public StringVariable Title = new StringVariable();
-        public EncryptedIntVariable Amount = new EncryptedIntVariable();
-        #endregion
 
         #region LifeCycle
         public ProductModel(){
@@ -71,6 +46,35 @@ namespace BicUtil.Purchasing
             LastRecipt.AsString = _recipt;
         }
         #endregion
+    }
+
+    public abstract class ProductModelBase : RecordContainer{
+        
+        #region InstantData
+        public StringVariable CurrencyCode = new StringVariable();
+        public StringVariable PriceString = new StringVariable();
+        public StringVariable Price = new StringVariable();
+        public StringVariable Title = new StringVariable();
+        public EncryptedIntVariable Amount = new EncryptedIntVariable();
+        #endregion
+
+        public StringVariable Id = new StringVariable();
+        public EnumVariable<ProductType> ProductType = new EnumVariable<ProductType>();
+        public EncryptedIntVariable PurchaseCount = new EncryptedIntVariable();
+        public StringVariable LastRecipt = new StringVariable();
+        public ListContainer<StringVariable> ReciptList = new ListContainer<StringVariable>();
+        public IDs StoreIds{
+            get{
+                return new IDs(){{ Id.AsString, AppleAppStore.Name },{ Id.AsString,  GooglePlay.Name },};
+            }
+        }
+
+        [Obsolete]
+        public EncryptedIntVariable Value{
+            get{
+                return PurchaseCount;
+            }
+        }
     }
 
 }

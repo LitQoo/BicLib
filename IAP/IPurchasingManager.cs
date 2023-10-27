@@ -25,7 +25,7 @@ namespace BicUtil.Purchasing{
         void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariableReadOnly> _callback);
         void Initialize();
         void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback);
-        void RestorePurchases(Action<bool> _callback);
+        void RestorePurchases(Action<bool, string> _callback);
         void Save(Action<BicDB.Result> _callback = null, object _parameter = null);
         TableLoadData GetTableLoadData();
     }

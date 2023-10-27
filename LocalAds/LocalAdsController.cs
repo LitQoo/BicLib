@@ -64,10 +64,10 @@ namespace BicUtil.LocalAds{
         public string TermsURL => "https://bigjamgames.com/privacy_en.html";
 
         private Action purchaseAction;
-        private Translator translator = null;
         private Action closeAction = null;
 
         private RectTransform rectTransform = null;
+        private bool isInit = false;
 
         #if UNITY_EDITOR
         private static LocalAdsController instance;
@@ -97,22 +97,22 @@ namespace BicUtil.LocalAds{
             instance = this;
             #endif
 
-            if(translator != null){
+            if(isInit == true){
                 return;
             }
 
-            translator = new Translator("LocalAdsTranslate", "LocalAdsTranslateText");
+            isInit = true;
 
-            this.noAdsMessage.text = translator.Get("noads_pr");
-            this.noAdsButtonTitle.text = translator.Get("noads_title");
-            this.bigjamMessage.text = translator.Get("bigjam_message");
+            this.noAdsMessage.text = LocalAdsService.Translator.Get("noads_pr");
+            this.noAdsButtonTitle.text = LocalAdsService.Translator.Get("noads_title");
+            this.bigjamMessage.text = LocalAdsService.Translator.Get("bigjam_message");
             
-            this.appInfoPrice.text = translator.Get("free");
-            this.downloadText.text = translator.Get("download_title");
+            this.appInfoPrice.text = LocalAdsService.Translator.Get("free");
+            this.downloadText.text = LocalAdsService.Translator.Get("download_title");
             
-            this.appInfoDownloadTitle.text = translator.Get("download");
-            this.appInfoPriceTitle.text = translator.Get("price");
-            this.appInfoReviewTitle.text = translator.Get("review");
+            this.appInfoDownloadTitle.text = LocalAdsService.Translator.Get("download");
+            this.appInfoPriceTitle.text = LocalAdsService.Translator.Get("price");
+            this.appInfoReviewTitle.text = LocalAdsService.Translator.Get("review");
         }
 
         private void Awake(){
@@ -336,5 +336,9 @@ namespace BicUtil.LocalAds{
             
         }
         #endregion
+    }
+
+    public static class LocalAdsService{
+        public static Translator Translator{get; private set;} = new Translator("LocalAdsTranslate", "LocalAdsTranslateText");
     }
 }

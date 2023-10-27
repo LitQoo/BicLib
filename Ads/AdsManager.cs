@@ -407,7 +407,7 @@ namespace BicUtil.Ads
             }
 
             if(lastAdsPlatforms != null){
-                var _banner = createBanner(lastAdsPlatforms, _onLoadAction, defaultAdsData[_adsPlacement], _backColor, true);
+                var _banner = createBanner(lastAdsPlatforms, _onLoadAction, lastAdsPlatforms, _backColor, true);
                 
                 if(_banner != null){
                     increaseCount(AdsStat.BANNER, AdsResult.Finished);
