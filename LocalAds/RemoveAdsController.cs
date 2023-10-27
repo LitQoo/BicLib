@@ -47,6 +47,13 @@ namespace BicUtil.LocalAds{
 			foreach(var _message in this.noAdsButtonMessages){
             	_message.text = LocalAdsService.Translator.Get("noads_pr");
 			}
+
+
+			#if UNITY_ANDROID
+			if(restoreButton != null){
+				restoreButton.gameObject.SetActive(false);
+			}
+			#endif
 		}
 
 		private void setNoAdsOption(IVariableReadOnly _price)
