@@ -1,3 +1,4 @@
+#if BICUTIL_IAP
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,8 @@ namespace BicUtil.LocalAds{
 		private GameObject[] disableObjectOnPurchased;
 		[SerializeField]
 		private GameObject restoreButton;
+		[SerializeField]
+		private UnityEngine.UI.Text[] restoreTitles;
 		[SerializeField]
 		private UnityEngine.UI.Text[] priceTexts;
 		[SerializeField]
@@ -46,6 +49,10 @@ namespace BicUtil.LocalAds{
 
 			foreach(var _message in this.noAdsButtonMessages){
             	_message.text = LocalAdsService.Translator.Get("noads_pr");
+			}
+
+			foreach(var _restoreTitle in this.restoreTitles){
+            	_restoreTitle.text = LocalAdsService.Translator.Get("restore");
 			}
 
 
@@ -105,7 +112,8 @@ namespace BicUtil.LocalAds{
 			{
 					{ "where", "option" }
 			});
-		} 
+		}
 		#endregion
 	}
 }
+#endif

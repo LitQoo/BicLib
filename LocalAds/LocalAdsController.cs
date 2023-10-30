@@ -237,6 +237,10 @@ namespace BicUtil.LocalAds{
             this.noAdsPrice.text = _noAdsPrice;
         }
 
+        public void SetNoAdsPrice(IVariableReadOnly _noAdsPrice){
+            this.noAdsPrice.text = _noAdsPrice.AsString;
+        }
+
         public float interstitialRate = 1f;
         public int interstitialShowingTime = 5;
         public bool enableNoAdsLayer = false;
@@ -259,6 +263,10 @@ namespace BicUtil.LocalAds{
         public void EnableNoAdsLayer(bool _enabled){
             this.enableNoAdsLayer = _enabled;
         }
+
+		public void EnableNoAdsLayer(IVariableReadOnly _isNoAds){
+			this.EnableNoAdsLayer(_isNoAds.AsBool == false);
+		}
 
         #region IAdsPlatform
         public void LoadInterstitial(object _adsPlacement)
