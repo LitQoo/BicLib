@@ -50,7 +50,7 @@ namespace BicUtil.Teacher
 
         private Teacher teacher = null;
 
-
+        BicUtil.Tween.TweenTracker tracker = new ();
 
         private void Awake() {
             hideObjects();
@@ -79,6 +79,7 @@ namespace BicUtil.Teacher
             }
 
             scenarioTween = BicTween.Sequance();
+            scenarioTween.SetTracker(tracker);
             parentTween = scenarioTween;
             scenarioTween.SubscribeStart(()=>{
                 this.gameObject.SetActive(true);
@@ -93,6 +94,12 @@ namespace BicUtil.Teacher
             });
 
             return _tween.Play();
+        }
+
+        public void Skip(){
+            if(tracker != null){
+                tracker.Skip();
+            }
         }
 
         public void NextStep(){
