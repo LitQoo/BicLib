@@ -409,6 +409,12 @@ namespace BicUtil.SDKUtil
         public static void SetRemoteConfigTester(RemoteConfigTester _tester){
             #if UNITY_EDITOR
             if(_tester.UseTester == true){
+                if(_tester.GroupIndex < 0){
+                    tester = new TestGroup();
+                    tester.values = new List<TestData>();
+                    return;
+                }
+                
                 tester = _tester.Groups[_tester.GroupIndex];
                 testDelay = _tester.UpdateDelay;
                 var _data = new TestData();

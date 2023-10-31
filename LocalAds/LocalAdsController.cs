@@ -168,8 +168,11 @@ namespace BicUtil.LocalAds{
             BicUtil.Analytics.Analytics.Event("OpenLocalAds", new() { { "CloseDelay", _enableCloseDealy } });
 
 
-
             closeButton.interactable = false;
+            
+            #if UNITY_EDITOR
+            closeButton.interactable = true;
+            #endif
             closeText.text = _enableCloseDealy.ToString();
             BicTween.Interval(1f, _enableCloseDealy).SubscribeRepeat((_tween, _count) =>
             {
