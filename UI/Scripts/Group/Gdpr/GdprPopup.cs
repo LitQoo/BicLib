@@ -12,7 +12,7 @@ using BicUtil.UIFlow;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BicUtil.UI{
+namespace BicUtil.Disabled{
     public class GdprPopup : MonoBehaviour, IClassInitializerObject, IUIFlowObject
     {
         #region static

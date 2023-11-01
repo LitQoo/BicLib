@@ -6,8 +6,10 @@ using BicDB;
 using BicDB.Container;
 using BicDB.Core;
 using BicDB.Variable;
+using BicDB.Storage;
 using UnityEditor;
 using UnityEngine;
+using System.IO;
 
 namespace BicUtil.Core{
     
@@ -30,6 +32,17 @@ namespace BicUtil.Core{
                 EditorUtility.DisplayDialog("BicDB", "Complete", "OK");
             }
         }
+
+        #if BICUTIL_IAP
+        [MenuItem("BicLib/Remove PurchaseData", false, 300)]
+        private static void RemovePurchaseData() {
+            bool _doRemove = EditorUtility.DisplayDialog("Confirm delete", "Are you sure you want to delete the purchase data?", "Yes", "No");
+            if(_doRemove == true){
+                System.IO.File.Delete(Path.Combine(Application.persistentDataPath,FileStorage.FILE_NAME_PREFIX+BicUtil.Purchasing.PurchasingService.File));
+                EditorUtility.DisplayDialog("BicDB", "Complete", "OK");
+            }
+        }
+        #endif
 
 
         string input = "";

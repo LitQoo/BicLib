@@ -142,7 +142,7 @@ namespace BicUtil.LocalAds{
         }
 
         public void Down(){
-            BicUtil.Analytics.Analytics.Event("OpenStoreByLocalAds", new(){{"AppId", selectedData.GooglePlayAppId}});
+            BicUtil.Analytics.Analytics.Event("LocalAds_Down", new(){{"AppId", selectedData.GooglePlayAppId}});
             BicUtil.PublishingUtil.PublishingUtil.OpenStore(selectedData.GooglePlayAppId, selectedData.AppStoreAppId, "LocalAds");
         }
 
@@ -165,7 +165,7 @@ namespace BicUtil.LocalAds{
         public void Open(int _enableCloseDealy, bool _noAdsEnable)
         {
             selectAds();
-            BicUtil.Analytics.Analytics.Event("OpenLocalAds", new() { { "CloseDelay", _enableCloseDealy } });
+            BicUtil.Analytics.Analytics.Event("LocalAds_Open", new() { { "CloseDelay", _enableCloseDealy }, {"AppId", selectedData.GooglePlayAppId}});
 
 
             closeButton.interactable = false;
@@ -228,7 +228,7 @@ namespace BicUtil.LocalAds{
         }
 
         public void PurchaseNoAds(){
-            BicUtil.Analytics.Analytics.Event("purchaseByLocalAds", new(){{"AppId", selectedData.GooglePlayAppId}});
+            BicUtil.Analytics.Analytics.Event("LocalAds_purchase_action", new(){{"AppId", selectedData.GooglePlayAppId}});
             purchaseAction();
         }
 

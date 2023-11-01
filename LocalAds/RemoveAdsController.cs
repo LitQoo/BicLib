@@ -6,6 +6,7 @@ using BicUtil.MVCSystem;
 using BicDB.Variable;
 using BicUtil.Purchasing;
 using BicUtil.Analytics;
+using BicUtil.UI;
 
 namespace BicUtil.LocalAds{
 	public class RemoveAdsController : MonoBehaviour
@@ -23,6 +24,10 @@ namespace BicUtil.LocalAds{
 		private UnityEngine.UI.Text[] noAdsButtonTitles;
 		[SerializeField]
 		private UnityEngine.UI.Text[] noAdsButtonMessages;
+		[SerializeField]
+		private CommonPopup commonPopup;
+		[SerializeField]
+		private LocalAdsController localAds;
 		
 		private string noAdsProductId = "";
 		private ModelBinder binder = new ModelBinder();
@@ -94,13 +99,34 @@ namespace BicUtil.LocalAds{
 		public void BuyProduct(){
 			if(PurchasingService.GetProduct(noAdsProductId).PurchaseCount.AsInt == 0){
 				
-				PurchasingService.BuyProduct(noAdsProductId, _result=>{
+				if(commonPopup != null){
+					commonPopup.Dimmed("Loading..");
+            		commonPopup.Open();
+				}
 
+				var _where = localAds != null && localAds.gameObject.activeSelf == true ? "localAds" : "other";
+				
+				PurchasingService.BuyProduct(noAdsProductId, _result=>{
+					if(commonPopup != null){
+						commonPopup.Close();
+					}
+
+					if (localAds != null && _result == PurchasingResult.Complete)
+                    {
+                        localAds.Close();
+                    }
+
+					if(_result == PurchasingResult.Complete){
+						Analytics.Analytics.Event("LocalAds_purchase_success", new Dictionary<string, object>
+						{
+								{ "where", _where}
+						});
+					}
 				});
 
-				Analytics.Analytics.Event("startToBuyNoAds", new Dictionary<string, object>
+				Analytics.Analytics.Event("LocalAds_purchase_try", new Dictionary<string, object>
 				{
-						{ "where", "option" }
+						{ "where", _where}
 				});
 			}
 		}
@@ -108,7 +134,7 @@ namespace BicUtil.LocalAds{
 		public void Restore(){
 			PurchasingService.RestorePurchases((_result, _message)=>{});
 
-			Analytics.Analytics.Event("RestoreNoAds", new Dictionary<string, object>
+			Analytics.Analytics.Event("LocalAds_restore", new Dictionary<string, object>
 			{
 					{ "where", "option" }
 			});

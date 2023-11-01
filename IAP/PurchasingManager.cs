@@ -20,9 +20,11 @@ namespace BicUtil.Purchasing{
 		public static Func<string, ProductModelBase> GetProduct = null;
 		public static Action<string, Action<PurchasingResult>> BuyProduct = null;
 		public static Action<Action<bool, string>> RestorePurchases = null;
+
+		public static string File = "Puma";
 	}
 	public class PurchasingManager<PRODUCTTYPE> : SingletonBase<PurchasingManager<PRODUCTTYPE>>, IDetailedStoreListener, IPurchasingManager<PRODUCTTYPE> where PRODUCTTYPE : struct, Enum {
-		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
+		public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>(PurchasingService.File);
 		public SubscriptionInfo SubscriptionInfo = null;
 		private EnumVariable<SubscriptionStateType> subscriptionState = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
 		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return subscriptionState;}}
