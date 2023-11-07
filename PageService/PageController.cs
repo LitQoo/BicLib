@@ -77,7 +77,9 @@ namespace BicUtil.PageService
         private async UniTask checkBackKey(){
 			if(Input.GetKeyUp(KeyCode.Escape))
 			{
-				await CurrentPage.OnClickBackButton();
+                if(CurrentPage != null){
+				    await CurrentPage.OnClickBackButton();
+                }
 			}
 		}
 		#endif

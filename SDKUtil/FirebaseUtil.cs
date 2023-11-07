@@ -596,9 +596,9 @@ namespace BicUtil.SDKUtil
 
 
             var _testGroup = tester;
-            Debug.Log("[RemoteConfigTester] setup test value group " + _testGroup.Name);
+            Debug.Log("[RemoteConfigTester] setup test value group " + _testGroup.Name + " / value count is " + _testGroup.values.Count);
             foreach(var _testData in _testGroup.values){
-                if(string.IsNullOrEmpty(_testData.Value) == false){
+                if(_testData.Value != "_DEFAULT_"){
                     try{
                         _constants[_testData.Key].AsVariable.AsString = _testData.Value;
                         Debug.Log("[RemoteConfigTester] " + _testData.Key + " = " + _testData.Value);
