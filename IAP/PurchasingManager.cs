@@ -80,7 +80,11 @@ namespace BicUtil.Purchasing{
 				builder.AddProduct(_product.Id.AsString, _product.ProductType.AsEnum, _product.StoreIds);
 			}
 			
-			UnityPurchasing.Initialize(this, builder);
+			try{
+				UnityPurchasing.Initialize(this, builder);
+			}catch(Exception _exception){
+				Debug.LogError("IAP Init Exception " + _exception.ToString());
+			}
 		}
 
 		public void BuyProductByStringId(string _productId, Action<PurchasingResult> _callback){
