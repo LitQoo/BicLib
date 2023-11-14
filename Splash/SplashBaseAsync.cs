@@ -49,15 +49,29 @@ namespace BicUtil.Splash
                     return;
                 }
             }catch{
-                await OnFailedToLoadAsync(new Result(9, "", 0, "DB Load error"));    
-                return;
+                if(_isDestoryed == true){
+                    BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed1");
+                }else{
+                    await OnFailedToLoadAsync(new Result(9, "", 0, "DB Load error"));    
+                    return;
+                }
             }
             
-            await OnFailedToLoadAsync(_result);
+            if(_isDestoryed == true){
+                BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed2");
+            }else{
+                await OnFailedToLoadAsync(_result);
+            }
+        }
+
+        bool _isDestoryed = false;
+        private void OnDestroy() {
+            _isDestoryed = true;
         }
 
         protected abstract void OnSetup();
         protected abstract UniTask OnLoadedTableServiceAsync();
         protected abstract UniTask OnFailedToLoadAsync(Result _result);
     }
+
 }
