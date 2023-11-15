@@ -48,19 +48,25 @@ namespace BicUtil.Splash
                     await OnLoadedTableServiceAsync();
                     return;
                 }
-            }catch{
-                if(_isDestoryed == true){
-                    BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed1");
-                }else{
-                    await OnFailedToLoadAsync(new Result(9, "", 0, "DB Load error"));    
-                    return;
-                }
+            }catch(System.Exception _e){
+                Debug.LogError(_e.ToString());
+                await callFailedToLoadAsync(new Result(9, "", 0, "OnLoadedTableServiceAsync error"), "SplashFailedAfterDestoryed1");
+                return;
             }
             
-            if(_isDestoryed == true){
-                BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed2");
-            }else{
-                await OnFailedToLoadAsync(_result);
+            await callFailedToLoadAsync(_result, "SplashFailedAfterDestoryed2");
+        }
+
+        private async UniTask callFailedToLoadAsync(Result _result, string _eventName){
+            try{
+                if(_isDestoryed == true || ReferenceEquals(this.gameObject, null) || this.gameObject == null){
+                    BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed2");
+                }else{
+                    await OnFailedToLoadAsync(_result);
+                }
+            }catch(System.Exception _e){
+                Debug.LogError("SplashFailedAfterDestoryed3 "+_e.ToString());
+                BicUtil.Analytics.Analytics.Event("SplashFailedAfterDestoryed3");
             }
         }
 
