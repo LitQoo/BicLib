@@ -195,6 +195,14 @@ namespace BicUtil.LocalAds{
 
         private void selectAds()
         {
+            if(forcedViewCount > 0){
+                this.SelectedIndex.AsInt = forcedViewAdsIndex;
+                forcedViewAdsIndex++;
+                forcedViewCount--;
+                Debug.Log("selectAds first "+ forcedViewAdsIndex + "/" + forcedViewCount);
+                return;
+            }
+            
             var _selectedAds = this.AdsList.Where(_row =>
             {
                 if (_row.GooglePlayAppId == Application.identifier)
@@ -279,6 +287,10 @@ namespace BicUtil.LocalAds{
 
         public bool IsReadyInterstitial(object _adsPlacement)
         {
+            if(forcedViewCount > 0){
+                return true;
+            }
+
             if(UnityEngine.Random.Range(0f, 1f) <= interstitialRate){
                 return true;
             }
@@ -345,6 +357,12 @@ namespace BicUtil.LocalAds{
         public void Initialize(Action _callback)
         {
             
+        }
+
+        private int forcedViewCount = -1;
+        private int forcedViewAdsIndex = 0;
+        public void SetForcedViewCount(int _count){
+            forcedViewCount = _count;
         }
         #endregion
     }
