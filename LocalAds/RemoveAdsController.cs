@@ -28,10 +28,12 @@ namespace BicUtil.LocalAds{
 		private CommonPopup commonPopup;
 		[SerializeField]
 		private LocalAdsController localAds;
+
 		
 		private string noAdsProductId = "";
 		private ModelBinder binder = new ModelBinder();
 		private BoolVariable isNoAds = null;
+		private bool isPurchasedNoAds = false;
 
 		public void Setup(string _noAdsProductId, BoolVariable _isNoAds){
 			this.noAdsProductId = _noAdsProductId;
@@ -42,9 +44,10 @@ namespace BicUtil.LocalAds{
 			if(isNoAds == null){
 				binder.BindModelToController(PurchasingService.GetProduct(noAdsProductId).PurchaseCount, _count=>{
 					this.enableObject(_count.AsInt > 0);
+					isPurchasedNoAds = _count.AsInt > 0;
 				}, true);
 			}else{
-				binder.BindModelToController(isNoAds, _isNoAds=>enableObject(_isNoAds.AsBool), true);
+				binder.BindModelToController(isNoAds, _isNoAds=>{enableObject(_isNoAds.AsBool);isPurchasedNoAds=_isNoAds.AsBool;}, true);
 			}
 
 			foreach(var _title in noAdsButtonTitles){
@@ -59,7 +62,6 @@ namespace BicUtil.LocalAds{
 			foreach(var _restoreTitle in this.restoreTitles){
             	_restoreTitle.text = LocalAdsService.Translator.Get("restore");
 			}
-
 
 			#if UNITY_ANDROID
 			if(restoreButton != null){
@@ -84,6 +86,7 @@ namespace BicUtil.LocalAds{
 			#endif
 
 			foreach(var _hideObject in disableObjectOnPurchased){
+				Debug.Log("hideobject setactive " + (_isNoAds == false).ToString());
 				_hideObject.SetActive(_isNoAds == false);
 			}
 
@@ -94,6 +97,14 @@ namespace BicUtil.LocalAds{
 
 		private void OnDestroy() {
 			binder.ClearBinding();
+		}
+
+		public void SetActive(bool _active){
+			if(isPurchasedNoAds == false){
+				this.gameObject.SetActive(_active);
+			}else{
+				this.gameObject.SetActive(false);
+			}
 		}
 
 		public void BuyProduct(){
@@ -128,6 +139,8 @@ namespace BicUtil.LocalAds{
 				{
 						{ "where", _where}
 				});
+			}else{
+				Debug.LogWarning("이미 구매하였습니다");
 			}
 		}
 

@@ -57,6 +57,8 @@ namespace BicUtil.LocalAds{
         private List<MaskableGraphic> BackgroundColorTargets;
         [SerializeField]
         private List<MaskableGraphic> ButtonColorTargets;
+        [SerializeField]
+        private RemoveAdsController removeAds;
         
         private IntVariable SelectedIndex = new IntVariable(0);
         private LocalAdsData selectedData{get=>this.AdsList[this.SelectedIndex.AsInt];}
@@ -113,6 +115,8 @@ namespace BicUtil.LocalAds{
             this.appInfoDownloadTitle.text = LocalAdsService.Translator.Get("download");
             this.appInfoPriceTitle.text = LocalAdsService.Translator.Get("price");
             this.appInfoReviewTitle.text = LocalAdsService.Translator.Get("review");
+
+            SelectedIndex.Subscribe(selectAds, true);
         }
 
         private void Awake(){
@@ -120,8 +124,6 @@ namespace BicUtil.LocalAds{
             instance = this;
             #endif
             Init();
-
-            SelectedIndex.Subscribe(selectAds, true);
         }
 
         private void selectAds(IVariableReadOnly _index)
@@ -184,7 +186,12 @@ namespace BicUtil.LocalAds{
             });
 
             this.gameObject.SetActive(true);
-            this.noAdsLayer.SetActive(_noAdsEnable && this.enableNoAdsLayer);
+            
+            if(removeAds != null){
+                this.removeAds.SetActive(_noAdsEnable && this.enableNoAdsLayer);
+            }else if(noAdsLayer != null){
+                this.noAdsLayer.SetActive(_noAdsEnable && this.enableNoAdsLayer);
+            }
 
             if(rectTransform == null){
                 rectTransform = this.gameObject.GetComponent<RectTransform>();
@@ -236,8 +243,12 @@ namespace BicUtil.LocalAds{
         }
 
         public void PurchaseNoAds(){
-            BicUtil.Analytics.Analytics.Event("LocalAds_purchase_action", new(){{"AppId", selectedData.GooglePlayAppId}});
-            purchaseAction();
+            if(purchaseAction != null){
+                BicUtil.Analytics.Analytics.Event("LocalAds_purchase_action", new(){{"AppId", selectedData.GooglePlayAppId}});
+                purchaseAction();
+            }else if(removeAds != null){
+                removeAds.BuyProduct();
+            }
         }
 
         public void SetPurchaseAction(Action _purchaseAction){
@@ -363,6 +374,10 @@ namespace BicUtil.LocalAds{
         private int forcedViewAdsIndex = 0;
         public void SetForcedViewCount(int _count){
             forcedViewCount = _count;
+        }
+
+        public void SetupRemoveAds(string _noAdsProductId, BoolVariable _isNoAds){
+            removeAds.Setup(_noAdsProductId, _isNoAds);
         }
         #endregion
     }

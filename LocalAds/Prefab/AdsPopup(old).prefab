@@ -374,7 +374,7 @@ GameObject:
   - component: {fileID: 3785196451242696101}
   - component: {fileID: 1721992660136103659}
   m_Layer: 5
-  m_Name: AdsPopup
+  m_Name: AdsPopup(old)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
