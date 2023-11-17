@@ -70,8 +70,7 @@ namespace BicUtil.Ads
                     Destroy(this.gameObject);
                     _log += "/3";
                 }catch(System.Exception _e){
-                    Debug.Log(_log);
-                    throw new SystemException(_log);
+                    Debug.LogError("reload banner error " + _log);
                 }
             }).SetTargetObject(this.gameObject);
         }
