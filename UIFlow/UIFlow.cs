@@ -248,6 +248,15 @@ namespace BicUtil.UIFlow
 			backAction = _action;
 		}
 
+		private Action backupBackAction = null;
+		public void BackupBackKeyAction(){
+			backupBackAction = this.backAction;
+		}
+
+		public void RestoreBackKeyAction(){
+			this.backAction = backupBackAction;
+		}
+
 		public void Replace(string _objectName, OpenMode _openMode, CloseMode _closeMode, object _openParameter = null, object _closeParameter = null){
 			if (isWait.AsBool == true && isPassToCheckWait == false) {
 				return;

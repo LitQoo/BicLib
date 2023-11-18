@@ -23,6 +23,8 @@ namespace BicUtil.SingletonBase
 				return instance;  
 			}
 		}  
+
+		public static bool IsCreated{get=>instance!=null;} 
 	}
 
 	public interface ISingleton{
@@ -49,6 +51,8 @@ namespace BicUtil.SingletonBase
 				return instance;  
 			}
 		}  
+
+		public static bool IsCreated{get=>instance!=null;} 
 	}
 
 

@@ -166,6 +166,7 @@ namespace BicUtil.LocalAds{
 
         public void Open(int _enableCloseDealy, bool _noAdsEnable)
         {
+            clearBackKey();
             selectAds();
             BicUtil.Analytics.Analytics.Event("LocalAds_Open", new() { { "CloseDelay", _enableCloseDealy }, {"AppId", selectedData.GooglePlayAppId}});
 
@@ -198,6 +199,36 @@ namespace BicUtil.LocalAds{
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+        }
+
+        private void clearBackKey()
+        {
+            if(BicUtil.UIFlow.UIFlow.IsCreated == true){
+                DebugForEditor.Log("disable uiflow backkey");
+                BicUtil.UIFlow.UIFlow.Instance.BackupBackKeyAction();
+            }
+
+            if(BicUtil.PageService.PageManager.IsCreated == true){
+                if(BicUtil.PageService.PageManager.Instance.CurrentController != null){
+                    DebugForEditor.Log("disable pagemanager backkey");
+                    BicUtil.PageService.PageManager.Instance.CurrentController.SetActiveBackKey(false);
+                }
+            }
+        }
+
+        private void restoreBackKey()
+        {
+            if(BicUtil.UIFlow.UIFlow.IsCreated == true){
+                DebugForEditor.Log("restore uiflow backkey");
+                BicUtil.UIFlow.UIFlow.Instance.RestoreBackKeyAction();
+            }
+
+            if(BicUtil.PageService.PageManager.IsCreated == true){
+                if(BicUtil.PageService.PageManager.Instance.CurrentController != null){
+                    DebugForEditor.Log("restore pagemanager backkey");
+                    BicUtil.PageService.PageManager.Instance.CurrentController.SetActiveBackKey(true);
+                }
+            }
         }
 
         private void selectAds()
@@ -234,12 +265,14 @@ namespace BicUtil.LocalAds{
         }
 
         public void Close(){
+            restoreBackKey();
             this.gameObject.SetActive(false);
             closeText.text = "X";
             if(closeAction != null){
                 closeAction();
                 closeAction = null;
             }
+
         }
 
         public void PurchaseNoAds(){

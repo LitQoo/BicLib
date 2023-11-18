@@ -77,13 +77,17 @@ namespace BicUtil.PageService
         private async UniTask checkBackKey(){
 			if(Input.GetKeyUp(KeyCode.Escape))
 			{
-                if(CurrentPage != null){
+                if(CurrentPage != null && activeBackKey == true){
 				    await CurrentPage.OnClickBackButton();
                 }
 			}
-		}
+		} 
 		#endif
-
+        
+        private bool activeBackKey = true;
+        public void SetActiveBackKey(bool _active){
+            this.activeBackKey = _active;
+        }
 
         private void Start(){
             SceneManager.SetActiveScene(this.gameObject.scene);

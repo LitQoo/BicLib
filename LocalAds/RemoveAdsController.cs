@@ -50,17 +50,23 @@ namespace BicUtil.LocalAds{
 				binder.BindModelToController(isNoAds, _isNoAds=>{enableObject(_isNoAds.AsBool);isPurchasedNoAds=_isNoAds.AsBool;}, true);
 			}
 
-			foreach(var _title in noAdsButtonTitles){
-				_title.text = LocalAdsService.Translator.Get("noads_title");
+			if(noAdsButtonTitles != null){
+				foreach(var _title in noAdsButtonTitles){
+					_title.text = LocalAdsService.Translator.Get("noads_title");
+				}
 			}
 			
-
-			foreach(var _message in this.noAdsButtonMessages){
-            	_message.text = LocalAdsService.Translator.Get("noads_pr");
+			if(this.noAdsButtonMessages != null){
+				foreach(var _message in this.noAdsButtonMessages){
+					_message.text = LocalAdsService.Translator.Get("noads_pr");
+				}
 			}
 
-			foreach(var _restoreTitle in this.restoreTitles){
-            	_restoreTitle.text = LocalAdsService.Translator.Get("restore");
+
+			if(this.restoreTitles != null){
+				foreach(var _restoreTitle in this.restoreTitles){
+					_restoreTitle.text = LocalAdsService.Translator.Get("restore");
+				}
 			}
 
 			#if UNITY_ANDROID
