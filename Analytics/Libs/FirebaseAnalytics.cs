@@ -37,7 +37,7 @@ namespace BicUtil.Analytics
                             _eventData = new Dictionary<string, object>();
                         }
                         
-                        _eventData["_RetryToSend"] = true;
+                        _eventData["RetryToSend"] = true;
 
                         savedEvent.Add(new SavedEvent(_name, _eventData, _value));
                         needRetryEvent = true;
