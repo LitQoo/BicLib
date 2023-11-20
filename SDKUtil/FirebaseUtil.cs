@@ -138,7 +138,7 @@ namespace BicUtil.SDKUtil
                             Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
                                 {
                                     "RealtimeSinceStartup",
-                                    UnityEngine.Time.realtimeSinceStartup
+                                    (int)UnityEngine.Time.realtimeSinceStartup
                                 }
                             });
                         }
@@ -438,7 +438,7 @@ namespace BicUtil.SDKUtil
                         },
                         {
                             "RealtimeSinceStartup",
-                            UnityEngine.Time.realtimeSinceStartup
+                            (int)UnityEngine.Time.realtimeSinceStartup
                         }
                     });
             }
@@ -457,7 +457,7 @@ namespace BicUtil.SDKUtil
                         },
                         {
                             "RealtimeSinceStartup",
-                            UnityEngine.Time.realtimeSinceStartup
+                            (int)UnityEngine.Time.realtimeSinceStartup
                         }
                 });
             }

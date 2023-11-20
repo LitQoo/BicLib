@@ -138,6 +138,8 @@ namespace BicUtil.Ads
                     if(OnNotReadyAdsCallback != null){
                         OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "Custom");
                     }
+
+                    DebugForEditor.Log("[AdsManager] IsReadyInterstitial false by Custom");
                     return false;
                 }
             }
@@ -146,6 +148,8 @@ namespace BicUtil.Ads
                 if(OnNotReadyAdsCallback != null){
                     OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "Time");
                 }
+
+                DebugForEditor.Log("[AdsManager] IsReadyInterstitial false by TimeInterval");
                 return false;
             }
 
@@ -153,18 +157,26 @@ namespace BicUtil.Ads
                 if(adsPlatforms[i].IsReadyInterstitial(_adsPlacement) == true){
                     selectedInterstitialPlatform = i;
                     
+
+                    DebugForEditor.Log("[AdsManager] check IsReadyInterstitial true by " + adsPlatforms[i].GetType().ToString());
                     return true;
+                }else{
+                    DebugForEditor.Log("[AdsManager] check IsReadyInterstitial false by " + adsPlatforms[i].GetType().ToString());
                 }
             }
 
             if(lastAdsPlatforms != null){
                 selectedInterstitialPlatform = int.MaxValue;
+                DebugForEditor.Log("[AdsManager] IsReadyInterstitial true by lastAdsPlatforms");
                 return true;
             }
 
             if(OnNotReadyAdsCallback != null){
                 OnNotReadyAdsCallback(_adsPlacement, AdsType.Interstital, "NoFill");
             }
+
+
+            DebugForEditor.Log("[AdsManager] IsReadyInterstitial false");
 
             return false;
         }

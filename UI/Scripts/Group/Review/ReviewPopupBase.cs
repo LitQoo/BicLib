@@ -11,6 +11,21 @@ using UnityEngine.UI;
 namespace BicUtil.UI{
     public class ReviewPopupBase : MonoBehaviour, IAdsPlatform
     {
+        #if UNITY_EDITOR
+        private static ReviewPopupBase instance;
+        
+        [UnityEditor.MenuItem("BicLib/ReviewPopup/TestReviewPapup", false, 500)]
+        private static void TestReviewPopup(){
+            if(instance == null){
+                Debug.LogError("[ReviewPopupBase] instance == null");
+                return;
+            }
+            
+            instance.Open();
+        }
+        #endif
+
+
         #region DI
         [SerializeField]
         private Text messageText;
@@ -39,8 +54,11 @@ namespace BicUtil.UI{
 
         #region ClassInitialiszer
 
-        public void Init()
+        private void init()
         {
+            #if UNITY_EDITOR
+            instance = this;
+            #endif
 
             translator = new Translator("ReviewTranslate", "ReviewTranslateText");
             this.gameObject.SetActive(false);
@@ -128,6 +146,8 @@ namespace BicUtil.UI{
 
         #region Logic
         public void Setup(int _firstReviewSession, int _showTerm, string _iosAppId, string _androidAppId, bool _isFastReviewRequest){
+            init();
+
             #if UNITY_IOS
                 appId = _iosAppId;
             #elif UNITY_ANDROID
@@ -165,6 +185,8 @@ namespace BicUtil.UI{
         }
 
         public void Open(){
+            this.clearBackKey();
+            
             if(string.IsNullOrEmpty(appId) == true){
                 #if UNITY_EDITOR
                 Debug.LogError("[ReviewPopup] Not Setup appid");
@@ -244,6 +266,8 @@ namespace BicUtil.UI{
         }
 
         public void Close(){
+            this.restoreBackKey();
+
             developer.StopDance();
             this.gameObject.SetActive(false);
             if(OnClose != null){
@@ -283,6 +307,13 @@ namespace BicUtil.UI{
 
         public bool IsReadyInterstitial(object _adsPlacement)
         {
+            #if UNITY_EDITOR
+            if(openAlwaysOnEditor == true){
+                Debug.Log("[ReviewPopup] Ready for Editor always");
+                return true;
+            }
+            #endif
+
             if(adsTypesForShow != null){
                 bool _containKey = false;
                 for(int i = 0; i < adsTypesForShow.Length; i++){
@@ -341,5 +372,35 @@ namespace BicUtil.UI{
             throw new NotImplementedException();
         }
         #endregion
+
+        private void clearBackKey()
+        {
+            if(BicUtil.UIFlow.UIFlow.IsCreated == true){
+                DebugForEditor.Log("disable uiflow backkey");
+                BicUtil.UIFlow.UIFlow.Instance.BackupBackKeyAction();
+            }
+
+            if(BicUtil.PageService.PageManager.IsCreated == true){
+                if(BicUtil.PageService.PageManager.Instance.CurrentController != null){
+                    DebugForEditor.Log("disable pagemanager backkey");
+                    BicUtil.PageService.PageManager.Instance.CurrentController.SetActiveBackKey(false);
+                }
+            }
+        }
+
+        private void restoreBackKey()
+        {
+            if(BicUtil.UIFlow.UIFlow.IsCreated == true){
+                DebugForEditor.Log("restore uiflow backkey");
+                BicUtil.UIFlow.UIFlow.Instance.RestoreBackKeyAction();
+            }
+
+            if(BicUtil.PageService.PageManager.IsCreated == true){
+                if(BicUtil.PageService.PageManager.Instance.CurrentController != null){
+                    DebugForEditor.Log("restore pagemanager backkey");
+                    BicUtil.PageService.PageManager.Instance.CurrentController.SetActiveBackKey(true);
+                }
+            }
+        }
     }
 }

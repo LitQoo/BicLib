@@ -1,48 +1,65 @@
-using System.Collections;
-using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using BicUtil.UI;
-using UnityEngine;
+// using System.Collections;
+// using System.Collections.Generic;
+// using Cysharp.Threading.Tasks;
+// using BicUtil.UI;
+// using UnityEngine;
 
-namespace BicUtil.PageService.Review{
-    public class ReviewPopup : ReviewPopupBase, IPage
-    {
-        public int InitializeOrder => 99;
-
-        public PageController PageController { get;set; }
-
-        public void DeinitializePage()
-        {
-            this.OnClose -= backPage;
-        }
-
-        public void InitializePage()
-        {
-            this.Init();
-            this.OnClose += backPage;
-        }
-
-        public UniTask OnClickBackButton()
-        {
-            return UniTask.CompletedTask;
-        }
-
-        public UniTask OnClosedPage(IPage _fromUI, object _param = null)
-        {
-            return UniTask.CompletedTask;
-        }
-
-        public UniTask OnOpenedPage(IPage _fromPage, object _param = null)
-        {
-            this.Open();
-            return UniTask.CompletedTask;
-        }
-
-        private void backPage(){
-            if(PageController.CurrentPage == this as IPage){
-                PageController.Back(PageTransition.Sequance);
-            }
-        }
+// namespace BicUtil.PageService.Review{
+//     public class ReviewPopup : ReviewPopupBase, IPage
+//     {
+//         #if UNITY_EDITOR
+//         private static ReviewPopup instance;
         
-    }
-}
+//         [UnityEditor.MenuItem("BicLib/ReviewPopup/TestReviewPapup(IPage)", false, 500)]
+//         private static void TestInterstitial(){
+//             if(instance == null){
+//                 return;
+//             }
+            
+//             instance.Open();
+//         }
+//         #endif
+
+//         public int InitializeOrder => 99;
+
+//         public PageController PageController { get;set; }
+
+//         public void DeinitializePage()
+//         {
+//             this.OnClose -= backPage;
+//         }
+
+//         public void InitializePage()
+//         {
+//             this.Init();
+//             this.OnClose += backPage;
+
+//             #if UNITY_EDITOR
+//             instance = this;
+//             #endif
+//         }
+
+//         public UniTask OnClickBackButton()
+//         {
+//             return UniTask.CompletedTask;
+//         }
+
+//         public UniTask OnClosedPage(IPage _fromUI, object _param = null)
+//         {
+//             return UniTask.CompletedTask;
+//         }
+
+//         public UniTask OnOpenedPage(IPage _fromPage, object _param = null)
+//         {
+//             this.Open();
+//             return UniTask.CompletedTask;
+//         }
+
+//         private void backPage(){
+//             if(PageController.CurrentPage == this as IPage){
+//                 PageController.Back(PageTransition.Sequance);
+//             }
+//         }
+        
+//     }
+// }

@@ -26,7 +26,7 @@ namespace BicUtil.Splash
                     {"version", _version},
                     {
                         "RealtimeSinceStartup",
-                        UnityEngine.Time.realtimeSinceStartup
+                        (int)UnityEngine.Time.realtimeSinceStartup
                     },
                     {"result", _result.Code}
                 });
