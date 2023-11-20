@@ -411,6 +411,7 @@ namespace BicUtil.SDKUtil
             if(_tester.UseTester == true){
                 if(_tester.GroupIndex < 0){
                     tester = new TestGroup();
+                    testDelay = _tester.UpdateDelay;
                     tester.values = new List<TestData>();
                     return;
                 }
