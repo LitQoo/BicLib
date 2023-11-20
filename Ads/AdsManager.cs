@@ -28,6 +28,20 @@ namespace BicUtil.Ads
         private Action<object, AdsType, AdsResult> OnAfterPlayedAdsCallback;
         private Action<object, AdsType> OnBeforePlayAdsCallback;
         private Action<object, AdsType, string> OnNotReadyAdsCallback;
+
+        #if UNITY_EDITOR
+        public void CallOnBeforePlayAdsCallback(object _adsPlacement, AdsType _adsType){
+            if(OnBeforePlayAdsCallback != null){
+                OnBeforePlayAdsCallback(_adsPlacement, _adsType);
+            }
+        }
+
+        public void CallOnAfterPlayAdsCallback(object _adsPlacement, AdsType _adsType, AdsResult _result){
+            if(OnAfterPlayedAdsCallback != null){
+                OnAfterPlayedAdsCallback(_adsPlacement, _adsType, _result);
+            }
+        }
+        #endif
         
         public void SubscribeAfterPlayedAds(Action<object, AdsType, AdsResult> _callback){
             OnAfterPlayedAdsCallback += _callback;

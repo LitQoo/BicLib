@@ -27,6 +27,8 @@ namespace BicUtil.LocalAds{
 		[SerializeField]
 		private CommonPopup commonPopup;
 		[SerializeField]
+		private GameObject dimmed;
+		[SerializeField]
 		private LocalAdsController localAds;
 
 		
@@ -121,11 +123,19 @@ namespace BicUtil.LocalAds{
             		commonPopup.Open();
 				}
 
+				if(dimmed != null){
+					dimmed.SetActive(true);
+				}
+
 				var _where = localAds != null && localAds.gameObject.activeSelf == true ? "localAds" : "other";
 				
 				PurchasingService.BuyProduct(noAdsProductId, _result=>{
 					if(commonPopup != null){
 						commonPopup.Close();
+					}
+
+					if(dimmed != null){
+						dimmed.SetActive(false);
 					}
 
 					if (localAds != null && _result == PurchasingResult.Complete)

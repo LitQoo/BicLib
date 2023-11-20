@@ -80,8 +80,11 @@ namespace BicUtil.LocalAds{
             if(instance == null){
                 return;
             }
-            
-            instance.Open(instance.interstitialShowingTime, true);
+
+            AdsManager.Instance.CallOnBeforePlayAdsCallback(AdsType.Interstital, AdsType.Interstital);
+            instance.ShowInterstitial(AdsType.RewardBase, _result=>{
+                AdsManager.Instance.CallOnAfterPlayAdsCallback(AdsType.Interstital, AdsType.Interstital, _result);
+            });
         }
 
         [UnityEditor.MenuItem("BicLib/LocalAds/TestRV", false, 501)]
@@ -90,7 +93,10 @@ namespace BicUtil.LocalAds{
                 return;
             }
             
-            instance.Open(instance.rvShowingTime, false);
+            AdsManager.Instance.CallOnBeforePlayAdsCallback(AdsType.RewardBase, AdsType.RewardBase);
+            instance.ShowRewardBased(AdsType.RewardBase, _result=>{
+                AdsManager.Instance.CallOnAfterPlayAdsCallback(AdsType.RewardBase, AdsType.RewardBase, _result);
+            });
         }
         #endif
         
