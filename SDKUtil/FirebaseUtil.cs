@@ -363,10 +363,6 @@ namespace BicUtil.SDKUtil
             if(OnFetchedRemoteConfig != null){
                 OnFetchedRemoteConfig();
             }
-
-            #if !UNITY_EDITOR
-            sendActiveABTestEvent();
-            #endif
             
             _errorLine++;
             try{
@@ -379,6 +375,10 @@ namespace BicUtil.SDKUtil
                 Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine + "/" + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
                 throw _exception;
             }
+
+            #if !UNITY_EDITOR
+            sendActiveABTestEvent();
+            #endif
 
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
             //     #if !UNITY_EDITOR
@@ -431,8 +431,8 @@ namespace BicUtil.SDKUtil
             var _eventName = "";
             if (TableService.IsSetup == true)
             {
-                _eventName = "InitRemoteConfigOn";
-                BicUtil.Analytics.Analytics.Event("InitRemoteConfigNewUser", new Dictionary<string, object> {
+                _eventName = "InstallConstantOn";
+                BicUtil.Analytics.Analytics.Event("InstallConstant", new Dictionary<string, object> {
                         {
                             "Result",
                             "Success"
@@ -445,7 +445,7 @@ namespace BicUtil.SDKUtil
             }
             else
             {
-                _eventName = "OldUserRemoteConfigOn";
+                _eventName = "UpdateConstantOn";
             }
 
             try
