@@ -42,10 +42,14 @@ namespace BicUtil.UI{
         #endregion
 
         #region Logic
-        public void Setup(int[] _gradeLifeMax, Effector _effector = null){
+        public void Setup(int[] _gradeLifeMax, Effector _effector = null, int _initialGrade = -1){
             this.effector = _effector;
             this.gradeLifeMax = _gradeLifeMax;
-            this.grade.AsIntWithoutNotify = this.gradeLifeMax.Length;
+            if(_initialGrade < 0){
+                this.grade.AsIntWithoutNotify = this.gradeLifeMax.Length;
+            }else{
+                this.grade.AsIntWithoutNotify = _initialGrade;
+            }
             
             if(isSubscribe == false){
                 isSubscribe = true;
