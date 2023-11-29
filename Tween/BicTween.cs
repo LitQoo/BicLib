@@ -740,23 +740,23 @@ namespace BicUtil.Tween
             }).SetTargetObject(_uigraphic.gameObject);
 		}
 
-		public static Tween Rainbow(SpriteRenderer _sprite, float _time, TweenPool _pool = null, 
+		public static Tween Rainbow(SpriteRenderer _sprite, float _time, float _alpha = 1f, TweenPool _pool = null, 
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
 			return BicTween.Value(0f, 6f, _time, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
                 if(_value.x < 1){
-                    _sprite.color = new Color(1f, 1f - _value.x, 0f);
+                    _sprite.color = new Color(1f, 1f - _value.x, 0f, _alpha);
                 }else if(_value.x < 2){
-                    _sprite.color = new Color(1f, 0f, _value.x - 1f);
+                    _sprite.color = new Color(1f, 0f, _value.x - 1f, _alpha);
                 }else if(_value.x < 3){
-                    _sprite.color = new Color(3f - _value.x, 0f, 1f);
+                    _sprite.color = new Color(3f - _value.x, 0f, 1f, _alpha);
                 }else if(_value.x < 4){
-                    _sprite.color = new Color(0f, _value.x - 3f, 1f);
+                    _sprite.color = new Color(0f, _value.x - 3f, 1f, _alpha);
                 }else if(_value.x < 5){
-                    _sprite.color = new Color(0f, 1f, 5f - _value.x);
+                    _sprite.color = new Color(0f, 1f, 5f - _value.x, _alpha);
                 }else{
-                    _sprite.color = new Color(_value.x - 5f, 1f, 0f);
+                    _sprite.color = new Color(_value.x - 5f, 1f, 0f, _alpha);
                 }
             });
 		}
