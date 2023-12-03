@@ -34,6 +34,8 @@ namespace BicUtil.Teacher
         [SerializeField]
         internal UnityEngine.UI.Text discription;
         [SerializeField]
+        internal UnityEngine.UI.MaskableGraphic discriptionBack;
+        [SerializeField]
         internal UnityEngine.UI.Image[] spotlights;
         [SerializeField]
         internal DottedLineController[] dottedLines;
@@ -62,6 +64,7 @@ namespace BicUtil.Teacher
             this.dimmedButton.enabled = false;
             this.title.gameObject.SetActive(false);
             this.discription.gameObject.SetActive(false);
+            this.discriptionBack.gameObject.SetActive(false);
             this.button.gameObject.SetActive(false);
             
             foreach(var _spot in spotlights){

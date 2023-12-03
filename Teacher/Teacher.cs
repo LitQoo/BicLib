@@ -99,7 +99,8 @@ namespace BicUtil.Teacher
 
         public void SetDiscription(string _message, Color _color){
             BicTween.Delay(0f).SubscribeStart(()=>
-            {
+            {   
+                controller.discriptionBack.gameObject.SetActive(true);
                 controller.discription.gameObject.SetActive(true);
                 controller.discription.text = _message;
                 controller.discription.color = _color;
@@ -108,17 +109,19 @@ namespace BicUtil.Teacher
 
         public void SetDiscriptionScaleUp(string _message, Color _color){
             
-            BicTween.Scale(controller.discription.gameObject, Vector2.one * 0.5f, Vector2.one, 0.5f).SubscribeStart(()=>{
+            BicTween.Scale(controller.discriptionBack.gameObject, Vector2.one * 0.5f, Vector2.one, 0.5f).SubscribeStart(()=>{
+                controller.discriptionBack.gameObject.SetActive(true);
                 controller.discription.gameObject.SetActive(true);
                 controller.discription.text = _message;
                 controller.discription.color = _color;
-                controller.discription.transform.localScale = Vector2.one * 0.5f;
+                controller.discriptionBack.transform.localScale = Vector2.one * 0.5f;
             }).SetEase(EaseType.OutBack).AddTo(controller.parentTween);
         }
 
-        public void SetDiscriptionTypeWriter(string _message, Color _color){
-            BicTween.TypeWriter(controller.discription, _message, 0.07f).SubscribeStart(()=>
+        public void SetDiscriptionTypeWriter(string _message, Color _color, float _time = 0.01f){
+            BicTween.TypeWriter(controller.discription, _message, _time).SubscribeStart(()=>
             {
+                controller.discriptionBack.gameObject.SetActive(true);
                 controller.discription.gameObject.SetActive(true);
                 controller.discription.text = "";
                 controller.discription.color = _color;
@@ -132,6 +135,7 @@ namespace BicUtil.Teacher
                 controller.title.text = string.Empty;
                 controller.discription.gameObject.SetActive(false);
                 controller.discription.text = string.Empty;
+                controller.discriptionBack.gameObject.SetActive(false);
             }).AddTo(controller.parentTween);
         }
 
@@ -149,6 +153,7 @@ namespace BicUtil.Teacher
             {
                 controller.discription.gameObject.SetActive(false);
                 controller.discription.text = string.Empty;
+                controller.discriptionBack.gameObject.SetActive(false);
             }).AddTo(controller.parentTween);
         }
 
