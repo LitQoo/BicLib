@@ -442,8 +442,12 @@ namespace BicUtil.Teacher
         public void HideDottedLine(int _index, bool _immediately = false){
             Action _action = ()=>
             {
-                var _line = controller.dottedLines[_index];
-                _line.gameObject.SetActive(false);
+                try{
+                    var _line = controller.dottedLines[_index];
+                    _line.gameObject.SetActive(false);
+                }catch{
+
+                }
             };
             
             if(_immediately == true){
