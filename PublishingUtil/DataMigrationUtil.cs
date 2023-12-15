@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -136,6 +137,7 @@ namespace BicUtil.DataMigration{
         }
 
         private async UniTask<RecordContainer> backup(string _userId, string _appId, string _data){
+            #if BICUTIL_WWW
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["userId"] = _userId;
@@ -152,9 +154,13 @@ namespace BicUtil.DataMigration{
 
             var _result = await WebStorage.Instance.SendRecordAsync<RecordContainer>(_record, _webparam);
             return _result.Data;
+            #endif
+
+            return null;
         }
 
         private async UniTask<RecordContainer> restore(string _backupId, string _appId){
+            #if BICUTIL_WWW
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["backupId"] = _backupId;
@@ -169,9 +175,13 @@ namespace BicUtil.DataMigration{
 
             var _result = await WebStorage.Instance.SendRecordAsync<RecordContainer>(_record, _webparam);
             return _result.Data;
+            #endif
+            return null;
+
         }
 
         private async UniTask completeBackup(string _backupId, string _appId){
+            #if BICUTIL_WWW
             var _record = new RecordContainer();
             Dictionary<string, string> _param = new Dictionary<string, string>();
             _param["backupId"] = _backupId;
@@ -188,6 +198,8 @@ namespace BicUtil.DataMigration{
 
             //백업카운트 높이고 백업카운트 있는 데이터는 백업못받도록 하기 -> 
             //문제있을경우 help@bigjamgames.com로 backupid를 보내라 하기
+            #endif
+            return;
         }
         #endregion
     }

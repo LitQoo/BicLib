@@ -171,4 +171,30 @@ namespace BicUtil.LocalAds{
 		#endregion
 	}
 }
+#else
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using BicUtil.MVCSystem;
+using BicDB.Variable;
+using BicUtil.Analytics;
+using BicUtil.UI;
+
+namespace BicUtil.LocalAds{
+	public class RemoveAdsController : MonoBehaviour
+	{
+
+		public void SetActive(bool _active){
+			this.gameObject.SetActive(_active);
+		}
+		
+		public void BuyProduct(){
+		}
+
+		public void Setup(string _noAdsProductId, BoolVariable _isNoAds){
+			SetActive(false);
+		}
+
+	}
+}
 #endif
