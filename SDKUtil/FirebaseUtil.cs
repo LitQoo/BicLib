@@ -155,6 +155,7 @@ namespace BicUtil.SDKUtil
                         FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
+                        FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());
 
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
