@@ -79,6 +79,7 @@ namespace BicUtil.Ads
         #region IAdsBanner
         public void Destroy()
         {
+            BicTween.Cancel(this.gameObject);
             Destroy(this.gameObject);
         }
 
