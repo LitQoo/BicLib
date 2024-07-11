@@ -89,12 +89,14 @@ namespace BicUtil.Ads
                 return;
             }
             
-
-
-            isInit = true;
-            
             int _count = 0;
             int _targetCount = adsPlatforms.Count;
+
+            if(_targetCount < 0){
+                Debug.Log("[AdsManager] platforms count is zero");
+                return;
+            }
+
             Debug.Log("[AdsManager] Init platforms " + _targetCount);
 
             foreach(var _ads in adsPlatforms){
@@ -108,6 +110,8 @@ namespace BicUtil.Ads
                     }
                 });
             }
+
+            isInit = true;
         }
 
         #region Time
