@@ -85,13 +85,18 @@ namespace BicUtil.Ads
         public void Initialize(Action _callback)
         {
             if(isInit == true){
+                Debug.Log("[AdsManager] already init");
                 return;
             }
+            
+
 
             isInit = true;
             
             int _count = 0;
             int _targetCount = adsPlatforms.Count;
+            Debug.Log("[AdsManager] Init platforms " + _targetCount);
+
             foreach(var _ads in adsPlatforms){
                 _ads.Initialize(()=>{
                     _count++;
