@@ -74,7 +74,6 @@ namespace BicUtil.Ads
         }
         #endregion
 
-        [Obsolete]
         public override void Initialize()
         {
             // AnalyticsTable.SetStorage(FileStorage.GetInstance());

@@ -27,15 +27,19 @@ namespace BicUtil.Ads{
         }
 
         public void Initialize(Action _action){
+            Debug.Log("[Admob] start Initialize");
             UpdateConsent(_result=>{
+                Debug.Log("[Admob] UpdateConsent result: "+_result.ToString());
+
                 MobileAds.Initialize(_initState=>{
-                    Debug.Log("[Ads] Initialize result: "+_initState.ToString());
+                    Debug.Log("[Admob] Initialize result: "+_initState.ToString());
                     _action();
                 });
             });
         }
 
         public void UpdateConsent(Action<ConsentResult> _callback){
+            Debug.Log("[Admob] start UpdateConsent");
             var debugSettings = new ConsentDebugSettings
             {
                 DebugGeography = DebugGeography.EEA,
@@ -44,7 +48,8 @@ namespace BicUtil.Ads{
                 {
                     "A9178F1E-C3E8-407D-9A54-844E7CDF7FA8",
                     "366fac27-a1ef-4c95-b5eb-e313cf98d35c",
-                    "9104b117-10b9-46ac-835f-a89cf6ef4f37"
+                    "9104b117-10b9-46ac-835f-a89cf6ef4f37",
+                    "83049E61DFD375AB64940E8710FE94A1"
                 }
             };
 
@@ -59,10 +64,12 @@ namespace BicUtil.Ads{
 
         void OnConsentInfoUpdated(FormError consentError, Action<ConsentResult> _callback)
         {
+
+            Debug.Log("[Admob] start OnConsentInfoUpdated");
             if (consentError != null)
             {
                 // Handle the error.
-                UnityEngine.Debug.LogError(consentError);
+                UnityEngine.Debug.LogError("[Admob] consentError1 " + consentError);
                 _callback(ConsentResult.ConsentUpdateError);
                 return;
             }
@@ -74,7 +81,7 @@ namespace BicUtil.Ads{
                 if (formError != null)
                 {
                     // Consent gathering failed.
-                    UnityEngine.Debug.LogError(consentError);
+                    UnityEngine.Debug.LogError("[Admob] consentError2 " + consentError);
                     _callback(ConsentResult.ConsentShowFormError);
                     return;
                 }
