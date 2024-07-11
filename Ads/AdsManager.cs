@@ -92,7 +92,7 @@ namespace BicUtil.Ads
             int _count = 0;
             int _targetCount = adsPlatforms.Count;
 
-            if(_targetCount < 0){
+            if(_targetCount <= 0){
                 Debug.Log("[AdsManager] platforms count is zero");
                 return;
             }
