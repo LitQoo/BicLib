@@ -333,26 +333,44 @@ namespace BicUtil.SDKUtil
                 await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
                 await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
                 #else
+
                 await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAndActivateAsync();
+                
                 #endif
                 _errorLine++;
             }catch(System.Exception _exception){
+                try{
+                    var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
+                    
+                    if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
+                
+                        Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
 
-                var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
-                if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
-                    Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
+                        BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
+                            {
+                                "LastFetchStatus",
+                                info.LastFetchStatus.ToString()
+                            },
+                            {
+                                "LastFetchFailureReason",
+                                info.LastFetchFailureReason.ToString()
+                            }
+                        });
+
+                    }
+                }catch{
                     BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
                         {
                             "LastFetchStatus",
-                            info.LastFetchStatus.ToString()
+                            "not connect"
                         },
                         {
                             "LastFetchFailureReason",
-                            info.LastFetchFailureReason.ToString()
+                            "not connect"
                         }
                     });
                 }
-                
+
                 Debug.LogError("[Firebase] remoteConfigAsync _fetchTask");
                 throw _exception;
             }
@@ -380,6 +398,7 @@ namespace BicUtil.SDKUtil
             #if !UNITY_EDITOR
             sendActiveABTestEvent();
             #endif
+
 
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
             //     #if !UNITY_EDITOR
