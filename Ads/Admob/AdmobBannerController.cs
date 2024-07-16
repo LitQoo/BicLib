@@ -17,8 +17,10 @@ namespace BicUtil.Ads
         private void OnDestroy() {
             BicTween.Cancel(this.gameObject);
             AdsManager.Instance.RemoveBanner(this);
-            bannerView.Destroy();
-            bannerView = null;
+            if(bannerView != null){
+                bannerView.Destroy();
+                bannerView = null;
+            }
         }
         #endregion
 
@@ -71,6 +73,7 @@ namespace BicUtil.Ads
                     _log += "/3";
                 }catch(System.Exception _e){
                     Debug.LogError("reload banner error " + _log);
+                    BicUtil.Analytics.Analytics.LogException(_e);
                 }
             }).SetTargetObject(this.gameObject);
         }
@@ -81,6 +84,10 @@ namespace BicUtil.Ads
         {
             BicTween.Cancel(this.gameObject);
             Destroy(this.gameObject);
+            if(bannerView != null){
+                bannerView.Destroy();
+                bannerView = null;
+            }
         }
 
         public void Hide()
