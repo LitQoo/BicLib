@@ -41,6 +41,8 @@ namespace BicLib.GitVersions{
                         CommitMessage = name;
                     }
                 }
+            }else{
+                SouldCommit = true;
             }
         }
     }
