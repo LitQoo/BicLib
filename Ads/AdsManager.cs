@@ -6,6 +6,10 @@ using BicDB.Storage;
 using BicDB.Variable;
 using UnityEngine;
 
+#if UNITY_IOS 
+using Unity.Advertisement.IosSupport; 
+#endif
+
 namespace BicUtil.Ads
 {
     public class AdsManager : BicUtil.SingletonBase.SingletonBase<AdsManager>, IAdsManager
@@ -78,11 +82,11 @@ namespace BicUtil.Ads
         {
             // AnalyticsTable.SetStorage(FileStorage.GetInstance());
             // AnalyticsTable.Load(null, new FileStorageParameter("analytics"));
-            this.Initialize(null);
+            //this.Initialize(null);
         }
 
 
-        public void Initialize(Action _callback)
+        public void Initialize(bool _callIosAtt, Action _callback)
         {
             if(isInit == true){
                 Debug.Log("[AdsManager] already init");
@@ -96,6 +100,16 @@ namespace BicUtil.Ads
                 Debug.Log("[AdsManager] platforms count is zero");
                 return;
             }
+
+
+            #if UNITY_IOS 
+
+            Debug.Log("[AdsManager] iOS ATT ");
+            if(ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) { 
+                ATTrackingStatusBinding.RequestAuthorizationTracking(); 
+            } 
+            #endif
+
 
             Debug.Log("[AdsManager] Init platforms " + _targetCount);
 
@@ -140,6 +154,9 @@ namespace BicUtil.Ads
         #endregion
 
         public void SetAdsSetting(object _adsPlacement, int _playTimeInterval){
+            #if UNITY_EDITOR
+            Debug.Log("[AdsManager] SetAdsSetting " + _adsPlacement.ToString());
+            #endif
             adsData[_adsPlacement] = new AdsInfo(_adsPlacement, new IntVariable(_playTimeInterval));
         }
 
