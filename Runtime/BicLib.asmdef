@@ -2,12 +2,12 @@
     "name": "BicLib",
     "rootNamespace": "",
     "references": [
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:00c479e63b1c74419820a39073267645",
-        "GUID:7bb1ee73ebb9f114188944f67b1333d6",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:60bfecf5cb232594891bc622f40d6bed",
-        "GUID:94e1de2458b07d0bf1e9f13e6ae06443"
+        "UniTask",
+        "Unity.Advertisement.IosSupport",
+        "Purchasing.Common",
+        "Unity.TextMeshPro",
+        "UnityEngine.Purchasing",
+        "UnityEngine.Purchasing.Security"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
