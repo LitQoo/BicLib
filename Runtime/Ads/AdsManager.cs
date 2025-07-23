@@ -6,7 +6,7 @@ using BicDB.Storage;
 using BicDB.Variable;
 using UnityEngine;
 
-#if UNITY_IOS 
+#if UNITY_IOS && BICUTIL_iOS_SUPPORT
 using Unity.Advertisement.IosSupport; 
 #endif
 
@@ -102,7 +102,7 @@ namespace BicUtil.Ads
             }
 
 
-            #if UNITY_IOS 
+            #if UNITY_IOS && BICUTIL_iOS_SUPPORT
 
             Debug.Log("[AdsManager] iOS ATT ");
             if(ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) { 

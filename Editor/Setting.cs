@@ -19,6 +19,7 @@ namespace BicUtil.Core{
             new DefineData("Ads", "UnityAds", false, "BICUTIL_UNITYADS2"),
             new DefineData("Ads", "AppLovin", false, "BICUTIL_APPLOVIN"),
             new DefineData("Ads", "Admob", false, "BICUTIL_ADMOB"),
+            new DefineData("Ads", "iOS_Supports", false, "BICUTIL_iOS_SUPPORT"),
             
             new DefineData("BicTween", "UnityAnimation", false, "BICUTIL_UNITY_ANIMATOR"),
             new DefineData("BicTween", "Spine", false, "BICUTIL_SPINE"),
