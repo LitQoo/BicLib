@@ -27,6 +27,7 @@ namespace BicUtil.Core{
             new DefineData("ETC", "Unity WWW", false, "BICUTIL_WWW"),
             new DefineData("ETC", "Unity WWW TEXTURE", false, "BICUTIL_WWW_TEXTURE"),
             new DefineData("ETC", "Unity IAP", false, "BICUTIL_IAP"),
+            new DefineData("ETC", "Unity IAP Subscription", false, "BICUTIL_IAP_SUB"),
             new DefineData("ETC", "GoogleInAppReview", false, "BICUTIL_GIAR"),
             new DefineData("ETC", "TextMeshPro", false, "BICUTIL_TMPRO")
         };

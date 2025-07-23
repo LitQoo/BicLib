@@ -7,7 +7,13 @@
         "Purchasing.Common",
         "Unity.TextMeshPro",
         "UnityEngine.Purchasing",
-        "UnityEngine.Purchasing.Security"
+        "UnityEngine.Purchasing.Security",
+        "UnityEngine.Purchasing.SecurityCore",
+        "Google.Play.Review",
+        "UnityEditor.Purchasing",
+        "UnityEngine.Purchasing.SecurityStub",
+        "UnityEngine.Purchasing.Stores",
+        "Google.Play.Common"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

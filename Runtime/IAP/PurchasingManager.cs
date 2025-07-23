@@ -34,6 +34,10 @@ namespace BicUtil.Purchasing{
 			if(isLoad == false){
 				throw new SystemException("Not Load PurchasingManager");
 			}
+
+			if(googleTangle == null || appleTangle == null){
+				throw new Exception("SETUP TANGLES");
+			}
 			
 			var _product = GetProduct(_idType);
 
@@ -55,9 +59,16 @@ namespace BicUtil.Purchasing{
 			}
 		}
 
+		private byte[] googleTangle = null;
+		private byte[] appleTangle = null;
+		public void SetupTangle(byte[] _googleTangle, byte[] _appleTangle){
+			googleTangle = _googleTangle;
+			appleTangle = _appleTangle;
+		}
 
 		public override void Initialize() 
 		{
+
 			PurchasingService.GetProduct = this.GetProductBase;
 			PurchasingService.BuyProduct = this.BuyProductByStringId;
 			PurchasingService.RestorePurchases = this.RestorePurchases;
@@ -391,7 +402,7 @@ namespace BicUtil.Purchasing{
 
 
 			#if UNITY_ANDROID || UNITY_IOS || UNITY_STANDALONE_OSX  
-			var validator = new CrossPlatformValidator(GooglePlayTangle.Data(), AppleTangle.Data(), Application.identifier);  
+			var validator = new CrossPlatformValidator(googleTangle, appleTangle, Application.identifier);  
 			
 			 try {
 				// On Google Play, result has a single product ID.
@@ -469,7 +480,7 @@ namespace BicUtil.Purchasing{
 
         public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
         {
-           var _product = getProduct(product.definition.id);
+            var _product = getProduct(product.definition.id);
 			
 			if(buyCallback != null){
 				buyCallback(PurchasingResult.Failed);
@@ -526,7 +537,7 @@ namespace BicUtil.Purchasing{
 	//            InstantiateDebugText (DebugInfoPanel, "APP Receipt Base64 " + appleConfig.appReceipt);
 				var receiptData = System.Convert.FromBase64String (appleConfig.appReceipt);
 	//            InstantiateDebugText (DebugInfoPanel, "receipt Data "+ receiptData);
-				AppleReceipt receipt = new AppleValidator (AppleTangle.Data ()).Validate (receiptData);
+				AppleReceipt receipt = new UnityEngine.Purchasing.Security.AppleValidator (appleTangle).Validate (receiptData);
 				foreach (AppleInAppPurchaseReceipt productReceipt in receipt.inAppPurchaseReceipts) {
 					// Debug.Log ("PRODUCTID: " + productReceipt.productID);
 					// Debug.Log ("PURCHASE DATE: " + productReceipt.purchaseDate);

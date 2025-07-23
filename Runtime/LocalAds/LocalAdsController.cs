@@ -269,6 +269,7 @@ namespace BicUtil.LocalAds{
 
             this.SelectedIndex.AsInt = this.AdsList.IndexOf(_selectedAds);
         }
+        
 
         public void Close(){
             restoreBackKey();
