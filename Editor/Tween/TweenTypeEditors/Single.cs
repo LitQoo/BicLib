@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BicUtil.CustomTimeLine;
 using UnityEditor;
 using UnityEngine;
+using Event = UnityEngine.Event;
 
 namespace BicUtil.Tween
 {

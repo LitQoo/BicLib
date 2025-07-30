@@ -2,7 +2,8 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
- 
+using Event = UnityEngine.Event;
+
 namespace BicLib.GitVersions{
    public class EditorCommitDialog : EditorWindow
    {

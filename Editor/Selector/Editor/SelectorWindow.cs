@@ -9,6 +9,7 @@ using BicDB;
 using BicUtil.Json;
 using UnityEditor.SceneManagement;
 using BicDB.Variable;
+using Event = UnityEngine.Event;
 
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow

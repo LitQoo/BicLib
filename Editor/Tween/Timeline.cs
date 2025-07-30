@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using Event = UnityEngine.Event;
 
 namespace BicUtil.CustomTimeLine{
 	[System.Serializable]

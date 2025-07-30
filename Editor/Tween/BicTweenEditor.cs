@@ -6,7 +6,7 @@ using BicUtil.CustomTimeLine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using Event = UnityEngine.Event;
 
 namespace BicUtil.Tween
 {
