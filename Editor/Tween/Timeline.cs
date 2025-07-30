@@ -2,7 +2,6 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
-using Event = UnityEngine.Event;
 
 namespace BicUtil.CustomTimeLine{
 	[System.Serializable]
@@ -175,7 +174,7 @@ namespace BicUtil.CustomTimeLine{
 		}
 
 		private void DoEventsGUI(){
-			if (Event.current.type == EventType.Repaint) {
+			if (UnityEngine.Event.current.type == EventType.Repaint) {
 				((GUIStyle)"AnimationEventBackground").Draw(eventRect,GUIContent.none,0);
 			}
 			if (onEventGUI != null) {
@@ -185,7 +184,7 @@ namespace BicUtil.CustomTimeLine{
 		}
 		
 		private void DoTicksGUI(){
-			if (Event.current.type == EventType.Repaint) {
+			if (UnityEngine.Event.current.type == EventType.Repaint) {
 				EditorStyles.toolbar.Draw (timeRect, GUIContent.none, 0);
 			}
 			Handles.color = new Color(0.5f, 0.5f, 0.5f, 0.7f);
@@ -215,15 +214,15 @@ namespace BicUtil.CustomTimeLine{
 			if (!GUI.enabled) {
 				return;
 			}
-			Event ev = Event.current;
+			Event ev = UnityEngine.Event.current;
 			switch (ev.rawType) {
 			case EventType.MouseDown:
 				if(new Rect(timelineOffset-5,37,10,drawRect.height).Contains(ev.mousePosition)){
 					changeOffset=true;
 					clickOffset=timePosition-timelineOffset;
 				}
-				if (new Rect (timelineOffset, 0, drawRect.width, 17).Contains (Event.current.mousePosition) && Event.current.button == 0 && !isPlaying) {
-					timePosition = Event.current.mousePosition.x+scroll.x;
+				if (new Rect (timelineOffset, 0, drawRect.width, 17).Contains (UnityEngine.Event.current.mousePosition) && UnityEngine.Event.current.button == 0 && !isPlaying) {
+					timePosition = UnityEngine.Event.current.mousePosition.x+scroll.x;
 					changeTime = true;
 
 					if(!isRecording && onRecord != null){
@@ -253,7 +252,7 @@ namespace BicUtil.CustomTimeLine{
 					}
 					
 					if(changeTime){
-						timePosition = Event.current.mousePosition.x+scroll.x;
+						timePosition = UnityEngine.Event.current.mousePosition.x+scroll.x;
 						timePosition=Mathf.Clamp(timePosition,timelineOffset,Mathf.Infinity);
 						ev.Use();
 					}

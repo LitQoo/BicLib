@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using BicUtil.CustomTimeLine;
 using UnityEditor;
 using UnityEngine;
-using Event = UnityEngine.Event;
 
 namespace BicUtil.Tween
 {
@@ -64,8 +63,8 @@ namespace BicUtil.Tween
         }
 
         private bool onClickedNodeSingle(Tween _tween, Event _event){
-            if(_tween.editor_rect.Contains(_event.mousePosition)){
-                switch(_event.type){
+            if(_tween.editor_rect.Contains(_UnityEngine.Event.mousePosition)){
+                switch(_UnityEngine.Event.type){
                     case EventType.MouseUp:
                         if(selectedTweens.Count == 1 && movingPoint != Rect.zero){
                             var _movingTween = selectedTweens[0];
@@ -80,8 +79,8 @@ namespace BicUtil.Tween
                         }
                     break;
                     case EventType.MouseDown:
-                    if(_event.button == 0){
-                        if((Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command)){
+                    if(_UnityEngine.Event.button == 0){
+                        if((UnityEngine.Event.current.modifiers == EventModifiers.Control || UnityEngine.Event.current.modifiers == EventModifiers.Command)){
                             if(selectedTweens.Contains(_tween)){
                                 unselectTween(_tween);
                             }else{
@@ -90,15 +89,15 @@ namespace BicUtil.Tween
                         }else{
                             selectTween(_tween);
                         }
-                    }else if(_event.button == 1){
+                    }else if(_UnityEngine.Event.button == 1){
                         popupMenu(_tween);
                     }
                     break;
                     case EventType.MouseDrag:
-                        if(_event.button == 0 && _tween.editor_parent != null && selectedTweens.Contains(_tween) == false && !isAncestor(_tween, selectedTweens[0])){
+                        if(_UnityEngine.Event.button == 0 && _tween.editor_parent != null && selectedTweens.Contains(_tween) == false && !isAncestor(_tween, selectedTweens[0])){
                             if(_tween.editor_parent.Type == TweenType.Sequance){
                                 movingTarget = _tween;
-                                if(_event.mousePosition.x < _tween.editor_rect.x + _tween.editor_rect.width / 2f){
+                                if(_UnityEngine.Event.mousePosition.x < _tween.editor_rect.x + _tween.editor_rect.width / 2f){
                                     movingPoint = new Rect(_tween.editor_rect.x, _tween.editor_rect.y, 1, _tween.editor_rect.height);
                                     isPreMoving = true;
                                 }else{
@@ -107,7 +106,7 @@ namespace BicUtil.Tween
                                 }
                             }else if(_tween.editor_parent.Type == TweenType.Spawn){
                                 movingTarget = _tween;
-                                if(_event.mousePosition.y < _tween.editor_rect.y + _tween.editor_rect.height / 2f){
+                                if(_UnityEngine.Event.mousePosition.y < _tween.editor_rect.y + _tween.editor_rect.height / 2f){
                                     movingPoint = new Rect(_tween.editor_rect.x, _tween.editor_rect.y, _tween.editor_rect.width, 1);
                                     isPreMoving = true;
                                 }else{

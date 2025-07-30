@@ -9,7 +9,6 @@ using BicDB;
 using BicUtil.Json;
 using UnityEditor.SceneManagement;
 using BicDB.Variable;
-using Event = UnityEngine.Event;
 
 namespace BicUtil.Selector{
     public class SelectorWindow : EditorWindow
@@ -499,40 +498,40 @@ namespace BicUtil.Selector{
                         }
                     }
 
-                    if(Event.current.type == EventType.KeyDown && Event.current.control){
-                        if(Event.current.keyCode == KeyCode.K){
+                    if(UnityEngine.Event.current.type == EventType.KeyDown && UnityEngine.Event.current.control){
+                        if(UnityEngine.Event.current.keyCode == KeyCode.K){
                             recommandCursor = Mathf.Min(recommandCursor+1, _names.Count());
                             if(recommandCursor == _names.Count()){
                                 recommandCursor = 0;
                             }
-                            Event.current.Use(); // 이벤트 사용 처리
-                        }else if(Event.current.keyCode == KeyCode.I){
+                            UnityEngine.Event.current.Use(); // 이벤트 사용 처리
+                        }else if(UnityEngine.Event.current.keyCode == KeyCode.I){
                             recommandCursor = Mathf.Max(recommandCursor-1, -1);
                             if(recommandCursor == -1){
                                 recommandCursor = _names.Count() - 1;
                             }
-                            Event.current.Use(); // 이벤트 사용 처리
-                        }else if(Event.current.keyCode == KeyCode.Return){
+                            UnityEngine.Event.current.Use(); // 이벤트 사용 처리
+                        }else if(UnityEngine.Event.current.keyCode == KeyCode.Return){
                             if(recommandCursor >= 0){
                                 var _list = _patternSplit.ToList();
                                 _list.RemoveAt(_list.Count - 1);
                                 _list.Add(_names.ElementAt(recommandCursor));
                                 searchInput = string.Join('/', _list);
                                 Debug.Log(searchInput);
-                                Event.current.Use(); // 이벤트 사용 처리
+                                UnityEngine.Event.current.Use(); // 이벤트 사용 처리
                                 EditorApplication.delayCall += Repaint;
                                 search(searchInput);
                             }
                         }
                     }
 
-                    // if(Event.current.type == EventType.KeyDown && Event.current.command &&  Event.current.keyCode == KeyCode.Return){
+                    // if(UnityEngine.Event.current.type == EventType.KeyDown && UnityEngine.Event.current.command &&  UnityEngine.Event.current.keyCode == KeyCode.Return){
                     //     var _list = _patternSplit.ToList();
                     //     _list.RemoveAt(_list.Count - 1);
                     //     _list.Add(_names.First());
                     //     searchInput = string.Join('/', _list);
                     //     Debug.Log(searchInput);
-                    //     Event.current.Use(); // 이벤트 사용 처리
+                    //     UnityEngine.Event.current.Use(); // 이벤트 사용 처리
                     //     EditorApplication.delayCall += Repaint;
                     //     search(searchInput);
 
@@ -544,13 +543,13 @@ namespace BicUtil.Selector{
 
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Select") || (Event.current.isKey && Event.current.keyCode == KeyCode.Return))
+            if (GUILayout.Button("Select") || (UnityEngine.Event.current.isKey && UnityEngine.Event.current.keyCode == KeyCode.Return))
             {
                 search(searchInput);
 
-                if (Event.current.isKey && Event.current.keyCode == KeyCode.Return)
+                if (UnityEngine.Event.current.isKey && UnityEngine.Event.current.keyCode == KeyCode.Return)
                 {
-                    Event.current.Use(); // 이벤트 사용 처리
+                    UnityEngine.Event.current.Use(); // 이벤트 사용 처리
                 }
 
             }

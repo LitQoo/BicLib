@@ -2,7 +2,6 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Event = UnityEngine.Event;
 
 namespace BicLib.GitVersions{
    public class EditorCommitDialog : EditorWindow
@@ -50,7 +49,7 @@ namespace BicLib.GitVersions{
            });
 
            // Move window to a new position. Make sure we're inside visible window
-           var mousePos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+           var mousePos = GUIUtility.GUIToScreenPoint(UnityEngine.Event.current.mousePosition);
            var maxPos = GUIUtility.GUIToScreenPoint(new Vector2(Screen.width, Screen.height));
            mousePos.x += 32;
            if (mousePos.x + window.position.width > maxPos.x) mousePos.x -= window.position.width + 64; // Display on left side of mouse

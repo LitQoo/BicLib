@@ -6,7 +6,6 @@ using BicUtil.CustomTimeLine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using Event = UnityEngine.Event;
 
 namespace BicUtil.Tween
 {
@@ -150,7 +149,7 @@ namespace BicUtil.Tween
 		}
 
 		private void DoEvents(){
-			if(OnClicked(selectedGroup, Event.current) == true){
+			if(OnClicked(selectedGroup, UnityEngine.Event.current) == true){
 				GUI.FocusControl("");
 				Repaint();
 			}else{
@@ -166,21 +165,21 @@ namespace BicUtil.Tween
 		private List<Tween> copiedTweens = new List<Tween>();
 		private void handleCopyPaste()
 		{
-			if (Event.current.type == EventType.KeyDown && (Event.current.modifiers == EventModifiers.Control || Event.current.modifiers == EventModifiers.Command))
+			if (UnityEngine.Event.current.type == EventType.KeyDown && (UnityEngine.Event.current.modifiers == EventModifiers.Control || UnityEngine.Event.current.modifiers == EventModifiers.Command))
 			{
-				if (Event.current.keyCode == KeyCode.C)
+				if (UnityEngine.Event.current.keyCode == KeyCode.C)
 				{
-					Event.current.Use();
+					UnityEngine.Event.current.Use();
 					copiedTweens = new List<Tween>(selectedTweens.ToArray());
 				}
-				else if (Event.current.keyCode == KeyCode.V)
+				else if (UnityEngine.Event.current.keyCode == KeyCode.V)
 				{
 					if(copiedTweens.Count == 0 || selectedTweens.Count != 1){
 						return;
 					}
 					
 					if(selectedTweens[0].IsGrouped == true){
-						Event.current.Use();
+						UnityEngine.Event.current.Use();
 
 						for(int i = 0; i < copiedTweens.Count; i++){
 							selectedTweens[0].AddChild(copiedTweens[i].Copy(selectedTweenPool));
