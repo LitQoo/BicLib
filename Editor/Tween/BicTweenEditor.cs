@@ -242,7 +242,7 @@ namespace BicUtil.Tween
 				selectedTweenPool.GroupIdList = new List<int>();
 				selectedTweenPool.IsLocked = true;
 				EditorUtility.SetDirty(_gameObject);
-                EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+                EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 			}
 		}
 
@@ -251,7 +251,7 @@ namespace BicUtil.Tween
             selectedGroupIndex = selectedTweenPool.GroupIdList.Count - 1;
 			selectTween(selectedTweenPool.GetGroup(selectedGroupIndex));
             EditorUtility.SetDirty(selectedTweenPool);
-            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 												Repaint();
         }
 
@@ -316,7 +316,7 @@ namespace BicUtil.Tween
 			return new Rect(0, 0, 0, 0);
         }
 
-		public bool OnClicked(Tween _tween, Event _event){
+		public bool OnClicked(Tween _tween, UnityEngine.Event _event){
             switch(_tween.Type){
             case TweenType.Spawn:
             case TweenType.Sequance:

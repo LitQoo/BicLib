@@ -214,7 +214,7 @@ namespace BicUtil.CustomTimeLine{
 			if (!GUI.enabled) {
 				return;
 			}
-			Event ev = UnityEngine.Event.current;
+			UnityEngine.Event ev = UnityEngine.Event.current;
 			switch (ev.rawType) {
 			case EventType.MouseDown:
 				if(new Rect(timelineOffset-5,37,10,drawRect.height).Contains(ev.mousePosition)){

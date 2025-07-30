@@ -14,7 +14,7 @@ namespace BicUtil.Tween
 			DrawHandleControl(_childs);
 		}
 
-		private bool onClickedNodeGroup(Tween _tween, Event _event){
+		private bool onClickedNodeGroup(Tween _tween, UnityEngine.Event _event){
 			if(onClickedNodeSingle(_tween, _event) == false){
 				var _childList = _tween.GetChildList();
 				for(int i = 0; i < _childList.Count; i++){
