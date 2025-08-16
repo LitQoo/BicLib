@@ -134,14 +134,7 @@ namespace BicUtil.SDKUtil
                         Status = Firebase.DependencyStatus.Available;
 
                         Application.logMessageReceived += log;
-                        if(TableService.IsSetup == true){
-                            Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
-                                {
-                                    "RealtimeSinceStartup",
-                                    (int)UnityEngine.Time.realtimeSinceStartup
-                                }
-                            });
-                        }
+                       
 
                         //await Task.Delay(3000);
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
@@ -156,7 +149,15 @@ namespace BicUtil.SDKUtil
                         FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
                         FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
                         FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());
-
+                        
+                        if(TableService.IsSetup == true){
+                            Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
+                                {
+                                    "RealtimeSinceStartup",
+                                    (int)UnityEngine.Time.realtimeSinceStartup
+                                }
+                            });
+                        }
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
                         BicUtil.Analytics.Analytics.LogException(_error);
@@ -334,7 +335,7 @@ namespace BicUtil.SDKUtil
                 await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
                 #else
 
-                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAndActivateAsync();
+                await FetchRemoteConfigWithRetryAsync();
                 
                 #endif
                 _errorLine++;
@@ -422,6 +423,42 @@ namespace BicUtil.SDKUtil
 
             //var _result = await _asyncTask; //Task.WhenAny(_asyncTask, _timeoutTask);
         }
+
+        static private async UniTask FetchRemoteConfigWithRetryAsync(int _maxRetries = 5, int _retryDelay = 1)
+        {
+               var remoteConfig = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance;
+
+               // 설정된 최대 횟수만큼 재시도를 시도합니다.
+               for (int attempt = 1; attempt <= _maxRetries; attempt++)
+               {
+                   try
+                   {
+                       // 데이터 가져오기 및 활성화 시도
+                       bool isCompleted = await remoteConfig.FetchAndActivateAsync().ContinueWith(task => task.IsCompleted);
+
+                       if (isCompleted)
+                       {
+                           return; 
+                       }
+                   }
+                   catch (Exception e)
+                   {
+                       // 에러가 발생하면 로그를 남깁니다.
+                       Debug.LogWarning($"Attempt {attempt} failed: {e.Message}");
+
+                       // 마지막 시도가 아니라면, 설정된 시간만큼 기다린 후 다음 시도를 진행합니다.
+                       if (attempt < _maxRetries)
+                       {
+                           Debug.Log($"Retrying in {_retryDelay} seconds...");
+                           await UniTask.Delay(TimeSpan.FromSeconds(_retryDelay));
+                           _retryDelay++;
+                       }
+                   }
+               }
+
+               // 모든 재시도가 실패한 경우 최종 에러 로그를 남깁니다.
+               Debug.LogError("❌ Failed to fetch Remote Config after all retries.");
+       }
 
         private static TestGroup tester = null;
         private static float testDelay = 0f; 
