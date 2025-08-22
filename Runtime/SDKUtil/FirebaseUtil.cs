@@ -282,6 +282,12 @@ namespace BicUtil.SDKUtil
                 // }
             }catch(System.Exception _e){
                 Debug.LogError("[Firebase] Error InitFirebaseAsync " + _e.Message);
+                BicUtil.Analytics.Analytics.Event("FirebaseInitException", new Dictionary<string, object> {
+                    {
+                        "isSetup",
+                        TableService.IsSetup
+                    }
+                });
                 BicUtil.Analytics.Analytics.LogException(_e);
                 return new BicDB.Result(3, "", 0, _e.Message);
             }
@@ -458,6 +464,12 @@ namespace BicUtil.SDKUtil
 
                // 모든 재시도가 실패한 경우 최종 에러 로그를 남깁니다.
                Debug.LogError("❌ Failed to fetch Remote Config after all retries.");
+               Analytics.Analytics.Event("FirebaseFetchRemoteConfigFail", new Dictionary<string, object> {
+                   {
+                       "RealtimeSinceStartup",
+                       (int)UnityEngine.Time.realtimeSinceStartup
+                   }
+               });
        }
 
         private static TestGroup tester = null;

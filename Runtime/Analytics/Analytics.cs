@@ -7,10 +7,21 @@ using System.Linq;
 
 namespace BicUtil.Analytics
 {
+    public delegate void EventParamSetter(ref Dictionary<string, object> _setter);
+
     public class Analytics : BicUtil.SingletonBase.SingletonBase<Analytics>
     {
         private List<IAnalyticsLib> libList = new List<IAnalyticsLib>();
         private bool isEnable = false;
+        private EventParamSetter eventParamSetter = null;
+
+        public void setDefaultEventParamSetter(EventParamSetter _eventParamSetter){
+            this.eventParamSetter = _eventParamSetter;
+        }
+
+        static public void SetDefaultEventParamSetter(EventParamSetter _eventParamSetter){
+            Instance.setDefaultEventParamSetter(_eventParamSetter);
+        }
 
         public override void Initialize()
         {
@@ -60,6 +71,14 @@ namespace BicUtil.Analytics
         }
 
         static public void Event(string _eventName, Dictionary<string, object> _eventData = null, int _count = 1){
+            if(_eventData == null && Instance.eventParamSetter != null){
+                _eventData = new Dictionary<string, object>();
+            }
+
+            if(Instance.eventParamSetter != null){
+                Instance.eventParamSetter(ref _eventData);
+            }
+            
             #if UNITY_EDITOR
                 if(_eventData == null){
                     Debug.Log("[Event] " + _eventName + "\n value : " + _count);
