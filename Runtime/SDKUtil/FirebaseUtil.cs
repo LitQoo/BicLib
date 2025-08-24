@@ -24,6 +24,9 @@ namespace BicUtil.SDKUtil
     public static class FirebaseUtil
     {
         #region FireBase
+        static private int maxRetries = 3;
+        static private int retryDelayMs = 1000;
+
         static public FirebaseUtilState State = FirebaseUtilState.Ready;
         static public Func<bool> ConfirmUpdateRemoteConfig = null;
         
@@ -114,6 +117,53 @@ namespace BicUtil.SDKUtil
                 #endif
             }
         }
+
+        static public void SetFirebaseInitRetries(int _maxRetries, int _retryDelayMs){
+            maxRetries = _maxRetries;
+            retryDelayMs = _retryDelayMs;
+        }
+
+        static private async UniTask<Firebase.DependencyStatus> checkAndFixDependenciesRetryAsync()
+        {
+            Firebase.DependencyStatus dependencyStatus = Firebase.DependencyStatus.UnavailableDisabled;
+
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    // 의존성 확인 및 해결
+                    dependencyStatus = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
+
+                    if (dependencyStatus == Firebase.DependencyStatus.Available)
+                    {
+                        Analytics.Analytics.Event("DoneCheckAndFixDependencies", new Dictionary<string, object> {
+                            {
+                                "RealtimeSinceStartup",
+                                (int)UnityEngine.Time.realtimeSinceStartup
+                            },
+                            {
+                                "retryCount",
+                                i
+                            }
+                        });
+
+                        return dependencyStatus;
+                    }
+                    else
+                    {
+                        Debug.LogError($"Could not resolve Firebase dependencies: {dependencyStatus}");
+                        await UniTask.Delay(retryDelayMs);
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Firebase initialization failed: {e.Message}");
+                    await UniTask.Delay(retryDelayMs);
+                }
+            }
+
+            return dependencyStatus;
+        }
         
         static public Firebase.DependencyStatus Status = Firebase.DependencyStatus.UnavilableMissing;
         static private async UniTask<Firebase.DependencyStatus> checkAndFixDependenciesAsync(IRecordContainer _constants){
@@ -123,7 +173,7 @@ namespace BicUtil.SDKUtil
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             Firebase.Crashlytics.Crashlytics.IsCrashlyticsCollectionEnabled = true;
 
-            var _fbInitTask = Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
+            var _fbInitTask = checkAndFixDependenciesRetryAsync();
             var _result = await _fbInitTask;
 
             await UniTask.SwitchToMainThread();
@@ -430,12 +480,12 @@ namespace BicUtil.SDKUtil
             //var _result = await _asyncTask; //Task.WhenAny(_asyncTask, _timeoutTask);
         }
 
-        static private async UniTask FetchRemoteConfigWithRetryAsync(int _maxRetries = 5, int _retryDelay = 1)
+        static private async UniTask FetchRemoteConfigWithRetryAsync()
         {
                var remoteConfig = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance;
 
                // 설정된 최대 횟수만큼 재시도를 시도합니다.
-               for (int attempt = 1; attempt <= _maxRetries; attempt++)
+               for (int attempt = 1; attempt <= maxRetries; attempt++)
                {
                    try
                    {
@@ -444,6 +494,16 @@ namespace BicUtil.SDKUtil
 
                        if (isCompleted)
                        {
+                            Analytics.Analytics.Event("DoneFetchAndActivateAsync", new Dictionary<string, object> {
+                                {
+                                    "RealtimeSinceStartup",
+                                    (int)UnityEngine.Time.realtimeSinceStartup
+                                },
+                                {
+                                    "Retry",
+                                    (attempt - 1)
+                                }
+                            });
                            return; 
                        }
                    }
@@ -453,11 +513,10 @@ namespace BicUtil.SDKUtil
                        Debug.LogWarning($"Attempt {attempt} failed: {e.Message}");
 
                        // 마지막 시도가 아니라면, 설정된 시간만큼 기다린 후 다음 시도를 진행합니다.
-                       if (attempt < _maxRetries)
+                       if (attempt < maxRetries)
                        {
-                           Debug.Log($"Retrying in {_retryDelay} seconds...");
-                           await UniTask.Delay(TimeSpan.FromSeconds(_retryDelay));
-                           _retryDelay++;
+                           Debug.Log($"Retrying in {retryDelayMs} ms...");
+                           await UniTask.Delay(retryDelayMs);
                        }
                    }
                }
