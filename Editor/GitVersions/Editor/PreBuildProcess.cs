@@ -33,7 +33,8 @@ namespace BicLib.GitVersions{
                     }else if(option == 0){
                         SouldCommit = true;
                         
-                        var name = EditorCommitDialog.Show( "Commit", _gitStatus, "update resource files auto");
+                        var name = "update resource files auto";
+                        //EditorCommitDialog.Show( "Commit", _gitStatus, 
                         if(string.IsNullOrEmpty(name) == true){
                           throw new BuildFailedException("Cancel build");
                         }

@@ -181,24 +181,21 @@ namespace BicUtil.SDKUtil
             // .ContinueWithOnMainThread(async _task=>{
                 if(_result == Firebase.DependencyStatus.Available){
                     try{
-                        Status = Firebase.DependencyStatus.Available;
-
-                        Application.logMessageReceived += log;
-                       
-
-                        //await Task.Delay(3000);
+                        try{FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());}catch{}
+                        try{FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());}catch{}
+                        try{
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
                         FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
-                        var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
+                        FirebaseAnalytics.SetCustomKey("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
+                        }catch{}
+                        try{var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
                         var _installDateString = _installDateHour.Substring(0, 6);
                         FirebaseAnalytics.SetCustomKey("SetupDateHour", _installDateHour);
                         FirebaseAnalytics.SetCustomKey("SetupDate", _installDateString);
-                        FirebaseAnalytics.SetCustomKey("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
-                        FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());
-                        FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);
-                        FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());
-                        FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());
-                        FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());
+                        }catch{}
+                        try{FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());}catch{}
+                        try{FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);}catch{}
+                        try{FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());}catch{}
                         
                         if(TableService.IsSetup == true){
                             Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
@@ -208,6 +205,10 @@ namespace BicUtil.SDKUtil
                                 }
                             });
                         }
+                    
+                        Status = Firebase.DependencyStatus.Available;
+                        Application.logMessageReceived += log;
+
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
                         BicUtil.Analytics.Analytics.LogException(_error);
