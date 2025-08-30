@@ -35,7 +35,7 @@ namespace BicUtil.Purchasing{
 				throw new SystemException("Not Load PurchasingManager");
 			}
 
-			if(googleTangle == null || appleTangle == null){
+			if(googleTangle == null && appleTangle == null){
 				throw new Exception("SETUP TANGLES");
 			}
 			
@@ -61,9 +61,20 @@ namespace BicUtil.Purchasing{
 
 		private byte[] googleTangle = null;
 		private byte[] appleTangle = null;
-		public void SetupTangle(byte[] _googleTangle, byte[] _appleTangle){
-			googleTangle = _googleTangle;
-			appleTangle = _appleTangle;
+		public void SetupTangle(Func<byte[]> _googleTangle, Func<byte[]> _appleTangle){
+			#if UNITY_EDITOR
+				googleTangle = new byte[1];
+				appleTangle = new byte[1];
+				return;
+			#endif
+
+			#if UNITY_ANDROID
+			googleTangle = _googleTangle();
+			#endif
+
+			#if UNITY_IOS
+			appleTangle = _appleTangle();
+			#endif
 		}
 
 		public override void Initialize() 
