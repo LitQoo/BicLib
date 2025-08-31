@@ -27,6 +27,7 @@ namespace BicUtil.Purchasing{
         void BuyProduct(PRODUCTTYPE _idType, Action<PurchasingResult> _callback);
         void RestorePurchases(Action<bool, string> _callback);
         void Save(Action<BicDB.Result> _callback = null, object _parameter = null);
+        void SetupTangle(Func<byte[]> _googleTangle, Func<byte[]> _appleTangle);
         TableLoadData GetTableLoadData();
     }
 }

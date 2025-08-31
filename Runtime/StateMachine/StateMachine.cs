@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace BicUtil.StateMachine{
 	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class SubscribeStateAttribute : System.Attribute
+	public sealed class SubscribeStateAttribute : System.Attribute
 	{
 		readonly string stateName;
 		

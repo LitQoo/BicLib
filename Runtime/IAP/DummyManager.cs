@@ -99,6 +99,11 @@ namespace BicUtil.Purchasing{
             this.productTable.SetStorage(FileStorage.GetInstance());
             return new TableLoadData(this.productTable, new FileStorageParameter("purchase"), null);
         }
+
+        public void SetupTangle(Func<byte[]> _googleTangle, Func<byte[]> _appleTangle)
+        {
+            
+        }
     }
 }
 #endif

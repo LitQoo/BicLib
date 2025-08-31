@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace BicUtil.EventNotifyer{
 	[System.AttributeUsage(System.AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-	sealed class SubscribeEventAttribute : System.Attribute
+	public sealed class SubscribeEventAttribute : System.Attribute
 	{
 		readonly string eventName;
 		
