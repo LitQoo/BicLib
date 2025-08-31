@@ -8,6 +8,7 @@ using BicUtil.Translate;
 using BicUtil.Tween;
 using UnityEngine;
 using UnityEngine.UI;
+using BicUtil.CSharpExtensions;
 
 namespace BicUtil.LocalAds{
     public class LocalAdsController : MonoBehaviour, IAdsPlatform

@@ -13,8 +13,7 @@ namespace UnityEngine{
 
 namespace BicUtil.CSharpExtensions
 {
-}
-    static class BicUtilExtensions
+    public static class BicUtilExtensions
     {
         private static System.Random rng = new System.Random();  
 
@@ -77,4 +76,4 @@ namespace BicUtil.CSharpExtensions
             return new Vector2(_corners[3].x - _corners[0].x, _corners[1].y - _corners[0].y);
         }
     }
-// }
+}
