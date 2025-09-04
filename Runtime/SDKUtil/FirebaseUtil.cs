@@ -103,7 +103,10 @@ namespace BicUtil.SDKUtil
                 lock(FirebaseAnalytics.LOCK_CHECK){
                     abTestName = _constants["ab_group"].AsVariable;
                 }
-                
+
+                var _ab_group = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.GetValue("ab_group");
+                FirebaseAnalytics.SetCustomKey("KeyState", _ab_group.Source.ToString());
+
                 if(!string.IsNullOrEmpty(abTestName.AsString)){
                     FirebaseAnalytics.SetCustomKey("ABGroup", abTestName.AsString);
                 }
@@ -491,7 +494,7 @@ namespace BicUtil.SDKUtil
                    try
                    {
                        // 데이터 가져오기 및 활성화 시도
-                       bool isCompleted = await remoteConfig.FetchAndActivateAsync().ContinueWith(task => task.IsCompleted);
+                       bool isCompleted = await remoteConfig.FetchAndActivateAsync();
 
                        if (isCompleted)
                        {

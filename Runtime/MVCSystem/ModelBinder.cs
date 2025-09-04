@@ -411,7 +411,7 @@ namespace BicUtil.MVCSystem
 
 			UnityAction<string> _func = _string=>{
 				try{
-					_variable.AsVector = new Vector2(float.Parse(_inputFieldX.text), float.Parse(_inputFieldY.text));
+					_variable.AsVector = new Vector2(float.Parse(_inputFieldX.text, CultureInfo.InvariantCulture.NumberFormat), float.Parse(_inputFieldY.text, CultureInfo.InvariantCulture.NumberFormat));
 				}catch{
 
 				}
