@@ -453,9 +453,7 @@ namespace BicUtil.SDKUtil
                 throw _exception;
             }
 
-            #if !UNITY_EDITOR
             sendActiveABTestEvent();
-            #endif
 
 
             // await _fetchedTask.ContinueWithOnMainThread(_resultTask=>{
