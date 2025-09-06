@@ -513,6 +513,21 @@ namespace BicUtil.SDKUtil
                    }
                    catch (Exception e)
                    {
+                        Analytics.Analytics.Event("FirebaseFetchRemoteConfigRetry", new Dictionary<string, object> {
+                            {
+                                "RealtimeSinceStartup",
+                                (int)UnityEngine.Time.realtimeSinceStartup
+                            },
+                            {
+                                "Message",
+                                e.Message
+                            },
+                            {
+                                "Exception",
+                                e.ToString()
+                            }
+                        });
+
                        // 에러가 발생하면 로그를 남깁니다.
                        Debug.LogWarning($"Attempt {attempt} failed: {e.Message}");
 
