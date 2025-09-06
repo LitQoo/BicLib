@@ -161,6 +161,7 @@ namespace BicUtil.SDKUtil
                 catch (System.Exception e)
                 {
                     Debug.LogError($"Firebase initialization failed: {e.Message}");
+                    Analytics.Analytics.LogException(e);
                     await UniTask.Delay(retryDelayMs);
                 }
             }
@@ -184,21 +185,21 @@ namespace BicUtil.SDKUtil
             // .ContinueWithOnMainThread(async _task=>{
                 if(_result == Firebase.DependencyStatus.Available){
                     try{
-                        try{FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());}catch{}
-                        try{FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());}catch{}
+                        try{FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
+                        try{FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         try{
                         var _installVersion = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_VERSION, Application.version);
                         FirebaseAnalytics.SetCustomKey("SetupVersion", _installVersion);
                         FirebaseAnalytics.SetCustomKey("SetupVersionNumber", GetVersionNumber(_installVersion).ToString());
-                        }catch{}
+                        }catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         try{var _installDateHour = TableService.GetStringProperty(TableService.PROP_FIELD_INSTALL_DATEHOUR, DateTime.Now.ToString("yyMMddHH"));
                         var _installDateString = _installDateHour.Substring(0, 6);
                         FirebaseAnalytics.SetCustomKey("SetupDateHour", _installDateHour);
                         FirebaseAnalytics.SetCustomKey("SetupDate", _installDateString);
-                        }catch{}
-                        try{FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());}catch{}
-                        try{FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);}catch{}
-                        try{FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());}catch{}
+                        }catch(Exception _e){Analytics.Analytics.LogException(_e);}
+                        try{FirebaseAnalytics.SetCustomKey("IsSetupNow", TableService.IsSetup.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
+                        try{FirebaseAnalytics.SetCustomKey("SetupDateLocal", TableService.InstallDateLocal);}catch(Exception _e){Analytics.Analytics.LogException(_e);}
+                        try{FirebaseAnalytics.SetCustomKey("DaysAfterSetup", TableService.DaysAfterInstall.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         
                         if(TableService.IsSetup == true){
                             Analytics.Analytics.Event("FirebaseInitOnInstall", new Dictionary<string, object> {
@@ -389,54 +390,48 @@ namespace BicUtil.SDKUtil
 
             
             _errorLine++;
+
+            #if UNITY_EDITOR
+            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
+            await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
+            #else
+
+            await FetchRemoteConfigWithRetryAsync();
+            
+            #endif
+
+            await UniTask.SwitchToMainThread();
+
             try{
-                #if UNITY_EDITOR
-                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.FetchAsync(_reloadTime);
-                await Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.ActivateAsync();
-                #else
+                var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
 
-                await FetchRemoteConfigWithRetryAsync();
-                
-                #endif
-                _errorLine++;
-            }catch(System.Exception _exception){
-                try{
-                    var info = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance.Info;
-                    
-                    if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
-                
-                        Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
+                if(info.LastFetchStatus != Firebase.RemoteConfig.LastFetchStatus.Success){
 
-                        BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
-                            {
-                                "LastFetchStatus",
-                                info.LastFetchStatus.ToString()
-                            },
-                            {
-                                "LastFetchFailureReason",
-                                info.LastFetchFailureReason.ToString()
-                            }
-                        });
+                    Debug.Log("FetchAsync fail" + info.LastFetchStatus + "/" + info.LastFetchFailureReason);
 
-                    }
-                }catch{
                     BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
                         {
                             "LastFetchStatus",
-                            "not connect"
+                            info.LastFetchStatus.ToString()
                         },
                         {
                             "LastFetchFailureReason",
-                            "not connect"
+                            info.LastFetchFailureReason.ToString()
                         }
                     });
                 }
-
-                Debug.LogError("[Firebase] remoteConfigAsync _fetchTask");
-                throw _exception;
+            }catch{
+                BicUtil.Analytics.Analytics.Event("FetchAsyncError", new Dictionary<string, object> {
+                    {
+                        "LastFetchStatus",
+                        "not connect"
+                    },
+                    {
+                        "LastFetchFailureReason",
+                        "not connect"
+                    }
+                });
             }
-
-            await UniTask.SwitchToMainThread();
 
             _errorLine++;
 
@@ -445,14 +440,16 @@ namespace BicUtil.SDKUtil
             }
             
             _errorLine++;
-            try{
-                updateConstant(_constants);
-            }catch(System.Exception _exception){
-                Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
-                throw _exception;
-            }
+                try{
+                    updateConstant(_constants);
+                }catch(System.Exception _exception){
+                    Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
+                    Analytics.Analytics.LogException(_exception);
+                    throw _exception;
+                }
             }catch(Firebase.FirebaseException _exception){
                 Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine + "/" + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
+                Analytics.Analytics.LogException(_exception);
                 throw _exception;
             }
 
@@ -528,6 +525,8 @@ namespace BicUtil.SDKUtil
                             }
                         });
 
+                        Analytics.Analytics.LogException(e);
+
                        // 에러가 발생하면 로그를 남깁니다.
                        Debug.LogWarning($"Attempt {attempt} failed: {e.Message}");
 
@@ -573,22 +572,28 @@ namespace BicUtil.SDKUtil
             #endif
         }
 
+        public static Func<string, bool> CheckReadyABTestInScene = null;
+
         private static void sendActiveABTestEvent()
         {
             var _eventName = "";
+            var _sceneName = SceneManager.GetActiveScene().name;
             if (TableService.IsSetup == true)
             {
+
                 _eventName = "InstallConstantOn";
-                BicUtil.Analytics.Analytics.Event("InstallConstant", new Dictionary<string, object> {
-                        {
-                            "Result",
-                            "Success"
-                        },
+                if(CheckReadyABTestInScene != null && CheckReadyABTestInScene(_sceneName) == true){
+                    BicUtil.Analytics.Analytics.Event("ReadyABTestForInstall", new Dictionary<string, object> {
                         {
                             "RealtimeSinceStartup",
                             (int)UnityEngine.Time.realtimeSinceStartup
+                        },
+                        {
+                            "SceneName",
+                            _sceneName
                         }
                     });
+                }
             }
             else
             {
