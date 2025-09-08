@@ -185,6 +185,7 @@ namespace BicUtil.SDKUtil
             // .ContinueWithOnMainThread(async _task=>{
                 if(_result == Firebase.DependencyStatus.Available){
                     try{
+                        try{FirebaseAnalytics.SetCustomKey("UserID", TableService.UserId.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         try{FirebaseAnalytics.SetCustomKey("Session", TableService.SessionCount.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         try{FirebaseAnalytics.SetCustomKey("Language", Application.systemLanguage.ToString());}catch(Exception _e){Analytics.Analytics.LogException(_e);}
                         try{
@@ -482,12 +483,13 @@ namespace BicUtil.SDKUtil
         static private async UniTask FetchRemoteConfigWithRetryAsync()
         {
                var remoteConfig = Firebase.RemoteConfig.FirebaseRemoteConfig.DefaultInstance;
-
+                
                // 설정된 최대 횟수만큼 재시도를 시도합니다.
                for (int attempt = 1; attempt <= maxRetries; attempt++)
                {
                    try
                    {
+                    
                        // 데이터 가져오기 및 활성화 시도
                        bool isCompleted = await remoteConfig.FetchAndActivateAsync();
 
