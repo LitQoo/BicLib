@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+#if UNITY_IOS
 using UnityEditor.iOS.Xcode;
 using System.IO;
+#endif
 
 namespace BicLib.BuildUtil{
     [InitializeOnLoad]
@@ -81,6 +83,7 @@ namespace BicLib.BuildUtil{
         }
     }
 
+    #if UNITY_IOS
     public class BuildUtiliOS
     {
         private string pbxProjectPath;
@@ -190,4 +193,5 @@ namespace BicLib.BuildUtil{
             }
         }
     }
+    #endif
 }

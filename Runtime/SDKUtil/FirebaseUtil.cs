@@ -17,9 +17,10 @@ namespace BicUtil.SDKUtil
     {
         Ready,
         Pending,
-        Complete,
-        CompleteWithTimeOver,
-        TimeOver,
+        Finish
+        // CompleteWithTimeOver,
+        // TimeOver,
+        // Fail
     }
     public static class FirebaseUtil
     {
@@ -156,6 +157,7 @@ namespace BicUtil.SDKUtil
                     {
                         Debug.LogError($"Could not resolve Firebase dependencies: {dependencyStatus}");
                         await UniTask.Delay(retryDelayMs);
+                        retryDelayMs += retryDelayMs / 2;
                     }
                 }
                 catch (System.Exception e)
@@ -270,11 +272,13 @@ namespace BicUtil.SDKUtil
                 }
             // });
 
-            if(State == FirebaseUtilState.TimeOver){
-                State = FirebaseUtilState.CompleteWithTimeOver;
-            }else{
-                State = FirebaseUtilState.Complete;
-            }
+            // if(State == FirebaseUtilState.TimeOver){
+            //     State = FirebaseUtilState.CompleteWithTimeOver;
+            // }else{
+            //     State = FirebaseUtilState.Complete;
+            // }
+
+            State = FirebaseUtilState.Finish;
 
             return _result;
         }
@@ -300,15 +304,15 @@ namespace BicUtil.SDKUtil
             }
         }
 
-        static private async UniTask<BicDB.Result> timeoutAsync(float _time){
-            await UniTask.WaitForSeconds(_time); 
-            if(State == FirebaseUtilState.Pending){
-                State = FirebaseUtilState.TimeOver;
-                BicUtil.Analytics.Analytics.Event("FirebaseInitTimeOver");
-            }
-            await UniTask.DelayFrame(2);
-            return new BicDB.Result(1);
-        }
+        // static private async UniTask<BicDB.Result> timeoutAsync(float _time){
+        //     await UniTask.WaitForSeconds(_time); 
+        //     if(State == FirebaseUtilState.Pending){
+        //         State = FirebaseUtilState.TimeOver;
+        //         BicUtil.Analytics.Analytics.Event("FirebaseInitTimeOver");
+        //     }
+        //     await UniTask.DelayFrame(2);
+        //     return new BicDB.Result(1);
+        // }
 
         static public async UniTask<BicDB.Result> InitFirebaseAsync(IRecordContainer _constants, float _timeout){
             try{
@@ -688,7 +692,7 @@ namespace BicUtil.SDKUtil
                     Application.logMessageReceived += log;
                 }
 
-                State = FirebaseUtilState.Complete;
+                State = FirebaseUtilState.Finish;
             });
         }
 
