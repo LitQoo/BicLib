@@ -44,10 +44,10 @@ namespace BicUtil.Ads
             BicTween.RunOnMainThread(()=>onLoadBannerAction(this));
         }
 
-        private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
-        {
-            BicTween.RunOnMainThread(reloadBanner);
-        }
+        // private void reloadBanner(object sender, AdFailedToLoadEventArgs e)
+        // {
+        //     BicTween.RunOnMainThread(reloadBanner);
+        // }
 
 
         private void reloadBanner(){
