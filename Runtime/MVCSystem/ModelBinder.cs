@@ -7,6 +7,7 @@ using BicDB;
 using BicDB.Container;
 using BicUtil.ListValueSelector;
 using UnityEngine.Events;
+using System.Globalization;
 
 namespace BicUtil.MVCSystem
 {
