@@ -832,6 +832,20 @@ namespace BicUtil.Tween
 			});
 		}
 
+
+		public static Tween ShakeLeftRight(GameObject _object, float _width, float _time, TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+
+			var _currentPosition = _object.transform.localPosition;
+			return BicTween.Delay(_time, _pool, _memberName, _sourceFilePath, _sourceLineNumber).SubscribeUpdate(_value=>{
+				_object.transform.localPosition = _currentPosition + new Vector3(UnityEngine.Random.Range(-_width/2f, _width/2f), 0);
+			}).SubscribeComplete(()=>{
+				_object.transform.localPosition = _currentPosition;
+			});
+		}
+
 		public static Tween Blink(GameObject _object, float _time, int _count, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
