@@ -13,7 +13,9 @@
         "UnityEditor.Purchasing",
         "UnityEngine.Purchasing.SecurityStub",
         "UnityEngine.Purchasing.Stores",
-        "Google.Play.Common"
+        "Google.Play.Common",
+        "spine-unity",
+        "spine-csharp"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

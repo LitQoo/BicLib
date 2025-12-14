@@ -946,22 +946,41 @@ namespace BicUtil.Tween
 
 		
 		#if BICUTIL_SPINE
-		public static Tween SpineAnimation(SkeletonAnimation _spine, string _animationName, TweenPool _pool = null,
+		public static Tween SpineAnimation(SkeletonAnimation _spine, string _animationName, bool _loop, TweenPool _pool = null,
 		[CallerMemberName] string _memberName = "",
 		[CallerFilePath] string _sourceFilePath = "",
 		[CallerLineNumber] int _sourceLineNumber = 0){
-			var _spineData = _spine.AnimationState.Data.skeletonData.FindAnimation(_animationName);
+			var _spineData = _spine.skeleton.Data.FindAnimation(_animationName);
 			float _time = _spineData.Duration;
 			
 			var _tween = CreateModel(_pool);
 			_tween.TargetObject = null;
-			_tween.Time = _time;
+			_tween.Time = _loop == true ? 0f : _time;
 			_tween.Data = _spine;
 			_tween.Type = TweenType.Delay;
-			_tween.UpdateFunc = (_updateData)=>{
-				_spine.AnimationState.SetAnimation(0, _spineData, false);
-				_tween.UpdateFunc = null;
-			};
+			_tween.SubscribeStart(()=>{
+				_spine.AnimationState.SetAnimation(0, _spineData, _loop);
+			});
+			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
+			return _tween;
+		}
+
+
+		public static Tween SpineAnimation(SkeletonGraphic _spine, string _animationName, bool _loop, TweenPool _pool = null,
+		[CallerMemberName] string _memberName = "",
+		[CallerFilePath] string _sourceFilePath = "",
+		[CallerLineNumber] int _sourceLineNumber = 0){
+			var _spineData = _spine.Skeleton.Data.FindAnimation(_animationName);
+			float _time = _spineData.Duration;
+
+			var _tween = CreateModel(_pool);
+			_tween.TargetObject = null;
+			_tween.Time = _loop == true ? 0f : _time;
+			_tween.Data = _spine;
+			_tween.Type = TweenType.Delay;
+			_tween.SubscribeStart(()=>{
+				_spine.AnimationState.SetAnimation(0, _spineData, _loop);
+			});
 			_tween.SetCaller(_memberName, _sourceFilePath, _sourceLineNumber);
 			return _tween;
 		}
