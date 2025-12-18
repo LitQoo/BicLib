@@ -307,6 +307,7 @@ namespace BicUtil.TableView
                 if (m_scrollDistance != value) {
                     m_scrollDistance = value;
                     m_requiresRefresh = true;
+                    m_requiresCallScrollChagned = true;
 
 					float relativeScroll = value / this.scrollableDistance;
 
@@ -316,6 +317,8 @@ namespace BicUtil.TableView
 						m_scrollRect.horizontalNormalizedPosition = relativeScroll;
 					}
                 }
+
+                
             }
         }
 
@@ -400,6 +403,7 @@ namespace BicUtil.TableView
 
         private float m_scrollDistance;
         private bool m_requiresRefresh;
+        private bool m_requiresCallScrollChagned = false;
 
 		private bool m_isVertical;
 		private float m_defaultRowHeight;
@@ -522,6 +526,11 @@ namespace BicUtil.TableView
             if (m_requiresReload) {
                 ReloadData();
             }
+            
+            if(m_requiresCallScrollChagned){
+                m_scrollRect.onValueChanged.Invoke(m_scrollRect.normalizedPosition);
+                m_requiresCallScrollChagned = false;
+            }
         }
 
         void LateUpdate() {
@@ -532,6 +541,7 @@ namespace BicUtil.TableView
 			if (centerPositionMagnet == true) {
 				checkEnableMagnet ();
 			}
+
         }
 
         void OnEnable() {
@@ -683,19 +693,18 @@ namespace BicUtil.TableView
             TableRow newRow = m_dataSource.GetCellForRowInTableView(_rowIndex);
             int _startDataIndex = DataSource.GetStartDataIndex(_rowIndex);
 
-            newRow.SetData(_startDataIndex, DataSource.GetCellData, DataSource);
-
             newRow.transform.SetParent(_parent, false);
 
+
 			if(m_isVertical) {
-				newRow.GetComponent<LayoutElement>().preferredHeight = m_rowSizes[_rowIndex];
+				newRow.LayoutElement.preferredHeight = m_rowSizes[_rowIndex];
 				if(_rowIndex > 0) {
-					newRow.GetComponent<LayoutElement>().preferredHeight -= m_LayoutGroup.spacing;
+					newRow.LayoutElement.preferredHeight -= m_LayoutGroup.spacing;
 				}
 			} else {
-				newRow.GetComponent<LayoutElement>().preferredWidth = m_rowSizes[_rowIndex];
+				newRow.LayoutElement.preferredWidth = m_rowSizes[_rowIndex];
 				if(_rowIndex > 0) {
-					newRow.GetComponent<LayoutElement>().preferredWidth -= m_LayoutGroup.spacing;
+					newRow.LayoutElement.preferredWidth -= m_LayoutGroup.spacing;
 				}
 			}
             
@@ -707,8 +716,9 @@ namespace BicUtil.TableView
                 newRow.transform.SetSiblingIndex(1); //One after the top padding
             }
 
-			this.onRowVisibilityChanged.Invoke(_rowIndex, true);
+            newRow.SetData(_startDataIndex, DataSource.GetCellData, DataSource);
 
+			this.onRowVisibilityChanged.Invoke(_rowIndex, true);
         }
 
         private void RefreshVisibleRows()

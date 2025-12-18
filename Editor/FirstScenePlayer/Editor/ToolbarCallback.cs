@@ -40,6 +40,12 @@ namespace UnityToolbarExtender
 		{
 			EditorApplication.update -= OnUpdate;
 			EditorApplication.update += OnUpdate;
+			EditorApplication.delayCall -= OnUpdate;
+			EditorApplication.delayCall += OnUpdate;
+			EditorApplication.playModeStateChanged += _ =>{
+				EditorApplication.delayCall -= OnUpdate;
+				EditorApplication.delayCall += OnUpdate;
+			};
 		}
 
 		static void OnUpdate()
