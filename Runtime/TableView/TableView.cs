@@ -7,6 +7,7 @@ using BicDB;
 using System;
 using BicUtil.Tween;
 using UnityEngine.Serialization;
+using System.Linq;
 
 namespace BicUtil.TableView
 {
@@ -229,13 +230,6 @@ namespace BicUtil.TableView
             }
             _string += "}";
             return _string;
-        }
-
-        /// <summary>
-        /// Get the range of the currently visible rows
-        /// </summary>
-        public UnityEngine.SocialPlatforms.Range visibleRowRange {
-            get { return m_visibleRowRange; }
         }
 
         public string defaultReusableRowId = "tableRow";
@@ -598,6 +592,30 @@ namespace BicUtil.TableView
             var _centerOffset = (_centerPosition - _distance) / 2f;
             var _scroll = this.GetScrollYForRow(_index, true) - _centerOffset;
             return _scroll;
+        }
+
+        public float GetScrollToVisibleRowCenter(int _rowIndex){
+            if(rectTransform == null){
+                rectTransform = this.GetComponent<RectTransform>();
+            }
+
+            var _tableSize = this.m_isVertical == true ? rectTransform.rect.height : rectTransform.rect.width;
+            
+            if(m_visibleRows.ContainsKey(_rowIndex) == false){
+                return -1;
+            }
+            
+            var _row = m_visibleRows[_rowIndex];
+            
+            if(_row == null){
+                return -1;
+            }
+
+            var _rowRecttrasform = _row.GetComponent<RectTransform>();
+            var _rowSize = this.m_isVertical == false ? _rowRecttrasform.rect.width : _rowRecttrasform.rect.height;
+            var _rowPosition = this.m_isVertical == false ? _rowRecttrasform.anchoredPosition.x : _rowRecttrasform.anchoredPosition.y;
+            var _scrollDistance = Mathf.Clamp(_rowPosition - _tableSize /2f, 0, this.scrollableDistance);
+            return _scrollDistance;
         }
 
 		public void MagnetControl(){
