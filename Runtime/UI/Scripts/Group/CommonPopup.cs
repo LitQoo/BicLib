@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.ComponentModel;
 
 namespace BicUtil.UI{
     public class CommonPopup : MonoBehaviour
@@ -41,6 +42,10 @@ namespace BicUtil.UI{
         [SerializeField]
         private UnityEngine.UI.Image rightButtonIcon;
         [SerializeField]
+        private GameObject buttonLayer;
+        [SerializeField]
+        private GameObject bottomButtonLayer;
+        [SerializeField]
         private GameObject popup;
 
         private RectTransform backTrasform = null;
@@ -65,6 +70,15 @@ namespace BicUtil.UI{
         #endregion
 
         #region Logic
+        public static CommonPopup Instance = null;
+        public void SetupSingleton(){
+            Instance = this;
+        }
+
+        public void OnDestroy(){
+            Instance = null;
+        }
+
         public void OnClickDimmed(){
             if(onClickDimmed != null){
                 onClickDimmed();
@@ -115,6 +129,14 @@ namespace BicUtil.UI{
             rightButtonIcon.gameObject.SetActive(false);
             rightButtonText.gameObject.SetActive(false);
             leftButtonIcon.gameObject.SetActive(false);
+            buttonLayer?.gameObject.SetActive(false);
+            bottomButtonLayer?.gameObject.SetActive(false);
+            
+
+            if(bottomButtonLayer != null){
+                bottomButtonLayer.gameObject.SetActive(false);
+            }
+            
             if(popup != null){
                 popup.SetActive(true);
             }
@@ -134,6 +156,7 @@ namespace BicUtil.UI{
             mainMessageText.gameObject.SetActive(true);
             leftButton.gameObject.SetActive(true);
             leftButtonText.gameObject.SetActive(true);
+            buttonLayer?.gameObject.SetActive(true);
             leftButtonText.text = _buttonText;
             mainMessageText.text = _text;
             onClickLeftButton = _onClickLeftButton;
@@ -149,6 +172,7 @@ namespace BicUtil.UI{
             diableAllUI();
             mainMessageText.gameObject.SetActive(true);
             leftButton.gameObject.SetActive(true);
+            buttonLayer?.gameObject.SetActive(true);
             leftButtonIcon.gameObject.SetActive(true);
             leftButtonIcon.sprite = _buttonIcon;
             mainMessageText.text = _text;
@@ -176,6 +200,7 @@ namespace BicUtil.UI{
             rightButton.gameObject.SetActive(true);
             leftButtonText.gameObject.SetActive(true);
             rightButtonText.gameObject.SetActive(true);
+            buttonLayer?.gameObject.SetActive(true);
             mainMessageText.text = _text;
             leftButtonText.text = _leftButtonText;
             rightButtonText.text = _rightButtonText;
@@ -191,6 +216,7 @@ namespace BicUtil.UI{
             closeButton.gameObject.SetActive(_onClickClose != null);
             inputField.gameObject.SetActive(true);
             leftButtonText.gameObject.SetActive(true);
+            buttonLayer?.gameObject.SetActive(true);
             mainMessageText.text = _text;
             leftButtonText.text = _buttonText;
             onClickLeftButton = _onClickLeftButton;
@@ -212,6 +238,8 @@ namespace BicUtil.UI{
 
         public void SetBottomButton(string _text, Action _callback){
             this.bottomButton.gameObject.SetActive(true);
+            this.bottomButtonLayer?.gameObject.SetActive(true);
+            this.buttonLayer?.gameObject.SetActive(true);
             this.bottomButtonText.text = _text;
             this.onClickBottomButton = _callback;
         }
