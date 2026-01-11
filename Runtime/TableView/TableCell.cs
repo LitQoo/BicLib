@@ -32,6 +32,8 @@ namespace BicUtil.TableView
 
 				model = value;
 				if(model != null){
+					initBind();
+
 					model.OnChangedValueActions += callToSetDataFunction;
 					model.NotifyChanged();
 				}
@@ -55,26 +57,40 @@ namespace BicUtil.TableView
 
 		[HideInInspector]
 		public int CellIndex = -1;
+
+		private ITableCellWithBinder cachedBinder = null;
 		#endregion
 
 		#region LifeCycle
-		public void Awake(){
-			if(SetDataFunction.GetPersistentEventCount() <= 0){
-				var _cell = GetComponent<ITableCellWithBinder>();
-				if(_cell != null){
-					SetDataFunction.AddListener(_cell.Bind);
-					OnRemoveFunction.AddListener(_cell.Unbind);
-				}
-			}
+		public void Awake()
+        {
+            initBind();
 
-			#region UNITY_EDITOR
-			if(RectTransform == null){
-				Debug.LogError("[TableView] Set Recttrasform in TableCell");
-			}
-			#endregion
-		}
+            #region UNITY_EDITOR
+            if (RectTransform == null)
+            {
+                Debug.LogError("[TableView] Set Recttrasform in TableCell");
+            }
+            #endregion
+        }
 
-		public void OnDestory(){
+        private void initBind()
+        {
+            if (cachedBinder == null && SetDataFunction.GetPersistentEventCount() <= 0)
+            {
+                cachedBinder = GetComponent<ITableCellWithBinder>();
+                if (cachedBinder != null)
+                {
+					SetDataFunction.RemoveListener(cachedBinder.Bind);
+					OnRemoveFunction.RemoveListener(cachedBinder.Unbind);
+
+                    SetDataFunction.AddListener(cachedBinder.Bind);
+                    OnRemoveFunction.AddListener(cachedBinder.Unbind);
+                }
+            }
+        }
+
+        public void OnDestroy(){
 			removeBindCell();
 		}
 

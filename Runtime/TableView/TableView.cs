@@ -86,19 +86,18 @@ namespace BicUtil.TableView
 			if (_row == null) {
                 if(string.IsNullOrEmpty(_reuseIdentifier) == false)
                 {
-                    _row = (TableRow)GameObject.Instantiate(getTableRowForCopy(_reuseIdentifier));
+                    _row = (TableRow)GameObject.Instantiate(getTableRowForCopy(_reuseIdentifier), m_scrollRect.content);
                 }
                 else
                 {
-                    _row = (TableRow)GameObject.Instantiate(tableRowDefault);
+                    _row = (TableRow)GameObject.Instantiate(tableRowDefault, m_scrollRect.content);
                 }
 
                 if(_row == null){
                     throw new SystemException("[TableView] NotFound TableRow " + _reuseIdentifier);
                 }
 
-                _row.transform.SetParent(m_scrollRect.content); 
-				_row.BindOnClickedEvent(onClickedCellActions);
+                _row.BindOnClickedEvent(onClickedCellActions);
 				_row.name = "RowInstance";
 				_row.gameObject.SetActive(true);
 			}
@@ -115,7 +114,7 @@ namespace BicUtil.TableView
                     return tableRows[i];
                 }
             }
-
+            
             return null;
         }
 
