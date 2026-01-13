@@ -255,10 +255,6 @@ namespace BicUtil.Ads{
             object __adsType = _adsType;
             isSuccessRewarded = false;
 
-            _rewardedAd.OnAdImpressionRecorded += ()=>{
-                isSuccessRewarded = true;
-            };
-
             _rewardedAd.OnAdFullScreenContentClosed += ()=>{
                 _rewardedAd.Destroy();
                 rewardedAdLoader[_adsId] = null;
@@ -288,6 +284,7 @@ namespace BicUtil.Ads{
             };
 
             _rewardedAd.Show(_reward=>{
+                isSuccessRewarded = true;
             });
         }
 
