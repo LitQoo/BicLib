@@ -76,7 +76,9 @@ namespace BicUtil.UI{
         }
 
         public void OnDestroy(){
-            Instance = null;
+            if(Instance == this){
+                Instance = null;
+            }
         }
 
         public void OnClickDimmed(){
