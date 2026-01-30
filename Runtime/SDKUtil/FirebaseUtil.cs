@@ -27,6 +27,7 @@ namespace BicUtil.SDKUtil
         #region FireBase
         static private int maxRetries = 3;
         static private int retryDelayMs = 1000;
+        static private int remoteConfigCacheHour = 12;
 
         static public FirebaseUtilState State = FirebaseUtilState.Ready;
         static public Func<bool> ConfirmUpdateRemoteConfig = null;
@@ -353,6 +354,10 @@ namespace BicUtil.SDKUtil
             }
         }
 
+        static public void SetRemoteConfigCacheExpirationHour(int _hour){
+            remoteConfigCacheHour = _hour;
+        }
+
         static private async UniTask remoteConfigAsync(IRecordContainer _constants){
             var _errorLine = 0;
             try{
@@ -382,8 +387,8 @@ namespace BicUtil.SDKUtil
 
 
             _errorLine++;
-            var _reloadTime = TimeSpan.FromHours(12);
-            if (TableService.IsUpdate == true)
+            var _reloadTime = TimeSpan.FromHours(remoteConfigCacheHour);
+            if (TableService.IsUpdate == true || remoteConfigCacheHour == 0)
             {
                 _reloadTime = TimeSpan.Zero;
             }
