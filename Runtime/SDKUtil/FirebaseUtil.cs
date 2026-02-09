@@ -63,7 +63,7 @@ namespace BicUtil.SDKUtil
                             _default.Add(_value.Key, _value.Value.AsVariable.AsString); 
                         }catch(System.Exception _e){
                             Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
-                            BicUtil.Analytics.Analytics.LogException(_e);
+                            // BicUtil.Analytics.Analytics.LogException(_e);
                         }
                     break;
                 }
@@ -94,7 +94,7 @@ namespace BicUtil.SDKUtil
                         DebugForEditor.Log(_value.Key + " : " + _stringValue);
                     }catch(System.Exception _e){
                         Debug.LogError("[Firebase] remote config updateConstant error " + _value.Key);
-                        BicUtil.Analytics.Analytics.LogException(_e);
+                        // BicUtil.Analytics.Analytics.LogException(_e);
                     }
                 }
             }
@@ -164,7 +164,7 @@ namespace BicUtil.SDKUtil
                 catch (System.Exception e)
                 {
                     Debug.LogError($"Firebase initialization failed: {e.Message}");
-                    Analytics.Analytics.LogException(e);
+                    // Analytics.Analytics.LogException(e);
                     await UniTask.Delay(retryDelayMs);
                 }
             }
@@ -219,7 +219,7 @@ namespace BicUtil.SDKUtil
 
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException property " + _error.ToString() + "/////" + _error.StackTrace);
-                        BicUtil.Analytics.Analytics.LogException(_error);
+                        // BicUtil.Analytics.Analytics.LogException(_error);
                     }
 
                     try{
@@ -243,7 +243,7 @@ namespace BicUtil.SDKUtil
                             }
                         }
 
-                        BicUtil.Analytics.Analytics.LogException(_ae);
+                        //BicUtil.Analytics.Analytics.LogException(_ae);
 
                     }catch(System.Exception _error){
                         Debug.LogError("[Firebase] InitializationException remoteConfigAsync " + _error.ToString() + "/" + _error.Message);
@@ -254,12 +254,12 @@ namespace BicUtil.SDKUtil
                             }
                         }
 
-                        BicUtil.Analytics.Analytics.LogException(_error);
+                        // BicUtil.Analytics.Analytics.LogException(_error);
                     }
                 }else{
                     var _exception = new Exception("Firebase Not Available " + _result.ToString() + " isSetup = " + TableService.IsSetup.ToString());
                     _exception.Source = _result.ToString();
-                    BicUtil.Analytics.Analytics.LogException(_exception);
+                    // BicUtil.Analytics.Analytics.LogException(_exception);
                     BicUtil.Analytics.Analytics.Event("FirebaseNotAvailable", new Dictionary<string, object> {
                         {
                             "isSetup",
@@ -349,7 +349,7 @@ namespace BicUtil.SDKUtil
                         TableService.IsSetup
                     }
                 });
-                BicUtil.Analytics.Analytics.LogException(_e);
+                //BicUtil.Analytics.Analytics.LogException(_e);
                 return new BicDB.Result(3, "", 0, _e.Message);
             }
         }
@@ -454,12 +454,12 @@ namespace BicUtil.SDKUtil
                     updateConstant(_constants);
                 }catch(System.Exception _exception){
                     Debug.LogError("[Firebase] remoteConfigAsync updateConstant");
-                    Analytics.Analytics.LogException(_exception);
+                    // Analytics.Analytics.LogException(_exception);
                     throw _exception;
                 }
             }catch(Firebase.FirebaseException _exception){
                 Debug.LogError("Firebase remoteConfigAsync exception " + _exception.ErrorCode + "/" + _exception.Message + "/" + _errorLine + "/" + (_exception.InnerException != null ? _exception.InnerException.ToString() : ""));
-                Analytics.Analytics.LogException(_exception);
+                // Analytics.Analytics.LogException(_exception);
                 throw _exception;
             }
 
@@ -534,7 +534,7 @@ namespace BicUtil.SDKUtil
                             }
                         });
 
-                        Analytics.Analytics.LogException(e);
+                        // Analytics.Analytics.LogException(e);
 
                        // 에러가 발생하면 로그를 남깁니다.
                        Debug.LogWarning($"Attempt {attempt} failed: {e.Message}");
@@ -626,7 +626,7 @@ namespace BicUtil.SDKUtil
             catch (Exception _e)
             {
                 Debug.LogError("send InitRemoteConfigOn" + SceneManager.GetActiveScene().name + " error");
-                BicUtil.Analytics.Analytics.LogException(_e);
+                // BicUtil.Analytics.Analytics.LogException(_e);
             }
         }
 
