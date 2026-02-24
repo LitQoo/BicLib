@@ -134,6 +134,11 @@ namespace BicUtil.Ads
         }
 
         private bool isPossiblePlayAds(object _adsPlacement){
+            if(adsData.ContainsKey(_adsPlacement) == false){
+                Debug.LogError($"{_adsPlacement.ToString()} not found");
+                return false;
+            }
+
             if(getTimestamp() - adsData[_adsPlacement].LastPlayedAdsTime > adsData[_adsPlacement].TimeInterval.AsInt){
                 return true;
             }else{
