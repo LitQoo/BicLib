@@ -28,7 +28,9 @@ namespace BicUtil.Purchasing{
 		public SubscriptionInfo SubscriptionInfo = null;
 		private EnumVariable<SubscriptionStateType> subscriptionState = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
 		public EnumVariable<SubscriptionStateType> SubscriptionState{get{return subscriptionState;}}
-		public PRODUCTTYPE SubscriptionActiveID {get;set;}
+		public List<PRODUCTTYPE> SubscriptionActiveIDs {get;set;} = new List<PRODUCTTYPE>();
+		public List<PRODUCTTYPE> SubscriptionPerhapsIDs {get;set;} = new List<PRODUCTTYPE>();
+
 		private bool isLoad = false;
 		public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariableReadOnly> _valueChangedCallback){
 			if(isLoad == false){
@@ -267,7 +269,7 @@ namespace BicUtil.Purchasing{
 					if(_model.ProductType.AsEnum == ProductType.Subscription){
 					#if UNITY_EDITOR
 						if(_model.PurchaseCount.AsInt > 0){
-                            this.SubscriptionActiveID = _model.IdType.AsEnum;
+                            this.SubscriptionActiveIDs.Add(_model.IdType.AsEnum);
 							this.SubscriptionState.AsEnum = Purchasing.SubscriptionStateType.Active;
 						}
 					#else
@@ -362,7 +364,7 @@ namespace BicUtil.Purchasing{
             }else if(_productInfo.ProductType.AsEnum == ProductType.Subscription){
 				// Debug.Log("[pixaw] _productInfo.PurchaseCount.AsInt = 1");
 				_productInfo.PurchaseCount.AsInt = 1;
-				this.SubscriptionActiveID = _productInfo.IdType.AsEnum;
+				this.SubscriptionActiveIDs.Add(_productInfo.IdType.AsEnum);
                 this.SubscriptionState.AsEnum = Purchasing.SubscriptionStateType.Active;
 			}
 
@@ -532,7 +534,7 @@ namespace BicUtil.Purchasing{
 				// Debug.Log("[pixaw] product type = " + _product.ProductType.AsString);
 				// Debug.Log("[pixaw] product purchasingCount = " + _product.PurchaseCount.AsString);
 				if(_product.ProductType.AsEnum == ProductType.Subscription && _product.PurchaseCount.AsInt > 0){
-					this.SubscriptionActiveID = _product.IdType.AsEnum;
+					this.SubscriptionPerhapsIDs.Add(_product.IdType.AsEnum);
 					this.subscriptionState.AsEnum = Purchasing.SubscriptionStateType.Perhaps;
 					// Debug.Log("[pixaw] subscriptionState is perhaps");
 				}
