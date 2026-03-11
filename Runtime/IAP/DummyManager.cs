@@ -1,5 +1,6 @@
 #if BICUTIL_IAP
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using BicDB;
 using BicDB.Container;
@@ -25,7 +26,10 @@ namespace BicUtil.Purchasing{
         private EnumVariable<SubscriptionStateType> isSubscribed = new EnumVariable<SubscriptionStateType>(Purchasing.SubscriptionStateType.Inactive);
         public EnumVariable<SubscriptionStateType> SubscriptionState{get{return isSubscribed;}}
         public TableContainer<ProductModel<PRODUCTTYPE>> productTable = new TableContainer<ProductModel<PRODUCTTYPE>>("Puma");
-        public PRODUCTTYPE SubscriptionActiveID {get;set;}
+        
+        public List<PRODUCTTYPE> SubscriptionActiveIDs {get;set;} = new List<PRODUCTTYPE>();
+        public List<PRODUCTTYPE> SubscriptionPerhapsIDs {get;set;} = new List<PRODUCTTYPE>();
+        
         public bool isLoadedProductTable = false;
         public void AddProduct(PRODUCTTYPE _idType, string _id, ProductType _productType, int _amount, string _defaultCurrentCode, string _defaultPriceString, float _defaultPrice, string _title, Action<IVariableReadOnly> _valueChangedCallback)
         {
