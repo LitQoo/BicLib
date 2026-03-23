@@ -294,7 +294,7 @@ namespace BicUtil.Purchasing{
 							}else if(_subscriptionInfo.isSubscribed() == UnityEngine.Purchasing.Result.True && _subscriptionInfo.isExpired() == UnityEngine.Purchasing.Result.False){
 								_model.PurchaseCount.AsInt = 1;
 								SubscriptionInfo = _subscriptionInfo;
-								this.SubscriptionActiveID = _model.IdType.AsEnum;
+								this.SubscriptionActiveIDs.Add(_model.IdType.AsEnum);
 								this.SubscriptionState.AsEnum = SubscriptionStateType.Active;
 								// Debug.Log("[pixaw] purchasing count = 1 Active");
 							}else{
