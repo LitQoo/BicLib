@@ -570,16 +570,19 @@ namespace BicUtil.Purchasing
             Order order,
             ProductModel<PRODUCTTYPE> model)
         {
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
             if (model.PurchaseCount.AsInt > 0)
             {
                 AddSubscriptionActiveId(model.IdType.AsEnum);
                 SubscriptionState.AsEnum = SubscriptionStateType.Active;
             }
-#else
+        #else
             try
             {
-                var info = order?.Info?.PurchasedProductInfo?.subscriptionInfo;
+                var info = order?.Info?.PurchasedProductInfo?
+                    .Select(purchasedProduct => purchasedProduct.subscriptionInfo)
+                    .FirstOrDefault(subscription => subscription != null);
+
                 if (info == null)
                 {
                     Debug.LogWarning(
@@ -594,8 +597,6 @@ namespace BicUtil.Purchasing
                 var isSubscribed = info.IsSubscribed();
                 var isExpired = info.IsExpired();
 
-                // Unsupported is not treated as active. Apple auto-renewable and
-                // Google Play subscriptions return True/False for these methods.
                 if (isSubscribed == UnityEngine.Purchasing.Result.True &&
                     isExpired == UnityEngine.Purchasing.Result.False)
                 {
@@ -619,7 +620,7 @@ namespace BicUtil.Purchasing
                 model.PurchaseCount.AsInt = 0;
                 SubscriptionActiveIDs.Remove(model.IdType.AsEnum);
             }
-#endif
+        #endif
         }
 
         private void AddSubscriptionActiveId(PRODUCTTYPE id)
