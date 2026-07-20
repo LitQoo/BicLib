@@ -372,7 +372,6 @@ namespace BicUtil.Purchasing
 
         private void RestoreConfirmedOrder(ConfirmedOrder order)
         {
-            var receipt = order.Info?.Receipt;
             foreach (var cartItem in order.CartOrdered.Items())
             {
                 var product = cartItem.Product;
@@ -386,7 +385,7 @@ namespace BicUtil.Purchasing
                 }
                 else if (model.ProductType.AsEnum == ProductType.Subscription)
                 {
-                    ApplySubscriptionState(product, receipt, model);
+                    ApplySubscriptionState(order, model);
                 }
             }
         }
@@ -404,9 +403,23 @@ namespace BicUtil.Purchasing
 
                 var validationResult = checkRecipt(product.definition.id, receipt);
                 if (validationResult == PurchasingResult.Complete)
+                {
                     completePurchase(product.definition.id);
+
+                    // Unity IAP 5 provides subscription status directly on the order.
+                    // Apply the authoritative store subscription state after preserving
+                    // the wrapper's existing purchase-completion behavior.
+                    var model = getProduct(product.definition.id);
+                    if (model != null &&
+                        model.ProductType.AsEnum == ProductType.Subscription)
+                    {
+                        ApplySubscriptionState(order, model);
+                    }
+                }
                 else if (validationResult == PurchasingResult.Refunded)
+                {
                     completeRefund(product.definition.id);
+                }
 
                 if (validationResult != PurchasingResult.Complete)
                     result = validationResult;
@@ -548,9 +561,13 @@ namespace BicUtil.Purchasing
 #endif
         }
 
+        /// <summary>
+        /// Applies subscription state using Unity IAP 5's order-provided SubscriptionInfo.
+        /// SubscriptionManager was part of the legacy IAP flow and is not available in
+        /// the IAP 5 player runtime assemblies.
+        /// </summary>
         private void ApplySubscriptionState(
-            Product product,
-            string receipt,
+            Order order,
             ProductModel<PRODUCTTYPE> model)
         {
 #if UNITY_EDITOR
@@ -562,15 +579,25 @@ namespace BicUtil.Purchasing
 #else
             try
             {
-                if (string.IsNullOrEmpty(receipt))
-                    throw new InvalidOperationException("Subscription receipt is empty.");
+                var info = order?.Info?.PurchasedProductInfo?.subscriptionInfo;
+                if (info == null)
+                {
+                    Debug.LogWarning(
+                        "IAP subscription information is missing from the order: " +
+                        model.Id.AsString);
 
-                // This overload works with the v5 Order.Info.Receipt instead of Product.receipt.
-                var manager = new SubscriptionManager(receipt, product.definition.id, null);
-                var info = manager.GetSubscriptionInfo();
+                    model.PurchaseCount.AsInt = 0;
+                    SubscriptionActiveIDs.Remove(model.IdType.AsEnum);
+                    return;
+                }
 
-                if (info.IsSubscribed() == UnityEngine.Purchasing.Result.True &&
-                    info.IsExpired() == UnityEngine.Purchasing.Result.False)
+                var isSubscribed = info.IsSubscribed();
+                var isExpired = info.IsExpired();
+
+                // Unsupported is not treated as active. Apple auto-renewable and
+                // Google Play subscriptions return True/False for these methods.
+                if (isSubscribed == UnityEngine.Purchasing.Result.True &&
+                    isExpired == UnityEngine.Purchasing.Result.False)
                 {
                     model.PurchaseCount.AsInt = 1;
                     SubscriptionInfo = info;
@@ -580,12 +607,17 @@ namespace BicUtil.Purchasing
                 else
                 {
                     model.PurchaseCount.AsInt = 0;
+                    SubscriptionActiveIDs.Remove(model.IdType.AsEnum);
                 }
             }
             catch (Exception exception)
             {
-                Debug.LogWarning("IAP subscription parsing failed: " + exception.Message);
+                Debug.LogWarning(
+                    "IAP subscription state check failed for " +
+                    model.Id.AsString + ": " + exception.Message);
+
                 model.PurchaseCount.AsInt = 0;
+                SubscriptionActiveIDs.Remove(model.IdType.AsEnum);
             }
 #endif
         }
