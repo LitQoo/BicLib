@@ -15,7 +15,10 @@
         "UnityEngine.Purchasing.Stores",
         "Google.Play.Common",
         "spine-unity",
-        "spine-csharp"
+        "spine-csharp",
+        "Unity.Purchasing",
+        "Unity.Purchasing.Security",
+        "Unity.Purchasing.SecurityCore"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
