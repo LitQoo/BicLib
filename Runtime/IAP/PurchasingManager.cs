@@ -21,6 +21,11 @@ namespace BicUtil.Purchasing
         public static Action<Action<bool, string>> RestorePurchases = null;
 
         public static string File = "Puma";
+
+        public static string ErrorMessage = "";
+        public static void AddError(string _error){
+            ErrorMessage += "\n" + _error;
+        }
     }
 
     /// <summary>
@@ -66,11 +71,15 @@ namespace BicUtil.Purchasing
             string _title,
             Action<IVariableReadOnly> _valueChangedCallback)
         {
-            if (!isLoad)
+            if (!isLoad){
+                PurchasingService.AddError("table not load");
                 throw new SystemException("Not Load PurchasingManager");
+            }
 
-            if (googleTangle == null && appleTangle == null)
+            if (googleTangle == null && appleTangle == null){
+                PurchasingService.AddError("Tangle is null");
                 throw new Exception("SETUP TANGLES");
+            }
 
             var product = GetProduct(_idType);
             if (product == null)
@@ -114,8 +123,10 @@ namespace BicUtil.Purchasing
             PurchasingService.BuyProduct = BuyProductByStringId;
             PurchasingService.RestorePurchases = RestorePurchases;
 
-            if (productTable.Count == 0 || IsInitialized() || initializationStarted)
+            if (productTable.Count == 0 || IsInitialized() || initializationStarted){
+                PurchasingService.AddError("Initialize Error " + (productTable.Count == 0 ? "productCount = 0" : "") + (IsInitialized() == true ? "already init" : "") + (initializationStarted == true ? "initializationStarted true" : ""));
                 return;
+            }
 
             initializationStarted = true;
             InitializeIAPAsync();
@@ -145,6 +156,7 @@ namespace BicUtil.Purchasing
             {
                 initializationStarted = false;
                 isConnected = false;
+                PurchasingService.AddError("InitializeIAPAsync error : " + exception.Message);
                 Debug.LogError("IAP Init Exception " + exception);
                 LogInitFailure("Exception", exception.Message);
             }
@@ -220,6 +232,7 @@ namespace BicUtil.Purchasing
             {
                 if (!IsInitialized())
                 {
+                    PurchasingService.AddError("BuyProduct Error " + (storeController == null ? "storeController is null" : "storeController ok") + (isConnected == true ? "isConnected true" : "isConnected false") + (isProductsFetched == true ? "isProductsFetched true" : "isProductsFetched false"));
                     CompleteBuyCallback(PurchasingResult.NotInitialized);
                     return;
                 }
@@ -309,6 +322,7 @@ namespace BicUtil.Purchasing
             var message = failure?.ToString() ?? "Unknown store connection failure";
             Debug.LogError("IAP Store disconnected: " + message);
             LogInitFailure("StoreDisconnected", message);
+            PurchasingService.AddError("StoreDisconnected : " + message);
         }
 
         private void OnProductsFetched(List<Product> products)
@@ -324,9 +338,44 @@ namespace BicUtil.Purchasing
 
         private void OnProductsFetchFailed(ProductFetchFailed failure)
         {
+
+            var message = failure?.ToString() ?? "Unknown product fetch failure";
+            
+            var fetchedProducts = storeController.GetProducts();
+
+            var fetchedIds = new HashSet<string>(
+                fetchedProducts.Select(product => product.definition.id)
+            );
+
+            var requestedIds = productTable
+                .Select(model => model.Id.AsString)
+                .ToList();
+
+            var missingIds = requestedIds
+                .Where(id => !fetchedIds.Contains(id))
+                .ToList();
+
+            PurchasingService.AddError(
+                "IAP products partially failed.\n" +
+                "Reason: " + failure + "\n" +
+                "Fetched: " + string.Join(", ", fetchedIds) + "\n" +
+                "Missing: " + string.Join(", ", missingIds)
+            );
+
+            // 일부 상품이 성공한 경우 전체 초기화를 실패로 만들지 않는다.
+            if (fetchedProducts.Count > 0)
+            {
+                isProductsFetched = true;
+                initializationStarted = false;
+
+                UpdateProductMetadata(fetchedProducts);
+                storeController.FetchPurchases();
+                return;
+            }
+
+            // 모든 상품 조회가 실패한 경우
             isProductsFetched = false;
             initializationStarted = false;
-            var message = failure?.ToString() ?? "Unknown product fetch failure";
             Debug.LogError("IAP product fetch failed: " + message);
             LogInitFailure("ProductsFetchFailed", message);
         }
@@ -368,6 +417,7 @@ namespace BicUtil.Purchasing
             var message = failure?.ToString() ?? "Unknown purchases fetch failure";
             Debug.LogError("IAP purchases fetch failed: " + message);
             LogInitFailure("PurchasesFetchFailed", message);
+            PurchasingService.AddError("PurchasesFetchFailed : " + message);
         }
 
         private void RestoreConfirmedOrder(ConfirmedOrder order)
@@ -446,6 +496,7 @@ namespace BicUtil.Purchasing
             });
 
             Debug.LogError("OnPurchaseFailed: " + message);
+            PurchasingService.AddError("OnPurchaseFailed : " + message);
 
             if (string.IsNullOrEmpty(purchasingProductId) || id == purchasingProductId)
                 CompleteBuyCallback(PurchasingResult.Failed);
