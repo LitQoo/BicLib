@@ -36,7 +36,7 @@ namespace BicUtil.Ads{
             }
         }
 
-        private bool CanServeAds => initialized && TrackingAllowed && ConsentInformation.CanRequestAds();
+        private bool CanServeAds => initialized && ConsentInformation.CanRequestAds();
 
         #region Logic
 
@@ -46,7 +46,7 @@ namespace BicUtil.Ads{
         }
 
         public void Initialize(Action _action){
-            if (initialized || !TrackingAllowed)
+            if (initialized)
             {
                 _action?.Invoke();
                 return;
@@ -57,12 +57,18 @@ namespace BicUtil.Ads{
             UpdateConsent(_result => {
                 Debug.Log("[Admob] UpdateConsent result: " + _result);
                 // A previous valid consent may still allow requests after an update error.
-                if (!TrackingAllowed || !ConsentInformation.CanRequestAds())
+                if (!ConsentInformation.CanRequestAds())
                 {
                     initializing = false;
                     _action?.Invoke();
                     return;
                 }
+#if UNITY_IOS && !UNITY_EDITOR
+                // ATT denial still permits ads, but never enables first-party ad identifiers.
+                var configuration = MobileAds.GetRequestConfiguration();
+                configuration.PublisherFirstPartyIdEnabled = false;
+                MobileAds.SetRequestConfiguration(configuration);
+#endif
                 MobileAds.Initialize(_initState => {
                     BicTween.RunOnMainThread(() => {
                         initialized = true;
@@ -74,11 +80,6 @@ namespace BicUtil.Ads{
         }
 
         public void UpdateConsent(Action<ConsentResult> _callback){
-            if (!TrackingAllowed)
-            {
-                _callback(ConsentResult.ConsentRequestError);
-                return;
-            }
             Debug.Log("[Admob] start UpdateConsent");
             var debugSettings = new ConsentDebugSettings
             {
@@ -114,11 +115,6 @@ namespace BicUtil.Ads{
                 return;
             }
 
-            if (!TrackingAllowed)
-            {
-                _callback(ConsentResult.ConsentRequestError);
-                return;
-            }
 
             // If the error is null, the consent information state was updated.
             // You are now ready to check if a form is available.
@@ -384,6 +380,10 @@ namespace BicUtil.Ads{
         private AdRequest buildRequest()
         {
             var _request = new AdRequest();
+            // UMP controls whether ads may be requested. ATT independently limits tracking.
+            // Never interpret UMP consent as overriding an ATT denial or restriction.
+            if (!TrackingAllowed || !isUserConsent)
+                _request.Extras["npa"] = "1";
             return _request;
         }
         #endregion
