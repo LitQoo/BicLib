@@ -93,39 +93,54 @@ namespace BicUtil.Ads
                 return;
             }
             
-            int _count = 0;
-            int _targetCount = adsPlatforms.Count;
+            isInit = true;
+#if UNITY_IOS && BICUTIL_iOS_SUPPORT && !UNITY_EDITOR
+            BicUtil.Tween.BicTween.StartCoroutine(initializeAfterTrackingAuthorization(_callIosAtt, _callback));
+#else
+            initializePlatforms(_callback);
+#endif
+        }
 
-            if(_targetCount <= 0){
-                Debug.Log("[AdsManager] platforms count is zero");
+#if UNITY_IOS && BICUTIL_iOS_SUPPORT && !UNITY_EDITOR
+        private System.Collections.IEnumerator initializeAfterTrackingAuthorization(bool requestAtt, Action callback)
+        {
+            // iOS only presents ATT while the app is active, with no other permission dialog.
+            while (!Application.isFocused)
+                yield return null;
+            yield return null;
+
+            if (requestAtt && ATTrackingStatusBinding.GetAuthorizationTrackingStatus() ==
+                ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
+            {
+                bool completed = false;
+                ATTrackingStatusBinding.RequestAuthorizationTracking(_status => completed = true);
+                float deadline = Time.realtimeSinceStartup + 120f;
+                while (!completed && Time.realtimeSinceStartup < deadline)
+                    yield return null;
+            }
+
+            // Each platform must still check permission; a timeout never grants consent.
+            initializePlatforms(callback);
+        }
+#endif
+
+        private void initializePlatforms(Action callback)
+        {
+            int count = 0;
+            int targetCount = adsPlatforms.Count;
+            if (targetCount == 0)
+            {
+                callback?.Invoke();
                 return;
             }
-
-
-            #if UNITY_IOS && BICUTIL_iOS_SUPPORT
-
-            Debug.Log("[AdsManager] iOS ATT ");
-            if(ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED) { 
-                ATTrackingStatusBinding.RequestAuthorizationTracking(); 
-            } 
-            #endif
-
-
-            Debug.Log("[AdsManager] Init platforms " + _targetCount);
-
-            foreach(var _ads in adsPlatforms){
-                _ads.Initialize(()=>{
-                    _count++;
-                    if(_count == _targetCount){
-                        if(_callback != null){
-                            _callback();
-                            _callback = null;
-                        }
-                    }
+            foreach (var ads in adsPlatforms)
+            {
+                ads.Initialize(() => {
+                    count++;
+                    if (count == targetCount)
+                        callback?.Invoke();
                 });
             }
-
-            isInit = true;
         }
 
         #region Time

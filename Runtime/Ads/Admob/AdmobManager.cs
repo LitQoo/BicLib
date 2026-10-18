@@ -16,29 +16,69 @@ namespace BicUtil.Ads{
         private Dictionary<object, AdsPlatformInfo> adsData = new Dictionary<object, AdsPlatformInfo>();
         #endregion
 
-        #region Logic
+        private bool initialized;
+        private bool initializing;
 
-        public AdmobManager(bool _initialize){
-            if(_initialize == true){
-                MobileAds.Initialize(_initState=>{
-
-                });   
+        private static bool TrackingAllowed
+        {
+            get
+            {
+#if UNITY_IOS && !UNITY_EDITOR
+#if BICUTIL_iOS_SUPPORT
+                return Unity.Advertisement.IosSupport.ATTrackingStatusBinding.GetAuthorizationTrackingStatus() ==
+                    Unity.Advertisement.IosSupport.ATTrackingStatusBinding.AuthorizationTrackingStatus.AUTHORIZED;
+#else
+                return false;
+#endif
+#else
+                return true;
+#endif
             }
         }
 
-        public void Initialize(Action _action){
-            Debug.Log("[Admob] start Initialize");
-            UpdateConsent(_result=>{
-                Debug.Log("[Admob] UpdateConsent result: "+_result.ToString());
+        private bool CanServeAds => initialized && TrackingAllowed && ConsentInformation.CanRequestAds();
 
-                MobileAds.Initialize(_initState=>{
-                    Debug.Log("[Admob] Initialize result: "+_initState.ToString());
-                    _action();
+        #region Logic
+
+        public AdmobManager(bool _initialize){
+            if (_initialize)
+                Initialize(null);
+        }
+
+        public void Initialize(Action _action){
+            if (initialized || !TrackingAllowed)
+            {
+                _action?.Invoke();
+                return;
+            }
+            if (initializing)
+                return;
+            initializing = true;
+            UpdateConsent(_result => {
+                Debug.Log("[Admob] UpdateConsent result: " + _result);
+                // A previous valid consent may still allow requests after an update error.
+                if (!TrackingAllowed || !ConsentInformation.CanRequestAds())
+                {
+                    initializing = false;
+                    _action?.Invoke();
+                    return;
+                }
+                MobileAds.Initialize(_initState => {
+                    BicTween.RunOnMainThread(() => {
+                        initialized = true;
+                        initializing = false;
+                        _action?.Invoke();
+                    });
                 });
             });
         }
 
         public void UpdateConsent(Action<ConsentResult> _callback){
+            if (!TrackingAllowed)
+            {
+                _callback(ConsentResult.ConsentRequestError);
+                return;
+            }
             Debug.Log("[Admob] start UpdateConsent");
             var debugSettings = new ConsentDebugSettings
             {
@@ -74,6 +114,12 @@ namespace BicUtil.Ads{
                 return;
             }
 
+            if (!TrackingAllowed)
+            {
+                _callback(ConsentResult.ConsentRequestError);
+                return;
+            }
+
             // If the error is null, the consent information state was updated.
             // You are now ready to check if a form is available.
             ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
@@ -81,7 +127,7 @@ namespace BicUtil.Ads{
                 if (formError != null)
                 {
                     // Consent gathering failed.
-                    UnityEngine.Debug.LogError("[Admob] consentError2 " + consentError);
+                    UnityEngine.Debug.LogError("[Admob] consentError2 " + formError);
                     _callback(ConsentResult.ConsentShowFormError);
                     return;
                 }
@@ -138,6 +184,7 @@ namespace BicUtil.Ads{
 
         #region Interstitial
         public bool IsReadyInterstitial(object _adsType){
+            if (!CanServeAds) return false;
 
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
             if(_interstitial != null && _interstitial.CanShowAd() == true){
@@ -149,6 +196,7 @@ namespace BicUtil.Ads{
         }
 
         public void ShowInterstitial(object _adsType, Action<AdsResult> _callback){
+            if (!CanServeAds) { _callback?.Invoke(AdsResult.Failed); return; }
             InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
             object __adsType = _adsType;
             Action _reload = ()=>{
@@ -180,6 +228,7 @@ namespace BicUtil.Ads{
         }
 
         public void loadInterstitial(object _adsType, float _time){
+            if (!CanServeAds) return;
             if(adsData[_adsType].Data == null)
             {
                 float __time = _time;
@@ -212,6 +261,7 @@ namespace BicUtil.Ads{
         private Dictionary<string, RewardedAd> rewardedAdLoader = new Dictionary<string, RewardedAd>();
 
         public void LoadRewardBased(object _adsType){
+            if (!CanServeAds) return;
             var _adsId = adsData[_adsType].PlatformId;
             if(rewardedAdLoader.ContainsKey(_adsId) == false ){
                 rewardedAdLoader.Add(_adsId, null);
@@ -221,6 +271,7 @@ namespace BicUtil.Ads{
         }
 
         public void loadRewardBased(string _adsId, float _time){
+            if (!CanServeAds) return;
             if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
                 AdRequest _request = buildRequest();
                 
@@ -250,6 +301,7 @@ namespace BicUtil.Ads{
         private bool isSuccessRewarded = false;
         int reloadTime = 1;
         public void ShowRewardBased(object _adsType, Action<AdsResult> _callback){
+            if (!CanServeAds) { _callback?.Invoke(AdsResult.Failed); return; }
             var _adsId = adsData[_adsType].PlatformId;
             RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
             object __adsType = _adsType;
@@ -290,6 +342,7 @@ namespace BicUtil.Ads{
 
 
         public bool IsReadyRewardBased(object _adsType){
+            if (!CanServeAds) return false;
             var _adsId = adsData[_adsType].PlatformId;
             if(rewardedAdLoader.ContainsKey(_adsId) == true){
                 RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
@@ -307,11 +360,11 @@ namespace BicUtil.Ads{
         private BannerView bannerView;
 
         public bool IsReadyBanner(object _adsType){
-            return true;
+            return CanServeAds;
         }
         public IAdsBanner CreateBanner(object _adsType, Color _backColor, Action<IAdsBanner> _onLoadBannerAction)
         {
-            if(adsData.ContainsKey(_adsType) == true){
+            if(CanServeAds && adsData.ContainsKey(_adsType) == true){
                 var _banner = MonoBehaviour.Instantiate(Resources.Load<AdmobBannerController>("AdmobBanner"));
                 _banner.Load(adsData[_adsType].PlatformId, _adsType, _onLoadBannerAction, buildRequest());
                 return _banner;
