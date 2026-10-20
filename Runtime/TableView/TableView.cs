@@ -717,6 +717,17 @@ namespace BicUtil.TableView
 
             newRow.transform.SetParent(_parent, false);
 
+            // Older scenes have the component but no serialized reference to it.
+            if (newRow.LayoutElement == null)
+            {
+                newRow.LayoutElement = newRow.GetComponent<LayoutElement>();
+            }
+
+            if (newRow.LayoutElement == null)
+            {
+                throw new InvalidOperationException(
+                    "[TableView] Row '" + newRow.ReuseIdentifier + "' requires a LayoutElement component.");
+            }
 
 			if(m_isVertical) {
 				newRow.LayoutElement.preferredHeight = m_rowSizes[_rowIndex];
