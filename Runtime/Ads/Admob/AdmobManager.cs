@@ -178,175 +178,215 @@ namespace BicUtil.Ads{
         
         #endregion
 
-        #region Interstitial
-        public bool IsReadyInterstitial(object _adsType){
-            if (!CanServeAds) return false;
+        // Placements using the same unit ID share one native ad and one request/retry.
+        // Readiness checks must never bypass a pending request or its backoff.
+        private sealed class AdSlot<T> where T : class
+        {
+            public T Ad;
+            public bool Pending;
+            public bool Showing;
+            public int Failures;
+            public float RetryAfter;
+        }
 
-            InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
-            if(_interstitial != null && _interstitial.CanShowAd() == true){
-                return true;
+        private readonly Dictionary<string, AdSlot<InterstitialAd>> interstitialSlots =
+            new Dictionary<string, AdSlot<InterstitialAd>>();
+        private readonly Dictionary<string, AdSlot<RewardedAd>> rewardedSlots =
+            new Dictionary<string, AdSlot<RewardedAd>>();
+        private bool fullScreenShowing;
+        private const int MaxAutomaticRetries = 5;
+
+        private static AdSlot<T> getSlot<T>(Dictionary<string, AdSlot<T>> slots, string id) where T : class
+        {
+            if (!slots.TryGetValue(id, out var slot))
+            {
+                slot = new AdSlot<T>();
+                slots.Add(id, slot);
             }
+            return slot;
+        }
 
+        private static bool beginLoad<T>(AdSlot<T> slot) where T : class
+        {
+            if (slot.Pending || slot.Showing || slot.Ad != null || Time.realtimeSinceStartup < slot.RetryAfter)
+                return false;
+            slot.Pending = true;
+            return true;
+        }
+
+        private static void retryLoad<T>(AdSlot<T> slot, Action load, float firstDelay) where T : class
+        {
+            slot.Failures++;
+            float delay = Mathf.Min(Mathf.Max(1f, firstDelay) * Mathf.Pow(2f, Mathf.Min(slot.Failures - 1, 9)), 300f);
+            slot.RetryAfter = Time.realtimeSinceStartup + delay;
+            if (slot.Failures > MaxAutomaticRetries)
+            {
+                // Stop the automatic loop. A later readiness check may retry after a cooldown.
+                slot.Pending = false;
+                slot.RetryAfter = Time.realtimeSinceStartup + 300f;
+                Debug.LogWarning("[Admob] Automatic load retries stopped; waiting for a later readiness check after 300 seconds.");
+                return;
+            }
+            // Keep Pending set throughout the wait: UI polling cannot create another retry chain.
+            BicTween.Delay(delay).SubscribeComplete(() => {
+                slot.Pending = false;
+                load();
+            });
+        }
+
+        private static void reloadAfterShow<T>(AdSlot<T> slot, Action load) where T : class
+        {
+            slot.Pending = true;
+            slot.RetryAfter = Time.realtimeSinceStartup + 0.5f;
+            BicTween.Delay(0.5f).SubscribeComplete(() => {
+                slot.Pending = false;
+                load();
+            });
+        }
+
+        #region Interstitial
+        public bool IsReadyInterstitial(object _adsType)
+        {
+            if (!CanServeAds || fullScreenShowing) return false;
+            var slot = getSlot(interstitialSlots, adsData[_adsType].PlatformId);
+            if (slot.Ad != null)
+            {
+                if (slot.Ad.CanShowAd()) return true;
+                slot.Ad.Destroy();
+                slot.Ad = null;
+            }
             LoadInterstitial(_adsType);
             return false;
         }
 
-        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback){
-            if (!CanServeAds) { _callback?.Invoke(AdsResult.Failed); return; }
-            InterstitialAd _interstitial = adsData[_adsType].Data as InterstitialAd;
-            object __adsType = _adsType;
-            Action _reload = ()=>{
-                if(adsData[__adsType].Data != null){
-                    _interstitial.Destroy();
-                    adsData[__adsType].Data = null;
-
-                    BicTween.RunOnMainThread(()=>{
-                        BicTween.Delay(0.5f).SubscribeComplete(()=>{
-                            LoadInterstitial(__adsType);
-                        });
-
-                        _callback(AdsResult.Finished);
-                    });
-                }
-            };
-
-            _interstitial.OnAdFullScreenContentClosed += _reload;
-            _interstitial.OnAdFullScreenContentFailed += (AdError)=>{
-                _reload();
-            };
-
-            _interstitial.Show();
-
+        public void ShowInterstitial(object _adsType, Action<AdsResult> _callback)
+        {
+            if (!IsReadyInterstitial(_adsType)) { _callback?.Invoke(AdsResult.Failed); return; }
+            var slot = getSlot(interstitialSlots, adsData[_adsType].PlatformId);
+            var ad = slot.Ad;
+            slot.Ad = null;
+            slot.Showing = true;
+            fullScreenShowing = true;
+            bool completed = false;
+            Action<AdsResult> finish = result => BicTween.RunOnMainThread(() => {
+                if (completed) return;
+                completed = true;
+                ad.Destroy();
+                slot.Showing = false;
+                fullScreenShowing = false;
+                reloadAfterShow(slot, () => LoadInterstitial(_adsType));
+                _callback?.Invoke(result);
+            });
+            ad.OnAdFullScreenContentClosed += () => finish(AdsResult.Finished);
+            ad.OnAdFullScreenContentFailed += error => finish(AdsResult.Failed);
+            try { ad.Show(); }
+            catch (Exception error) { Debug.LogException(error); finish(AdsResult.Failed); }
         }
 
-        public void LoadInterstitial(object _adsType){
-            loadInterstitial(_adsType, 1);
-        }
+        public void LoadInterstitial(object _adsType) { loadInterstitial(_adsType, 1f); }
 
-        public void loadInterstitial(object _adsType, float _time){
+        public void loadInterstitial(object _adsType, float _time)
+        {
             if (!CanServeAds) return;
-            if(adsData[_adsType].Data == null)
+            var id = adsData[_adsType].PlatformId;
+            var slot = getSlot(interstitialSlots, id);
+            if (!beginLoad(slot)) return;
+            try
             {
-                float __time = _time;
-                object __adsType = _adsType;
-                var _request = buildRequest();
-                InterstitialAd.Load(adsData[_adsType].PlatformId, _request, (_ad, _error)=>{
-                    adsData[__adsType].Data = _ad;
-
-                    if(_error != null || _ad == null){
-                        if(_ad != null){
-                            _ad.Destroy();
-                        }
-
-                        adsData[__adsType].Data = null;
-
-                        BicTween.RunOnMainThread(() =>
-                        {
-                            BicTween.Delay(__time).SubscribeComplete(() =>
-                            {
-                                loadInterstitial(__adsType, Mathf.Min(__time * 2, 300f));
-                            });
-                        });
+                Debug.Log("[Admob] Interstitial load started");
+                InterstitialAd.Load(id, buildRequest(), (ad, error) => BicTween.RunOnMainThread(() => {
+                    if (error != null || ad == null)
+                    {
+                        ad?.Destroy();
+                        Debug.LogWarning("[Admob] Interstitial load failed: " + error);
+                        retryLoad(slot, () => loadInterstitial(_adsType, _time), _time);
+                        return;
                     }
-                });
+                    slot.Ad = ad;
+                    slot.Pending = false;
+                    slot.Failures = 0;
+                    slot.RetryAfter = 0;
+                }));
+            }
+            catch (Exception error)
+            {
+                Debug.LogException(error);
+                retryLoad(slot, () => loadInterstitial(_adsType, _time), _time);
             }
         }
         #endregion
 
         #region RewardBased
-        private Dictionary<string, RewardedAd> rewardedAdLoader = new Dictionary<string, RewardedAd>();
-
-        public void LoadRewardBased(object _adsType){
+        public void LoadRewardBased(object _adsType)
+        {
             if (!CanServeAds) return;
-            var _adsId = adsData[_adsType].PlatformId;
-            if(rewardedAdLoader.ContainsKey(_adsId) == false ){
-                rewardedAdLoader.Add(_adsId, null);
-            }
-
-            loadRewardBased(_adsId, 1);
+            loadRewardBased(adsData[_adsType].PlatformId, 1f);
         }
 
-        public void loadRewardBased(string _adsId, float _time){
+        public void loadRewardBased(string _adsId, float _time)
+        {
             if (!CanServeAds) return;
-            if(rewardedAdLoader.ContainsKey(_adsId) == false || rewardedAdLoader[_adsId] == null){
-                AdRequest _request = buildRequest();
-                
-                float __time = _time;
-                string __adsId = _adsId;
-
-                RewardedAd.Load(__adsId, _request, (_ad,_error)=>{
-                    rewardedAdLoader[_adsId] = _ad;
-
-                    if(_error != null || _ad == null){
-                        if(_ad != null){
-                            _ad.Destroy();
-                        }
-
-                        rewardedAdLoader[_adsId] = null;
-
-                        BicTween.RunOnMainThread(()=>{
-                            BicTween.Delay(__time).SubscribeComplete(()=>{
-                                loadRewardBased(__adsId, Mathf.Min(__time * 2, 300f));
-                            });
-                        });
+            var slot = getSlot(rewardedSlots, _adsId);
+            if (!beginLoad(slot)) return;
+            try
+            {
+                Debug.Log("[Admob] Rewarded load started");
+                RewardedAd.Load(_adsId, buildRequest(), (ad, error) => BicTween.RunOnMainThread(() => {
+                    if (error != null || ad == null)
+                    {
+                        ad?.Destroy();
+                        Debug.LogWarning("[Admob] Rewarded load failed: " + error);
+                        retryLoad(slot, () => loadRewardBased(_adsId, _time), _time);
+                        return;
                     }
-                });
+                    slot.Ad = ad;
+                    slot.Pending = false;
+                    slot.Failures = 0;
+                    slot.RetryAfter = 0;
+                }));
+            }
+            catch (Exception error)
+            {
+                Debug.LogException(error);
+                retryLoad(slot, () => loadRewardBased(_adsId, _time), _time);
             }
         }
 
-        private bool isSuccessRewarded = false;
-        int reloadTime = 1;
-        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback){
-            if (!CanServeAds) { _callback?.Invoke(AdsResult.Failed); return; }
-            var _adsId = adsData[_adsType].PlatformId;
-            RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
-            object __adsType = _adsType;
-            isSuccessRewarded = false;
-
-            _rewardedAd.OnAdFullScreenContentClosed += ()=>{
-                _rewardedAd.Destroy();
-                rewardedAdLoader[_adsId] = null;
-                LoadRewardBased(__adsType);
-
-                 if(_callback != null){
-                    var __callback = _callback;
-                    _callback = null;
-                    if(isSuccessRewarded == true){
-                        BicTween.RunOnMainThread(()=>__callback(AdsResult.Finished));
-                    }else{
-                        BicTween.RunOnMainThread(()=>__callback(AdsResult.Skipped));
-                    }
-                }
-            };
-
-            _rewardedAd.OnAdFullScreenContentFailed += (_error)=>{
-                _rewardedAd.Destroy();
-                rewardedAdLoader[_adsId] = null;
-                LoadRewardBased(__adsType);
-
-                if(_callback != null){
-                    var __callback = _callback;
-                    _callback = null;
-                    BicTween.RunOnMainThread(()=>__callback(AdsResult.Failed));
-                }
-            };
-
-            _rewardedAd.Show(_reward=>{
-                isSuccessRewarded = true;
+        public void ShowRewardBased(object _adsType, Action<AdsResult> _callback)
+        {
+            if (!IsReadyRewardBased(_adsType)) { _callback?.Invoke(AdsResult.Failed); return; }
+            var slot = getSlot(rewardedSlots, adsData[_adsType].PlatformId);
+            var ad = slot.Ad;
+            slot.Ad = null;
+            slot.Showing = true;
+            fullScreenShowing = true;
+            bool earned = false;
+            bool completed = false;
+            Action<bool> finish = failed => BicTween.RunOnMainThread(() => {
+                if (completed) return;
+                completed = true;
+                ad.Destroy();
+                slot.Showing = false;
+                fullScreenShowing = false;
+                reloadAfterShow(slot, () => LoadRewardBased(_adsType));
+                _callback?.Invoke(failed ? AdsResult.Failed : (earned ? AdsResult.Finished : AdsResult.Skipped));
             });
+            ad.OnAdFullScreenContentClosed += () => finish(false);
+            ad.OnAdFullScreenContentFailed += error => finish(true);
+            try { ad.Show(reward => BicTween.RunOnMainThread(() => earned = true)); }
+            catch (Exception error) { Debug.LogException(error); finish(true); }
         }
 
-
-        public bool IsReadyRewardBased(object _adsType){
-            if (!CanServeAds) return false;
-            var _adsId = adsData[_adsType].PlatformId;
-            if(rewardedAdLoader.ContainsKey(_adsId) == true){
-                RewardedAd _rewardedAd = rewardedAdLoader[_adsId];
-                if(_rewardedAd != null && _rewardedAd.CanShowAd() == true){
-                    return true;
-                }
+        public bool IsReadyRewardBased(object _adsType)
+        {
+            if (!CanServeAds || fullScreenShowing) return false;
+            var slot = getSlot(rewardedSlots, adsData[_adsType].PlatformId);
+            if (slot.Ad != null)
+            {
+                if (slot.Ad.CanShowAd()) return true;
+                slot.Ad.Destroy();
+                slot.Ad = null;
             }
-            
             LoadRewardBased(_adsType);
             return false;
         }

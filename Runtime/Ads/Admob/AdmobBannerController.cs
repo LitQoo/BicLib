@@ -11,6 +11,7 @@ namespace BicUtil.Ads
         private static float reloadTime = 30f; 
         #region InstantData
         private BannerView bannerView;
+        private bool reloadPending;
         #endregion
 
         #region LifeCycle
@@ -31,7 +32,9 @@ namespace BicUtil.Ads
             adsPlacement = _adsPlacement;
             onLoadBannerAction = _onLoadBannerAction;
             bannerView = new BannerView(_unitId, AdSize.Banner, AdPosition.Top);
-            bannerView.OnBannerAdLoadFailed += _error=>reloadBanner();
+            bannerView.OnBannerAdLoadFailed += _error=>BicTween.RunOnMainThread(() => {
+                if(this != null) reloadBanner();
+            });
             bannerView.OnBannerAdLoaded += onLoaded;
             BicTween.Delay(0.1f).SubscribeComplete(()=>{
                 bannerView.LoadAd(_request);
@@ -51,6 +54,8 @@ namespace BicUtil.Ads
 
 
         private void reloadBanner(){
+            if(reloadPending) return;
+            reloadPending = true;
             reloadTime = Mathf.Min(reloadTime * 2f, 600f);
             BicTween.Delay(reloadTime).SubscribeComplete(()=>{
                 var _log = "reload time is " + reloadTime.ToString();
