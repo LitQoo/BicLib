@@ -46,8 +46,8 @@ namespace BicUtil.Tween {
 }
 namespace GoogleMobileAds.Api {
     public class AdRequest { public Dictionary<string,string> Extras = new Dictionary<string,string>(); }
-    public class LoadAdError { }
-    public class AdError { }
+    public class LoadAdError { public int Code=3; public int GetCode() { return Code; } }
+    public class AdError { public int GetCode() { return 9; } }
     public class Reward { }
     public static class MobileAds { public static void Initialize(Action<object> callback) { callback(null); } }
     public class InterstitialAd {
@@ -57,6 +57,7 @@ namespace GoogleMobileAds.Api {
         public bool Ready=true;
         public int DestroyCount, ShowCount;
         public event Action OnAdFullScreenContentClosed;
+        public event Action OnAdImpressionRecorded;
         public event Action<AdError> OnAdFullScreenContentFailed;
         public static void Load(string id,AdRequest request,Action<InterstitialAd,LoadAdError> callback) {
             Requests++; if(ThrowLoad) throw new Exception("load failed"); Complete=callback;
@@ -65,6 +66,7 @@ namespace GoogleMobileAds.Api {
         public void Show() { ShowCount++; Ready=false; }
         public void Destroy() { DestroyCount++; Ready=false; }
         public void Close() { OnAdFullScreenContentClosed?.Invoke(); }
+        public void Impression() { OnAdImpressionRecorded?.Invoke(); }
         public void Fail() { OnAdFullScreenContentFailed?.Invoke(new AdError()); }
     }
     public class RewardedAd {
@@ -74,6 +76,7 @@ namespace GoogleMobileAds.Api {
         public int DestroyCount, ShowCount;
         public Action<Reward> Reward;
         public event Action OnAdFullScreenContentClosed;
+        public event Action OnAdImpressionRecorded;
         public event Action<AdError> OnAdFullScreenContentFailed;
         public static void Load(string id,AdRequest request,Action<RewardedAd,LoadAdError> callback) {
             Requests++; Complete=callback;
@@ -82,6 +85,7 @@ namespace GoogleMobileAds.Api {
         public void Show(Action<Reward> callback) { ShowCount++; Ready=false; Reward=callback; }
         public void Destroy() { DestroyCount++; Ready=false; }
         public void Close() { OnAdFullScreenContentClosed?.Invoke(); }
+        public void Impression() { OnAdImpressionRecorded?.Invoke(); }
         public void Fail() { OnAdFullScreenContentFailed?.Invoke(new AdError()); }
     }
     public class BannerView { }

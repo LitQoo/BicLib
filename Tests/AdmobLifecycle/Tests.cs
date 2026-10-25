@@ -67,6 +67,28 @@ class Tests {
         Assert(InterstitialAd.Requests==1 && BicTween.Timers.Count==1,"synchronous SDK exception must respect backoff");
         manager=New(); ConsentInformation.Allowed=false; Poll(manager);
         Assert(RewardedAd.Requests==0 && InterstitialAd.Requests==0,"consent must gate every load");
+
+        manager=New(); var signals=new System.Collections.Generic.List<string>();
+        manager.Diagnostic+=(format,stage,code)=>signals.Add(format+":"+stage+":"+code);
+        Poll(manager);
+        Assert(signals.Count==0,"10,000 readiness polls must not generate analytics events");
+        reward=new RewardedAd(); interstitial=new InterstitialAd();
+        RewardedAd.Complete(reward,null); InterstitialAd.Complete(interstitial,null); BicTween.Pump();
+        Assert(signals.Contains("rewarded:loaded:-1") && signals.Contains("interstitial:loaded:-1"),"load signals must distinguish formats");
+        BicTween.Advance(3599); Poll(manager);
+        Assert(RewardedAd.Requests==1 && InterstitialAd.Requests==1,"cache remains usable before the one-hour boundary");
+        BicTween.Advance(1); Poll(manager);
+        Assert(reward.DestroyCount==1 && interstitial.DestroyCount==1 && RewardedAd.Requests==2 && InterstitialAd.Requests==2,"one-hour cache must be destroyed and replaced once despite polling");
+        Assert(signals.Contains("rewarded:cache_expired:-1") && signals.Contains("interstitial:cache_expired:-1"),"cache expiry must be measurable");
+        RewardedAd.Complete(null,new LoadAdError {Code=3}); BicTween.Pump();
+        Assert(signals.Contains("rewarded:load_failed:3"),"native load error code must reach diagnostics");
+        interstitial=new InterstitialAd(); InterstitialAd.Complete(interstitial,null); BicTween.Pump();
+        manager.ShowInterstitial("clear",r=>result=r); interstitial.Impression(); interstitial.Fail(); interstitial.Close(); BicTween.Pump();
+        Assert(signals.Contains("interstitial:impression:-1") && signals.Contains("interstitial:show_failed:9"),"native impression and display failure must be distinguished");
+        Assert(signals.FindAll(s=>s=="interstitial:show_failed:9").Count==1,"duplicate close/failure must not duplicate completion signals");
+        manager=New(); manager.Diagnostic+=(format,stage,code)=>{throw new Exception("analytics unavailable");};
+        manager.LoadRewardBased("hint"); reward=new RewardedAd(); RewardedAd.Complete(reward,null); BicTween.Pump();
+        Assert(manager.IsReadyRewardBased("visitor"),"an analytics failure must not break ad loading");
         Console.WriteLine("PASS: "+checks+" lifecycle checks, including 10,000-call polling floods, shared placements, bounded retries, callback ordering and cleanup.");
     }
 }

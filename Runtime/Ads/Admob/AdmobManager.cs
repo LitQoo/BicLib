@@ -19,6 +19,16 @@ namespace BicUtil.Ads{
         private bool initialized;
         private bool initializing;
 
+        // Low-volume lifecycle signals, never emitted by readiness polling. Consumers
+        // can distinguish no-fill/load failures from ads loaded but never displayed.
+        public event Action<string, string, int> Diagnostic;
+
+        private void report(string format, string stage, int errorCode = -1)
+        {
+            try { Diagnostic?.Invoke(format, stage, errorCode); }
+            catch (Exception error) { Debug.LogException(error); }
+        }
+
         private static bool TrackingAllowed
         {
             get
@@ -187,6 +197,7 @@ namespace BicUtil.Ads{
             public bool Showing;
             public int Failures;
             public float RetryAfter;
+            public float LoadedAt;
         }
 
         private readonly Dictionary<string, AdSlot<InterstitialAd>> interstitialSlots =
@@ -195,6 +206,7 @@ namespace BicUtil.Ads{
             new Dictionary<string, AdSlot<RewardedAd>>();
         private bool fullScreenShowing;
         private const int MaxAutomaticRetries = 5;
+        private const float AdCacheLifetimeSeconds = 3600f;
 
         private static AdSlot<T> getSlot<T>(Dictionary<string, AdSlot<T>> slots, string id) where T : class
         {
@@ -251,9 +263,11 @@ namespace BicUtil.Ads{
             var slot = getSlot(interstitialSlots, adsData[_adsType].PlatformId);
             if (slot.Ad != null)
             {
-                if (slot.Ad.CanShowAd()) return true;
+                bool expired = Time.realtimeSinceStartup - slot.LoadedAt >= AdCacheLifetimeSeconds;
+                if (!expired && slot.Ad.CanShowAd()) return true;
                 slot.Ad.Destroy();
                 slot.Ad = null;
+                report("interstitial", expired ? "cache_expired" : "cache_invalid");
             }
             LoadInterstitial(_adsType);
             return false;
@@ -268,9 +282,11 @@ namespace BicUtil.Ads{
             slot.Showing = true;
             fullScreenShowing = true;
             bool completed = false;
+            int showErrorCode = -1;
             Action<AdsResult> finish = result => BicTween.RunOnMainThread(() => {
                 if (completed) return;
                 completed = true;
+                report("interstitial", result == AdsResult.Failed ? "show_failed" : "closed", showErrorCode);
                 ad.Destroy();
                 slot.Showing = false;
                 fullScreenShowing = false;
@@ -278,7 +294,10 @@ namespace BicUtil.Ads{
                 _callback?.Invoke(result);
             });
             ad.OnAdFullScreenContentClosed += () => finish(AdsResult.Finished);
-            ad.OnAdFullScreenContentFailed += error => finish(AdsResult.Failed);
+            ad.OnAdFullScreenContentFailed += error => {
+                showErrorCode = error.GetCode();
+                finish(AdsResult.Failed);
+            };
             try { ad.Show(); }
             catch (Exception error) { Debug.LogException(error); finish(AdsResult.Failed); }
         }
@@ -299,6 +318,7 @@ namespace BicUtil.Ads{
                     {
                         ad?.Destroy();
                         Debug.LogWarning("[Admob] Interstitial load failed: " + error);
+                        report("interstitial", "load_failed", error == null ? -1 : error.GetCode());
                         retryLoad(slot, () => loadInterstitial(_adsType, _time), _time);
                         return;
                     }
@@ -306,11 +326,15 @@ namespace BicUtil.Ads{
                     slot.Pending = false;
                     slot.Failures = 0;
                     slot.RetryAfter = 0;
+                    slot.LoadedAt = Time.realtimeSinceStartup;
+                    ad.OnAdImpressionRecorded += () => BicTween.RunOnMainThread(() => report("interstitial", "impression"));
+                    report("interstitial", "loaded");
                 }));
             }
             catch (Exception error)
             {
                 Debug.LogException(error);
+                report("interstitial", "load_exception");
                 retryLoad(slot, () => loadInterstitial(_adsType, _time), _time);
             }
         }
@@ -336,6 +360,7 @@ namespace BicUtil.Ads{
                     {
                         ad?.Destroy();
                         Debug.LogWarning("[Admob] Rewarded load failed: " + error);
+                        report("rewarded", "load_failed", error == null ? -1 : error.GetCode());
                         retryLoad(slot, () => loadRewardBased(_adsId, _time), _time);
                         return;
                     }
@@ -343,11 +368,15 @@ namespace BicUtil.Ads{
                     slot.Pending = false;
                     slot.Failures = 0;
                     slot.RetryAfter = 0;
+                    slot.LoadedAt = Time.realtimeSinceStartup;
+                    ad.OnAdImpressionRecorded += () => BicTween.RunOnMainThread(() => report("rewarded", "impression"));
+                    report("rewarded", "loaded");
                 }));
             }
             catch (Exception error)
             {
                 Debug.LogException(error);
+                report("rewarded", "load_exception");
                 retryLoad(slot, () => loadRewardBased(_adsId, _time), _time);
             }
         }
@@ -362,9 +391,11 @@ namespace BicUtil.Ads{
             fullScreenShowing = true;
             bool earned = false;
             bool completed = false;
+            int showErrorCode = -1;
             Action<bool> finish = failed => BicTween.RunOnMainThread(() => {
                 if (completed) return;
                 completed = true;
+                report("rewarded", failed ? "show_failed" : "closed", showErrorCode);
                 ad.Destroy();
                 slot.Showing = false;
                 fullScreenShowing = false;
@@ -372,7 +403,10 @@ namespace BicUtil.Ads{
                 _callback?.Invoke(failed ? AdsResult.Failed : (earned ? AdsResult.Finished : AdsResult.Skipped));
             });
             ad.OnAdFullScreenContentClosed += () => finish(false);
-            ad.OnAdFullScreenContentFailed += error => finish(true);
+            ad.OnAdFullScreenContentFailed += error => {
+                showErrorCode = error.GetCode();
+                finish(true);
+            };
             try { ad.Show(reward => BicTween.RunOnMainThread(() => earned = true)); }
             catch (Exception error) { Debug.LogException(error); finish(true); }
         }
@@ -383,9 +417,11 @@ namespace BicUtil.Ads{
             var slot = getSlot(rewardedSlots, adsData[_adsType].PlatformId);
             if (slot.Ad != null)
             {
-                if (slot.Ad.CanShowAd()) return true;
+                bool expired = Time.realtimeSinceStartup - slot.LoadedAt >= AdCacheLifetimeSeconds;
+                if (!expired && slot.Ad.CanShowAd()) return true;
                 slot.Ad.Destroy();
                 slot.Ad = null;
+                report("rewarded", expired ? "cache_expired" : "cache_invalid");
             }
             LoadRewardBased(_adsType);
             return false;
