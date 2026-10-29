@@ -37,7 +37,11 @@ namespace BicLib.Validation
             try
             {
                 PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
-                PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
+                // Older Firebase Unity plugins ship device arm64 and simulator x86_64.
+                // The explicit local override never changes release architectures.
+                PlayerSettings.iOS.simulatorSdkArchitecture =
+                    Environment.GetEnvironmentVariable("BICLIB_SIMULATOR_ARCH") == "x86_64"
+                        ? AppleMobileArchitectureSimulator.X86_64 : AppleMobileArchitectureSimulator.ARM64;
                 Build(BuildTarget.iOS, "ios-simulator", true,
                     new[] { "BICLIB_AD_VALIDATION", "BICLIB_UI_SIMULATION" });
             }
