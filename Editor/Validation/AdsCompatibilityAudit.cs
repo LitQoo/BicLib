@@ -30,6 +30,24 @@ namespace BicLib.Validation
 
         public static void IOS() { BuildIOS(false); }
 
+        public static void Simulator()
+        {
+            var sdk = PlayerSettings.iOS.sdkVersion;
+            var architecture = PlayerSettings.iOS.simulatorSdkArchitecture;
+            try
+            {
+                PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
+                PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
+                Build(BuildTarget.iOS, "ios-simulator", true,
+                    new[] { "BICLIB_AD_VALIDATION", "BICLIB_UI_SIMULATION" });
+            }
+            finally
+            {
+                PlayerSettings.iOS.sdkVersion = sdk;
+                PlayerSettings.iOS.simulatorSdkArchitecture = architecture;
+            }
+        }
+
         private static void BuildIOS(bool demo)
         {
             PlayerSettings.iOS.sdkVersion = iOSSdkVersion.DeviceSDK;
@@ -53,7 +71,7 @@ namespace BicLib.Validation
             Build(BuildTarget.Android, "app.aab", false);
         }
 
-        private static void Build(BuildTarget target, string name, bool demo)
+        private static void Build(BuildTarget target, string name, bool demo, string[] defines = null)
         {
             var root = Environment.GetEnvironmentVariable("BICLIB_RELEASE_ROOT");
             Require(!string.IsNullOrEmpty(root), "BICLIB_RELEASE_ROOT is required.");
@@ -62,7 +80,7 @@ namespace BicLib.Validation
                 scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(),
                 target = target, locationPathName = Path.Combine(root, name),
                 options = demo ? BuildOptions.Development : BuildOptions.None,
-                extraScriptingDefines = demo ? new[] { "BICLIB_AD_VALIDATION" } : Array.Empty<string>()
+                extraScriptingDefines = defines ?? (demo ? new[] { "BICLIB_AD_VALIDATION" } : Array.Empty<string>())
             });
             Debug.Log($"BICLIB_BUILD_RESULT: {target} {report.summary.result}, errors={report.summary.totalErrors}");
             Require(report.summary.result == BuildResult.Succeeded && report.summary.totalErrors == 0,
@@ -122,6 +140,7 @@ namespace BicLib.Validation
             int rows = 0, tables = 0;
             var paths = AssetDatabase.GetAllAssetPaths().Where(p =>
                 (p.StartsWith("Assets/") || p.StartsWith("Packages/")) &&
+                !p.Split('/').Any(part => part.StartsWith("~") || part.EndsWith("~")) &&
                 (p.EndsWith(".prefab") || p.EndsWith(".unity"))).ToArray();
             foreach (var path in paths)
             {

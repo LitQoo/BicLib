@@ -63,6 +63,7 @@ namespace BicUtil.Ads
 
         private void OnGUI()
         {
+#if !BICLIB_UI_SIMULATION
             GUI.depth = -1000;
             GUI.matrix = Matrix4x4.Scale(Vector3.one * (Screen.width / 420f));
             GUI.Box(new Rect(8, 65, 404, 195), "LOCAL AD TEST / " + Application.productName);
@@ -85,6 +86,7 @@ namespace BicUtil.Ads
             GUI.enabled = !busy;
             if (GUI.Button(new Rect(110, 215, 200, 35), "Hide test panel")) Destroy(gameObject);
             GUI.enabled = true;
+#endif
         }
 
         private void Complete(string format, AdsResult value)
