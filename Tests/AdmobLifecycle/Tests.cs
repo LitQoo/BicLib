@@ -5,6 +5,11 @@ using BicUtil.Tween;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Ump.Api;
 class Tests {
+    sealed class UnityContext : System.Threading.SynchronizationContext {
+        readonly System.Collections.Generic.Queue<Action> queue=new System.Collections.Generic.Queue<Action>();
+        public override void Post(System.Threading.SendOrPostCallback callback,object state) {lock(queue)queue.Enqueue(()=>callback(state));}
+        public void Pump(){while(true){Action action;lock(queue){if(queue.Count==0)return;action=queue.Dequeue();}action();}}
+    }
     static int checks;
     static void Assert(bool condition,string message) { checks++; if(!condition) throw new Exception(message); }
     static AdmobManager New() {
@@ -89,6 +94,26 @@ class Tests {
         manager=New(); manager.Diagnostic+=(format,stage,code)=>{throw new Exception("analytics unavailable");};
         manager.LoadRewardBased("hint"); reward=new RewardedAd(); RewardedAd.Complete(reward,null); BicTween.Pump();
         Assert(manager.IsReadyRewardBased("visitor"),"an analytics failure must not break ad loading");
+        int before=MobileAds.Initializes;
+        ConsentInformation.CompleteOnWorker=true;
+        try {manager=New(); Assert(MobileAds.Initializes==before+1,"worker consent update must reach SDK initialization on main");}
+        finally {ConsentInformation.CompleteOnWorker=false;}
+        before=MobileAds.Initializes;
+        ConsentForm.CompleteOnWorker=true;
+        try {manager=New(); Assert(MobileAds.Initializes==before+1,"worker consent form completion must initialize SDK on main");}
+        finally {ConsentForm.CompleteOnWorker=false;}
+        var context=new UnityContext();
+        var previous=System.Threading.SynchronizationContext.Current;
+        System.Threading.SynchronizationContext.SetSynchronizationContext(context);
+        try {
+            before=MobileAds.Initializes; manager=New();
+            BicTween.Reset(); context.Pump();
+            Assert(MobileAds.Initializes==before+1,"initialization survives replacement of a scene-owned tween queue");
+            manager.LoadInterstitial("clear"); InterstitialAd.Complete(new InterstitialAd(),null);
+            BicTween.Reset(); context.Pump();
+            Assert(manager.IsReadyInterstitial("restart"),"SDK callbacks survive scene-owned tween queue teardown");
+        }
+        finally {System.Threading.SynchronizationContext.SetSynchronizationContext(previous);}
         Console.WriteLine("PASS: "+checks+" lifecycle checks, including 10,000-call polling floods, shared placements, bounded retries, callback ordering and cleanup.");
     }
 }

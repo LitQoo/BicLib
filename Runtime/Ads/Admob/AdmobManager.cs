@@ -51,11 +51,22 @@ namespace BicUtil.Ads{
         #region Logic
 
         public AdmobManager(bool _initialize){
+            callbackContext = System.Threading.SynchronizationContext.Current;
             if (_initialize)
                 Initialize(null);
         }
 
+        // Capture Unity's process-wide context on startup, rather than resolving a
+        // scene-owned TweenPool from SDK worker threads during a scene transition.
+        private System.Threading.SynchronizationContext callbackContext;
+        private void Dispatch(Action action)
+        {
+            if (callbackContext != null) callbackContext.Post(_ => action(), null);
+            else BicTween.RunOnMainThread(action); // Standalone/non-Unity hosts.
+        }
+
         public void Initialize(Action _action){
+            if (callbackContext == null) callbackContext = System.Threading.SynchronizationContext.Current;
             if (initialized)
             {
                 _action?.Invoke();
@@ -80,7 +91,7 @@ namespace BicUtil.Ads{
                 MobileAds.SetRequestConfiguration(configuration);
 #endif
                 MobileAds.Initialize(_initState => {
-                    BicTween.RunOnMainThread(() => {
+                    Dispatch(() => {
                         initialized = true;
                         initializing = false;
                         _action?.Invoke();
@@ -110,7 +121,10 @@ namespace BicUtil.Ads{
                 ConsentDebugSettings = debugSettings,
             };
 
-            ConsentInformation.Update(request, _error=>OnConsentInfoUpdated(_error, _callback));
+            // UMP callbacks may arrive on an Android worker thread. Both the form
+            // API and MobileAds' Unity-side initialization must run on Unity's thread.
+            ConsentInformation.Update(request, error =>
+                Dispatch(() => OnConsentInfoUpdated(error, _callback)));
         }
 
         void OnConsentInfoUpdated(FormError consentError, Action<ConsentResult> _callback)
@@ -128,7 +142,7 @@ namespace BicUtil.Ads{
 
             // If the error is null, the consent information state was updated.
             // You are now ready to check if a form is available.
-            ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
+            ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) => Dispatch(() =>
             {
                 if (formError != null)
                 {
@@ -145,7 +159,7 @@ namespace BicUtil.Ads{
                 }else{
                     _callback(ConsentResult.ConsentRequestError);
                 }
-            });
+            }));
         }
 
         public void SetAdsSettingIOSOnly(string _adsId, object[] _types){
@@ -283,7 +297,7 @@ namespace BicUtil.Ads{
             fullScreenShowing = true;
             bool completed = false;
             int showErrorCode = -1;
-            Action<AdsResult> finish = result => BicTween.RunOnMainThread(() => {
+            Action<AdsResult> finish = result => Dispatch(() => {
                 if (completed) return;
                 completed = true;
                 report("interstitial", result == AdsResult.Failed ? "show_failed" : "closed", showErrorCode);
@@ -313,7 +327,7 @@ namespace BicUtil.Ads{
             try
             {
                 Debug.Log("[Admob] Interstitial load started");
-                InterstitialAd.Load(id, buildRequest(), (ad, error) => BicTween.RunOnMainThread(() => {
+                InterstitialAd.Load(id, buildRequest(), (ad, error) => Dispatch(() => {
                     if (error != null || ad == null)
                     {
                         ad?.Destroy();
@@ -327,7 +341,7 @@ namespace BicUtil.Ads{
                     slot.Failures = 0;
                     slot.RetryAfter = 0;
                     slot.LoadedAt = Time.realtimeSinceStartup;
-                    ad.OnAdImpressionRecorded += () => BicTween.RunOnMainThread(() => report("interstitial", "impression"));
+                    ad.OnAdImpressionRecorded += () => Dispatch(() => report("interstitial", "impression"));
                     report("interstitial", "loaded");
                 }));
             }
@@ -355,7 +369,7 @@ namespace BicUtil.Ads{
             try
             {
                 Debug.Log("[Admob] Rewarded load started");
-                RewardedAd.Load(_adsId, buildRequest(), (ad, error) => BicTween.RunOnMainThread(() => {
+                RewardedAd.Load(_adsId, buildRequest(), (ad, error) => Dispatch(() => {
                     if (error != null || ad == null)
                     {
                         ad?.Destroy();
@@ -369,7 +383,7 @@ namespace BicUtil.Ads{
                     slot.Failures = 0;
                     slot.RetryAfter = 0;
                     slot.LoadedAt = Time.realtimeSinceStartup;
-                    ad.OnAdImpressionRecorded += () => BicTween.RunOnMainThread(() => report("rewarded", "impression"));
+                    ad.OnAdImpressionRecorded += () => Dispatch(() => report("rewarded", "impression"));
                     report("rewarded", "loaded");
                 }));
             }
@@ -392,7 +406,7 @@ namespace BicUtil.Ads{
             bool earned = false;
             bool completed = false;
             int showErrorCode = -1;
-            Action<bool> finish = failed => BicTween.RunOnMainThread(() => {
+            Action<bool> finish = failed => Dispatch(() => {
                 if (completed) return;
                 completed = true;
                 report("rewarded", failed ? "show_failed" : "closed", showErrorCode);
@@ -407,7 +421,7 @@ namespace BicUtil.Ads{
                 showErrorCode = error.GetCode();
                 finish(true);
             };
-            try { ad.Show(reward => BicTween.RunOnMainThread(() => earned = true)); }
+            try { ad.Show(reward => Dispatch(() => earned = true)); }
             catch (Exception error) { Debug.LogException(error); finish(true); }
         }
 

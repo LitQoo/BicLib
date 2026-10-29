@@ -27,6 +27,7 @@ namespace BicUtil.Tween {
         public Timer SubscribeComplete(Action callback) { Callback = callback; return this; }
     }
     public static class BicTween {
+        public static int MainThreadId;
         public static readonly List<Timer> Timers = new List<Timer>();
         public static readonly Queue<Action> Dispatch = new Queue<Action>();
         public static Timer Delay(float delay) {
@@ -41,7 +42,7 @@ namespace BicUtil.Tween {
             foreach(var timer in due) { Timers.Remove(timer); timer.Callback(); }
             Pump();
         }
-        public static void Reset() { Timers.Clear(); Dispatch.Clear(); UnityEngine.Time.realtimeSinceStartup=0; }
+        public static void Reset() { MainThreadId=System.Threading.Thread.CurrentThread.ManagedThreadId; Timers.Clear(); Dispatch.Clear(); UnityEngine.Time.realtimeSinceStartup=0; }
     }
 }
 namespace GoogleMobileAds.Api {
@@ -49,7 +50,14 @@ namespace GoogleMobileAds.Api {
     public class LoadAdError { public int Code=3; public int GetCode() { return Code; } }
     public class AdError { public int GetCode() { return 9; } }
     public class Reward { }
-    public static class MobileAds { public static void Initialize(Action<object> callback) { callback(null); } }
+    public static class MobileAds {
+        public static int Initializes;
+        public static void Initialize(Action<object> callback) {
+            if(System.Threading.Thread.CurrentThread.ManagedThreadId!=BicUtil.Tween.BicTween.MainThreadId)
+                throw new Exception("MobileAds.Initialize called off the Unity main thread");
+            Initializes++; callback(null);
+        }
+    }
     public class InterstitialAd {
         public static int Requests;
         public static Action<InterstitialAd,LoadAdError> Complete;
@@ -97,11 +105,24 @@ namespace GoogleMobileAds.Ump.Api {
     public class FormError { }
     public static class ConsentInformation {
         public static bool Allowed=true;
+        public static bool CompleteOnWorker;
+        public static void Complete(Action<FormError> callback,bool worker) {
+            if(!worker) {callback(null); return;}
+            Exception failure=null;
+            var thread=new System.Threading.Thread(()=>{try{callback(null);}catch(Exception e){failure=e;}});
+            thread.Start(); thread.Join();
+            if(failure!=null) throw failure;
+        }
         public static bool CanRequestAds() { return Allowed; }
-        public static void Update(ConsentRequestParameters request,Action<FormError> callback) { callback(null); }
+        public static void Update(ConsentRequestParameters request,Action<FormError> callback) { Complete(callback,CompleteOnWorker); }
     }
     public static class ConsentForm {
-        public static void LoadAndShowConsentFormIfRequired(Action<FormError> callback) { callback(null); }
+        public static bool CompleteOnWorker;
+        public static void LoadAndShowConsentFormIfRequired(Action<FormError> callback) {
+            if(System.Threading.Thread.CurrentThread.ManagedThreadId!=BicUtil.Tween.BicTween.MainThreadId)
+                throw new Exception("Consent form requested off the Unity main thread");
+            ConsentInformation.Complete(callback,CompleteOnWorker);
+        }
     }
 }
 namespace BicUtil.Ads {
