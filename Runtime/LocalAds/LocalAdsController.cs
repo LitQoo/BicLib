@@ -408,7 +408,9 @@ namespace BicUtil.LocalAds{
 
         public void Initialize(Action _callback)
         {
-            
+            // No asynchronous SDK work is needed for house ads, but AdsManager
+            // waits for every registered platform before preloading real ads.
+            _callback?.Invoke();
         }
 
         private int forcedViewCount = -1;

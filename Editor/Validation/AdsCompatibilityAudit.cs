@@ -83,6 +83,17 @@ namespace BicLib.Validation
 
         private static void ValidateInitialization()
         {
+            var root = new GameObject("LocalAds initialization contract");
+            root.SetActive(false);
+            try
+            {
+                var local = root.AddComponent<BicUtil.LocalAds.LocalAdsController>();
+                int completions = 0;
+                local.Initialize(() => completions++);
+                Require(completions == 1, "LocalAdsController never completes SDK group initialization; game preloads are blocked.");
+                local.Initialize(null);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
             var manager = new AdsManager();
             var first = new DelayedPlatform();
             var second = new DelayedPlatform();
