@@ -145,6 +145,8 @@ namespace BicLib.Validation
             var paths = AssetDatabase.GetAllAssetPaths().Where(p =>
                 (p.StartsWith("Assets/") || p.StartsWith("Packages/")) &&
                 !p.Split('/').Any(part => part.StartsWith("~") || part.EndsWith("~")) &&
+                // UPM test fixtures can deliberately contain non-loadable scenes.
+                !(p.StartsWith("Packages/") && p.Split('/').Contains("Tests")) &&
                 (p.EndsWith(".prefab") || p.EndsWith(".unity"))).ToArray();
             foreach (var path in paths)
             {
